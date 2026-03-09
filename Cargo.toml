@@ -1,0 +1,16 @@
+[package]
+name = "oxidize-python"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.77"
+authors = ["Santiago Fernández Muñoz"]
+license = "MIT"
+description = "Python bindings for oxidize-pdf - A pure Rust PDF generation and manipulation library"
+
+[lib]
+name = "_oxidize_pdf"
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3 = { version = "0.28", features = ["extension-module"] }
+oxidize-pdf = { version = "2.1.0", default-features = false, features = ["compression"] }
