@@ -4,7 +4,7 @@ build-backend = "maturin"
 
 [project]
 name = "oxidize-pdf"
-version = "0.1.0"
+version = "0.1.1"
 description = "Python bindings for oxidize-pdf — generate, parse, split, merge, and manipulate PDF files"
 requires-python = ">=3.10"
 readme = "README.md"
@@ -14,7 +14,7 @@ authors = [
 ]
 keywords = ["pdf", "pdf-generation", "pdf-parser", "pdf-merge", "rust"]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Rust",
