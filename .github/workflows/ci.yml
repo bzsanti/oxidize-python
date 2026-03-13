@@ -1,0 +1,107 @@
+name: CI
+
+on:
+  push:
+    branches: [develop, main]
+  pull_request:
+    branches: [develop, main]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  test:
+    name: Test (Python ${{ matrix.python-version }}, ${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.os }}-py${{ matrix.python-version }}
+
+      - name: Create virtualenv
+        run: python -m venv .venv
+
+      - name: Install dependencies (Unix)
+        if: runner.os != 'Windows'
+        run: |
+          source .venv/bin/activate
+          pip install maturin pytest mypy
+
+      - name: Install dependencies (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          .venv\Scripts\activate
+          pip install maturin pytest mypy
+
+      - name: Build (debug, Unix)
+        if: runner.os != 'Windows'
+        run: |
+          source .venv/bin/activate
+          maturin develop
+
+      - name: Build (debug, Windows)
+        if: runner.os == 'Windows'
+        run: |
+          .venv\Scripts\activate
+          maturin develop
+
+      - name: Run tests (Unix)
+        if: runner.os != 'Windows'
+        run: |
+          source .venv/bin/activate
+          pytest tests/ -v
+
+      - name: Run tests (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          .venv\Scripts\activate
+          pytest tests/ -v
+
+      - name: Type check
+        if: matrix.python-version == '3.13' && matrix.os == 'ubuntu-latest'
+        run: |
+          source .venv/bin/activate
+          mypy python/oxidize_pdf/
+
+  build-check:
+    name: Release build check
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Create virtualenv and install maturin
+        run: |
+          python -m venv .venv
+          source .venv/bin/activate
+          pip install maturin
+
+      - name: Build release wheel
+        run: |
+          source .venv/bin/activate
+          maturin build --release
+
+      - name: Verify wheel exists
+        run: ls -la target/wheels/*.whl

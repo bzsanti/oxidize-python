@@ -1,0 +1,51 @@
+[build-system]
+requires = ["maturin>=1.0,<2.0"]
+build-backend = "maturin"
+
+[project]
+name = "oxidize-pdf"
+version = "0.1.0"
+description = "Python bindings for oxidize-pdf — generate, parse, split, merge, and manipulate PDF files"
+requires-python = ">=3.10"
+readme = "README.md"
+license = { file = "LICENSE" }
+authors = [
+    { name = "Santiago Fernández Muñoz" },
+]
+keywords = ["pdf", "pdf-generation", "pdf-parser", "pdf-merge", "rust"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Rust",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Text Processing",
+    "Topic :: Multimedia :: Graphics",
+    "Typing :: Typed",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+Homepage = "https://github.com/bzsanti/oxidize-python"
+Repository = "https://github.com/bzsanti/oxidize-python"
+Issues = "https://github.com/bzsanti/oxidize-python/issues"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "mypy>=1.0",
+]
+
+[tool.maturin]
+python-source = "python"
+module-name = "oxidize_pdf._oxidize_pdf"
+features = ["pyo3/extension-module"]
+python-packages = ["oxidize_pdf"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
