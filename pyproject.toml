@@ -7,7 +7,8 @@ name = "oxidize-pdf"
 version = "0.1.0"
 description = "Python bindings for oxidize-pdf — generate, parse, split, merge, and manipulate PDF files"
 requires-python = ">=3.10"
-license = { text = "MIT" }
+readme = "README.md"
+license = { file = "LICENSE" }
 authors = [
     { name = "Santiago Fernández Muñoz" },
 ]
@@ -26,10 +27,13 @@ classifiers = [
     "Topic :: Text Processing",
     "Topic :: Multimedia :: Graphics",
     "Typing :: Typed",
+    "Operating System :: OS Independent",
 ]
 
 [project.urls]
+Homepage = "https://github.com/bzsanti/oxidize-python"
 Repository = "https://github.com/bzsanti/oxidize-python"
+Issues = "https://github.com/bzsanti/oxidize-python/issues"
 
 [project.optional-dependencies]
 dev = [
@@ -41,6 +45,7 @@ dev = [
 python-source = "python"
 module-name = "oxidize_pdf._oxidize_pdf"
 features = ["pyo3/extension-module"]
+python-packages = ["oxidize_pdf"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
