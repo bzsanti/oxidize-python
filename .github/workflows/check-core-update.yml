@@ -1,0 +1,111 @@
+# Daily cron fallback: polls crates.io for the latest oxidize-pdf version.
+# Opens a dependency update PR if the local Cargo.toml is behind.
+# This is the safety net for cases where the repository_dispatch in
+# receive-core-update.yml failed silently.
+
+name: Check core update (daily fallback)
+
+on:
+  schedule:
+    - cron: "0 8 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  poll-and-update:
+    name: Poll crates.io and update if behind
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: develop
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Fetch latest oxidize-pdf version from crates.io
+        id: latest
+        run: |
+          LATEST=$(curl -sSf "https://crates.io/api/v1/crates/oxidize-pdf" \
+            -H "User-Agent: oxidize-python-updater/1.0 (github.com/bzsanti)" \
+            | python3 -c "import sys,json; data=json.load(sys.stdin); print(data['crate']['newest_version'])")
+          echo "version=${LATEST}" >> "$GITHUB_OUTPUT"
+          echo "Latest oxidize-pdf on crates.io: ${LATEST}"
+
+      - name: Read current pinned version
+        id: current
+        run: |
+          CURRENT=$(grep -oP '(?<=oxidize-pdf = \{ version = ")[^"]+' Cargo.toml \
+                    || grep -oP '(?<=oxidize-pdf = ")[^"]+' Cargo.toml \
+                    || echo "unknown")
+          echo "current_version=${CURRENT}" >> "$GITHUB_OUTPUT"
+          echo "Current pinned: ${CURRENT}"
+
+      - name: Decide whether to trigger update
+        id: decide
+        run: |
+          LATEST="${{ steps.latest.outputs.version }}"
+          CURRENT="${{ steps.current.outputs.current_version }}"
+          if [ "${LATEST}" = "${CURRENT}" ]; then
+            echo "Up to date. No action needed."
+            echo "trigger=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "Behind: current=${CURRENT}, latest=${LATEST}"
+            echo "trigger=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: dtolnay/rust-toolchain@stable
+        if: steps.decide.outputs.trigger == 'true'
+
+      - uses: Swatinem/rust-cache@v2
+        if: steps.decide.outputs.trigger == 'true'
+
+      - name: Update Cargo.toml
+        if: steps.decide.outputs.trigger == 'true'
+        run: |
+          NEW="${{ steps.latest.outputs.version }}"
+          sed -i -E \
+            's/(oxidize-pdf = \{ version = ")[^"]+(")/\1'"${NEW}"'\2/' \
+            Cargo.toml
+          grep "oxidize-pdf" Cargo.toml
+
+      - name: Update Cargo.lock
+        if: steps.decide.outputs.trigger == 'true'
+        run: cargo update oxidize-pdf
+
+      - name: Verify compilation
+        if: steps.decide.outputs.trigger == 'true'
+        run: cargo check
+
+      - name: Create branch and push
+        if: steps.decide.outputs.trigger == 'true'
+        id: push
+        run: |
+          BRANCH="chore/update-oxidize-pdf-${{ steps.latest.outputs.version }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "${BRANCH}"
+          git add Cargo.toml Cargo.lock
+          git commit -m "chore: update oxidize-pdf to v${{ steps.latest.outputs.version }}"
+          git push origin "${BRANCH}"
+          echo "branch=${BRANCH}" >> "$GITHUB_OUTPUT"
+
+      - name: Open pull request (skip if already exists)
+        if: steps.decide.outputs.trigger == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr create \
+            --base develop \
+            --head "${{ steps.push.outputs.branch }}" \
+            --title "chore: update oxidize-pdf to v${{ steps.latest.outputs.version }}" \
+            --label "dependency-update,automated" \
+            --body "Automated daily check: oxidize-pdf ${{ steps.latest.outputs.version }} available on crates.io. Previous: ${{ steps.current.outputs.current_version }}.
+
+          Core changelog: https://github.com/bzsanti/oxidizePdf/releases/tag/v${{ steps.latest.outputs.version }}" \
+          || echo "PR already exists — no action needed."

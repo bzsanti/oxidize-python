@@ -1,0 +1,83 @@
+# core-release-with-notify.yml
+# Location: github.com/bzsanti/oxidizePdf/.github/workflows/release.yml
+#
+# This is the MODIFIED version of the core release workflow that calls
+# notify-bridges.yml after a successful crates.io publish.
+#
+# Add the `notify-bridges` job at the bottom of the existing release.yml.
+# The existing publish job must output the version so this job can receive it.
+#
+# --- DIFF to apply to existing release.yml ---
+# Add the following job AFTER the existing publish job:
+
+# jobs:
+#   build:
+#     ...  (existing)
+#   publish:
+#     ...  (existing)
+#     outputs:
+#       version: ${{ steps.get_version.outputs.version }}  # ADD THIS OUTPUT
+#     steps:
+#       ...
+#       - name: Get version from tag          # ADD THIS STEP before publish
+#         id: get_version
+#         run: echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+#
+#   notify-bridges:
+#     name: Notify bridge repositories
+#     needs: publish
+#     uses: ./.github/workflows/notify-bridges.yml
+#     with:
+#       new_version: ${{ needs.publish.outputs.version }}
+#     secrets: inherit
+
+# --- STANDALONE REFERENCE VERSION (for clarity) ---
+
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+  build:
+    name: Build and test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Run tests
+        run: cargo test --all-features
+      - name: Build release
+        run: cargo build --release
+
+  publish:
+    name: Publish to crates.io
+    needs: build
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.get_version.outputs.version }}
+    environment:
+      name: crates-io
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Get version from tag
+        id: get_version
+        run: echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Publish to crates.io
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CRATES_IO_TOKEN }}
+        run: cargo publish -p oxidize-pdf
+
+  notify-bridges:
+    name: Notify bridge repositories
+    needs: publish
+    uses: ./.github/workflows/notify-bridges.yml
+    with:
+      new_version: ${{ needs.publish.outputs.version }}
+    secrets: inherit

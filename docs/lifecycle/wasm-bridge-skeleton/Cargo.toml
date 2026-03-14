@@ -1,0 +1,44 @@
+# oxidize-wasm/Cargo.toml
+# Reference skeleton for the WASM bridge (oxidize-wasm repo, not yet created).
+#
+# IMPORTANT BEFORE CREATING THIS REPO:
+#   Run `cargo build --target wasm32-unknown-unknown --no-default-features --features compression`
+#   in the oxidize-pdf core repo first. If it fails with std::fs errors, the core needs
+#   a feature gate before this bridge can exist. See LIFECYCLE_STRATEGY.md section 6.
+
+[package]
+name = "oxidize-wasm"
+version = "0.1.0"
+edition = "2021"
+description = "WebAssembly bindings for oxidize-pdf — generate and manipulate PDFs in the browser and Node.js"
+license = "MIT"
+repository = "https://github.com/bzsanti/oxidize-wasm"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+# wasm-bindgen provides the Rust macros and JS glue generator.
+wasm-bindgen = "0.2"
+
+# js-sys gives access to JS built-in types (Uint8Array, Array, etc.) from Rust.
+js-sys = "0.3"
+
+# The core library. Use no-default-features to exclude fs-dependent code.
+# The `compression` feature is pure Rust (zlib), safe for wasm32.
+# The `fs` feature (if gated in core) must NOT be enabled here.
+oxidize-pdf = { version = ">=2.3.0, <3.0.0", default-features = false, features = ["compression"] }
+
+[dev-dependencies]
+# wasm-bindgen-test enables running tests in Node.js and headless browser.
+wasm-bindgen-test = "0.3"
+
+[profile.release]
+# wasm-opt optimizes the .wasm binary size. wasm-pack applies this automatically
+# when the [package.metadata.wasm-pack.profile.release] section is present.
+opt-level = "z"
+lto = true
+codegen-units = 1
+
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = ["-Oz", "--enable-mutable-globals"]

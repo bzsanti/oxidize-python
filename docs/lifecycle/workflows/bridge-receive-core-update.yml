@@ -1,0 +1,168 @@
+# bridge-receive-core-update.yml
+# Location: .github/workflows/receive-core-update.yml  (in each bridge repo)
+#
+# Handles repository_dispatch from the core repo.
+# Also triggered manually for testing.
+#
+# What it does:
+#   1. Reads the new core version from the event payload.
+#   2. Updates oxidize-pdf version in Cargo.toml.
+#   3. Runs `cargo update` to update Cargo.lock.
+#   4. Runs `cargo check` to verify compilation.
+#   5. Opens a PR against `develop` with a descriptive body.
+#
+# Prerequisites:
+#   - The default GITHUB_TOKEN is sufficient for opening PRs within the same repo.
+#   - The `gh` CLI is available in ubuntu-latest runners.
+
+name: Receive core update
+
+on:
+  repository_dispatch:
+    types: [core-version-updated]
+  workflow_dispatch:
+    inputs:
+      new_version:
+        description: "Core version to update to (e.g. 2.4.0)"
+        required: true
+        type: string
+      changelog_url:
+        description: "URL to core changelog/release"
+        required: false
+        type: string
+        default: "https://github.com/bzsanti/oxidizePdf/releases"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  open-dependency-pr:
+    name: Open dependency update PR
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Checkout develop — PRs go against develop per gitflow
+          ref: develop
+          # Use a token that allows pushing branches and opening PRs
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Resolve new version
+        id: resolve
+        run: |
+          if [ "${{ github.event_name }}" = "repository_dispatch" ]; then
+            NEW_VERSION="${{ github.event.client_payload.new_version }}"
+            CHANGELOG_URL="${{ github.event.client_payload.changelog_url }}"
+          else
+            NEW_VERSION="${{ inputs.new_version }}"
+            CHANGELOG_URL="${{ inputs.changelog_url }}"
+          fi
+          echo "new_version=${NEW_VERSION}" >> "$GITHUB_OUTPUT"
+          echo "changelog_url=${CHANGELOG_URL}" >> "$GITHUB_OUTPUT"
+
+      - name: Read current pinned version
+        id: current
+        run: |
+          # Extract the version string from the oxidize-pdf dependency line in Cargo.toml.
+          # Matches: oxidize-pdf = { version = "2.1.0", ... }
+          # or:      oxidize-pdf = "2.1.0"
+          CURRENT=$(grep -oP '(?<=oxidize-pdf = \{ version = ")[^"]+' Cargo.toml \
+                    || grep -oP '(?<=oxidize-pdf = ")[^"]+' Cargo.toml \
+                    || echo "unknown")
+          echo "current_version=${CURRENT}" >> "$GITHUB_OUTPUT"
+
+      - name: Check if update is needed
+        id: check
+        run: |
+          NEW="${{ steps.resolve.outputs.new_version }}"
+          CURRENT="${{ steps.current.outputs.current_version }}"
+          echo "Current: ${CURRENT}, New: ${NEW}"
+          if [ "${CURRENT}" = "${NEW}" ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "Already on ${NEW}, no PR needed."
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Update Cargo.toml
+        if: steps.check.outputs.skip == 'false'
+        run: |
+          NEW="${{ steps.resolve.outputs.new_version }}"
+          # Replace the version string in the oxidize-pdf dependency.
+          # Uses sed with a pattern that handles both inline and block forms.
+          sed -i -E \
+            's/(oxidize-pdf = \{ version = ")[^"]+(")/\1'"${NEW}"'\2/' \
+            Cargo.toml
+          # Verify the replacement worked
+          grep "oxidize-pdf" Cargo.toml
+
+      - name: Update Cargo.lock
+        if: steps.check.outputs.skip == 'false'
+        run: cargo update oxidize-pdf
+
+      - name: Verify compilation
+        if: steps.check.outputs.skip == 'false'
+        run: cargo check
+
+      - name: Set branch name
+        if: steps.check.outputs.skip == 'false'
+        id: branch
+        run: |
+          echo "branch=chore/update-oxidize-pdf-${{ steps.resolve.outputs.new_version }}" >> "$GITHUB_OUTPUT"
+
+      - name: Create branch and push
+        if: steps.check.outputs.skip == 'false'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "${{ steps.branch.outputs.branch }}"
+          git add Cargo.toml Cargo.lock
+          git commit -m "chore: update oxidize-pdf to v${{ steps.resolve.outputs.new_version }}"
+          git push origin "${{ steps.branch.outputs.branch }}"
+
+      - name: Open pull request
+        if: steps.check.outputs.skip == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr create \
+            --base develop \
+            --head "${{ steps.branch.outputs.branch }}" \
+            --title "chore: update oxidize-pdf to v${{ steps.resolve.outputs.new_version }}" \
+            --label "dependency-update,automated" \
+            --body "$(cat <<'EOF'
+          ## Automated dependency update
+
+          | | Version |
+          |---|---|
+          | **Previous core** | \`${{ steps.current.outputs.current_version }}\` |
+          | **New core** | \`${{ steps.resolve.outputs.new_version }}\` |
+          | **Core changelog** | [${{ steps.resolve.outputs.new_version }}](${{ steps.resolve.outputs.changelog_url }}) |
+
+          This PR was opened automatically by the `receive-core-update` workflow.
+
+          ## Before merging — manual checklist
+
+          - [ ] Review the core changelog for breaking changes or new APIs.
+          - [ ] If new core APIs should be exposed in this bridge, open a separate feature/* branch.
+          - [ ] If any core APIs were deprecated, update the bridge deprecation shims accordingly.
+          - [ ] Verify all CI checks pass (full matrix).
+          - [ ] Update \`docs/FEATURE_PARITY.md\` if any features changed status.
+          - [ ] Update \`docs/COMPATIBILITY.md\` with the new core version range if needed.
+
+          ## After merging
+
+          Decide whether this dependency update warrants a bridge release:
+          - Patch release (x.y.Z): if the core patch fixed a bug affecting this bridge.
+          - Minor release (x.Y.0): if the core minor exposes new APIs you are now wrapping.
+          - No release: if this is purely internal dependency maintenance with no user-visible change.
+          EOF
+          )"
