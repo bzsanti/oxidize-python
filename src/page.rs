@@ -1,7 +1,7 @@
 use pyo3::prelude::*;
 
 use crate::errors::to_py_err;
-use crate::text::PyFont;
+use crate::text::{PyFont, PyTextAlign};
 use crate::types::{PyColor, PyMargins};
 
 #[pyclass(name = "Page", from_py_object)]
@@ -198,6 +198,40 @@ impl PyPage {
     /// Fill and then stroke the current path.
     fn fill_and_stroke(&mut self) {
         self.inner.graphics().fill_stroke();
+    }
+
+    // ── Text flow (aligned / wrapped text) ──────────────────────────────
+
+    /// Write text with word-wrapping and optional alignment.
+    ///
+    /// Uses the font previously set with ``set_font``. The text is wrapped
+    /// within the page content area (respecting margins).
+    ///
+    /// Args:
+    ///     x: Starting X position.
+    ///     y: Starting Y position.
+    ///     text: The text to write.
+    ///     align: Optional ``TextAlign`` value (defaults to ``TextAlign.LEFT``).
+    #[pyo3(signature = (x, y, text, align = None))]
+    fn text_flow_at(
+        &mut self,
+        x: f64,
+        y: f64,
+        text: &str,
+        align: Option<&PyTextAlign>,
+    ) -> PyResult<()> {
+        let mut ctx = self.inner.text_flow();
+
+        ctx.at(x, y);
+
+        if let Some(a) = align {
+            ctx.set_alignment(a.inner);
+        }
+
+        ctx.write_wrapped(text).map_err(to_py_err)?;
+
+        self.inner.add_text_flow(&ctx);
+        Ok(())
     }
 }
 

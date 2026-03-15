@@ -1,4 +1,5 @@
 use std::fs::File;
+use std::io::Cursor;
 
 use pyo3::prelude::*;
 
@@ -21,23 +22,47 @@ fn parse_err_to_py(err: oxidize_pdf::parser::ParseError) -> PyErr {
     }
 }
 
+fn pdf_err_to_py(err: oxidize_pdf::PdfError) -> PyErr {
+    errors::PdfError::new_err(err.to_string())
+}
+
 /// Internal state of PyPdfReader.
 ///
 /// When first opened on an encrypted file, we hold a raw `PdfReader` so
 /// that `unlock` can work. Once the reader is ready (not encrypted or
 /// successfully unlocked), we promote it to a `PdfDocument`.
+///
+/// Supports both file-backed and in-memory (bytes) readers.
 enum ReaderState {
-    /// Raw reader — encrypted, not yet unlocked.
-    Raw(oxidize_pdf::PdfReader<File>),
-    /// High-level document wrapper (ready for queries).
-    Document(oxidize_pdf::PdfDocument<File>),
+    /// Raw reader from file — encrypted, not yet unlocked.
+    RawFile(oxidize_pdf::PdfReader<File>),
+    /// Raw reader from bytes — encrypted, not yet unlocked.
+    RawCursor(oxidize_pdf::PdfReader<Cursor<Vec<u8>>>),
+    /// High-level document wrapper from file (ready for queries).
+    FileDocument(oxidize_pdf::PdfDocument<File>),
+    /// High-level document wrapper from bytes (ready for queries).
+    CursorDocument(oxidize_pdf::PdfDocument<Cursor<Vec<u8>>>),
     /// Transient state during promotion (never visible to callers).
     Transitioning,
 }
 
+/// Dispatch a method call on the inner `PdfDocument` regardless of backend.
+///
+/// Since `PdfDocument<File>` and `PdfDocument<Cursor<Vec<u8>>>` are distinct
+/// types with identical APIs, this macro expands to a match on both variants.
+macro_rules! with_document {
+    ($self:expr, $doc:ident => $body:expr) => {
+        match &$self.state {
+            ReaderState::FileDocument($doc) => $body,
+            ReaderState::CursorDocument($doc) => $body,
+            _ => unreachable!("promote() guarantees Document state"),
+        }
+    };
+}
+
 // ── PdfReader ─────────────────────────────────────────────────────────────────
 
-/// High-level PDF reader for parsing existing PDF files.
+/// High-level PDF reader for parsing existing PDF files or byte buffers.
 ///
 /// Example::
 ///
@@ -46,6 +71,9 @@ enum ReaderState {
 ///         reader.unlock("password")
 ///     print(f"Pages: {len(reader)}")
 ///     text = reader.extract_text_from_page(0)
+///
+///     # Or from bytes:
+///     reader = PdfReader.from_bytes(pdf_bytes)
 #[pyclass(name = "PdfReader", unsendable)]
 struct PyPdfReader {
     state: ReaderState,
@@ -58,21 +86,23 @@ impl PyPdfReader {
     fn promote(&mut self) {
         let old = std::mem::replace(&mut self.state, ReaderState::Transitioning);
         self.state = match old {
-            ReaderState::Raw(reader) => {
-                ReaderState::Document(oxidize_pdf::PdfDocument::new(reader))
+            ReaderState::RawFile(reader) => {
+                ReaderState::FileDocument(oxidize_pdf::PdfDocument::new(reader))
+            }
+            ReaderState::RawCursor(reader) => {
+                ReaderState::CursorDocument(oxidize_pdf::PdfDocument::new(reader))
             }
             other => other,
         };
     }
 
-    /// Get a reference to the inner PdfDocument, promoting from Raw if needed.
-    fn document(&mut self) -> PyResult<&oxidize_pdf::PdfDocument<File>> {
-        if matches!(self.state, ReaderState::Raw(_)) {
+    /// Ensure the reader is in a Document state.
+    fn ensure_document(&mut self) {
+        if matches!(
+            self.state,
+            ReaderState::RawFile(_) | ReaderState::RawCursor(_)
+        ) {
             self.promote();
-        }
-        match &self.state {
-            ReaderState::Document(doc) => Ok(doc),
-            _ => unreachable!("promote() guarantees Document state"),
         }
     }
 }
@@ -86,15 +116,33 @@ impl PyPdfReader {
         let encrypted = reader.is_encrypted();
 
         if encrypted {
-            // Keep as Raw so user can call unlock().
             Ok(Self {
-                state: ReaderState::Raw(reader),
+                state: ReaderState::RawFile(reader),
                 encrypted,
             })
         } else {
-            // Promote immediately.
             Ok(Self {
-                state: ReaderState::Document(oxidize_pdf::PdfDocument::new(reader)),
+                state: ReaderState::FileDocument(oxidize_pdf::PdfDocument::new(reader)),
+                encrypted,
+            })
+        }
+    }
+
+    /// Open a PDF from an in-memory byte buffer.
+    #[staticmethod]
+    fn from_bytes(data: &[u8]) -> PyResult<Self> {
+        let cursor = Cursor::new(data.to_vec());
+        let reader = oxidize_pdf::PdfReader::new(cursor).map_err(parse_err_to_py)?;
+        let encrypted = reader.is_encrypted();
+
+        if encrypted {
+            Ok(Self {
+                state: ReaderState::RawCursor(reader),
+                encrypted,
+            })
+        } else {
+            Ok(Self {
+                state: ReaderState::CursorDocument(oxidize_pdf::PdfDocument::new(reader)),
                 encrypted,
             })
         }
@@ -113,55 +161,125 @@ impl PyPdfReader {
     /// Raises:
     ///     PdfEncryptionError: If the password is incorrect.
     fn unlock(&mut self, password: &str) -> PyResult<()> {
-        if let ReaderState::Raw(ref mut reader) = self.state {
-            reader.unlock(password).map_err(parse_err_to_py)?;
-            self.promote();
+        match &mut self.state {
+            ReaderState::RawFile(ref mut reader) => {
+                reader.unlock(password).map_err(parse_err_to_py)?;
+            }
+            ReaderState::RawCursor(ref mut reader) => {
+                reader.unlock(password).map_err(parse_err_to_py)?;
+            }
+            _ => return Ok(()), // Already a Document — nothing to do.
         }
-        // Already a Document — nothing to do.
+        self.promote();
         Ok(())
     }
 
     /// Number of pages in the document.
     #[getter]
     fn page_count(&mut self) -> PyResult<u32> {
-        self.document()?.page_count().map_err(parse_err_to_py)
+        self.ensure_document();
+        with_document!(self, doc => doc.page_count().map_err(parse_err_to_py))
     }
 
     /// PDF version string (e.g. ``"1.4"``).
     #[getter]
     fn version(&mut self) -> PyResult<String> {
-        self.document()?.version().map_err(parse_err_to_py)
+        self.ensure_document();
+        with_document!(self, doc => doc.version().map_err(parse_err_to_py))
     }
 
     /// Return the parsed page at the given 0-based index.
     fn get_page(&mut self, index: u32) -> PyResult<PyParsedPage> {
-        let page = self.document()?.get_page(index).map_err(parse_err_to_py)?;
+        self.ensure_document();
+        let page = with_document!(self, doc => doc.get_page(index).map_err(parse_err_to_py))?;
         Ok(PyParsedPage { inner: page })
     }
 
     /// Extract text from a single page (0-based index).
     fn extract_text_from_page(&mut self, index: u32) -> PyResult<String> {
-        let extracted = self
-            .document()?
-            .extract_text_from_page(index)
-            .map_err(parse_err_to_py)?;
+        self.ensure_document();
+        let extracted =
+            with_document!(self, doc => doc.extract_text_from_page(index).map_err(parse_err_to_py))?;
         Ok(extracted.text)
     }
 
     /// Extract text from all pages, returning a list of strings.
     fn extract_text(&mut self) -> PyResult<Vec<String>> {
-        let texts = self.document()?.extract_text().map_err(parse_err_to_py)?;
+        self.ensure_document();
+        let texts = with_document!(self, doc => doc.extract_text().map_err(parse_err_to_py))?;
         Ok(texts.into_iter().map(|t| t.text).collect())
     }
 
+    /// Extract text chunks with positional information from a page.
+    ///
+    /// Returns a list of ``TextChunk`` objects, each with ``text``, ``x``,
+    /// ``y``, ``font_size``, and ``font_name`` attributes.
+    fn extract_text_chunks(&mut self, index: u32) -> PyResult<Vec<PyTextChunk>> {
+        self.ensure_document();
+
+        // Get the parsed page and its content streams.
+        let page = with_document!(self, doc => doc.get_page(index).map_err(parse_err_to_py))?;
+        let streams =
+            with_document!(self, doc => doc.get_page_content_streams(&page).map_err(parse_err_to_py))?;
+
+        let mut streamer =
+            oxidize_pdf::TextStreamer::new(oxidize_pdf::TextStreamOptions::default());
+
+        let mut chunks = Vec::new();
+        for stream_data in &streams {
+            let mut page_chunks = streamer.process_chunk(stream_data).map_err(pdf_err_to_py)?;
+            chunks.append(&mut page_chunks);
+        }
+
+        Ok(chunks
+            .into_iter()
+            .map(|c| PyTextChunk {
+                text: c.text,
+                x: c.x,
+                y: c.y,
+                font_size: c.font_size,
+                font_name: c.font_name,
+            })
+            .collect())
+    }
+
     fn __len__(&mut self) -> PyResult<usize> {
-        let count = self.document()?.page_count().map_err(parse_err_to_py)?;
+        self.ensure_document();
+        let count = with_document!(self, doc => doc.page_count().map_err(parse_err_to_py))?;
         Ok(count as usize)
     }
 
     fn __repr__(&mut self) -> PyResult<String> {
-        let count = self.document()?.page_count().map_err(parse_err_to_py)?;
+        self.ensure_document();
+        let count = with_document!(self, doc => doc.page_count().map_err(parse_err_to_py))?;
         Ok(format!("PdfReader(pages={count})"))
+    }
+}
+
+// ── TextChunk ─────────────────────────────────────────────────────────────────
+
+/// A chunk of extracted text with positional information.
+#[pyclass(name = "TextChunk", frozen)]
+struct PyTextChunk {
+    #[pyo3(get)]
+    text: String,
+    #[pyo3(get)]
+    x: f64,
+    #[pyo3(get)]
+    y: f64,
+    #[pyo3(get)]
+    font_size: f64,
+    #[pyo3(get)]
+    font_name: Option<String>,
+}
+
+#[pymethods]
+impl PyTextChunk {
+    fn __repr__(&self) -> String {
+        format!(
+            "TextChunk(text={:?}, x={}, y={}, font_size={})",
+            self.text, self.x, self.y, self.font_size
+        )
     }
 }
 
@@ -210,5 +328,6 @@ impl PyParsedPage {
 pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyPdfReader>()?;
     m.add_class::<PyParsedPage>()?;
+    m.add_class::<PyTextChunk>()?;
     Ok(())
 }

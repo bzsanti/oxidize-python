@@ -1,10 +1,14 @@
 use pyo3::prelude::*;
 
+use crate::errors;
+
 // ── Font ───────────────────────────────────────────────────────────────────
 
-/// Standard PDF fonts.
+/// PDF fonts — standard 14 or custom.
 ///
-/// Access as class attributes: ``Font.HELVETICA``, ``Font.TIMES_ROMAN``, etc.
+/// Standard fonts as class attributes: ``Font.HELVETICA``, ``Font.TIMES_ROMAN``, etc.
+/// Custom fonts: ``Font.custom("MyFont")``, ``Font.from_file("Name", "path.ttf")``,
+/// or ``Font.from_bytes("Name", data)``.
 #[pyclass(name = "Font", frozen, from_py_object)]
 #[derive(Clone)]
 pub struct PyFont {
@@ -69,6 +73,48 @@ impl PyFont {
     const ZAPF_DINGBATS: PyFont = PyFont {
         inner: oxidize_pdf::Font::ZapfDingbats,
     };
+
+    /// Create a custom font reference by name.
+    ///
+    /// The font name is used as a PDF resource name. For pre-registered
+    /// or system fonts this is sufficient. For fonts loaded from files,
+    /// use ``from_file`` or ``from_bytes`` instead.
+    #[staticmethod]
+    fn custom(name: &str) -> Self {
+        Self {
+            inner: oxidize_pdf::Font::custom(name),
+        }
+    }
+
+    /// Load a custom font from a TrueType/OpenType file.
+    ///
+    /// Validates the font data and returns a ``Font`` reference.
+    ///
+    /// Raises:
+    ///     PdfError: If the file cannot be read or is not a valid font.
+    #[staticmethod]
+    fn from_file(name: &str, path: &str) -> PyResult<Self> {
+        // Validate the font data by loading it.
+        oxidize_pdf::fonts::Font::from_file(name, path).map_err(errors::to_py_err)?;
+        Ok(Self {
+            inner: oxidize_pdf::Font::custom(name),
+        })
+    }
+
+    /// Load a custom font from byte data (TrueType/OpenType).
+    ///
+    /// Validates the font data and returns a ``Font`` reference.
+    ///
+    /// Raises:
+    ///     PdfError: If the data is not a valid font.
+    #[staticmethod]
+    fn from_bytes(name: &str, data: &[u8]) -> PyResult<Self> {
+        // Validate the font data by loading it.
+        oxidize_pdf::fonts::Font::from_bytes(name, data.to_vec()).map_err(errors::to_py_err)?;
+        Ok(Self {
+            inner: oxidize_pdf::Font::custom(name),
+        })
+    }
 
     fn __repr__(&self) -> String {
         format!("Font.{}", font_name(&self.inner))

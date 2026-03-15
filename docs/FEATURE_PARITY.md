@@ -1,8 +1,8 @@
 # Feature Parity — oxidize-python
 
 Bridge version: 0.1.1
-Core dependency: >=2.1.0, <3.0.0
-Last updated: 2026-03-14
+Core dependency: >=2.3.1, <3.0.0
+Last updated: 2026-03-15
 
 Reference: [API Surface definition](lifecycle/API_SURFACE.md)
 
@@ -39,13 +39,13 @@ Status values:
 | Feature ID | Feature Name | Python |
 |---|---|---|
 | TXT-001 | Standard fonts | yes |
-| TXT-002 | Custom/embedded fonts | no |
+| TXT-002 | Custom/embedded fonts | yes |
 | TXT-003 | Text color | yes |
 | TXT-004 | Character spacing | yes |
 | TXT-005 | Word spacing | yes |
 | TXT-006 | Line leading | yes |
 | TXT-007 | Text at position | yes |
-| TXT-008 | Text alignment | yes (TextAlign enum exposed, but `text_at` does not yet accept an alignment parameter — the enum exists for future use) |
+| TXT-008 | Text alignment | yes |
 
 ## GFX — Graphics operations
 
@@ -70,7 +70,7 @@ Status values:
 | Feature ID | Feature Name | Python |
 |---|---|---|
 | PARSE-001 | Open from file path | yes |
-| PARSE-002 | Open from bytes | no |
+| PARSE-002 | Open from bytes | yes |
 | PARSE-003 | Is-encrypted | yes |
 | PARSE-004 | Unlock with password | yes |
 | PARSE-005 | Page count | yes |
@@ -78,7 +78,7 @@ Status values:
 | PARSE-007 | Parsed page dimensions | yes |
 | PARSE-008 | Extract text single page | yes |
 | PARSE-009 | Extract text all pages | yes |
-| PARSE-010 | Text chunking | no |
+| PARSE-010 | Text chunking | yes |
 
 ## OPS — Document operations
 
@@ -105,9 +105,7 @@ Status values:
 
 ## Known gaps requiring work
 
-- **PARSE-002** (open from bytes): Required for WASM-compatible API pattern. Should be added to allow in-memory PDF processing.
-- **PARSE-010** (text chunking): Exposed in .NET bridge but missing here. Core has it since 2.1.0. Priority: high.
-- **TXT-002** (custom fonts): Core capability, not yet wrapped.
-- **TXT-008** partial: `text_at` does not accept alignment. The `TextAlign` enum is exported but unused in the current binding.
-- **GFX-013** (images): Depends on whether core has image embedding (TBD).
+- **GFX-013** (images): Depends on whether core has image embedding (TBD in core).
+- **OPS-005** (overlay/watermark): TBD in core.
+- **OPS-006** (page reordering): TBD in core.
 - **OPS-001**: Current `split_pdf` uses a hardcoded `page_{n}.pdf` naming pattern. The core may support custom patterns — check if this should be exposed.
