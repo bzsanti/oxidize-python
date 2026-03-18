@@ -5,7 +5,10 @@ use oxidize_pdf::PageTables;
 
 use crate::annotations::PyAnnotation;
 use crate::errors::to_py_err;
-use crate::graphics::{PyBlendMode, PyClippingPath, PyLineCap, PyLineDashPattern, PyLineJoin};
+use crate::graphics::{
+    PyBlendMode, PyCalibratedColor, PyClippingPath, PyLabColor, PyLineCap, PyLineDashPattern,
+    PyLineJoin,
+};
 use crate::image::PyImage;
 use crate::list::{PyBulletStyle, PyOrderedList, PyOrderedListStyle, PyUnorderedList};
 use crate::table::{PyTable, PyTableStyle};
@@ -186,6 +189,22 @@ impl PyPage {
     /// Set the stroke color for subsequent graphics operations.
     fn set_stroke_color(&mut self, color: &PyColor) {
         self.inner.graphics().set_stroke_color(color.inner);
+    }
+
+    fn set_fill_color_calibrated(&mut self, color: &PyCalibratedColor) {
+        self.inner.graphics().set_fill_color_calibrated(color.inner.clone());
+    }
+
+    fn set_stroke_color_calibrated(&mut self, color: &PyCalibratedColor) {
+        self.inner.graphics().set_stroke_color_calibrated(color.inner.clone());
+    }
+
+    fn set_fill_color_lab(&mut self, color: &PyLabColor) {
+        self.inner.graphics().set_fill_color_lab(color.inner.clone());
+    }
+
+    fn set_stroke_color_lab(&mut self, color: &PyLabColor) {
+        self.inner.graphics().set_stroke_color_lab(color.inner.clone());
     }
 
     /// Set the line width for subsequent stroke operations.

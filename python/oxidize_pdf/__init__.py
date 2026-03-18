@@ -51,6 +51,8 @@ from oxidize_pdf._oxidize_pdf import (
     ParseOptions,
     PdfReader,
     TextChunk,
+    # Feature 28 fix
+    verify_pdf_signatures,
 )
 
 # Operations
@@ -119,12 +121,24 @@ from oxidize_pdf._oxidize_pdf import (
     LineCap,
     LineDashPattern,
     LineJoin,
+    # Feature 54: Calibrated Colors
+    CalGrayColorSpace,
+    CalRgbColorSpace,
+    CalibratedColor,
+    LabColor,
 )
 
 # Annotations (Tier 6)
 from oxidize_pdf._oxidize_pdf import (
     Annotation,
     AnnotationType,
+    # Feature 55: Rich Annotations
+    MarkupType,
+    MarkupAnnotation,
+    AnnotationIcon,
+    TextAnnotation,
+    BorderStyleType,
+    BorderStyle,
 )
 
 # Actions (Tier 6)
@@ -135,6 +149,12 @@ from oxidize_pdf._oxidize_pdf import (
     NamedDestinations,
     ResetFormAction,
     UriAction,
+    # Feature 56: Actions Extension
+    LaunchAction,
+    StandardNamedAction,
+    NamedAction,
+    SubmitFormAction,
+    HideAction,
 )
 
 # Forms (Tier 6)
@@ -144,6 +164,11 @@ from oxidize_pdf._oxidize_pdf import (
     ListBox,
     RadioButton,
     TextField,
+    # Feature 57: Form Validation
+    FieldValue,
+    ValidationRule,
+    FieldValidator,
+    FormValidationSystem,
 )
 
 # Outlines (Tier 6)
@@ -256,6 +281,7 @@ __all__ = [
     "ParseOptions",
     "PdfReader",
     "TextChunk",
+    "verify_pdf_signatures",
     # Operations
     "split_pdf",
     "merge_pdfs",
@@ -308,9 +334,21 @@ __all__ = [
     "LineCap",
     "LineDashPattern",
     "LineJoin",
+    # Feature 54
+    "CalGrayColorSpace",
+    "CalRgbColorSpace",
+    "CalibratedColor",
+    "LabColor",
     # Annotations
     "Annotation",
     "AnnotationType",
+    # Feature 55
+    "MarkupType",
+    "MarkupAnnotation",
+    "AnnotationIcon",
+    "TextAnnotation",
+    "BorderStyleType",
+    "BorderStyle",
     # Actions
     "Destination",
     "GoToAction",
@@ -318,12 +356,23 @@ __all__ = [
     "NamedDestinations",
     "ResetFormAction",
     "UriAction",
+    # Feature 56
+    "LaunchAction",
+    "StandardNamedAction",
+    "NamedAction",
+    "SubmitFormAction",
+    "HideAction",
     # Forms
     "CheckBox",
     "ComboBox",
     "ListBox",
     "RadioButton",
     "TextField",
+    # Feature 57
+    "FieldValue",
+    "ValidationRule",
+    "FieldValidator",
+    "FormValidationSystem",
     # Outlines
     "OutlineItem",
     "OutlineTree",

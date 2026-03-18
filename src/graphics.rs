@@ -1,7 +1,11 @@
 use pyo3::prelude::*;
 
+use oxidize_pdf::graphics::calibrated_color::{CalGrayColorSpace, CalRgbColorSpace, CalibratedColor};
+use oxidize_pdf::graphics::lab_color::LabColor;
 use oxidize_pdf::graphics::state::{BlendMode, LineDashPattern};
 use oxidize_pdf::graphics::{ClippingPath, LineCap, LineJoin};
+
+use crate::tier8::PyLabColorSpace;
 
 // ── LineCap ───────────────────────────────────────────────────────────────
 
@@ -206,6 +210,197 @@ impl PyClippingPath {
     }
 }
 
+// ── CalGrayColorSpace ─────────────────────────────────────────────────────
+
+#[pyclass(name = "CalGrayColorSpace", from_py_object)]
+#[derive(Clone)]
+pub struct PyCalGrayColorSpace {
+    pub inner: CalGrayColorSpace,
+}
+
+#[pymethods]
+impl PyCalGrayColorSpace {
+    #[new]
+    fn new() -> Self {
+        Self { inner: CalGrayColorSpace::new() }
+    }
+
+    #[staticmethod]
+    fn d50() -> Self {
+        Self { inner: CalGrayColorSpace::d50() }
+    }
+
+    #[staticmethod]
+    fn d65() -> Self {
+        Self { inner: CalGrayColorSpace::d65() }
+    }
+
+    fn with_gamma(self_: PyRef<'_, Self>, gamma: f64) -> Self {
+        Self { inner: self_.inner.clone().with_gamma(gamma) }
+    }
+
+    fn with_white_point(self_: PyRef<'_, Self>, white_point: [f64; 3]) -> Self {
+        Self { inner: self_.inner.clone().with_white_point(white_point) }
+    }
+
+    fn with_black_point(self_: PyRef<'_, Self>, black_point: [f64; 3]) -> Self {
+        Self { inner: self_.inner.clone().with_black_point(black_point) }
+    }
+
+    #[getter]
+    fn gamma(&self) -> f64 {
+        self.inner.gamma
+    }
+
+    #[getter]
+    fn white_point(&self) -> [f64; 3] {
+        self.inner.white_point
+    }
+
+    fn __repr__(&self) -> String {
+        format!("CalGrayColorSpace(gamma={})", self.inner.gamma)
+    }
+}
+
+// ── CalRgbColorSpace ──────────────────────────────────────────────────────
+
+#[pyclass(name = "CalRgbColorSpace", from_py_object)]
+#[derive(Clone)]
+pub struct PyCalRgbColorSpace {
+    pub inner: CalRgbColorSpace,
+}
+
+#[pymethods]
+impl PyCalRgbColorSpace {
+    #[new]
+    fn new() -> Self {
+        Self { inner: CalRgbColorSpace::new() }
+    }
+
+    #[staticmethod]
+    fn srgb() -> Self {
+        Self { inner: CalRgbColorSpace::srgb() }
+    }
+
+    #[staticmethod]
+    fn adobe_rgb() -> Self {
+        Self { inner: CalRgbColorSpace::adobe_rgb() }
+    }
+
+    #[staticmethod]
+    fn d65() -> Self {
+        Self { inner: CalRgbColorSpace::d65() }
+    }
+
+    fn with_gamma(self_: PyRef<'_, Self>, gamma: [f64; 3]) -> Self {
+        Self { inner: self_.inner.clone().with_gamma(gamma) }
+    }
+
+    fn with_white_point(self_: PyRef<'_, Self>, white_point: [f64; 3]) -> Self {
+        Self { inner: self_.inner.clone().with_white_point(white_point) }
+    }
+
+    fn with_matrix(self_: PyRef<'_, Self>, matrix: [f64; 9]) -> Self {
+        Self { inner: self_.inner.clone().with_matrix(matrix) }
+    }
+
+    #[getter]
+    fn gamma(&self) -> (f64, f64, f64) {
+        (self.inner.gamma[0], self.inner.gamma[1], self.inner.gamma[2])
+    }
+
+    fn __repr__(&self) -> String {
+        "CalRgbColorSpace(...)".to_string()
+    }
+}
+
+// ── CalibratedColor ───────────────────────────────────────────────────────
+
+#[pyclass(name = "CalibratedColor", from_py_object)]
+#[derive(Clone)]
+pub struct PyCalibratedColor {
+    pub inner: CalibratedColor,
+}
+
+#[pymethods]
+impl PyCalibratedColor {
+    #[staticmethod]
+    fn cal_gray(value: f64, cs: &PyCalGrayColorSpace) -> Self {
+        Self { inner: CalibratedColor::cal_gray(value, cs.inner.clone()) }
+    }
+
+    #[staticmethod]
+    fn cal_rgb(rgb: [f64; 3], cs: &PyCalRgbColorSpace) -> Self {
+        Self { inner: CalibratedColor::cal_rgb(rgb, cs.inner.clone()) }
+    }
+
+    fn values(&self) -> Vec<f64> {
+        self.inner.values()
+    }
+
+    fn __repr__(&self) -> String {
+        format!("CalibratedColor({:?})", self.inner.values())
+    }
+}
+
+// ── LabColor ──────────────────────────────────────────────────────────────
+
+#[pyclass(name = "LabColor", from_py_object)]
+#[derive(Clone)]
+pub struct PyLabColor {
+    pub inner: LabColor,
+}
+
+#[pymethods]
+impl PyLabColor {
+    #[new]
+    fn new(l: f64, a: f64, b: f64, cs: &PyLabColorSpace) -> Self {
+        Self { inner: LabColor::new(l, a, b, cs.inner.clone()) }
+    }
+
+    #[staticmethod]
+    fn white() -> Self {
+        Self { inner: LabColor::white() }
+    }
+
+    #[staticmethod]
+    fn black() -> Self {
+        Self { inner: LabColor::black() }
+    }
+
+    #[staticmethod]
+    fn gray() -> Self {
+        Self { inner: LabColor::gray() }
+    }
+
+    #[getter]
+    fn l(&self) -> f64 {
+        self.inner.l
+    }
+
+    #[getter]
+    fn a(&self) -> f64 {
+        self.inner.a
+    }
+
+    #[getter]
+    fn b(&self) -> f64 {
+        self.inner.b
+    }
+
+    fn values(&self) -> Vec<f64> {
+        self.inner.values()
+    }
+
+    fn delta_e(&self, other: &PyLabColor) -> f64 {
+        self.inner.delta_e(&other.inner)
+    }
+
+    fn __repr__(&self) -> String {
+        format!("LabColor(l={}, a={}, b={})", self.inner.l, self.inner.a, self.inner.b)
+    }
+}
+
 // ── Registration ──────────────────────────────────────────────────────────
 
 pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
@@ -214,5 +409,9 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyLineDashPattern>()?;
     m.add_class::<PyBlendMode>()?;
     m.add_class::<PyClippingPath>()?;
+    m.add_class::<PyCalGrayColorSpace>()?;
+    m.add_class::<PyCalRgbColorSpace>()?;
+    m.add_class::<PyCalibratedColor>()?;
+    m.add_class::<PyLabColor>()?;
     Ok(())
 }

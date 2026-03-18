@@ -562,6 +562,57 @@ impl PyParsedPage {
     }
 }
 
+// ── verify_pdf_signatures ─────────────────────────────────────────────────────
+
+/// Verify digital signatures in a PDF byte buffer.
+///
+/// Returns a list of dicts, one per signature field, with keys:
+/// ``name``, ``filter``, ``sub_filter``, ``valid`` (bool), ``error`` (str or None).
+///
+/// NOTE: The "signatures" feature is not compiled in by default. When absent the
+/// parse_pkcs7_signature call returns Err immediately, so ``valid`` will be false
+/// and ``error`` will describe why verification was skipped.
+#[pyfunction]
+fn verify_pdf_signatures<'py>(
+    pdf_bytes: &[u8],
+    py: Python<'py>,
+) -> PyResult<Vec<Bound<'py, pyo3::types::PyDict>>> {
+    use pyo3::types::PyDict;
+    use std::io::Cursor;
+
+    let cursor = Cursor::new(pdf_bytes.to_vec());
+    let mut reader = oxidize_pdf::PdfReader::new(cursor)
+        .map_err(|e| errors::PdfParseError::new_err(e.to_string()))?;
+
+    let sig_fields = oxidize_pdf::signatures::detect_signature_fields(&mut reader)
+        .map_err(|e| errors::PdfError::new_err(e.to_string()))?;
+
+    let mut results = Vec::new();
+    for field in sig_fields {
+        let dict = PyDict::new(py);
+        dict.set_item("name", field.name.clone().unwrap_or_default())?;
+        dict.set_item("filter", &field.filter)?;
+        dict.set_item("sub_filter", &field.sub_filter)?;
+
+        match oxidize_pdf::signatures::parse_pkcs7_signature(&field.contents) {
+            Ok(parsed) => {
+                let verify_ok =
+                    oxidize_pdf::signatures::verify_signature(pdf_bytes, &parsed, &field.byte_range)
+                        .is_ok();
+                dict.set_item("valid", verify_ok)?;
+                dict.set_item("error", py.None())?;
+            }
+            Err(e) => {
+                dict.set_item("valid", false)?;
+                dict.set_item("error", e.to_string())?;
+            }
+        }
+        results.push(dict);
+    }
+
+    Ok(results)
+}
+
 // ── Registration ──────────────────────────────────────────────────────────────
 
 pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
@@ -570,5 +621,6 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyPdfReader>()?;
     m.add_class::<PyParsedPage>()?;
     m.add_class::<PyTextChunk>()?;
+    m.add_function(wrap_pyfunction!(verify_pdf_signatures, m)?)?;
     Ok(())
 }
