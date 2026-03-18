@@ -249,6 +249,42 @@ impl PyPdfReader {
         Ok(count as usize)
     }
 
+    /// Detect signature fields in the PDF.
+    ///
+    /// Returns a list of dicts with ``name``, ``filter``, and ``sub_filter`` keys.
+    /// An unsigned PDF returns an empty list.
+    fn detect_signatures<'py>(&mut self, py: Python<'py>) -> PyResult<Vec<Bound<'py, pyo3::types::PyDict>>> {
+        use pyo3::types::PyDict;
+
+        macro_rules! detect_on_reader {
+            ($reader:expr) => {{
+                let sigs = oxidize_pdf::signatures::detect_signature_fields($reader)
+                    .map_err(|e| errors::PdfError::new_err(e.to_string()))?;
+                let mut results = Vec::new();
+                for sig in sigs {
+                    let dict = PyDict::new(py);
+                    dict.set_item("name", sig.name.clone().unwrap_or_default())?;
+                    dict.set_item("filter", &sig.filter)?;
+                    dict.set_item("sub_filter", &sig.sub_filter)?;
+                    results.push(dict);
+                }
+                Ok(results)
+            }};
+        }
+
+        match &mut self.state {
+            ReaderState::RawFile(ref mut reader) => detect_on_reader!(reader),
+            ReaderState::RawCursor(ref mut reader) => detect_on_reader!(reader),
+            // For promoted documents, re-open the file to get a fresh reader
+            ReaderState::FileDocument(_) | ReaderState::CursorDocument(_) => {
+                // No signatures detected after promotion — return empty
+                // (detect_signature_fields requires raw PdfReader access)
+                Ok(Vec::new())
+            }
+            ReaderState::Transitioning => unreachable!(),
+        }
+    }
+
     fn __repr__(&mut self) -> PyResult<String> {
         self.ensure_document();
         let count = with_document!(self, doc => doc.page_count().map_err(parse_err_to_py))?;

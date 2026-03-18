@@ -124,7 +124,79 @@ impl PyPermissions {
     }
 }
 
+// ── EncryptionStrength ─────────────────────────────────────────────────────
+
+#[pyclass(name = "EncryptionStrength", frozen, from_py_object)]
+#[derive(Clone)]
+pub struct PyEncryptionStrength {
+    pub inner: oxidize_pdf::document::EncryptionStrength,
+}
+
+#[pymethods]
+impl PyEncryptionStrength {
+    #[classattr]
+    const RC4_40: PyEncryptionStrength = PyEncryptionStrength {
+        inner: oxidize_pdf::document::EncryptionStrength::Rc4_40bit,
+    };
+    #[classattr]
+    const RC4_128: PyEncryptionStrength = PyEncryptionStrength {
+        inner: oxidize_pdf::document::EncryptionStrength::Rc4_128bit,
+    };
+    #[classattr]
+    const AES_128: PyEncryptionStrength = PyEncryptionStrength {
+        inner: oxidize_pdf::document::EncryptionStrength::Aes128,
+    };
+    #[classattr]
+    const AES_256: PyEncryptionStrength = PyEncryptionStrength {
+        inner: oxidize_pdf::document::EncryptionStrength::Aes256,
+    };
+
+    fn __repr__(&self) -> String {
+        let name = match self.inner {
+            oxidize_pdf::document::EncryptionStrength::Rc4_40bit => "RC4_40",
+            oxidize_pdf::document::EncryptionStrength::Rc4_128bit => "RC4_128",
+            oxidize_pdf::document::EncryptionStrength::Aes128 => "AES_128",
+            oxidize_pdf::document::EncryptionStrength::Aes256 => "AES_256",
+        };
+        format!("EncryptionStrength.{name}")
+    }
+}
+
+// ── Recipient (Feature 29) ────────────────────────────────────────────────
+
+#[pyclass(name = "Recipient", from_py_object)]
+#[derive(Clone)]
+pub struct PyRecipient {
+    pub inner: oxidize_pdf::encryption::Recipient,
+}
+
+#[pymethods]
+impl PyRecipient {
+    #[staticmethod]
+    fn from_certificate(cert_data: &[u8]) -> PyResult<Self> {
+        // Validate basic structure — DER certificates start with 0x30 (SEQUENCE)
+        if cert_data.is_empty() || cert_data[0] != 0x30 {
+            return Err(pyo3::exceptions::PyValueError::new_err(
+                "Invalid certificate data: not a valid DER-encoded X.509 certificate",
+            ));
+        }
+        Ok(Self {
+            inner: oxidize_pdf::encryption::Recipient {
+                certificate: cert_data.to_vec(),
+                permissions: oxidize_pdf::encryption::Permissions::all(),
+                encrypted_seed: Vec::new(),
+            },
+        })
+    }
+
+    fn __repr__(&self) -> String {
+        format!("Recipient(cert_len={})", self.inner.certificate.len())
+    }
+}
+
 pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyPermissions>()?;
+    m.add_class::<PyEncryptionStrength>()?;
+    m.add_class::<PyRecipient>()?;
     Ok(())
 }

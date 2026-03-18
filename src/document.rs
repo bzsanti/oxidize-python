@@ -1,8 +1,10 @@
 use pyo3::prelude::*;
 
 use crate::errors::to_py_err;
+use crate::outlines::PyOutlineTree;
 use crate::page::PyPage;
-use crate::security::PyPermissions;
+use crate::page_labels::PyPageLabelTree;
+use crate::security::{PyEncryptionStrength, PyPermissions};
 
 #[pyclass(name = "Document")]
 pub struct PyDocument {
@@ -65,34 +67,75 @@ impl PyDocument {
     ///     user_password: Password required to open the document.
     ///     owner_password: Password for full access (editing, printing, etc.).
     ///     permissions: Optional permissions to restrict operations. Defaults to all allowed.
-    #[pyo3(signature = (user_password, owner_password, permissions = None))]
+    #[pyo3(signature = (user_password, owner_password, permissions = None, strength = None))]
     fn encrypt(
         &mut self,
         user_password: &str,
         owner_password: &str,
         permissions: Option<&PyPermissions>,
+        strength: Option<&PyEncryptionStrength>,
     ) {
-        match permissions {
-            Some(perms) => {
-                let enc = oxidize_pdf::document::DocumentEncryption::new(
-                    user_password,
-                    owner_password,
-                    perms.inner,
-                    oxidize_pdf::document::EncryptionStrength::Rc4_128bit,
-                );
-                self.inner.set_encryption(enc);
-            }
-            None => {
-                self.inner
-                    .encrypt_with_passwords(user_password, owner_password);
-            }
-        }
+        let perms = permissions
+            .map(|p| p.inner)
+            .unwrap_or(oxidize_pdf::encryption::Permissions::all());
+        let str = strength
+            .map(|s| s.inner)
+            .unwrap_or(oxidize_pdf::document::EncryptionStrength::Rc4_128bit);
+        let enc = oxidize_pdf::document::DocumentEncryption::new(
+            user_password,
+            owner_password,
+            perms,
+            str,
+        );
+        self.inner.set_encryption(enc);
     }
 
     /// Whether the document has encryption set.
     #[getter]
     fn is_encrypted(&self) -> bool {
         self.inner.is_encrypted()
+    }
+
+    /// Set the document structure tree (tagged PDF / accessibility).
+    fn set_struct_tree(&mut self, tree: &mut crate::tier8::PyStructTree) {
+        let t = std::mem::replace(&mut tree.inner, oxidize_pdf::structure::StructTree::new());
+        self.inner.set_struct_tree(t);
+    }
+
+    /// Set the document outline (bookmarks).
+    fn set_outline(&mut self, outline: &mut PyOutlineTree) {
+        let tree = std::mem::replace(&mut outline.inner, oxidize_pdf::structure::OutlineTree::new());
+        self.inner.set_outline(tree);
+    }
+
+    /// Set the document page labels.
+    fn set_page_labels(&mut self, labels: &PyPageLabelTree) {
+        self.inner.set_page_labels(labels.inner.clone());
+    }
+
+    /// Set the document producer metadata.
+    fn set_producer(&mut self, producer: &str) {
+        self.inner.set_producer(producer);
+    }
+
+    /// Set the document creation date from an ISO 8601 string.
+    fn set_creation_date(&mut self, iso_date: &str) -> PyResult<()> {
+        let dt = chrono::DateTime::parse_from_rfc3339(iso_date).map_err(|e| {
+            pyo3::exceptions::PyValueError::new_err(format!("Invalid date format: {e}"))
+        })?;
+        self.inner
+            .set_creation_date(dt.with_timezone(&chrono::Utc));
+        Ok(())
+    }
+
+    /// Set the document modification date from an ISO 8601 string.
+    fn set_modification_date(&mut self, iso_date: &str) -> PyResult<()> {
+        let dt = chrono::DateTime::parse_from_rfc3339(iso_date).map_err(|e| {
+            pyo3::exceptions::PyValueError::new_err(format!("Invalid date format: {e}"))
+        })?;
+        self.inner
+            .set_modification_date(dt.with_timezone(&chrono::Utc));
+        Ok(())
     }
 
     fn __repr__(&self) -> String {

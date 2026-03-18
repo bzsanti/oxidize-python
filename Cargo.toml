@@ -13,4 +13,6 @@ crate-type = ["cdylib"]
 
 [dependencies]
 pyo3 = { version = "0.28", features = ["extension-module"] }
-oxidize-pdf = { version = "2.3.1", default-features = false, features = ["compression"] }
+oxidize-pdf = { version = "2.3.2", default-features = false, features = ["compression"] }
+tempfile = "3"
+chrono = "0.4"
