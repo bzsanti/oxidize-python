@@ -1,15 +1,18 @@
 use pyo3::prelude::*;
 
 use oxidize_pdf::forms::Widget;
+use oxidize_pdf::writer::WriterConfig;
 
-use crate::actions::PyNamedDestinations;
+use crate::actions::{PyGoToAction, PyNamedDestinations, PyUriAction};
 use crate::errors::to_py_err;
 use crate::forms::{PyCheckBox, PyComboBox, PyListBox, PyRadioButton, PyTextField};
 use crate::outlines::PyOutlineTree;
 use crate::page::PyPage;
 use crate::page_labels::PyPageLabelTree;
 use crate::security::{PyEncryptionStrength, PyPermissions};
+use crate::text::PyFontEncoding;
 use crate::types::PyRectangle;
+use crate::viewer_preferences::PyViewerPreferences;
 
 #[pyclass(name = "Document")]
 pub struct PyDocument {
@@ -241,12 +244,142 @@ impl PyDocument {
         self.inner.set_named_destinations(nd);
     }
 
+    // ── Viewer Preferences (F44) ─────────────────────────────────────────
+
+    fn set_viewer_preferences(&mut self, prefs: &PyViewerPreferences) {
+        self.inner.set_viewer_preferences(prefs.inner.clone());
+    }
+
+    // ── Open Action (F45) ────────────────────────────────────────────────
+
+    fn set_open_action_goto(&mut self, action: &PyGoToAction) {
+        use oxidize_pdf::actions::Action;
+        self.inner.set_open_action(Action::GoTo {
+            destination: action.inner.destination.clone(),
+        });
+    }
+
+    fn set_open_action_uri(&mut self, action: &PyUriAction) {
+        use oxidize_pdf::actions::Action;
+        self.inner.set_open_action(Action::URI {
+            uri: action.inner.uri.clone(),
+            is_map: false,
+        });
+    }
+
+    // ── Font Management (F46) ────────────────────────────────────────────
+
+    fn add_font(&mut self, name: &str, path: &str) -> PyResult<()> {
+        self.inner.add_font(name, path).map_err(to_py_err)
+    }
+
+    fn add_font_from_bytes(&mut self, name: &str, data: &[u8]) -> PyResult<()> {
+        self.inner
+            .add_font_from_bytes(name, data.to_vec())
+            .map_err(to_py_err)
+    }
+
+    fn has_custom_font(&self, name: &str) -> bool {
+        self.inner.has_custom_font(name)
+    }
+
+    fn custom_font_names(&self) -> Vec<String> {
+        self.inner.custom_font_names()
+    }
+
+    // ── Writer Config / Compression (F47) ────────────────────────────────
+
+    fn set_compress(&mut self, compress: bool) {
+        self.inner.set_compress(compress);
+    }
+
+    fn enable_xref_streams(&mut self, enable: bool) {
+        self.inner.enable_xref_streams(enable);
+    }
+
+    fn save_with_config(&mut self, path: &str, config: &PyWriterConfig) -> PyResult<()> {
+        self.inner
+            .save_with_config(path, config.inner.clone())
+            .map_err(to_py_err)
+    }
+
+    // ── Font Encoding (F48) ──────────────────────────────────────────────
+
+    fn set_default_font_encoding(&mut self, encoding: &PyFontEncoding) {
+        self.inner
+            .set_default_font_encoding(Some(encoding.inner.clone()));
+    }
+
     fn __repr__(&self) -> String {
         format!("Document(pages={})", self.inner.page_count())
     }
 }
 
+// ── WriterConfig ──────────────────────────────────────────────────────────
+
+#[pyclass(name = "WriterConfig", from_py_object)]
+#[derive(Clone)]
+pub struct PyWriterConfig {
+    pub inner: WriterConfig,
+}
+
+#[pymethods]
+impl PyWriterConfig {
+    #[new]
+    fn new() -> Self {
+        Self {
+            inner: WriterConfig::default(),
+        }
+    }
+
+    #[getter]
+    fn compress_streams(&self) -> bool {
+        self.inner.compress_streams
+    }
+
+    #[getter]
+    fn use_xref_streams(&self) -> bool {
+        self.inner.use_xref_streams
+    }
+
+    #[getter]
+    fn use_object_streams(&self) -> bool {
+        self.inner.use_object_streams
+    }
+
+    #[staticmethod]
+    fn modern() -> Self {
+        Self {
+            inner: WriterConfig::modern(),
+        }
+    }
+
+    #[staticmethod]
+    fn legacy() -> Self {
+        Self {
+            inner: WriterConfig::legacy(),
+        }
+    }
+
+    #[staticmethod]
+    fn incremental() -> Self {
+        Self {
+            inner: WriterConfig::incremental(),
+        }
+    }
+
+    fn __repr__(&self) -> String {
+        format!(
+            "WriterConfig(compress={}, xref_streams={}, object_streams={})",
+            self.inner.compress_streams,
+            self.inner.use_xref_streams,
+            self.inner.use_object_streams
+        )
+    }
+}
+
 pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyDocument>()?;
+    m.add_class::<PyWriterConfig>()?;
     Ok(())
 }

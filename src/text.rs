@@ -372,6 +372,45 @@ impl PyTextRenderingMode {
     }
 }
 
+// ── FontEncoding ───────────────────────────────────────────────────────────
+
+#[pyclass(name = "FontEncoding", frozen, from_py_object)]
+#[derive(Clone)]
+pub struct PyFontEncoding {
+    pub inner: oxidize_pdf::text::FontEncoding,
+}
+
+#[pymethods]
+impl PyFontEncoding {
+    #[classattr]
+    const WIN_ANSI: PyFontEncoding = PyFontEncoding {
+        inner: oxidize_pdf::text::FontEncoding::WinAnsiEncoding,
+    };
+    #[classattr]
+    const MAC_ROMAN: PyFontEncoding = PyFontEncoding {
+        inner: oxidize_pdf::text::FontEncoding::MacRomanEncoding,
+    };
+    #[classattr]
+    const STANDARD: PyFontEncoding = PyFontEncoding {
+        inner: oxidize_pdf::text::FontEncoding::StandardEncoding,
+    };
+    #[classattr]
+    const MAC_EXPERT: PyFontEncoding = PyFontEncoding {
+        inner: oxidize_pdf::text::FontEncoding::MacExpertEncoding,
+    };
+
+    fn __repr__(&self) -> String {
+        let name = match self.inner {
+            oxidize_pdf::text::FontEncoding::WinAnsiEncoding => "WIN_ANSI",
+            oxidize_pdf::text::FontEncoding::MacRomanEncoding => "MAC_ROMAN",
+            oxidize_pdf::text::FontEncoding::StandardEncoding => "STANDARD",
+            oxidize_pdf::text::FontEncoding::MacExpertEncoding => "MAC_EXPERT",
+            oxidize_pdf::text::FontEncoding::Custom(_) => "CUSTOM",
+        };
+        format!("FontEncoding.{name}")
+    }
+}
+
 // ── Registration ───────────────────────────────────────────────────────────
 
 pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
@@ -380,6 +419,7 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyHeaderFooterOptions>()?;
     m.add_class::<PyHeaderFooter>()?;
     m.add_class::<PyTextRenderingMode>()?;
+    m.add_class::<PyFontEncoding>()?;
     m.add_function(wrap_pyfunction!(py_measure_text, m)?)?;
     m.add_function(wrap_pyfunction!(py_measure_char, m)?)?;
     Ok(())

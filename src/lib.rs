@@ -18,6 +18,7 @@ mod table;
 mod text;
 mod tier8;
 mod types;
+mod viewer_preferences;
 
 /// oxidize-pdf Python bindings
 #[pymodule]
@@ -43,6 +44,7 @@ fn _oxidize_pdf(m: &Bound<'_, PyModule>) -> PyResult<()> {
     outlines::register(m)?;
     page_labels::register(m)?;
     tier8::register(m)?;
+    viewer_preferences::register(m)?;
 
     Ok(())
 }

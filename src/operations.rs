@@ -2,8 +2,9 @@ use pyo3::prelude::*;
 use pyo3::types::PyDict;
 
 use oxidize_pdf::operations::{
-    self, ExtractImagesOptions, MergeInput, MergeOptions, OperationError, OverlayOptions,
-    OverlayPosition, RotationAngle,
+    self, ContentAnalysis, ExtractImagesOptions, MergeInput, MergeOptions, OperationError,
+    OverlayOptions, OverlayPosition, PageContentAnalyzer, PageRange, PageType, RotateOptions,
+    RotationAngle, SplitMode, SplitOptions,
 };
 
 use crate::errors;
@@ -315,6 +316,396 @@ fn split_pdf_to_bytes(input: &str) -> PyResult<Vec<Vec<u8>>> {
     Ok(results)
 }
 
+// ── Feature 49: PageRange + SplitMode + split_pdf_with_mode ─────────────────
+
+/// Python representation of a page range selection.
+#[pyclass(name = "PageRange", frozen, from_py_object)]
+#[derive(Clone)]
+pub struct PyPageRange {
+    pub inner: PageRange,
+}
+
+#[pymethods]
+impl PyPageRange {
+    /// All pages in the document.
+    #[staticmethod]
+    fn all() -> Self {
+        Self {
+            inner: PageRange::All,
+        }
+    }
+
+    /// A single page (0-based index).
+    #[staticmethod]
+    fn single(page: usize) -> Self {
+        Self {
+            inner: PageRange::Single(page),
+        }
+    }
+
+    /// An inclusive range of pages (0-based indices).
+    #[staticmethod]
+    fn range(start: usize, end: usize) -> Self {
+        Self {
+            inner: PageRange::Range(start, end),
+        }
+    }
+
+    /// A list of specific page indices (0-based).
+    #[staticmethod]
+    fn list(pages: Vec<usize>) -> Self {
+        Self {
+            inner: PageRange::List(pages),
+        }
+    }
+
+    fn __repr__(&self) -> String {
+        match &self.inner {
+            PageRange::All => "PageRange.all()".to_string(),
+            PageRange::Single(p) => format!("PageRange.single({p})"),
+            PageRange::Range(s, e) => format!("PageRange.range({s}, {e})"),
+            PageRange::List(pages) => format!("PageRange.list({pages:?})"),
+        }
+    }
+}
+
+/// Python representation of a PDF split strategy.
+#[pyclass(name = "SplitMode", frozen, from_py_object)]
+#[derive(Clone)]
+pub struct PySplitMode {
+    pub inner: SplitMode,
+}
+
+#[pymethods]
+impl PySplitMode {
+    /// Split the document into one file per page.
+    #[staticmethod]
+    fn single_pages() -> Self {
+        Self {
+            inner: SplitMode::SinglePages,
+        }
+    }
+
+    /// Split into chunks of `n` pages each.
+    #[staticmethod]
+    fn chunk_size(n: usize) -> Self {
+        Self {
+            inner: SplitMode::ChunkSize(n),
+        }
+    }
+
+    /// Split at specific 0-based page indices (a new file starts at each index).
+    #[staticmethod]
+    fn split_at(pages: Vec<usize>) -> Self {
+        Self {
+            inner: SplitMode::SplitAt(pages),
+        }
+    }
+
+    fn __repr__(&self) -> String {
+        match &self.inner {
+            SplitMode::SinglePages => "SplitMode.single_pages()".to_string(),
+            SplitMode::ChunkSize(n) => format!("SplitMode.chunk_size({n})"),
+            SplitMode::SplitAt(pts) => format!("SplitMode.split_at({pts:?})"),
+            SplitMode::Ranges(_) => "SplitMode.ranges(...)".to_string(),
+        }
+    }
+}
+
+#[pyfunction]
+fn split_pdf_with_mode(
+    input_path: &str,
+    output_dir: &str,
+    mode: &PySplitMode,
+) -> PyResult<Vec<String>> {
+    let pattern = format!("{}/split_{{}}.pdf", output_dir);
+    let options = SplitOptions {
+        mode: mode.inner.clone(),
+        output_pattern: pattern,
+        preserve_metadata: true,
+        optimize: false,
+    };
+    let paths = operations::split_pdf(input_path, options).map_err(op_err_to_py)?;
+    Ok(paths
+        .into_iter()
+        .map(|p| p.to_string_lossy().into_owned())
+        .collect())
+}
+
+// ── Feature 50: MergeOptions + merge_pdfs_with_options ───────────────────────
+
+/// Options for PDF merging.
+#[pyclass(name = "MergeOptions", from_py_object)]
+#[derive(Clone)]
+pub struct PyMergeOptions {
+    pub inner: MergeOptions,
+}
+
+#[pymethods]
+impl PyMergeOptions {
+    #[new]
+    #[pyo3(signature = (preserve_bookmarks=true, preserve_forms=false, optimize=false))]
+    fn new(preserve_bookmarks: bool, preserve_forms: bool, optimize: bool) -> Self {
+        let inner = MergeOptions {
+            page_ranges: None,
+            preserve_bookmarks,
+            preserve_forms,
+            optimize,
+            ..MergeOptions::default()
+        };
+        Self { inner }
+    }
+
+    fn __repr__(&self) -> String {
+        format!(
+            "MergeOptions(preserve_bookmarks={}, preserve_forms={}, optimize={})",
+            self.inner.preserve_bookmarks, self.inner.preserve_forms, self.inner.optimize
+        )
+    }
+}
+
+#[pyfunction]
+fn merge_pdfs_with_options(
+    input_paths: Vec<String>,
+    output_path: &str,
+    options: &PyMergeOptions,
+) -> PyResult<()> {
+    if input_paths.is_empty() {
+        return Err(pyo3::exceptions::PyValueError::new_err(
+            "At least one input file is required",
+        ));
+    }
+    let inputs: Vec<MergeInput> = input_paths.iter().map(|p| MergeInput::new(p)).collect();
+    operations::merge_pdfs(inputs, output_path, options.inner.clone()).map_err(op_err_to_py)
+}
+
+// ── Feature 51: RotationAngle enum + RotateOptions + rotate_pdf_with_options ─
+
+/// Rotation angle for PDF pages.
+#[pyclass(name = "RotationAngle", frozen, from_py_object)]
+#[derive(Clone)]
+pub struct PyRotationAngle {
+    pub inner: RotationAngle,
+}
+
+#[pymethods]
+impl PyRotationAngle {
+    #[classattr]
+    const NONE: PyRotationAngle = PyRotationAngle {
+        inner: RotationAngle::None,
+    };
+    #[classattr]
+    const CLOCKWISE_90: PyRotationAngle = PyRotationAngle {
+        inner: RotationAngle::Clockwise90,
+    };
+    #[classattr]
+    const ROTATE_180: PyRotationAngle = PyRotationAngle {
+        inner: RotationAngle::Rotate180,
+    };
+    #[classattr]
+    const CLOCKWISE_270: PyRotationAngle = PyRotationAngle {
+        inner: RotationAngle::Clockwise270,
+    };
+
+    fn __repr__(&self) -> String {
+        let name = match self.inner {
+            RotationAngle::None => "NONE",
+            RotationAngle::Clockwise90 => "CLOCKWISE_90",
+            RotationAngle::Rotate180 => "ROTATE_180",
+            RotationAngle::Clockwise270 => "CLOCKWISE_270",
+        };
+        format!("RotationAngle.{name}")
+    }
+}
+
+/// Options for selective page rotation.
+#[pyclass(name = "RotateOptions", from_py_object)]
+#[derive(Clone)]
+pub struct PyRotateOptions {
+    pub inner: RotateOptions,
+}
+
+#[pymethods]
+impl PyRotateOptions {
+    #[new]
+    #[pyo3(signature = (angle, pages=None, preserve_page_size=false))]
+    fn new(
+        angle: &PyRotationAngle,
+        pages: Option<&PyPageRange>,
+        preserve_page_size: bool,
+    ) -> Self {
+        let page_range = pages
+            .map(|p| p.inner.clone())
+            .unwrap_or(PageRange::All);
+        let inner = RotateOptions {
+            pages: page_range,
+            angle: angle.inner,
+            preserve_page_size,
+        };
+        Self { inner }
+    }
+
+    fn __repr__(&self) -> String {
+        format!(
+            "RotateOptions(angle={:?}, preserve_page_size={})",
+            self.inner.angle, self.inner.preserve_page_size
+        )
+    }
+}
+
+#[pyfunction]
+fn rotate_pdf_with_options(
+    input_path: &str,
+    output_path: &str,
+    options: &PyRotateOptions,
+) -> PyResult<()> {
+    operations::rotate_pdf_pages(input_path, output_path, options.inner.clone())
+        .map_err(op_err_to_py)
+}
+
+// ── Feature 52: extract_page_range_to_bytes / to_file ────────────────────────
+
+#[pyfunction]
+fn extract_page_range_to_bytes(input_path: &str, start: usize, end: usize) -> PyResult<Vec<u8>> {
+    let range = PageRange::Range(start, end);
+    let mut doc = operations::extract_page_range(input_path, &range).map_err(op_err_to_py)?;
+
+    let tmpdir =
+        tempfile::tempdir().map_err(|e| errors::PdfIoError::new_err(e.to_string()))?;
+    let tmp_output = tmpdir.path().join("range.pdf");
+    doc.save(&tmp_output)
+        .map_err(|e| errors::PdfIoError::new_err(e.to_string()))?;
+    std::fs::read(&tmp_output).map_err(|e| errors::PdfIoError::new_err(e.to_string()))
+}
+
+#[pyfunction]
+fn extract_page_range_to_file(
+    input_path: &str,
+    start: usize,
+    end: usize,
+    output_path: &str,
+) -> PyResult<()> {
+    let range = PageRange::Range(start, end);
+    operations::extract_page_range_to_file(input_path, &range, output_path)
+        .map_err(op_err_to_py)
+}
+
+// ── Feature 53: PageContentAnalyzer ──────────────────────────────────────────
+
+/// Classification of the primary content type of a PDF page.
+#[pyclass(name = "PageType", frozen, from_py_object)]
+#[derive(Clone)]
+pub struct PyPageType {
+    pub inner: PageType,
+}
+
+#[pymethods]
+impl PyPageType {
+    #[classattr]
+    const SCANNED: PyPageType = PyPageType {
+        inner: PageType::Scanned,
+    };
+    #[classattr]
+    const TEXT: PyPageType = PyPageType {
+        inner: PageType::Text,
+    };
+    #[classattr]
+    const MIXED: PyPageType = PyPageType {
+        inner: PageType::Mixed,
+    };
+
+    fn __repr__(&self) -> String {
+        let name = match self.inner {
+            PageType::Scanned => "SCANNED",
+            PageType::Text => "TEXT",
+            PageType::Mixed => "MIXED",
+        };
+        format!("PageType.{name}")
+    }
+
+    fn __eq__(&self, other: &PyPageType) -> bool {
+        self.inner == other.inner
+    }
+}
+
+/// Detailed content analysis results for a single PDF page.
+#[pyclass(name = "ContentAnalysis", frozen)]
+pub struct PyContentAnalysis {
+    inner: ContentAnalysis,
+}
+
+#[pymethods]
+impl PyContentAnalysis {
+    #[getter]
+    fn page_number(&self) -> usize {
+        self.inner.page_number
+    }
+
+    #[getter]
+    fn page_type(&self) -> PyPageType {
+        PyPageType {
+            inner: self.inner.page_type,
+        }
+    }
+
+    #[getter]
+    fn text_ratio(&self) -> f64 {
+        self.inner.text_ratio
+    }
+
+    #[getter]
+    fn image_ratio(&self) -> f64 {
+        self.inner.image_ratio
+    }
+
+    #[getter]
+    fn blank_space_ratio(&self) -> f64 {
+        self.inner.blank_space_ratio
+    }
+
+    #[getter]
+    fn text_fragment_count(&self) -> usize {
+        self.inner.text_fragment_count
+    }
+
+    #[getter]
+    fn image_count(&self) -> usize {
+        self.inner.image_count
+    }
+
+    #[getter]
+    fn character_count(&self) -> usize {
+        self.inner.character_count
+    }
+
+    fn __repr__(&self) -> String {
+        format!(
+            "ContentAnalysis(page={}, type={:?}, text_ratio={:.2}, image_ratio={:.2})",
+            self.inner.page_number,
+            self.inner.page_type,
+            self.inner.text_ratio,
+            self.inner.image_ratio,
+        )
+    }
+}
+
+#[pyfunction]
+fn analyze_page_content(input_path: &str, page_number: usize) -> PyResult<PyContentAnalysis> {
+    let analyzer = PageContentAnalyzer::from_file(input_path).map_err(op_err_to_py)?;
+    let analysis = analyzer.analyze_page(page_number).map_err(op_err_to_py)?;
+    Ok(PyContentAnalysis { inner: analysis })
+}
+
+#[pyfunction]
+fn analyze_document_content(input_path: &str) -> PyResult<Vec<PyContentAnalysis>> {
+    let analyzer = PageContentAnalyzer::from_file(input_path).map_err(op_err_to_py)?;
+    let analyses = analyzer.analyze_document().map_err(op_err_to_py)?;
+    Ok(analyses
+        .into_iter()
+        .map(|a| PyContentAnalysis { inner: a })
+        .collect())
+}
+
 // ── Registration ──────────────────────────────────────────────────────────────
 
 pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
@@ -339,5 +730,24 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(rotate_pdf_to_bytes, m)?)?;
     m.add_function(wrap_pyfunction!(extract_pages_to_bytes, m)?)?;
     m.add_function(wrap_pyfunction!(split_pdf_to_bytes, m)?)?;
+    // Feature 49: SplitMode
+    m.add_class::<PyPageRange>()?;
+    m.add_class::<PySplitMode>()?;
+    m.add_function(wrap_pyfunction!(split_pdf_with_mode, m)?)?;
+    // Feature 50: MergeOptions
+    m.add_class::<PyMergeOptions>()?;
+    m.add_function(wrap_pyfunction!(merge_pdfs_with_options, m)?)?;
+    // Feature 51: RotateOptions
+    m.add_class::<PyRotationAngle>()?;
+    m.add_class::<PyRotateOptions>()?;
+    m.add_function(wrap_pyfunction!(rotate_pdf_with_options, m)?)?;
+    // Feature 52: extract_page_range
+    m.add_function(wrap_pyfunction!(extract_page_range_to_bytes, m)?)?;
+    m.add_function(wrap_pyfunction!(extract_page_range_to_file, m)?)?;
+    // Feature 53: PageContentAnalyzer
+    m.add_class::<PyPageType>()?;
+    m.add_class::<PyContentAnalysis>()?;
+    m.add_function(wrap_pyfunction!(analyze_page_content, m)?)?;
+    m.add_function(wrap_pyfunction!(analyze_document_content, m)?)?;
     Ok(())
 }

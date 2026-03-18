@@ -74,6 +74,25 @@ from oxidize_pdf._oxidize_pdf import (
     rotate_pdf_to_bytes,
     extract_pages_to_bytes,
     split_pdf_to_bytes,
+    # Feature 49: SplitMode
+    PageRange,
+    SplitMode,
+    split_pdf_with_mode,
+    # Feature 50: MergeOptions
+    MergeOptions,
+    merge_pdfs_with_options,
+    # Feature 51: RotateOptions
+    RotationAngle,
+    RotateOptions,
+    rotate_pdf_with_options,
+    # Feature 52: extract_page_range
+    extract_page_range_to_bytes,
+    extract_page_range_to_file,
+    # Feature 53: PageContentAnalyzer
+    PageType,
+    ContentAnalysis,
+    analyze_page_content,
+    analyze_document_content,
 )
 
 # Image
@@ -181,6 +200,25 @@ from oxidize_pdf._oxidize_pdf import (
     Recipient,
 )
 
+# Viewer Preferences (F44)
+from oxidize_pdf._oxidize_pdf import (
+    Duplex,
+    PageLayout,
+    PageMode,
+    PrintScaling,
+    ViewerPreferences,
+)
+
+# Writer Config (F47)
+from oxidize_pdf._oxidize_pdf import (
+    WriterConfig,
+)
+
+# Font Encoding (F48)
+from oxidize_pdf._oxidize_pdf import (
+    FontEncoding,
+)
+
 __all__ = [
     "__version__",
     # Errors
@@ -232,6 +270,25 @@ __all__ = [
     "rotate_pdf_to_bytes",
     "extract_pages_to_bytes",
     "split_pdf_to_bytes",
+    # Feature 49
+    "PageRange",
+    "SplitMode",
+    "split_pdf_with_mode",
+    # Feature 50
+    "MergeOptions",
+    "merge_pdfs_with_options",
+    # Feature 51
+    "RotationAngle",
+    "RotateOptions",
+    "rotate_pdf_with_options",
+    # Feature 52
+    "extract_page_range_to_bytes",
+    "extract_page_range_to_file",
+    # Feature 53
+    "PageType",
+    "ContentAnalysis",
+    "analyze_page_content",
+    "analyze_document_content",
     # Image
     "Image",
     # Tables
@@ -295,4 +352,14 @@ __all__ = [
     "EncryptionStrength",
     "Permissions",
     "Recipient",
+    # Viewer Preferences (F44)
+    "Duplex",
+    "PageLayout",
+    "PageMode",
+    "PrintScaling",
+    "ViewerPreferences",
+    # Writer Config (F47)
+    "WriterConfig",
+    # Font Encoding (F48)
+    "FontEncoding",
 ]
