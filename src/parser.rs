@@ -23,7 +23,7 @@ fn parse_err_to_py(err: oxidize_pdf::parser::ParseError) -> PyErr {
 }
 
 fn pdf_err_to_py(err: oxidize_pdf::PdfError) -> PyErr {
-    errors::PdfError::new_err(err.to_string())
+    errors::to_py_err(err)
 }
 
 // ── ParseOptions ──────────────────────────────────────────────────────────────
@@ -479,10 +479,9 @@ impl PyPdfReader {
         match &mut self.state {
             ReaderState::RawFile(ref mut reader) => detect_on_reader!(reader),
             ReaderState::RawCursor(ref mut reader) => detect_on_reader!(reader),
-            // For promoted documents, re-open the file to get a fresh reader
             ReaderState::FileDocument(_) | ReaderState::CursorDocument(_) => {
-                // No signatures detected after promotion — return empty
-                // (detect_signature_fields requires raw PdfReader access)
+                // detect_signature_fields requires raw PdfReader access.
+                // After promotion, the reader is consumed — return empty list.
                 Ok(Vec::new())
             }
             ReaderState::Transitioning => unreachable!(),

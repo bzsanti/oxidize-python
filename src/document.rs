@@ -153,10 +153,9 @@ impl PyDocument {
         self.inner.enable_forms();
     }
 
-    /// Add a text field to the document on the given page.
+    /// Add a text field to the document.
     fn add_text_field(
         &mut self,
-        page_index: usize,
         field: &PyTextField,
         rect: &PyRectangle,
     ) -> PyResult<()> {
@@ -165,14 +164,12 @@ impl PyDocument {
             .enable_forms()
             .add_text_field(field.inner.clone(), widget, None)
             .map_err(to_py_err)?;
-        let _ = page_index; // page association handled by core
         Ok(())
     }
 
-    /// Add a checkbox to the document on the given page.
+    /// Add a checkbox to the document.
     fn add_checkbox(
         &mut self,
-        page_index: usize,
         field: &PyCheckBox,
         rect: &PyRectangle,
     ) -> PyResult<()> {
@@ -181,14 +178,12 @@ impl PyDocument {
             .enable_forms()
             .add_checkbox(field.inner.clone(), widget, None)
             .map_err(to_py_err)?;
-        let _ = page_index;
         Ok(())
     }
 
-    /// Add a combo box to the document on the given page.
+    /// Add a combo box to the document.
     fn add_combo_box(
         &mut self,
-        page_index: usize,
         field: &PyComboBox,
         rect: &PyRectangle,
     ) -> PyResult<()> {
@@ -197,14 +192,12 @@ impl PyDocument {
             .enable_forms()
             .add_combo_box(field.inner.clone(), widget, None)
             .map_err(to_py_err)?;
-        let _ = page_index;
         Ok(())
     }
 
-    /// Add a list box to the document on the given page.
+    /// Add a list box to the document.
     fn add_list_box(
         &mut self,
-        page_index: usize,
         field: &PyListBox,
         rect: &PyRectangle,
     ) -> PyResult<()> {
@@ -213,14 +206,12 @@ impl PyDocument {
             .enable_forms()
             .add_list_box(field.inner.clone(), widget, None)
             .map_err(to_py_err)?;
-        let _ = page_index;
         Ok(())
     }
 
-    /// Add a radio button group to the document on the given page.
+    /// Add a radio button group to the document.
     fn add_radio_button(
         &mut self,
-        page_index: usize,
         field: &PyRadioButton,
         rect: &PyRectangle,
     ) -> PyResult<()> {
@@ -229,7 +220,6 @@ impl PyDocument {
             .enable_forms()
             .add_radio_button(field.inner.clone(), Some(vec![widget]), None)
             .map_err(to_py_err)?;
-        let _ = page_index;
         Ok(())
     }
 
@@ -259,11 +249,12 @@ impl PyDocument {
         });
     }
 
-    fn set_open_action_uri(&mut self, action: &PyUriAction) {
+    #[pyo3(signature = (action, is_map = false))]
+    fn set_open_action_uri(&mut self, action: &PyUriAction, is_map: bool) {
         use oxidize_pdf::actions::Action;
         self.inner.set_open_action(Action::URI {
             uri: action.inner.uri.clone(),
-            is_map: false,
+            is_map,
         });
     }
 
@@ -326,10 +317,23 @@ pub struct PyWriterConfig {
 #[pymethods]
 impl PyWriterConfig {
     #[new]
-    fn new() -> Self {
-        Self {
-            inner: WriterConfig::default(),
+    #[pyo3(signature = (compress_streams=None, use_xref_streams=None, use_object_streams=None))]
+    fn new(
+        compress_streams: Option<bool>,
+        use_xref_streams: Option<bool>,
+        use_object_streams: Option<bool>,
+    ) -> Self {
+        let mut cfg = WriterConfig::default();
+        if let Some(v) = compress_streams {
+            cfg.compress_streams = v;
         }
+        if let Some(v) = use_xref_streams {
+            cfg.use_xref_streams = v;
+        }
+        if let Some(v) = use_object_streams {
+            cfg.use_object_streams = v;
+        }
+        Self { inner: cfg }
     }
 
     #[getter]

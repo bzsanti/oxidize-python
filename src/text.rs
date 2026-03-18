@@ -123,25 +123,23 @@ impl PyFont {
     }
 }
 
-fn font_name(font: &oxidize_pdf::Font) -> &'static str {
+fn font_name(font: &oxidize_pdf::Font) -> String {
     match font {
-        oxidize_pdf::Font::Helvetica => "HELVETICA",
-        oxidize_pdf::Font::HelveticaBold => "HELVETICA_BOLD",
-        oxidize_pdf::Font::HelveticaOblique => "HELVETICA_OBLIQUE",
-        oxidize_pdf::Font::HelveticaBoldOblique => "HELVETICA_BOLD_OBLIQUE",
-        oxidize_pdf::Font::TimesRoman => "TIMES_ROMAN",
-        oxidize_pdf::Font::TimesBold => "TIMES_BOLD",
-        oxidize_pdf::Font::TimesItalic => "TIMES_ITALIC",
-        oxidize_pdf::Font::TimesBoldItalic => "TIMES_BOLD_ITALIC",
-        oxidize_pdf::Font::Courier => "COURIER",
-        oxidize_pdf::Font::CourierBold => "COURIER_BOLD",
-        oxidize_pdf::Font::CourierOblique => "COURIER_OBLIQUE",
-        oxidize_pdf::Font::CourierBoldOblique => "COURIER_BOLD_OBLIQUE",
-        oxidize_pdf::Font::Symbol => "SYMBOL",
-        oxidize_pdf::Font::ZapfDingbats => "ZAPF_DINGBATS",
-        oxidize_pdf::Font::Custom(name) => {
-            Box::leak(format!("CUSTOM({name})").into_boxed_str())
-        }
+        oxidize_pdf::Font::Helvetica => "HELVETICA".into(),
+        oxidize_pdf::Font::HelveticaBold => "HELVETICA_BOLD".into(),
+        oxidize_pdf::Font::HelveticaOblique => "HELVETICA_OBLIQUE".into(),
+        oxidize_pdf::Font::HelveticaBoldOblique => "HELVETICA_BOLD_OBLIQUE".into(),
+        oxidize_pdf::Font::TimesRoman => "TIMES_ROMAN".into(),
+        oxidize_pdf::Font::TimesBold => "TIMES_BOLD".into(),
+        oxidize_pdf::Font::TimesItalic => "TIMES_ITALIC".into(),
+        oxidize_pdf::Font::TimesBoldItalic => "TIMES_BOLD_ITALIC".into(),
+        oxidize_pdf::Font::Courier => "COURIER".into(),
+        oxidize_pdf::Font::CourierBold => "COURIER_BOLD".into(),
+        oxidize_pdf::Font::CourierOblique => "COURIER_OBLIQUE".into(),
+        oxidize_pdf::Font::CourierBoldOblique => "COURIER_BOLD_OBLIQUE".into(),
+        oxidize_pdf::Font::Symbol => "SYMBOL".into(),
+        oxidize_pdf::Font::ZapfDingbats => "ZAPF_DINGBATS".into(),
+        oxidize_pdf::Font::Custom(name) => format!("CUSTOM({name})"),
     }
 }
 

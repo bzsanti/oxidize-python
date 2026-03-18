@@ -174,8 +174,14 @@ pub struct PyRecipient {
 impl PyRecipient {
     #[staticmethod]
     fn from_certificate(cert_data: &[u8]) -> PyResult<Self> {
-        // Validate basic structure — DER certificates start with 0x30 (SEQUENCE)
-        if cert_data.is_empty() || cert_data[0] != 0x30 {
+        const MIN_CERT_LEN: usize = 64;
+        if cert_data.len() < MIN_CERT_LEN {
+            return Err(pyo3::exceptions::PyValueError::new_err(format!(
+                "Invalid certificate data: too short ({} bytes, minimum {MIN_CERT_LEN})",
+                cert_data.len()
+            )));
+        }
+        if cert_data[0] != 0x30 {
             return Err(pyo3::exceptions::PyValueError::new_err(
                 "Invalid certificate data: not a valid DER-encoded X.509 certificate",
             ));

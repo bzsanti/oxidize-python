@@ -34,3 +34,10 @@
 - Causa raíz: No verifiqué el constructor de Page antes de escribir los tests (error recurrente — ya documentado previamente para Rectangle)
 - Cómo lo solucioné: Cambié a `Page(612.0, 792.0)` en todos los tests
 - Regla para evitarlo: SIEMPRE verificar constructores de tipos existentes leyendo page.rs antes de usarlos en tests nuevos. Esta regla aplica a todos los tipos del bridge.
+
+[2026-03-18] detect_signatures: intenté hacer que lance error post-promoción pero PdfReader siempre promueve PDFs no encriptados
+
+- Qué hice mal: Cambié detect_signatures para lanzar PdfError en estado Document, sin considerar que open()/from_bytes() promueven automáticamente si no está encriptado — haciendo imposible llamar detect_signatures
+- Causa raíz: No investigué el flujo de promoción del reader antes de cambiar el comportamiento. En la implementación actual, open() y from_bytes() promueven a PdfDocument inmediatamente si !encrypted
+- Cómo lo solucioné: Revertí a retornar lista vacía para estado Document (comportamiento original correcto)
+- Regla para evitarlo: Antes de cambiar comportamiento de error handling, trazar TODOS los paths de ejecución que llevan al código afectado

@@ -12,6 +12,16 @@ use crate::table::{PyTable, PyTableStyle};
 use crate::text::{PyFont, PyHeaderFooter, PyTextAlign, PyTextRenderingMode};
 use crate::types::{PyColor, PyMargins};
 
+#[inline]
+fn validate_opacity(opacity: f64) -> PyResult<()> {
+    if !(0.0..=1.0).contains(&opacity) {
+        return Err(pyo3::exceptions::PyValueError::new_err(format!(
+            "Opacity {opacity} out of range [0.0, 1.0]"
+        )));
+    }
+    Ok(())
+}
+
 #[pyclass(name = "Page", from_py_object)]
 #[derive(Clone)]
 pub struct PyPage {
@@ -100,8 +110,14 @@ impl PyPage {
         self.inner.get_rotation()
     }
 
-    fn set_rotation(&mut self, degrees: i32) {
+    fn set_rotation(&mut self, degrees: i32) -> PyResult<()> {
+        if ![0, 90, 180, 270].contains(&degrees) {
+            return Err(pyo3::exceptions::PyValueError::new_err(format!(
+                "Invalid rotation: {degrees}. Must be 0, 90, 180, or 270."
+            )));
+        }
         self.inner.set_rotation(degrees);
+        Ok(())
     }
 
     fn __repr__(&self) -> String {
@@ -178,13 +194,17 @@ impl PyPage {
     }
 
     /// Set fill opacity (0.0 = transparent, 1.0 = opaque).
-    fn set_fill_opacity(&mut self, opacity: f64) {
+    fn set_fill_opacity(&mut self, opacity: f64) -> PyResult<()> {
+        validate_opacity(opacity)?;
         self.inner.graphics().set_fill_opacity(opacity);
+        Ok(())
     }
 
     /// Set stroke opacity (0.0 = transparent, 1.0 = opaque).
-    fn set_stroke_opacity(&mut self, opacity: f64) {
+    fn set_stroke_opacity(&mut self, opacity: f64) -> PyResult<()> {
+        validate_opacity(opacity)?;
         self.inner.graphics().set_stroke_opacity(opacity);
+        Ok(())
     }
 
     /// Draw a rectangle path (does not fill or stroke — call fill/stroke after).

@@ -47,8 +47,10 @@ from oxidize_pdf._oxidize_pdf import (
 # Parser
 from oxidize_pdf._oxidize_pdf import (
     DocumentMetadata,
+    ParsedPage,
     ParseOptions,
     PdfReader,
+    TextChunk,
 )
 
 # Operations
@@ -250,8 +252,10 @@ __all__ = [
     "UnorderedList",
     # Parser
     "DocumentMetadata",
+    "ParsedPage",
     "ParseOptions",
     "PdfReader",
+    "TextChunk",
     # Operations
     "split_pdf",
     "merge_pdfs",

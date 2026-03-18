@@ -116,7 +116,7 @@ class TestDocumentEnableForms:
 
         tf = TextField("name_field")
         rect = Rectangle(Point(150.0, 710.0), Point(350.0, 735.0))
-        doc.add_text_field(0, tf, rect)
+        doc.add_text_field(tf, rect)
 
         data = doc.save_to_bytes()
         assert data[:5] == b"%PDF-"
@@ -135,7 +135,7 @@ class TestDocumentEnableForms:
 
         cb = CheckBox("agree").checked()
         rect = Rectangle(Point(150.0, 670.0), Point(170.0, 690.0))
-        doc.add_checkbox(0, cb, rect)
+        doc.add_checkbox(cb, rect)
 
         data = doc.save_to_bytes()
         assert data[:5] == b"%PDF-"
@@ -154,7 +154,7 @@ class TestDocumentEnableForms:
 
         combo = ComboBox("country").add_option("US", "United States").add_option("UK", "United Kingdom")
         rect = Rectangle(Point(150.0, 630.0), Point(350.0, 655.0))
-        doc.add_combo_box(0, combo, rect)
+        doc.add_combo_box(combo, rect)
 
         data = doc.save_to_bytes()
         assert data[:5] == b"%PDF-"
@@ -172,7 +172,7 @@ class TestDocumentEnableForms:
 
         lb = ListBox("fruits").add_option("apple", "Apple").add_option("banana", "Banana")
         rect = Rectangle(Point(150.0, 540.0), Point(350.0, 610.0))
-        doc.add_list_box(0, lb, rect)
+        doc.add_list_box(lb, rect)
 
         data = doc.save_to_bytes()
         assert data[:5] == b"%PDF-"
@@ -190,7 +190,7 @@ class TestDocumentEnableForms:
 
         rb = RadioButton("color").add_option("R", "Red").add_option("G", "Green")
         rect = Rectangle(Point(150.0, 490.0), Point(170.0, 510.0))
-        doc.add_radio_button(0, rb, rect)
+        doc.add_radio_button(rb, rect)
 
         data = doc.save_to_bytes()
         assert data[:5] == b"%PDF-"
