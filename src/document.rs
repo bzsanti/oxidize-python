@@ -1,10 +1,15 @@
 use pyo3::prelude::*;
 
+use oxidize_pdf::forms::Widget;
+
+use crate::actions::PyNamedDestinations;
 use crate::errors::to_py_err;
+use crate::forms::{PyCheckBox, PyComboBox, PyListBox, PyRadioButton, PyTextField};
 use crate::outlines::PyOutlineTree;
 use crate::page::PyPage;
 use crate::page_labels::PyPageLabelTree;
 use crate::security::{PyEncryptionStrength, PyPermissions};
+use crate::types::PyRectangle;
 
 #[pyclass(name = "Document")]
 pub struct PyDocument {
@@ -136,6 +141,104 @@ impl PyDocument {
         self.inner
             .set_modification_date(dt.with_timezone(&chrono::Utc));
         Ok(())
+    }
+
+    // ── Forms ────────────────────────────────────────────────────────────
+
+    /// Enable the AcroForm subsystem on this document.
+    fn enable_forms(&mut self) {
+        self.inner.enable_forms();
+    }
+
+    /// Add a text field to the document on the given page.
+    fn add_text_field(
+        &mut self,
+        page_index: usize,
+        field: &PyTextField,
+        rect: &PyRectangle,
+    ) -> PyResult<()> {
+        let widget = Widget::new(rect.inner.clone());
+        self.inner
+            .enable_forms()
+            .add_text_field(field.inner.clone(), widget, None)
+            .map_err(to_py_err)?;
+        let _ = page_index; // page association handled by core
+        Ok(())
+    }
+
+    /// Add a checkbox to the document on the given page.
+    fn add_checkbox(
+        &mut self,
+        page_index: usize,
+        field: &PyCheckBox,
+        rect: &PyRectangle,
+    ) -> PyResult<()> {
+        let widget = Widget::new(rect.inner.clone());
+        self.inner
+            .enable_forms()
+            .add_checkbox(field.inner.clone(), widget, None)
+            .map_err(to_py_err)?;
+        let _ = page_index;
+        Ok(())
+    }
+
+    /// Add a combo box to the document on the given page.
+    fn add_combo_box(
+        &mut self,
+        page_index: usize,
+        field: &PyComboBox,
+        rect: &PyRectangle,
+    ) -> PyResult<()> {
+        let widget = Widget::new(rect.inner.clone());
+        self.inner
+            .enable_forms()
+            .add_combo_box(field.inner.clone(), widget, None)
+            .map_err(to_py_err)?;
+        let _ = page_index;
+        Ok(())
+    }
+
+    /// Add a list box to the document on the given page.
+    fn add_list_box(
+        &mut self,
+        page_index: usize,
+        field: &PyListBox,
+        rect: &PyRectangle,
+    ) -> PyResult<()> {
+        let widget = Widget::new(rect.inner.clone());
+        self.inner
+            .enable_forms()
+            .add_list_box(field.inner.clone(), widget, None)
+            .map_err(to_py_err)?;
+        let _ = page_index;
+        Ok(())
+    }
+
+    /// Add a radio button group to the document on the given page.
+    fn add_radio_button(
+        &mut self,
+        page_index: usize,
+        field: &PyRadioButton,
+        rect: &PyRectangle,
+    ) -> PyResult<()> {
+        let widget = Widget::new(rect.inner.clone());
+        self.inner
+            .enable_forms()
+            .add_radio_button(field.inner.clone(), Some(vec![widget]), None)
+            .map_err(to_py_err)?;
+        let _ = page_index;
+        Ok(())
+    }
+
+    // ── Named Destinations ──────────────────────────────────────────────
+
+    /// Set named destinations on this document.
+    fn set_named_destinations(&mut self, destinations: &mut PyNamedDestinations) {
+        let nd = std::mem::replace(
+            &mut destinations.inner,
+            oxidize_pdf::structure::NamedDestinations::new(),
+        );
+        self.inner.set_named_destinations(nd);
     }
 
     fn __repr__(&self) -> String {

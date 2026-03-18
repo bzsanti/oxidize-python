@@ -1,7 +1,7 @@
 use pyo3::prelude::*;
 
 use oxidize_pdf::actions;
-use oxidize_pdf::structure::{Destination, PageDestination};
+use oxidize_pdf::structure::{Destination, NamedDestinations, PageDestination};
 
 // ── UriAction ─────────────────────────────────────────────────────────────
 
@@ -174,6 +174,33 @@ impl PyDestination {
     }
 }
 
+// ── NamedDestinations ─────────────────────────────────────────────────────
+
+#[pyclass(name = "NamedDestinations")]
+pub struct PyNamedDestinations {
+    pub inner: NamedDestinations,
+}
+
+#[pymethods]
+impl PyNamedDestinations {
+    #[new]
+    fn new() -> Self {
+        Self {
+            inner: NamedDestinations::new(),
+        }
+    }
+
+    /// Add a named destination.
+    fn add(&mut self, name: &str, destination: &PyDestination) {
+        self.inner
+            .add_destination(name.to_string(), destination.inner.to_array());
+    }
+
+    fn __repr__(&self) -> String {
+        "NamedDestinations(...)".to_string()
+    }
+}
+
 // ── Registration ──────────────────────────────────────────────────────────
 
 pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
@@ -182,5 +209,6 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyJavaScriptAction>()?;
     m.add_class::<PyResetFormAction>()?;
     m.add_class::<PyDestination>()?;
+    m.add_class::<PyNamedDestinations>()?;
     Ok(())
 }

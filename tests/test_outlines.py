@@ -117,6 +117,49 @@ class TestDestination:
         assert isinstance(d, Destination)
 
 
+# ── Tier 0: Named Destinations on Document ────────────────────────────────
+
+
+class TestNamedDestinations:
+    def test_named_destinations_create(self):
+        from oxidize_pdf import NamedDestinations
+
+        nd = NamedDestinations()
+        assert isinstance(nd, NamedDestinations)
+
+    def test_named_destinations_add(self):
+        from oxidize_pdf import Destination, NamedDestinations
+
+        nd = NamedDestinations()
+        nd.add("chapter1", Destination.fit(0))
+        nd.add("chapter2", Destination.fit(1))
+
+    def test_document_set_named_destinations_renders(self):
+        from oxidize_pdf import (
+            Destination,
+            Document,
+            Font,
+            NamedDestinations,
+            Page,
+        )
+
+        nd = NamedDestinations()
+        nd.add("intro", Destination.fit(0))
+        nd.add("chapter1", Destination.fit(1))
+
+        doc = Document()
+        for i in range(2):
+            page = Page.a4()
+            page.set_font(Font.HELVETICA, 24.0)
+            page.text_at(72.0, 700.0, f"Page {i + 1}")
+            doc.add_page(page)
+
+        doc.set_named_destinations(nd)
+        data = doc.save_to_bytes()
+        assert data[:5] == b"%PDF-"
+        assert len(data) > 200
+
+
 # ── Feature 26: Page Labels ──────────────────────────────────────────────
 
 

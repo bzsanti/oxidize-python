@@ -9,7 +9,7 @@ use crate::graphics::{PyBlendMode, PyClippingPath, PyLineCap, PyLineDashPattern,
 use crate::image::PyImage;
 use crate::list::{PyBulletStyle, PyOrderedList, PyOrderedListStyle, PyUnorderedList};
 use crate::table::{PyTable, PyTableStyle};
-use crate::text::{PyFont, PyTextAlign, PyTextRenderingMode};
+use crate::text::{PyFont, PyHeaderFooter, PyTextAlign, PyTextRenderingMode};
 use crate::types::{PyColor, PyMargins};
 
 #[pyclass(name = "Page", from_py_object)]
@@ -408,6 +408,18 @@ impl PyPage {
         self.inner
             .draw_image(name, x, y, width, height)
             .map_err(to_py_err)
+    }
+
+    // ── Header/Footer operations ─────────────────────────────────────────
+
+    /// Set a header on this page.
+    fn set_header(&mut self, header: &PyHeaderFooter) {
+        self.inner.set_header(header.inner.clone());
+    }
+
+    /// Set a footer on this page.
+    fn set_footer(&mut self, footer: &PyHeaderFooter) {
+        self.inner.set_footer(footer.inner.clone());
     }
 
     // ── Text flow (aligned / wrapped text) ──────────────────────────────

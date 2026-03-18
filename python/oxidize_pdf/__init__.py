@@ -46,6 +46,8 @@ from oxidize_pdf._oxidize_pdf import (
 
 # Parser
 from oxidize_pdf._oxidize_pdf import (
+    DocumentMetadata,
+    ParseOptions,
     PdfReader,
 )
 
@@ -109,6 +111,7 @@ from oxidize_pdf._oxidize_pdf import (
     Destination,
     GoToAction,
     JavaScriptAction,
+    NamedDestinations,
     ResetFormAction,
     UriAction,
 )
@@ -208,6 +211,8 @@ __all__ = [
     "OrderedListStyle",
     "UnorderedList",
     # Parser
+    "DocumentMetadata",
+    "ParseOptions",
     "PdfReader",
     # Operations
     "split_pdf",
@@ -249,6 +254,7 @@ __all__ = [
     "Destination",
     "GoToAction",
     "JavaScriptAction",
+    "NamedDestinations",
     "ResetFormAction",
     "UriAction",
     # Forms

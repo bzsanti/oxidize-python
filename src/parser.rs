@@ -26,6 +26,180 @@ fn pdf_err_to_py(err: oxidize_pdf::PdfError) -> PyErr {
     errors::PdfError::new_err(err.to_string())
 }
 
+// ── ParseOptions ──────────────────────────────────────────────────────────────
+
+#[pyclass(name = "ParseOptions", frozen, from_py_object)]
+#[derive(Clone)]
+pub struct PyParseOptions {
+    pub inner: oxidize_pdf::parser::ParseOptions,
+}
+
+#[pymethods]
+impl PyParseOptions {
+    #[new]
+    #[pyo3(signature = (
+        strict_mode = true,
+        recover_from_stream_errors = false,
+        ignore_corrupt_streams = false,
+        partial_content_allowed = false,
+        lenient_streams = false,
+        lenient_encoding = true,
+        lenient_syntax = false,
+        max_recovery_attempts = 3,
+        max_recovery_bytes = 1000,
+        collect_warnings = false,
+    ))]
+    fn new(
+        strict_mode: bool,
+        recover_from_stream_errors: bool,
+        ignore_corrupt_streams: bool,
+        partial_content_allowed: bool,
+        lenient_streams: bool,
+        lenient_encoding: bool,
+        lenient_syntax: bool,
+        max_recovery_attempts: usize,
+        max_recovery_bytes: usize,
+        collect_warnings: bool,
+    ) -> Self {
+        Self {
+            inner: oxidize_pdf::parser::ParseOptions {
+                strict_mode,
+                recover_from_stream_errors,
+                ignore_corrupt_streams,
+                partial_content_allowed,
+                lenient_streams,
+                lenient_encoding,
+                lenient_syntax,
+                max_recovery_attempts,
+                max_recovery_bytes,
+                collect_warnings,
+                ..Default::default()
+            },
+        }
+    }
+
+    #[staticmethod]
+    fn strict() -> Self {
+        Self {
+            inner: oxidize_pdf::parser::ParseOptions::strict(),
+        }
+    }
+
+    #[staticmethod]
+    fn tolerant() -> Self {
+        Self {
+            inner: oxidize_pdf::parser::ParseOptions::tolerant(),
+        }
+    }
+
+    #[staticmethod]
+    fn lenient() -> Self {
+        Self {
+            inner: oxidize_pdf::parser::ParseOptions::lenient(),
+        }
+    }
+
+    #[staticmethod]
+    fn skip_errors() -> Self {
+        Self {
+            inner: oxidize_pdf::parser::ParseOptions::skip_errors(),
+        }
+    }
+
+    #[getter]
+    fn strict_mode(&self) -> bool {
+        self.inner.strict_mode
+    }
+
+    #[getter]
+    fn recover_from_stream_errors(&self) -> bool {
+        self.inner.recover_from_stream_errors
+    }
+
+    #[getter]
+    fn ignore_corrupt_streams(&self) -> bool {
+        self.inner.ignore_corrupt_streams
+    }
+
+    #[getter]
+    fn partial_content_allowed(&self) -> bool {
+        self.inner.partial_content_allowed
+    }
+
+    #[getter]
+    fn lenient_streams(&self) -> bool {
+        self.inner.lenient_streams
+    }
+
+    #[getter]
+    fn lenient_encoding(&self) -> bool {
+        self.inner.lenient_encoding
+    }
+
+    #[getter]
+    fn lenient_syntax(&self) -> bool {
+        self.inner.lenient_syntax
+    }
+
+    #[getter]
+    fn max_recovery_attempts(&self) -> usize {
+        self.inner.max_recovery_attempts
+    }
+
+    #[getter]
+    fn max_recovery_bytes(&self) -> usize {
+        self.inner.max_recovery_bytes
+    }
+
+    #[getter]
+    fn collect_warnings(&self) -> bool {
+        self.inner.collect_warnings
+    }
+
+    fn __repr__(&self) -> String {
+        format!(
+            "ParseOptions(strict_mode={}, lenient_streams={})",
+            self.inner.strict_mode, self.inner.lenient_streams,
+        )
+    }
+}
+
+// ── DocumentMetadata ──────────────────────────────────────────────────────────
+
+#[pyclass(name = "DocumentMetadata", frozen)]
+pub struct PyDocumentMetadata {
+    #[pyo3(get)]
+    pub title: Option<String>,
+    #[pyo3(get)]
+    pub author: Option<String>,
+    #[pyo3(get)]
+    pub subject: Option<String>,
+    #[pyo3(get)]
+    pub keywords: Option<String>,
+    #[pyo3(get)]
+    pub creator: Option<String>,
+    #[pyo3(get)]
+    pub producer: Option<String>,
+    #[pyo3(get)]
+    pub creation_date: Option<String>,
+    #[pyo3(get)]
+    pub modification_date: Option<String>,
+    #[pyo3(get)]
+    pub version: String,
+    #[pyo3(get)]
+    pub page_count: Option<u32>,
+}
+
+#[pymethods]
+impl PyDocumentMetadata {
+    fn __repr__(&self) -> String {
+        format!(
+            "DocumentMetadata(title={:?}, author={:?}, version={:?})",
+            self.title, self.author, self.version,
+        )
+    }
+}
+
 /// Internal state of PyPdfReader.
 ///
 /// When first opened on an encrypted file, we hold a raw `PdfReader` so
@@ -111,8 +285,14 @@ impl PyPdfReader {
 impl PyPdfReader {
     /// Open a PDF file for reading.
     #[staticmethod]
-    fn open(path: &str) -> PyResult<Self> {
-        let reader = oxidize_pdf::PdfReader::open(path).map_err(parse_err_to_py)?;
+    #[pyo3(signature = (path, options = None))]
+    fn open(path: &str, options: Option<&PyParseOptions>) -> PyResult<Self> {
+        let reader = if let Some(opts) = options {
+            oxidize_pdf::PdfReader::open_with_options(path, opts.inner.clone())
+        } else {
+            oxidize_pdf::PdfReader::open(path)
+        }
+        .map_err(parse_err_to_py)?;
         let encrypted = reader.is_encrypted();
 
         if encrypted {
@@ -130,9 +310,15 @@ impl PyPdfReader {
 
     /// Open a PDF from an in-memory byte buffer.
     #[staticmethod]
-    fn from_bytes(data: &[u8]) -> PyResult<Self> {
+    #[pyo3(signature = (data, options = None))]
+    fn from_bytes(data: &[u8], options: Option<&PyParseOptions>) -> PyResult<Self> {
         let cursor = Cursor::new(data.to_vec());
-        let reader = oxidize_pdf::PdfReader::new(cursor).map_err(parse_err_to_py)?;
+        let reader = if let Some(opts) = options {
+            oxidize_pdf::PdfReader::new_with_options(cursor, opts.inner.clone())
+        } else {
+            oxidize_pdf::PdfReader::new(cursor)
+        }
+        .map_err(parse_err_to_py)?;
         let encrypted = reader.is_encrypted();
 
         if encrypted {
@@ -241,6 +427,24 @@ impl PyPdfReader {
                 font_name: c.font_name,
             })
             .collect())
+    }
+
+    /// Get document metadata (title, author, subject, etc.).
+    fn metadata(&mut self) -> PyResult<PyDocumentMetadata> {
+        self.ensure_document();
+        let meta = with_document!(self, doc => doc.metadata().map_err(parse_err_to_py))?;
+        Ok(PyDocumentMetadata {
+            title: meta.title,
+            author: meta.author,
+            subject: meta.subject,
+            keywords: meta.keywords,
+            creator: meta.creator,
+            producer: meta.producer,
+            creation_date: meta.creation_date,
+            modification_date: meta.modification_date,
+            version: meta.version,
+            page_count: meta.page_count,
+        })
     }
 
     fn __len__(&mut self) -> PyResult<usize> {
@@ -362,6 +566,8 @@ impl PyParsedPage {
 // ── Registration ──────────────────────────────────────────────────────────────
 
 pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
+    m.add_class::<PyParseOptions>()?;
+    m.add_class::<PyDocumentMetadata>()?;
     m.add_class::<PyPdfReader>()?;
     m.add_class::<PyParsedPage>()?;
     m.add_class::<PyTextChunk>()?;
