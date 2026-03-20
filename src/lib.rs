@@ -4,6 +4,7 @@ mod actions;
 mod advanced_tables;
 mod ai_pipeline;
 mod annotations;
+mod batch_recovery_streaming;
 mod charts;
 mod document;
 mod errors;
@@ -57,6 +58,7 @@ fn _oxidize_pdf(m: &Bound<'_, PyModule>) -> PyResult<()> {
     page_transitions::register(m)?;
     ai_pipeline::register(m)?;
     text_extraction::register(m)?;
+    batch_recovery_streaming::register(m)?;
 
     Ok(())
 }

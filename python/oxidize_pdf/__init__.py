@@ -363,6 +363,33 @@ from oxidize_pdf._oxidize_pdf import (
     TextValidator,
 )
 
+# Batch/Recovery/Streaming Full (Tier 15 — F62-F64)
+from oxidize_pdf._oxidize_pdf import (
+    # F62: Batch Processing
+    BatchJob,
+    JobResult,
+    BatchSummary,
+    ProgressInfo,
+    BatchProcessor,
+    batch_split_pdfs,
+    batch_merge_pdfs,
+    # F63: Recovery Full
+    RepairStrategy,
+    CorruptionType,
+    CorruptionReport,
+    RepairResult,
+    ScanResult,
+    ObjectScanner,
+    quick_recover,
+    detect_pdf_corruption,
+    analyze_pdf_corruption,
+    repair_pdf,
+    # F64: Streaming Full
+    StreamingPage,
+    PageStreamer,
+    IncrementalParser,
+)
+
 __all__ = [
     "__version__",
     # Errors
@@ -631,4 +658,28 @@ __all__ = [
     "TextMatch",
     "TextValidationResult",
     "TextValidator",
+    # Batch/Recovery/Streaming (Tier 15 — F62-F64)
+    # F62
+    "BatchJob",
+    "JobResult",
+    "BatchSummary",
+    "ProgressInfo",
+    "BatchProcessor",
+    "batch_split_pdfs",
+    "batch_merge_pdfs",
+    # F63
+    "RepairStrategy",
+    "CorruptionType",
+    "CorruptionReport",
+    "RepairResult",
+    "ScanResult",
+    "ObjectScanner",
+    "quick_recover",
+    "detect_pdf_corruption",
+    "analyze_pdf_corruption",
+    "repair_pdf",
+    # F64
+    "StreamingPage",
+    "PageStreamer",
+    "IncrementalParser",
 ]
