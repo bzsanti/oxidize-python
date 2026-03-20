@@ -2,22 +2,26 @@ use pyo3::prelude::*;
 
 mod actions;
 mod advanced_tables;
+mod ai_pipeline;
 mod annotations;
 mod charts;
 mod document;
 mod errors;
 mod forms;
 mod graphics;
+mod graphics_advanced;
 mod image;
 mod list;
 mod operations;
 mod outlines;
 mod page;
 mod page_labels;
+mod page_transitions;
 mod parser;
 mod security;
 mod table;
 mod text;
+mod text_extraction;
 mod tier8;
 mod types;
 mod viewer_preferences;
@@ -49,6 +53,10 @@ fn _oxidize_pdf(m: &Bound<'_, PyModule>) -> PyResult<()> {
     viewer_preferences::register(m)?;
     charts::register(m)?;
     advanced_tables::register(m)?;
+    graphics_advanced::register(m)?;
+    page_transitions::register(m)?;
+    ai_pipeline::register(m)?;
+    text_extraction::register(m)?;
 
     Ok(())
 }

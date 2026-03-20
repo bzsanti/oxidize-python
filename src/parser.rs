@@ -3,7 +3,9 @@ use std::io::Cursor;
 
 use pyo3::prelude::*;
 
+use crate::ai_pipeline::{PyDocumentChunk, PyElement, PyExtractionProfile, PyRagChunk};
 use crate::errors;
+use crate::text_extraction::{PyExtractionOptions, PyPlainTextConfig, PyPlainTextResult};
 
 /// Convert a parser `ParseError` into the appropriate Python exception.
 ///
@@ -486,6 +488,109 @@ impl PyPdfReader {
             }
             ReaderState::Transitioning => unreachable!(),
         }
+    }
+
+    /// Export document as Markdown.
+    #[allow(deprecated)]
+    fn to_markdown(&mut self) -> PyResult<String> {
+        self.ensure_document();
+        with_document!(self, doc => doc.to_markdown().map_err(pdf_err_to_py))
+    }
+
+    /// Export document in contextual format (for LLM prompts).
+    #[allow(deprecated)]
+    fn to_contextual(&mut self) -> PyResult<String> {
+        self.ensure_document();
+        with_document!(self, doc => doc.to_contextual().map_err(pdf_err_to_py))
+    }
+
+    /// Chunk document text for RAG pipeline (deprecated — prefer rag_chunks).
+    #[allow(deprecated)]
+    fn chunk(&mut self, chunk_size: usize, overlap: usize) -> PyResult<Vec<PyDocumentChunk>> {
+        self.ensure_document();
+        let chunks =
+            with_document!(self, doc => doc.chunk_with(chunk_size, overlap).map_err(pdf_err_to_py))?;
+        Ok(chunks.into_iter().map(|c| PyDocumentChunk { inner: c }).collect())
+    }
+
+    /// Partition document into semantic elements.
+    fn partition(&mut self) -> PyResult<Vec<PyElement>> {
+        self.ensure_document();
+        let elements =
+            with_document!(self, doc => doc.partition().map_err(parse_err_to_py))?;
+        Ok(elements.into_iter().map(|e| PyElement { inner: e }).collect())
+    }
+
+    /// Get RAG-ready chunks with default configuration.
+    fn rag_chunks(&mut self) -> PyResult<Vec<PyRagChunk>> {
+        self.ensure_document();
+        let chunks =
+            with_document!(self, doc => doc.rag_chunks().map_err(parse_err_to_py))?;
+        Ok(chunks.into_iter().map(|c| PyRagChunk { inner: c }).collect())
+    }
+
+    /// Get RAG chunks with an extraction profile.
+    fn rag_chunks_with_profile(
+        &mut self,
+        profile: &PyExtractionProfile,
+    ) -> PyResult<Vec<PyRagChunk>> {
+        self.ensure_document();
+        let chunks = with_document!(self, doc =>
+            doc.rag_chunks_with_profile(profile.inner.clone()).map_err(parse_err_to_py)
+        )?;
+        Ok(chunks.into_iter().map(|c| PyRagChunk { inner: c }).collect())
+    }
+
+    /// Extract text from all pages using advanced options.
+    ///
+    /// Returns a list of strings, one per page.
+    fn extract_text_with_options(&mut self, options: &PyExtractionOptions) -> PyResult<Vec<String>> {
+        self.ensure_document();
+        let texts = with_document!(self, doc =>
+            doc.extract_text_with_options(options.inner.clone()).map_err(parse_err_to_py)
+        )?;
+        Ok(texts.into_iter().map(|t| t.text).collect())
+    }
+
+    /// Extract plain text from a single page using PlainTextExtractor.
+    ///
+    /// Returns a ``PlainTextResult`` with text, line_count, and char_count.
+    #[pyo3(signature = (page_index, config = None))]
+    fn extract_plain_text(
+        &mut self,
+        page_index: u32,
+        config: Option<&PyPlainTextConfig>,
+    ) -> PyResult<PyPlainTextResult> {
+        self.ensure_document();
+        let mut extractor = if let Some(cfg) = config {
+            oxidize_pdf::text::PlainTextExtractor::with_config(cfg.inner.clone())
+        } else {
+            oxidize_pdf::text::PlainTextExtractor::new()
+        };
+        let result = with_document!(self, doc =>
+            extractor.extract(doc, page_index).map_err(parse_err_to_py)
+        )?;
+        Ok(PyPlainTextResult { inner: result })
+    }
+
+    /// Extract plain text lines from a single page.
+    ///
+    /// Returns a list of strings, one per detected line.
+    #[pyo3(signature = (page_index, config = None))]
+    fn extract_plain_text_lines(
+        &mut self,
+        page_index: u32,
+        config: Option<&PyPlainTextConfig>,
+    ) -> PyResult<Vec<String>> {
+        self.ensure_document();
+        let mut extractor = if let Some(cfg) = config {
+            oxidize_pdf::text::PlainTextExtractor::with_config(cfg.inner.clone())
+        } else {
+            oxidize_pdf::text::PlainTextExtractor::new()
+        };
+        with_document!(self, doc =>
+            extractor.extract_lines(doc, page_index).map_err(parse_err_to_py)
+        )
     }
 
     fn __repr__(&mut self) -> PyResult<String> {

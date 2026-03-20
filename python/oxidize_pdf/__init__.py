@@ -266,6 +266,15 @@ from oxidize_pdf._oxidize_pdf import (
     DashboardLineChart,
 )
 
+# Page Transitions (F60)
+from oxidize_pdf._oxidize_pdf import (
+    TransitionStyle,
+    TransitionDimension,
+    TransitionMotion,
+    TransitionDirection,
+    PageTransition,
+)
+
 # Advanced Tables (F61)
 from oxidize_pdf._oxidize_pdf import (
     CellAlignment,
@@ -275,12 +284,83 @@ from oxidize_pdf._oxidize_pdf import (
     HeaderCell,
     HeaderBuilder,
     AdvColumn,
-    CellData,
-    RowData,
-    ZebraConfig,
     AdvancedTable,
     AdvancedTableBuilder,
     AdvTableRenderer,
+)
+
+# AI/ML Pipeline (F59)
+from oxidize_pdf._oxidize_pdf import (
+    DocumentChunk,
+    DocumentChunker,
+    MarkdownOptions,
+    MarkdownExporter,
+    ExtractionProfile,
+    ReadingOrderStrategy,
+    PartitionConfig,
+    MergePolicy,
+    HybridChunkConfig,
+    SemanticChunkConfig,
+    Element,
+    RagChunk,
+)
+
+# Advanced Graphics (Tier 13 — F65-F70)
+from oxidize_pdf._oxidize_pdf import (
+    # F65: Shadings (enums + types)
+    ShadingType,
+    ShadingPoint,
+    ColorStop,
+    AxialShading,
+    RadialShading,
+    ShadingManager,
+    # F66: Patterns
+    PaintType,
+    TilingType,
+    PatternMatrix,
+    TilingPattern,
+    PatternManager,
+    # F67: FormXObject
+    FormXObject,
+    FormXObjectBuilder,
+    FormTemplates,
+    FormXObjectManager,
+    # F68: ExtGState
+    RenderingIntent,
+    ExtGState,
+    ExtGStateManager,
+    # F69: SoftMask + TransparencyGroup
+    SoftMaskType,
+    SoftMask,
+    SoftMaskState,
+    TransparencyGroup,
+    # F70: Advanced Color Spaces
+    IccColorSpace,
+    StandardIccProfile,
+    IccProfile,
+    IccProfileManager,
+    SeparationColorSpace,
+    SeparationColor,
+    SpotColors,
+)
+
+# Text Extraction Deep (Tier 14 — F71-F74)
+from oxidize_pdf._oxidize_pdf import (
+    # F71: ExtractionOptions
+    ExtractionOptions,
+    # F72: LineBreakMode, PlainTextConfig, PlainTextResult
+    LineBreakMode,
+    PlainTextConfig,
+    PlainTextResult,
+    # F73: ColumnLayout, ColumnOptions, ColumnContent
+    ColumnLayout,
+    ColumnOptions,
+    ColumnContent,
+    # F74: MatchType, TextMatch, TextValidationResult, TextValidator
+    MatchType,
+    TextMatch,
+    TextValidationResult,
+    TextValidator,
 )
 
 __all__ = [
@@ -469,6 +549,12 @@ __all__ = [
     "DashboardBarChart",
     "DashboardPieChart",
     "DashboardLineChart",
+    # Page Transitions (F60)
+    "TransitionStyle",
+    "TransitionDimension",
+    "TransitionMotion",
+    "TransitionDirection",
+    "PageTransition",
     # Advanced Tables (F61)
     "CellAlignment",
     "CellBorderStyle",
@@ -477,10 +563,72 @@ __all__ = [
     "HeaderCell",
     "HeaderBuilder",
     "AdvColumn",
-    "CellData",
-    "RowData",
-    "ZebraConfig",
     "AdvancedTable",
     "AdvancedTableBuilder",
     "AdvTableRenderer",
+    # AI/ML Pipeline (F59)
+    "DocumentChunk",
+    "DocumentChunker",
+    "MarkdownOptions",
+    "MarkdownExporter",
+    "ExtractionProfile",
+    "ReadingOrderStrategy",
+    "PartitionConfig",
+    "MergePolicy",
+    "HybridChunkConfig",
+    "SemanticChunkConfig",
+    "Element",
+    "RagChunk",
+    # Advanced Graphics (Tier 13 — F65-F70)
+    # F65: Shadings
+    "ShadingType",
+    "ShadingPoint",
+    "ColorStop",
+    "AxialShading",
+    "RadialShading",
+    "ShadingManager",
+    # F66: Patterns
+    "PaintType",
+    "TilingType",
+    "PatternMatrix",
+    "TilingPattern",
+    "PatternManager",
+    # F67: FormXObject
+    "FormXObject",
+    "FormXObjectBuilder",
+    "FormTemplates",
+    "FormXObjectManager",
+    # F68: ExtGState
+    "RenderingIntent",
+    "ExtGState",
+    "ExtGStateManager",
+    # F69: SoftMask + TransparencyGroup
+    "SoftMaskType",
+    "SoftMask",
+    "SoftMaskState",
+    "TransparencyGroup",
+    # F70: Advanced Color Spaces
+    "IccColorSpace",
+    "StandardIccProfile",
+    "IccProfile",
+    "IccProfileManager",
+    "SeparationColorSpace",
+    "SeparationColor",
+    "SpotColors",
+    # Text Extraction Deep (Tier 14 — F71-F74)
+    # F71
+    "ExtractionOptions",
+    # F72
+    "LineBreakMode",
+    "PlainTextConfig",
+    "PlainTextResult",
+    # F73
+    "ColumnLayout",
+    "ColumnOptions",
+    "ColumnContent",
+    # F74
+    "MatchType",
+    "TextMatch",
+    "TextValidationResult",
+    "TextValidator",
 ]
