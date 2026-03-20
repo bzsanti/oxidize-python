@@ -35,6 +35,13 @@
 - Cómo lo solucioné: Cambié a `Page(612.0, 792.0)` en todos los tests
 - Regla para evitarlo: SIEMPRE verificar constructores de tipos existentes leyendo page.rs antes de usarlos en tests nuevos. Esta regla aplica a todos los tipos del bridge.
 
+[2026-03-20] Usé doc.to_bytes() en tests de charts pero el método correcto es save_to_bytes()
+
+- Qué hice mal: Escribí doc.to_bytes() asumiendo el nombre sin verificar el API de Document
+- Causa raíz: No verifiqué la lista de métodos de Document antes de escribir los tests
+- Cómo lo solucioné: sed -i para reemplazar to_bytes() por save_to_bytes() en todos los tests
+- Regla para evitarlo: SIEMPRE verificar métodos de Document con `dir(doc)` antes de usarlos en tests nuevos (error recurrente: igual que con Page y Rectangle)
+
 [2026-03-18] detect_signatures: intenté hacer que lance error post-promoción pero PdfReader siempre promueve PDFs no encriptados
 
 - Qué hice mal: Cambié detect_signatures para lanzar PdfError en estado Document, sin considerar que open()/from_bytes() promueven automáticamente si no está encriptado — haciendo imposible llamar detect_signatures

@@ -1,7 +1,9 @@
 use pyo3::prelude::*;
 
 mod actions;
+mod advanced_tables;
 mod annotations;
+mod charts;
 mod document;
 mod errors;
 mod forms;
@@ -45,6 +47,8 @@ fn _oxidize_pdf(m: &Bound<'_, PyModule>) -> PyResult<()> {
     page_labels::register(m)?;
     tier8::register(m)?;
     viewer_preferences::register(m)?;
+    charts::register(m)?;
+    advanced_tables::register(m)?;
 
     Ok(())
 }

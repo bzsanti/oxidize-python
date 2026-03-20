@@ -1,5 +1,7 @@
 use pyo3::prelude::*;
 
+use oxidize_pdf::advanced_tables::AdvancedTableExt;
+use oxidize_pdf::charts::ChartExt;
 use oxidize_pdf::PageLists;
 use oxidize_pdf::PageTables;
 
@@ -459,6 +461,69 @@ impl PyPage {
     /// Set a footer on this page.
     fn set_footer(&mut self, footer: &PyHeaderFooter) {
         self.inner.set_footer(footer.inner.clone());
+    }
+
+    // ── Chart operations ─────────────────────────────────────────────────
+
+    /// Add a bar chart at the given position and dimensions.
+    fn add_bar_chart(
+        &mut self,
+        chart: &crate::charts::PyBarChart,
+        x: f64,
+        y: f64,
+        width: f64,
+        height: f64,
+    ) -> PyResult<()> {
+        self.inner
+            .add_bar_chart(&chart.inner, x, y, width, height)
+            .map_err(to_py_err)
+    }
+
+    /// Add a pie chart at the given center position and radius.
+    fn add_pie_chart(
+        &mut self,
+        chart: &crate::charts::PyPieChart,
+        x: f64,
+        y: f64,
+        radius: f64,
+    ) -> PyResult<()> {
+        self.inner
+            .add_pie_chart(&chart.inner, x, y, radius)
+            .map_err(to_py_err)
+    }
+
+    /// Add a line chart at the given position and dimensions.
+    fn add_line_chart(
+        &mut self,
+        chart: &crate::charts::PyLineChart,
+        x: f64,
+        y: f64,
+        width: f64,
+        height: f64,
+    ) -> PyResult<()> {
+        self.inner
+            .add_line_chart(&chart.inner, x, y, width, height)
+            .map_err(to_py_err)
+    }
+
+    // ── Advanced Tables ──────────────────────────────────────────────────
+
+    /// Add an advanced table at the given position, returning the bottom Y coordinate.
+    fn add_advanced_table(
+        &mut self,
+        table: &crate::advanced_tables::PyAdvancedTable,
+        x: f64,
+        y: f64,
+    ) -> PyResult<f64> {
+        self.inner.add_advanced_table(&table.inner, x, y).map_err(to_py_err)
+    }
+
+    /// Add an advanced table with automatic positioning.
+    fn add_advanced_table_auto(
+        &mut self,
+        table: &crate::advanced_tables::PyAdvancedTable,
+    ) -> PyResult<f64> {
+        self.inner.add_advanced_table_auto(&table.inner).map_err(to_py_err)
     }
 
     // ── Text flow (aligned / wrapped text) ──────────────────────────────

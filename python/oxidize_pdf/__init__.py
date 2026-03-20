@@ -246,6 +246,43 @@ from oxidize_pdf._oxidize_pdf import (
     FontEncoding,
 )
 
+# Charts (Tier 9 — F58)
+from oxidize_pdf._oxidize_pdf import (
+    ChartType,
+    LegendPosition,
+    BarOrientation,
+    ChartData,
+    BarChart,
+    BarChartBuilder,
+    DataSeries,
+    LineChart,
+    LineChartBuilder,
+    PieSegment,
+    PieChart,
+    PieChartBuilder,
+    ChartRenderer,
+    DashboardBarChart,
+    DashboardPieChart,
+    DashboardLineChart,
+)
+
+# Advanced Tables (F61)
+from oxidize_pdf._oxidize_pdf import (
+    CellAlignment,
+    CellBorderStyle,
+    CellPadding,
+    CellStyle,
+    HeaderCell,
+    HeaderBuilder,
+    AdvColumn,
+    CellData,
+    RowData,
+    ZebraConfig,
+    AdvancedTable,
+    AdvancedTableBuilder,
+    AdvTableRenderer,
+)
+
 __all__ = [
     "__version__",
     # Errors
@@ -415,4 +452,35 @@ __all__ = [
     "WriterConfig",
     # Font Encoding (F48)
     "FontEncoding",
+    # Charts (F58)
+    "ChartType",
+    "LegendPosition",
+    "BarOrientation",
+    "ChartData",
+    "BarChart",
+    "BarChartBuilder",
+    "DataSeries",
+    "LineChart",
+    "LineChartBuilder",
+    "PieSegment",
+    "PieChart",
+    "PieChartBuilder",
+    "ChartRenderer",
+    "DashboardBarChart",
+    "DashboardPieChart",
+    "DashboardLineChart",
+    # Advanced Tables (F61)
+    "CellAlignment",
+    "CellBorderStyle",
+    "CellPadding",
+    "CellStyle",
+    "HeaderCell",
+    "HeaderBuilder",
+    "AdvColumn",
+    "CellData",
+    "RowData",
+    "ZebraConfig",
+    "AdvancedTable",
+    "AdvancedTableBuilder",
+    "AdvTableRenderer",
 ]
