@@ -295,98 +295,6 @@ def test_adv_column_repr():
     assert "150" in r
 
 
-# ── CellData ─────────────────────────────────────────────────────────────────
-
-
-def test_cell_data_new():
-    c = op.CellData("Hello")
-    assert c.content == "Hello"
-
-
-def test_cell_data_with_style():
-    c = op.CellData("Value").with_style(op.CellStyle.numeric())
-    assert c.content == "Value"
-
-
-def test_cell_data_colspan():
-    c = op.CellData("Merged").colspan(2)
-    assert "colspan=2" in repr(c)
-
-
-def test_cell_data_rowspan():
-    c = op.CellData("Tall").rowspan(3)
-    assert "rowspan=3" in repr(c)
-
-
-def test_cell_data_repr():
-    c = op.CellData("Test")
-    r = repr(c)
-    assert "CellData" in r
-    assert "Test" in r
-
-
-# ── RowData ──────────────────────────────────────────────────────────────────
-
-
-def test_row_data_from_strings():
-    row = op.RowData.from_strings(["A", "B", "C"])
-    assert row.cell_count() == 3
-
-
-def test_row_data_from_cells():
-    cells = [op.CellData("X"), op.CellData("Y")]
-    row = op.RowData.from_cells(cells)
-    assert row.cell_count() == 2
-
-
-def test_row_data_with_style():
-    row = op.RowData.from_strings(["A"]).with_style(op.CellStyle.header())
-    assert "RowData" in repr(row)
-
-
-def test_row_data_min_height():
-    row = op.RowData.from_strings(["A"]).min_height(40.0)
-    assert "RowData" in repr(row)
-
-
-def test_row_data_repr():
-    row = op.RowData.from_strings(["X", "Y"])
-    r = repr(row)
-    assert "RowData" in r
-    assert "cells=2" in r
-
-
-# ── ZebraConfig ──────────────────────────────────────────────────────────────
-
-
-def test_zebra_config_new():
-    zc = op.ZebraConfig(op.Color.rgb(0.9, 0.9, 0.9), None)
-    assert "ZebraConfig" in repr(zc)
-
-
-def test_zebra_config_new_both_colors():
-    zc = op.ZebraConfig(op.Color.rgb(0.9, 0.9, 0.9), op.Color.rgb(1.0, 1.0, 1.0))
-    assert "ZebraConfig" in repr(zc)
-
-
-def test_zebra_config_new_no_colors():
-    zc = op.ZebraConfig(None, None)
-    assert "ZebraConfig" in repr(zc)
-
-
-def test_zebra_config_simple():
-    zc = op.ZebraConfig.simple(op.Color.rgb(0.95, 0.95, 0.95))
-    r = repr(zc)
-    assert "ZebraConfig" in r
-    assert "odd=true" in r  # odd_color is some
-
-
-def test_zebra_config_repr():
-    zc = op.ZebraConfig.simple(op.Color.rgb(0.9, 0.9, 0.9))
-    r = repr(zc)
-    assert "start_with_odd=true" in r
-
-
 # ── AdvancedTableBuilder ─────────────────────────────────────────────────────
 
 
@@ -426,16 +334,6 @@ def test_builder_add_row():
     b.add_row(["Bob"])
     table = b.build()
     assert table.row_count() == 2
-
-
-def test_builder_add_row_cells():
-    b = op.AdvancedTableBuilder()
-    b.add_column("A", 50.0)
-    b.add_column("B", 50.0)
-    cells = [op.CellData("X").colspan(2), op.CellData("Y")]
-    b.add_row_cells(cells)
-    table = b.build()
-    assert table.row_count() == 1
 
 
 def test_builder_add_styled_row():
@@ -523,15 +421,6 @@ def test_builder_zebra_striping():
     b = op.AdvancedTableBuilder()
     b.add_column("A", 100.0)
     b.zebra_striping(op.Color.rgb(0.9, 0.9, 0.9))
-    table = b.build()
-    assert "AdvancedTable" in repr(table)
-
-
-def test_builder_zebra_striping_custom():
-    b = op.AdvancedTableBuilder()
-    b.add_column("A", 100.0)
-    config = op.ZebraConfig.simple(op.Color.rgb(0.9, 0.9, 0.9))
-    b.zebra_striping_custom(config)
     table = b.build()
     assert "AdvancedTable" in repr(table)
 

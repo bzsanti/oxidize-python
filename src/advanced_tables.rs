@@ -6,8 +6,8 @@
 use pyo3::prelude::*;
 
 use oxidize_pdf::advanced_tables::{
-    AdvancedTable, AdvancedTableBuilder, BorderStyle, CellAlignment, CellData, CellStyle, Column,
-    HeaderBuilder, HeaderCell, Padding, RowData, TableRenderer, ZebraConfig,
+    AdvancedTable, AdvancedTableBuilder, BorderStyle, CellAlignment, CellStyle, Column,
+    HeaderBuilder, HeaderCell, Padding, TableRenderer,
 };
 
 use crate::errors::to_py_err;
@@ -376,120 +376,6 @@ impl PyAdvColumn {
     }
 }
 
-// ── CellData ──────────────────────────────────────────────────────────────
-
-#[pyclass(name = "CellData", from_py_object)]
-#[derive(Clone)]
-pub struct PyCellData {
-    pub inner: CellData,
-}
-
-#[pymethods]
-impl PyCellData {
-    #[new]
-    fn new(content: &str) -> Self {
-        Self { inner: CellData::new(content) }
-    }
-
-    fn with_style(&self, style: &PyCellStyle) -> Self {
-        Self { inner: self.inner.clone().with_style(style.inner.clone()) }
-    }
-
-    fn colspan(&self, span: usize) -> Self {
-        Self { inner: self.inner.clone().colspan(span) }
-    }
-
-    fn rowspan(&self, span: usize) -> Self {
-        Self { inner: self.inner.clone().rowspan(span) }
-    }
-
-    #[getter]
-    fn content(&self) -> &str {
-        &self.inner.content
-    }
-
-    fn __repr__(&self) -> String {
-        format!(
-            "CellData(content={:?}, colspan={}, rowspan={})",
-            self.inner.content, self.inner.colspan, self.inner.rowspan
-        )
-    }
-}
-
-// ── RowData ───────────────────────────────────────────────────────────────
-
-#[pyclass(name = "RowData", from_py_object)]
-#[derive(Clone)]
-pub struct PyRowData {
-    pub inner: RowData,
-}
-
-#[pymethods]
-impl PyRowData {
-    #[staticmethod]
-    fn from_strings(content: Vec<String>) -> Self {
-        let refs: Vec<&str> = content.iter().map(|s| s.as_str()).collect();
-        Self { inner: RowData::from_strings(refs) }
-    }
-
-    #[staticmethod]
-    fn from_cells(cells: Vec<PyRef<PyCellData>>) -> Self {
-        let cells: Vec<CellData> = cells.iter().map(|c| c.inner.clone()).collect();
-        Self { inner: RowData::from_cells(cells) }
-    }
-
-    fn with_style(&self, style: &PyCellStyle) -> Self {
-        Self { inner: self.inner.clone().with_style(style.inner.clone()) }
-    }
-
-    fn min_height(&self, height: f64) -> Self {
-        Self { inner: self.inner.clone().min_height(height) }
-    }
-
-    fn cell_count(&self) -> usize {
-        self.inner.cells.len()
-    }
-
-    fn __repr__(&self) -> String {
-        format!("RowData(cells={})", self.inner.cells.len())
-    }
-}
-
-// ── ZebraConfig ───────────────────────────────────────────────────────────
-
-#[pyclass(name = "ZebraConfig", from_py_object)]
-#[derive(Clone)]
-pub struct PyZebraConfig {
-    pub inner: ZebraConfig,
-}
-
-#[pymethods]
-impl PyZebraConfig {
-    #[new]
-    fn new(odd_color: Option<&PyColor>, even_color: Option<&PyColor>) -> Self {
-        Self {
-            inner: ZebraConfig::new(
-                odd_color.map(|c| c.inner),
-                even_color.map(|c| c.inner),
-            ),
-        }
-    }
-
-    #[staticmethod]
-    fn simple(color: &PyColor) -> Self {
-        Self { inner: ZebraConfig::simple(color.inner) }
-    }
-
-    fn __repr__(&self) -> String {
-        format!(
-            "ZebraConfig(odd={}, even={}, start_with_odd={})",
-            self.inner.odd_color.is_some(),
-            self.inner.even_color.is_some(),
-            self.inner.start_with_odd
-        )
-    }
-}
-
 // ── AdvancedTable ─────────────────────────────────────────────────────────
 
 #[pyclass(name = "AdvancedTable", from_py_object)]
@@ -558,13 +444,6 @@ impl PyAdvancedTableBuilder {
         if let Some(b) = self.inner.take() {
             let refs: Vec<&str> = content.iter().map(|s| s.as_str()).collect();
             self.inner = Some(b.add_row(refs));
-        }
-    }
-
-    fn add_row_cells(&mut self, cells: Vec<PyRef<PyCellData>>) {
-        if let Some(b) = self.inner.take() {
-            let cells: Vec<CellData> = cells.iter().map(|c| c.inner.clone()).collect();
-            self.inner = Some(b.add_row_cells(cells));
         }
     }
 
@@ -638,12 +517,6 @@ impl PyAdvancedTableBuilder {
     fn zebra_striping(&mut self, color: &PyColor) {
         if let Some(b) = self.inner.take() {
             self.inner = Some(b.zebra_striping(color.inner));
-        }
-    }
-
-    fn zebra_striping_custom(&mut self, config: &PyZebraConfig) {
-        if let Some(b) = self.inner.take() {
-            self.inner = Some(b.zebra_striping_custom(config.inner.clone()));
         }
     }
 
@@ -748,9 +621,6 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyHeaderCell>()?;
     m.add_class::<PyHeaderBuilder>()?;
     m.add_class::<PyAdvColumn>()?;
-    m.add_class::<PyCellData>()?;
-    m.add_class::<PyRowData>()?;
-    m.add_class::<PyZebraConfig>()?;
     m.add_class::<PyAdvancedTable>()?;
     m.add_class::<PyAdvancedTableBuilder>()?;
     m.add_class::<PyAdvTableRenderer>()?;
