@@ -212,8 +212,6 @@ from oxidize_pdf._oxidize_pdf import (
     PdfAValidator,
     # Feature 39: PDF Comparison
     compare_pdfs,
-    # Feature 40: Semantic Marking
-    EntityType,
     # Feature 41: Dashboards
     DashboardBuilder,
     DashboardTheme,
@@ -478,6 +476,27 @@ from oxidize_pdf._oxidize_pdf import (
     pdfs_structurally_equivalent_py as pdfs_structurally_equivalent,
 )
 
+# Semantic Marking (Tier 19 — F81)
+from oxidize_pdf._oxidize_pdf import (
+    EntityType,
+    RelationType,
+    ExportFormat,
+    BoundingBox,
+    EntityMetadata,
+    SemanticEntity,
+    Entity,
+    EntityMap,
+)
+
+# Graphics Extraction (Tier 19 — F82)
+from oxidize_pdf._oxidize_pdf import (
+    LineOrientation,
+    VectorLine,
+    ExtractedGraphics,
+    ExtractionConfig,
+    GraphicsExtractor,
+)
+
 __all__ = [
     "__version__",
     # Errors
@@ -629,7 +648,6 @@ __all__ = [
     "PdfALevel",
     "PdfAValidator",
     "compare_pdfs",
-    "EntityType",
     "DashboardBuilder",
     "DashboardTheme",
     "KpiCard",
@@ -842,4 +860,19 @@ __all__ = [
     "compare_pdfs_deep",
     "extract_pdf_differences",
     "pdfs_structurally_equivalent",
+    # Semantic Marking (Tier 19 — F81)
+    "EntityType",
+    "RelationType",
+    "ExportFormat",
+    "BoundingBox",
+    "EntityMetadata",
+    "SemanticEntity",
+    "Entity",
+    "EntityMap",
+    # Graphics Extraction (Tier 19 — F82)
+    "LineOrientation",
+    "VectorLine",
+    "ExtractedGraphics",
+    "ExtractionConfig",
+    "GraphicsExtractor",
 ]

@@ -366,19 +366,6 @@ fn compare_pdfs<'py>(generated: &[u8], reference: &[u8], py: Python<'py>) -> PyR
     Ok(dict)
 }
 
-// ── Feature 40: Semantic Marking ──────────────────────────────────────────
-
-#[pyclass(name = "EntityType", frozen, from_py_object)]
-#[derive(Clone)]
-pub struct PyEntityType {
-    _private: (),
-}
-
-#[pymethods]
-impl PyEntityType {
-    fn __repr__(&self) -> String { "EntityType(...)".to_string() }
-}
-
 // ── Feature 41: Dashboards/Charts ─────────────────────────────────────────
 
 #[pyclass(name = "DashboardBuilder", unsendable)]
@@ -444,7 +431,6 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyPdfALevel>()?;
     m.add_class::<PyPdfAValidator>()?;
     m.add_function(wrap_pyfunction!(compare_pdfs, m)?)?;
-    m.add_class::<PyEntityType>()?;
     m.add_class::<PyDashboardBuilder>()?;
     m.add_class::<PyDashboardTheme>()?;
     m.add_class::<PyKpiCard>()?;

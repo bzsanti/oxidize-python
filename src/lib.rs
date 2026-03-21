@@ -12,6 +12,7 @@ mod errors;
 mod forms;
 mod graphics;
 mod graphics_advanced;
+mod graphics_extraction;
 mod image;
 mod list;
 mod operations;
@@ -21,6 +22,7 @@ mod page_labels;
 mod page_transitions;
 mod parser;
 mod security;
+mod semantic;
 mod table;
 mod text;
 mod text_extraction;
@@ -65,6 +67,8 @@ fn _oxidize_pdf(m: &Bound<'_, PyModule>) -> PyResult<()> {
     content_parser::register(m)?;
     xmp_metadata::register(m)?;
     verification::register(m)?;
+    semantic::register(m)?;
+    graphics_extraction::register(m)?;
 
     Ok(())
 }
