@@ -409,6 +409,41 @@ from oxidize_pdf._oxidize_pdf import (
     IncrementalParser,
 )
 
+# Forms Deep (Tier 16 — F76)
+from oxidize_pdf._oxidize_pdf import (
+    # Group A: Form Management
+    FormData,
+    Widget,
+    FieldOptions,
+    PushButton,
+    AcroForm,
+    FormManager,
+    # Group B: Field Actions
+    SpecialFormatType,
+    FieldAction,
+    FieldActions,
+    ActionSettings,
+    FieldActionSystem,
+    # Group C: Calculations
+    SimpleOperation,
+    PercentMode,
+    SeparatorStyle,
+    NegativeStyle,
+    SpecialFormat,
+    FieldFormat,
+    JavaScriptCalculation,
+    CalculationSettings,
+    CalculationSummary,
+    CalculationSystemSummary,
+    CalculationEngine,
+    FormCalculationSystem,
+    # Group D: Appearance
+    AppearanceState,
+    AppearanceStream,
+    # Validation result (dedicated type)
+    ValidationResult,
+)
+
 # Content Parser (Tier 17 — F77)
 from oxidize_pdf._oxidize_pdf import (
     ContentParser,
@@ -441,37 +476,6 @@ from oxidize_pdf._oxidize_pdf import (
     compare_pdfs_deep_py as compare_pdfs_deep,
     extract_pdf_differences_py as extract_pdf_differences,
     pdfs_structurally_equivalent_py as pdfs_structurally_equivalent,
-)
-
-# Forms Deep (Tier 16 — F76)
-from oxidize_pdf._oxidize_pdf import (
-    # Group A: Form Management
-    FormData,
-    Widget,
-    FieldOptions,
-    PushButton,
-    AcroForm,
-    FormManager,
-    # Group B: Field Actions
-    SpecialFormatType,
-    FieldAction,
-    FieldActions,
-    ActionSettings,
-    FieldActionSystem,
-    # Group C: Calculations
-    SimpleOperation,
-    PercentMode,
-    SeparatorStyle,
-    NegativeStyle,
-    SpecialFormat,
-    FieldFormat,
-    JavaScriptCalculation,
-    CalculationSettings,
-    CalculationEngine,
-    FormCalculationSystem,
-    # Group D: Appearance
-    AppearanceState,
-    AppearanceStream,
 )
 
 __all__ = [
@@ -782,17 +786,6 @@ __all__ = [
     "StreamingPage",
     "PageStreamer",
     "IncrementalParser",
-    # Content Parser (Tier 17 — F77)
-    "ContentParser",
-    "ContentOperation",
-    "TextElement",
-    "XRefEntry",
-    "XRefTable",
-    # XMP Metadata (Tier 17 — F78)
-    "XmpNamespace",
-    "XmpValue",
-    "XmpProperty",
-    "XmpMetadata",
     # Forms Deep (Tier 16 — F76)
     # Group A
     "FormData",
@@ -816,11 +809,25 @@ __all__ = [
     "FieldFormat",
     "JavaScriptCalculation",
     "CalculationSettings",
+    "CalculationSummary",
+    "CalculationSystemSummary",
     "CalculationEngine",
     "FormCalculationSystem",
     # Group D
     "AppearanceState",
     "AppearanceStream",
+    "ValidationResult",
+    # Content Parser (Tier 17 — F77)
+    "ContentParser",
+    "ContentOperation",
+    "TextElement",
+    "XRefEntry",
+    "XRefTable",
+    # XMP Metadata (Tier 17 — F78)
+    "XmpNamespace",
+    "XmpValue",
+    "XmpProperty",
+    "XmpMetadata",
     # Compliance + Comparison Deep (Tier 18 — F79 + F80)
     # F79: Compliance System
     "VerificationLevel",

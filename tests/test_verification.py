@@ -49,15 +49,52 @@ class TestComplianceStats:
     def test_type_exists(self):
         assert ComplianceStats is not None
 
+    def test_has_expected_getters(self):
+        expected = [
+            "total_requirements",
+            "implemented_requirements",
+            "average_compliance_percentage",
+            "level_0_count",
+            "level_1_count",
+            "level_2_count",
+            "level_3_count",
+            "level_4_count",
+        ]
+        for attr in expected:
+            assert hasattr(ComplianceStats, attr) or attr in dir(ComplianceStats), (
+                f"ComplianceStats missing expected getter: {attr}"
+            )
+
 
 class TestIsoRequirement:
     def test_type_exists(self):
         assert IsoRequirement is not None
 
+    def test_has_expected_getters(self):
+        expected = [
+            "id", "name", "description", "iso_reference",
+            "implementation", "test_file", "level", "verified", "notes",
+        ]
+        for attr in expected:
+            assert hasattr(IsoRequirement, attr) or attr in dir(IsoRequirement), (
+                f"IsoRequirement missing expected getter: {attr}"
+            )
+
 
 class TestRequirementInfo:
     def test_type_exists(self):
         assert RequirementInfo is not None
+
+    def test_has_expected_getters(self):
+        expected = [
+            "id", "name", "description", "iso_reference",
+            "requirement_type", "page", "level", "implementation",
+            "test_file", "verified", "last_checked", "notes",
+        ]
+        for attr in expected:
+            assert hasattr(RequirementInfo, attr) or attr in dir(RequirementInfo), (
+                f"RequirementInfo missing expected getter: {attr}"
+            )
 
 
 class TestComplianceSystem:
@@ -100,10 +137,70 @@ class TestPdfDifference:
     def test_type_exists(self):
         assert PdfDifference is not None
 
+    def test_has_expected_getters(self):
+        expected = ["location", "expected", "actual", "severity"]
+        for attr in expected:
+            assert hasattr(PdfDifference, attr) or attr in dir(PdfDifference), (
+                f"PdfDifference missing expected getter: {attr}"
+            )
+
+    def test_properties_from_comparison(self):
+        """Differences returned from compare_pdfs_deep have correct property types."""
+        import oxidize_pdf as op
+        doc1 = op.Document()
+        doc1.set_title("First")
+        page = op.Page.a4()
+        page.set_font(op.Font.HELVETICA, 12.0)
+        page.text_at(100.0, 700.0, "Version A")
+        doc1.add_page(page)
+        pdf1 = doc1.save_to_bytes()
+
+        doc2 = op.Document()
+        doc2.set_title("Second")
+        page = op.Page.a4()
+        page.set_font(op.Font.HELVETICA, 12.0)
+        page.text_at(100.0, 700.0, "Version B")
+        doc2.add_page(page)
+        pdf2 = doc2.save_to_bytes()
+
+        result = compare_pdfs_deep(pdf1, pdf2)
+        for diff in result.differences:
+            assert isinstance(diff.location, str)
+            assert isinstance(diff.expected, str)
+            assert isinstance(diff.actual, str)
+            assert isinstance(diff.severity, DifferenceSeverity)
+
 
 class TestComparisonResult:
     def test_type_exists(self):
         assert ComparisonResult is not None
+
+    def test_has_expected_getters(self):
+        expected = [
+            "structurally_equivalent", "content_equivalent",
+            "differences", "similarity_score",
+        ]
+        for attr in expected:
+            assert hasattr(ComparisonResult, attr) or attr in dir(ComparisonResult), (
+                f"ComparisonResult missing expected getter: {attr}"
+            )
+
+    def test_property_types_from_comparison(self):
+        """Properties returned from compare_pdfs_deep have correct types."""
+        import oxidize_pdf as op
+        doc = op.Document()
+        doc.set_title("Test")
+        page = op.Page.a4()
+        page.set_font(op.Font.HELVETICA, 12.0)
+        page.text_at(100.0, 700.0, "Hello")
+        doc.add_page(page)
+        pdf = doc.save_to_bytes()
+
+        result = compare_pdfs_deep(pdf, pdf)
+        assert isinstance(result.structurally_equivalent, bool)
+        assert isinstance(result.content_equivalent, bool)
+        assert isinstance(result.similarity_score, float)
+        assert isinstance(result.differences, list)
 
 
 class TestComparePdfsDeep:

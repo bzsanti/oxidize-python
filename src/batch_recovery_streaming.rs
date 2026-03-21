@@ -2,6 +2,14 @@
 //!
 //! Wraps `oxidize_pdf::batch`, `oxidize_pdf::recovery`, and
 //! `oxidize_pdf::streaming` for Python.
+//!
+//! # Naming Convention Note
+//!
+//! Functions in this module use clean names without a `_py` suffix (e.g.
+//! `batch_split_pdfs`, `quick_recover`), while `security.rs` and
+//! `verification.rs` use `_py` suffixed names (e.g. `compute_pdf_hash_py`).
+//! Both conventions expose the same clean names via `__init__.py` aliases.
+//! Renaming these functions would break the existing public API.
 
 use std::fs::File;
 use std::path::PathBuf;

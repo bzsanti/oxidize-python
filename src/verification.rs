@@ -22,8 +22,8 @@ use oxidize_pdf::compare_pdfs;
 /// - ``GENERATES_PDF`` (2) — Generates a valid PDF (50%)
 /// - ``CONTENT_VERIFIED`` (3) — Content verified with parser (75%)
 /// - ``ISO_COMPLIANT`` (4) — ISO compliant with external validation (100%)
-#[pyclass(name = "VerificationLevel", frozen)]
-#[derive(Clone, Copy)]
+#[pyclass(name = "VerificationLevel", frozen, from_py_object, eq)]
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub struct PyVerificationLevel {
     pub inner: VerificationLevel,
 }
@@ -71,7 +71,7 @@ impl PyVerificationLevel {
 // ── ComplianceStats ─────────────────────────────────────────────────────────
 
 /// Aggregate compliance statistics calculated from the ISO compliance matrix.
-#[pyclass(name = "ComplianceStats", frozen)]
+#[pyclass(name = "ComplianceStats", frozen, from_py_object)]
 #[derive(Clone)]
 pub struct PyComplianceStats {
     pub inner: ComplianceStats,
@@ -150,7 +150,7 @@ impl PyComplianceStats {
 // ── IsoRequirement ──────────────────────────────────────────────────────────
 
 /// An individual ISO 32000-1 requirement with its current verification status.
-#[pyclass(name = "IsoRequirement", frozen)]
+#[pyclass(name = "IsoRequirement", frozen, from_py_object)]
 #[derive(Clone)]
 pub struct PyIsoRequirement {
     pub inner: IsoRequirement,
@@ -225,7 +225,7 @@ impl PyIsoRequirement {
 // ── RequirementInfo ─────────────────────────────────────────────────────────
 
 /// Combined requirement information merging matrix definition with current status.
-#[pyclass(name = "RequirementInfo", frozen)]
+#[pyclass(name = "RequirementInfo", frozen, from_py_object)]
 #[derive(Clone)]
 pub struct PyRequirementInfo {
     pub inner: RequirementInfo,
@@ -429,8 +429,8 @@ impl PyComplianceSystem {
 /// - ``IMPORTANT`` — may affect functionality
 /// - ``MINOR`` — does not affect compliance
 /// - ``COSMETIC`` — timestamps, IDs, whitespace, etc.
-#[pyclass(name = "DifferenceSeverity", frozen)]
-#[derive(Clone)]
+#[pyclass(name = "DifferenceSeverity", frozen, from_py_object, eq)]
+#[derive(Clone, PartialEq)]
 pub struct PyDifferenceSeverity {
     pub inner: DifferenceSeverity,
 }
@@ -479,7 +479,7 @@ impl PyDifferenceSeverity {
 // ── PdfDifference ───────────────────────────────────────────────────────────
 
 /// A single detected difference between two PDFs.
-#[pyclass(name = "PdfDifference", frozen)]
+#[pyclass(name = "PdfDifference", frozen, from_py_object)]
 #[derive(Clone)]
 pub struct PyPdfDifference {
     pub inner: PdfDifference,
@@ -528,7 +528,7 @@ impl PyPdfDifference {
 // ── ComparisonResult ────────────────────────────────────────────────────────
 
 /// Result of a deep PDF comparison between a generated and a reference PDF.
-#[pyclass(name = "ComparisonResult", frozen)]
+#[pyclass(name = "ComparisonResult", frozen, from_py_object)]
 #[derive(Clone)]
 pub struct PyComparisonResult {
     pub inner: ComparisonResult,
