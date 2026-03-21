@@ -6,6 +6,7 @@ mod ai_pipeline;
 mod annotations;
 mod batch_recovery_streaming;
 mod charts;
+mod content_parser;
 mod document;
 mod errors;
 mod forms;
@@ -25,7 +26,9 @@ mod text;
 mod text_extraction;
 mod tier8;
 mod types;
+mod verification;
 mod viewer_preferences;
+mod xmp_metadata;
 
 /// oxidize-pdf Python bindings
 #[pymodule]
@@ -59,6 +62,9 @@ fn _oxidize_pdf(m: &Bound<'_, PyModule>) -> PyResult<()> {
     ai_pipeline::register(m)?;
     text_extraction::register(m)?;
     batch_recovery_streaming::register(m)?;
+    content_parser::register(m)?;
+    xmp_metadata::register(m)?;
+    verification::register(m)?;
 
     Ok(())
 }

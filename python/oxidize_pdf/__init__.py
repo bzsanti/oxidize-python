@@ -227,6 +227,25 @@ from oxidize_pdf._oxidize_pdf import (
     Recipient,
 )
 
+# Signatures Deep (F75)
+from oxidize_pdf._oxidize_pdf import (
+    DigestAlgorithm,
+    SignatureAlgorithm,
+    ByteRange,
+    SignatureField,
+    TrustStore,
+    ParsedSignature,
+    HashVerificationResult,
+    SignatureVerificationResult,
+    CertificateValidationResult,
+    FullSignatureValidationResult,
+    compute_pdf_hash_py as compute_pdf_hash,
+    parse_pkcs7_signature_py as parse_pkcs7_signature,
+    verify_pdf_signature_py as verify_pdf_signature,
+    validate_pdf_certificate_py as validate_pdf_certificate,
+    has_incremental_update_py as has_incremental_update,
+)
+
 # Viewer Preferences (F44)
 from oxidize_pdf._oxidize_pdf import (
     Duplex,
@@ -390,6 +409,71 @@ from oxidize_pdf._oxidize_pdf import (
     IncrementalParser,
 )
 
+# Content Parser (Tier 17 — F77)
+from oxidize_pdf._oxidize_pdf import (
+    ContentParser,
+    ContentOperation,
+    TextElement,
+    XRefEntry,
+    XRefTable,
+)
+
+# XMP Metadata (Tier 17 — F78)
+from oxidize_pdf._oxidize_pdf import (
+    XmpNamespace,
+    XmpValue,
+    XmpProperty,
+    XmpMetadata,
+)
+
+# Compliance + Comparison Deep (Tier 18 — F79 + F80)
+from oxidize_pdf._oxidize_pdf import (
+    # F79: Compliance System
+    VerificationLevel,
+    ComplianceStats,
+    IsoRequirement,
+    RequirementInfo,
+    ComplianceSystem,
+    # F80: PDF Comparison Deep
+    DifferenceSeverity,
+    PdfDifference,
+    ComparisonResult,
+    compare_pdfs_deep_py as compare_pdfs_deep,
+    extract_pdf_differences_py as extract_pdf_differences,
+    pdfs_structurally_equivalent_py as pdfs_structurally_equivalent,
+)
+
+# Forms Deep (Tier 16 — F76)
+from oxidize_pdf._oxidize_pdf import (
+    # Group A: Form Management
+    FormData,
+    Widget,
+    FieldOptions,
+    PushButton,
+    AcroForm,
+    FormManager,
+    # Group B: Field Actions
+    SpecialFormatType,
+    FieldAction,
+    FieldActions,
+    ActionSettings,
+    FieldActionSystem,
+    # Group C: Calculations
+    SimpleOperation,
+    PercentMode,
+    SeparatorStyle,
+    NegativeStyle,
+    SpecialFormat,
+    FieldFormat,
+    JavaScriptCalculation,
+    CalculationSettings,
+    CalculationEngine,
+    FormCalculationSystem,
+    # Group D: Appearance
+    AppearanceState,
+    AppearanceStream,
+)
+
 __all__ = [
     "__version__",
     # Errors
@@ -549,6 +633,22 @@ __all__ = [
     "EncryptionStrength",
     "Permissions",
     "Recipient",
+    # Signatures Deep (F75)
+    "DigestAlgorithm",
+    "SignatureAlgorithm",
+    "ByteRange",
+    "SignatureField",
+    "TrustStore",
+    "ParsedSignature",
+    "HashVerificationResult",
+    "SignatureVerificationResult",
+    "CertificateValidationResult",
+    "FullSignatureValidationResult",
+    "compute_pdf_hash",
+    "parse_pkcs7_signature",
+    "verify_pdf_signature",
+    "validate_pdf_certificate",
+    "has_incremental_update",
     # Viewer Preferences (F44)
     "Duplex",
     "PageLayout",
@@ -682,4 +782,57 @@ __all__ = [
     "StreamingPage",
     "PageStreamer",
     "IncrementalParser",
+    # Content Parser (Tier 17 — F77)
+    "ContentParser",
+    "ContentOperation",
+    "TextElement",
+    "XRefEntry",
+    "XRefTable",
+    # XMP Metadata (Tier 17 — F78)
+    "XmpNamespace",
+    "XmpValue",
+    "XmpProperty",
+    "XmpMetadata",
+    # Forms Deep (Tier 16 — F76)
+    # Group A
+    "FormData",
+    "Widget",
+    "FieldOptions",
+    "PushButton",
+    "AcroForm",
+    "FormManager",
+    # Group B
+    "SpecialFormatType",
+    "FieldAction",
+    "FieldActions",
+    "ActionSettings",
+    "FieldActionSystem",
+    # Group C
+    "SimpleOperation",
+    "PercentMode",
+    "SeparatorStyle",
+    "NegativeStyle",
+    "SpecialFormat",
+    "FieldFormat",
+    "JavaScriptCalculation",
+    "CalculationSettings",
+    "CalculationEngine",
+    "FormCalculationSystem",
+    # Group D
+    "AppearanceState",
+    "AppearanceStream",
+    # Compliance + Comparison Deep (Tier 18 — F79 + F80)
+    # F79: Compliance System
+    "VerificationLevel",
+    "ComplianceStats",
+    "IsoRequirement",
+    "RequirementInfo",
+    "ComplianceSystem",
+    # F80: PDF Comparison Deep
+    "DifferenceSeverity",
+    "PdfDifference",
+    "ComparisonResult",
+    "compare_pdfs_deep",
+    "extract_pdf_differences",
+    "pdfs_structurally_equivalent",
 ]
