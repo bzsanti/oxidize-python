@@ -43,6 +43,7 @@ impl PyLineOrientation {
 ///
 /// Constructor: ``VectorLine(x1, y1, x2, y2, stroke_width, is_stroked)``.
 /// Computed: ``orientation``, ``length()``, ``midpoint()``.
+/// Property: ``stroke_color`` — RGB tuple ``(r, g, b)`` or ``None``.
 #[pyclass(name = "VectorLine", frozen, from_py_object)]
 #[derive(Clone)]
 pub struct PyVectorLine {
@@ -86,6 +87,23 @@ impl PyVectorLine {
 
     #[getter]
     fn midpoint(&self) -> (f64, f64) { self.inner.midpoint() }
+
+    /// The stroke color as an RGB tuple ``(r, g, b)`` with values 0.0–1.0, or ``None``.
+    ///
+    /// Gray is converted to ``(g, g, g)`` and CMYK to its RGB equivalent.
+    #[getter]
+    fn stroke_color(&self) -> Option<(f64, f64, f64)> {
+        self.inner.color.map(|c| match c {
+            oxidize_pdf::graphics::Color::Rgb(r, g, b) => (r, g, b),
+            oxidize_pdf::graphics::Color::Gray(v) => (v, v, v),
+            oxidize_pdf::graphics::Color::Cmyk(c, m, y, k) => {
+                let r = (1.0 - c) * (1.0 - k);
+                let g = (1.0 - m) * (1.0 - k);
+                let b = (1.0 - y) * (1.0 - k);
+                (r, g, b)
+            }
+        })
+    }
 
     fn __repr__(&self) -> String {
         format!(
@@ -168,6 +186,7 @@ impl PyExtractedGraphics {
 /// Configuration for the graphics extractor.
 ///
 /// Constructor: ``ExtractionConfig(min_line_length=1.0, extract_diagonals=False, stroked_only=True)``.
+/// Raises ``ValueError`` if ``min_line_length`` is negative.
 #[pyclass(name = "ExtractionConfig", frozen, from_py_object)]
 #[derive(Clone)]
 pub struct PyExtractionConfig {
@@ -178,14 +197,19 @@ pub struct PyExtractionConfig {
 impl PyExtractionConfig {
     #[new]
     #[pyo3(signature = (min_line_length = 1.0, extract_diagonals = false, stroked_only = true))]
-    fn new(min_line_length: f64, extract_diagonals: bool, stroked_only: bool) -> Self {
-        Self {
+    fn new(min_line_length: f64, extract_diagonals: bool, stroked_only: bool) -> PyResult<Self> {
+        if min_line_length < 0.0 {
+            return Err(pyo3::exceptions::PyValueError::new_err(
+                "min_line_length must not be negative",
+            ));
+        }
+        Ok(Self {
             inner: ExtractionConfig {
                 min_line_length,
                 extract_diagonals,
                 stroked_only,
             },
-        }
+        })
     }
 
     #[getter]
@@ -212,9 +236,20 @@ impl PyExtractionConfig {
 /// Constructor: ``GraphicsExtractor(config=None)`` — pass an
 /// ``ExtractionConfig`` or omit for defaults.
 /// Method: ``extract_from_bytes(pdf_bytes, page_index)`` → ``ExtractedGraphics``.
-#[pyclass(name = "GraphicsExtractor")]
+#[pyclass(name = "GraphicsExtractor", from_py_object)]
 pub struct PyGraphicsExtractor {
     inner: GraphicsExtractor,
+    /// Stored config for Clone reconstruction and repr.
+    config: ExtractionConfig,
+}
+
+impl Clone for PyGraphicsExtractor {
+    fn clone(&self) -> Self {
+        Self {
+            inner: GraphicsExtractor::new(self.config.clone()),
+            config: self.config.clone(),
+        }
+    }
 }
 
 #[pymethods]
@@ -222,11 +257,19 @@ impl PyGraphicsExtractor {
     #[new]
     #[pyo3(signature = (config = None))]
     fn new(config: Option<&PyExtractionConfig>) -> Self {
-        let extractor = match config {
-            Some(c) => GraphicsExtractor::new(c.inner.clone()),
-            None => GraphicsExtractor::default(),
-        };
-        Self { inner: extractor }
+        match config {
+            Some(c) => Self {
+                inner: GraphicsExtractor::new(c.inner.clone()),
+                config: c.inner.clone(),
+            },
+            None => {
+                let default_config = ExtractionConfig::default();
+                Self {
+                    inner: GraphicsExtractor::new(default_config.clone()),
+                    config: default_config,
+                }
+            }
+        }
     }
 
     fn extract_from_bytes(
@@ -234,6 +277,9 @@ impl PyGraphicsExtractor {
         pdf_bytes: &[u8],
         page_index: usize,
     ) -> PyResult<PyExtractedGraphics> {
+        // PdfReader requires ownership of the reader — to_vec() is necessary here
+        // because the borrow of pdf_bytes cannot outlive the function call with
+        // the cursor embedded inside PdfDocument.
         let cursor = Cursor::new(pdf_bytes.to_vec());
         let reader = oxidize_pdf::PdfReader::new(cursor)
             .map_err(|e| pyo3::exceptions::PyValueError::new_err(format!("Failed to open PDF: {}", e)))?;
@@ -246,7 +292,12 @@ impl PyGraphicsExtractor {
     }
 
     fn __repr__(&self) -> String {
-        "GraphicsExtractor(...)".to_string()
+        format!(
+            "GraphicsExtractor(min_line_length={:?}, extract_diagonals={}, stroked_only={})",
+            self.config.min_line_length,
+            self.config.extract_diagonals,
+            self.config.stroked_only,
+        )
     }
 }
 

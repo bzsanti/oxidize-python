@@ -157,9 +157,56 @@ impl PyEntityType {
     #[allow(non_snake_case)]
     fn PERCENTAGE() -> Self { Self { inner: EntityType::Percentage } }
 
+    /// Create a custom entity type. Raises ``ValueError`` for empty or whitespace-only names.
     #[staticmethod]
-    fn custom(name: &str) -> Self {
-        Self { inner: EntityType::Custom(name.to_string()) }
+    fn custom(name: &str) -> PyResult<Self> {
+        if name.trim().is_empty() {
+            return Err(pyo3::exceptions::PyValueError::new_err(
+                "Custom entity type name must not be empty or whitespace-only",
+            ));
+        }
+        Ok(Self { inner: EntityType::Custom(name.to_string()) })
+    }
+
+    /// The canonical uppercase name of this entity type.
+    #[getter]
+    fn name(&self) -> String {
+        match &self.inner {
+            EntityType::Text => "TEXT".to_string(),
+            EntityType::Image => "IMAGE".to_string(),
+            EntityType::Table => "TABLE".to_string(),
+            EntityType::Heading => "HEADING".to_string(),
+            EntityType::Paragraph => "PARAGRAPH".to_string(),
+            EntityType::List => "LIST".to_string(),
+            EntityType::PageNumber => "PAGE_NUMBER".to_string(),
+            EntityType::Header => "HEADER".to_string(),
+            EntityType::Footer => "FOOTER".to_string(),
+            EntityType::Invoice => "INVOICE".to_string(),
+            EntityType::InvoiceNumber => "INVOICE_NUMBER".to_string(),
+            EntityType::CustomerName => "CUSTOMER_NAME".to_string(),
+            EntityType::LineItem => "LINE_ITEM".to_string(),
+            EntityType::TotalAmount => "TOTAL_AMOUNT".to_string(),
+            EntityType::TaxAmount => "TAX_AMOUNT".to_string(),
+            EntityType::DueDate => "DUE_DATE".to_string(),
+            EntityType::PaymentAmount => "PAYMENT_AMOUNT".to_string(),
+            EntityType::PersonName => "PERSON_NAME".to_string(),
+            EntityType::OrganizationName => "ORGANIZATION_NAME".to_string(),
+            EntityType::Address => "ADDRESS".to_string(),
+            EntityType::PhoneNumber => "PHONE_NUMBER".to_string(),
+            EntityType::Email => "EMAIL".to_string(),
+            EntityType::Website => "WEBSITE".to_string(),
+            EntityType::Contract => "CONTRACT".to_string(),
+            EntityType::ContractParty => "CONTRACT_PARTY".to_string(),
+            EntityType::ContractTerm => "CONTRACT_TERM".to_string(),
+            EntityType::EffectiveDate => "EFFECTIVE_DATE".to_string(),
+            EntityType::ContractValue => "CONTRACT_VALUE".to_string(),
+            EntityType::Signature => "SIGNATURE".to_string(),
+            EntityType::Date => "DATE".to_string(),
+            EntityType::Amount => "AMOUNT".to_string(),
+            EntityType::Quantity => "QUANTITY".to_string(),
+            EntityType::Percentage => "PERCENTAGE".to_string(),
+            EntityType::Custom(s) => s.clone(),
+        }
     }
 
     fn __repr__(&self) -> String {
@@ -238,9 +285,28 @@ impl PyRelationType {
     #[allow(non_snake_case)]
     fn PRECEDES() -> Self { Self { inner: RelationType::Precedes } }
 
+    /// Create a custom relation type. Raises ``ValueError`` for empty or whitespace-only names.
     #[staticmethod]
-    fn custom(name: &str) -> Self {
-        Self { inner: RelationType::Custom(name.to_string()) }
+    fn custom(name: &str) -> PyResult<Self> {
+        if name.trim().is_empty() {
+            return Err(pyo3::exceptions::PyValueError::new_err(
+                "Custom relation type name must not be empty or whitespace-only",
+            ));
+        }
+        Ok(Self { inner: RelationType::Custom(name.to_string()) })
+    }
+
+    /// The canonical uppercase name of this relation type.
+    #[getter]
+    fn name(&self) -> String {
+        match &self.inner {
+            RelationType::Contains => "CONTAINS".to_string(),
+            RelationType::IsPartOf => "IS_PART_OF".to_string(),
+            RelationType::References => "REFERENCES".to_string(),
+            RelationType::Follows => "FOLLOWS".to_string(),
+            RelationType::Precedes => "PRECEDES".to_string(),
+            RelationType::Custom(s) => s.clone(),
+        }
     }
 
     fn __repr__(&self) -> String {
@@ -295,6 +361,7 @@ impl PyExportFormat {
 /// Constructor: ``BoundingBox(x, y, width, height, page)``.
 /// Computed properties: ``right``, ``top``, ``area``.
 /// Method: ``intersects(other)``.
+/// Raises ``ValueError`` for negative width or height.
 #[pyclass(name = "BoundingBox", frozen, from_py_object)]
 #[derive(Clone)]
 pub struct PyBoundingBox {
@@ -304,8 +371,18 @@ pub struct PyBoundingBox {
 #[pymethods]
 impl PyBoundingBox {
     #[new]
-    fn new(x: f32, y: f32, width: f32, height: f32, page: u32) -> Self {
-        Self { inner: BoundingBox::new(x, y, width, height, page) }
+    fn new(x: f32, y: f32, width: f32, height: f32, page: u32) -> PyResult<Self> {
+        if width < 0.0 {
+            return Err(pyo3::exceptions::PyValueError::new_err(
+                "BoundingBox width must not be negative",
+            ));
+        }
+        if height < 0.0 {
+            return Err(pyo3::exceptions::PyValueError::new_err(
+                "BoundingBox height must not be negative",
+            ));
+        }
+        Ok(Self { inner: BoundingBox::new(x, y, width, height, page) })
     }
 
     #[getter]
@@ -376,10 +453,14 @@ impl PyEntityMetadata {
     }
 
     fn __repr__(&self) -> String {
+        let confidence = match self.inner.confidence {
+            Some(c) => format!("{}", c),
+            None => "None".to_string(),
+        };
         format!(
-            "EntityMetadata(properties={}, confidence={:?})",
+            "EntityMetadata(properties={}, confidence={})",
             self.inner.properties.len(),
-            self.inner.confidence
+            confidence,
         )
     }
 }
@@ -436,6 +517,12 @@ impl PySemanticEntity {
     #[getter]
     fn content(&self) -> &str { &self.inner.content }
 
+    /// The entity type of this semantic entity.
+    #[getter]
+    fn entity_type(&self) -> PyEntityType {
+        PyEntityType { inner: self.inner.entity_type.clone() }
+    }
+
     fn __repr__(&self) -> String {
         format!("SemanticEntity(id={:?})", self.inner.id)
     }
@@ -478,6 +565,12 @@ impl PyEntity {
     #[getter]
     fn page(&self) -> usize { self.inner.page }
 
+    /// The entity type of this entity.
+    #[getter]
+    fn entity_type(&self) -> PyEntityType {
+        PyEntityType { inner: self.inner.entity_type.clone() }
+    }
+
     fn __repr__(&self) -> String {
         format!("Entity(id={:?}, page={})", self.inner.id, self.inner.page)
     }
@@ -488,7 +581,7 @@ impl PyEntity {
 /// Container of semantic entities organised by page.
 ///
 /// Methods: ``add_entity()``, ``entities_by_type()``,
-/// ``entities_on_page()``, ``to_json()``.
+/// ``entities_on_page()``, ``to_json()``, ``to_json_ld()``, ``to_format()``.
 #[pyclass(name = "EntityMap", from_py_object)]
 #[derive(Clone)]
 pub struct PyEntityMap {
@@ -510,8 +603,7 @@ impl PyEntityMap {
         self.inner
             .entities_by_type(entity_type.inner.clone())
             .into_iter()
-            .cloned()
-            .map(|e| PyEntity { inner: e })
+            .map(|e| PyEntity { inner: e.clone() })
             .collect()
     }
 
@@ -528,9 +620,30 @@ impl PyEntityMap {
             .map_err(|e| pyo3::exceptions::PyValueError::new_err(e.to_string()))
     }
 
+    fn to_json_ld(&self) -> PyResult<String> {
+        self.inner
+            .to_json_ld()
+            .map_err(|e| pyo3::exceptions::PyValueError::new_err(e.to_string()))
+    }
+
+    /// Serialise to the given export format.
+    ///
+    /// Supports ``ExportFormat.JSON`` and ``ExportFormat.JSON_LD``.
+    /// Raises ``NotImplementedError`` for ``ExportFormat.XML``.
+    fn to_format(&self, format: &PyExportFormat) -> PyResult<String> {
+        match format.inner {
+            ExportFormat::Json => self.to_json(),
+            ExportFormat::JsonLd => self.to_json_ld(),
+            ExportFormat::Xml => Err(pyo3::exceptions::PyNotImplementedError::new_err(
+                "XML export is not yet implemented",
+            )),
+        }
+    }
+
     fn __repr__(&self) -> String {
         let total: usize = self.inner.pages.values().map(|v| v.len()).sum();
-        format!("EntityMap(entities={})", total)
+        let page_count = self.inner.pages.len();
+        format!("EntityMap(entities={}, pages={})", total, page_count)
     }
 }
 

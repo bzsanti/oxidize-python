@@ -73,6 +73,11 @@ class TestVectorLine:
         line = VectorLine(0.0, 0.0, 100.0, 0.0, 1.0, True)
         assert "VectorLine" in repr(line)
 
+    # Cycle 16 (O7): stroke_color getter
+    def test_stroke_color_default_none(self):
+        line = VectorLine(0.0, 0.0, 100.0, 0.0, 1.0, True)
+        assert line.stroke_color is None
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # ExtractedGraphics
@@ -121,6 +126,22 @@ class TestExtractedGraphics:
         eg = ExtractedGraphics()
         assert "ExtractedGraphics" in repr(eg)
 
+    # Cycle 15 (O6): test non-stroked lines
+    def test_add_non_stroked_line(self):
+        eg = ExtractedGraphics()
+        # Non-stroked lines can be added to the container directly
+        eg.add_line(VectorLine(0.0, 0.0, 100.0, 0.0, 1.0, False))
+        assert len(eg.lines) == 1
+        assert eg.lines[0].is_stroked is False
+
+    def test_stroked_only_config(self):
+        # With stroked_only=True (default), non-stroked lines from PDF are filtered
+        # With stroked_only=False, fill-based lines are also captured
+        config_default = ExtractionConfig(stroked_only=True)
+        config_all = ExtractionConfig(stroked_only=False)
+        assert config_default.stroked_only is True
+        assert config_all.stroked_only is False
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # ExtractionConfig
@@ -147,6 +168,15 @@ class TestExtractionConfig:
     def test_repr(self):
         config = ExtractionConfig()
         assert "ExtractionConfig" in repr(config)
+
+    # Cycle 3 (R3): reject negative min_line_length
+    def test_negative_min_line_length_raises(self):
+        with pytest.raises(ValueError):
+            ExtractionConfig(min_line_length=-1.0)
+
+    def test_zero_min_line_length_allowed(self):
+        config = ExtractionConfig(min_line_length=0.0)
+        assert config.min_line_length == 0.0
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -188,3 +218,27 @@ class TestGraphicsExtractor:
     def test_repr(self):
         ge = GraphicsExtractor()
         assert "GraphicsExtractor" in repr(ge)
+
+    # Cycle 10 (R5): repr with config values
+    def test_repr_shows_config(self):
+        config = ExtractionConfig(min_line_length=5.0, extract_diagonals=True, stroked_only=False)
+        ge = GraphicsExtractor(config=config)
+        r = repr(ge)
+        assert "5.0" in r
+        assert "GraphicsExtractor" in r
+
+    def test_repr_default(self):
+        ge = GraphicsExtractor()
+        r = repr(ge)
+        assert "GraphicsExtractor" in r
+        assert "1.0" in r  # default min_line_length
+
+    # Cycle 14 (O5): out-of-range page raises
+    def test_extract_from_bytes_out_of_range_page(self):
+        doc = Document()
+        doc.add_page(Page(612.0, 792.0))
+        pdf_bytes = doc.save_to_bytes()
+
+        ge = GraphicsExtractor()
+        with pytest.raises(ValueError):
+            ge.extract_from_bytes(pdf_bytes, 999)

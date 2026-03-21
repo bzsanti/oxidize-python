@@ -73,6 +73,24 @@ class TestEntityType:
         assert EntityType.TEXT == EntityType.TEXT
         assert EntityType.TEXT != EntityType.IMAGE
 
+    # Cycle 1 (R1+O4): validate custom() and name property
+    def test_custom_empty_name_raises(self):
+        with pytest.raises(ValueError):
+            EntityType.custom("")
+
+    def test_custom_whitespace_only_raises(self):
+        with pytest.raises(ValueError):
+            EntityType.custom("   ")
+
+    def test_name_property_standard(self):
+        assert EntityType.TEXT.name == "TEXT"
+        assert EntityType.IMAGE.name == "IMAGE"
+        assert EntityType.PAGE_NUMBER.name == "PAGE_NUMBER"
+
+    def test_name_property_custom(self):
+        custom = EntityType.custom("MyType")
+        assert custom.name == "MyType"
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # RelationType
@@ -93,6 +111,23 @@ class TestRelationType:
 
     def test_repr(self):
         assert "RelationType" in repr(RelationType.CONTAINS)
+
+    # Cycle 1 (R1+O4): validate custom() and name property
+    def test_custom_empty_name_raises(self):
+        with pytest.raises(ValueError):
+            RelationType.custom("")
+
+    def test_custom_whitespace_only_raises(self):
+        with pytest.raises(ValueError):
+            RelationType.custom("   ")
+
+    def test_name_property_standard(self):
+        assert RelationType.CONTAINS.name == "CONTAINS"
+        assert RelationType.IS_PART_OF.name == "IS_PART_OF"
+
+    def test_name_property_custom(self):
+        custom = RelationType.custom("MyRelation")
+        assert custom.name == "MyRelation"
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -159,6 +194,23 @@ class TestBoundingBox:
         bb = BoundingBox(10.0, 20.0, 100.0, 50.0, 1)
         assert "BoundingBox" in repr(bb)
 
+    # Cycle 2 (R2): reject negative width/height
+    def test_negative_width_raises(self):
+        with pytest.raises(ValueError):
+            BoundingBox(0.0, 0.0, -1.0, 10.0, 1)
+
+    def test_negative_height_raises(self):
+        with pytest.raises(ValueError):
+            BoundingBox(0.0, 0.0, 10.0, -1.0, 1)
+
+    def test_zero_width_allowed(self):
+        bb = BoundingBox(0.0, 0.0, 0.0, 10.0, 1)
+        assert bb.width == 0.0
+
+    def test_zero_height_allowed(self):
+        bb = BoundingBox(0.0, 0.0, 10.0, 0.0, 1)
+        assert bb.height == 0.0
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # EntityMetadata
@@ -193,6 +245,19 @@ class TestEntityMetadata:
         em = EntityMetadata()
         assert "EntityMetadata" in repr(em)
 
+    # Cycle 11 (R4): Python-style repr — no "Some(" in output
+    def test_repr_format_no_confidence(self):
+        em = EntityMetadata()
+        r = repr(em)
+        assert "Some(" not in r
+        assert "None" in r
+
+    def test_repr_format_with_confidence(self):
+        em = EntityMetadata().with_confidence(0.95)
+        r = repr(em)
+        assert "Some(" not in r
+        assert "0.95" in r
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # SemanticEntity
@@ -210,10 +275,11 @@ class TestSemanticEntity:
         entity = SemanticEntity("e1", EntityType.HEADING, bb)
         assert entity.id == "e1"
 
+    # Cycle 6 (O3): verify content value, not just non-None
     def test_with_content(self):
         bb = BoundingBox(0.0, 0.0, 100.0, 50.0, 1)
         entity = SemanticEntity("e1", EntityType.TEXT, bb).with_content("Hello World")
-        assert entity is not None
+        assert entity.content == "Hello World"
 
     def test_with_metadata(self):
         bb = BoundingBox(0.0, 0.0, 100.0, 50.0, 1)
@@ -231,6 +297,12 @@ class TestSemanticEntity:
         bb = BoundingBox(0.0, 0.0, 100.0, 50.0, 1)
         entity = SemanticEntity("e1", EntityType.TEXT, bb)
         assert "SemanticEntity" in repr(entity)
+
+    # Cycle 5 (R7): entity_type getter
+    def test_entity_type_getter(self):
+        bb = BoundingBox(0.0, 0.0, 100.0, 50.0, 1)
+        entity = SemanticEntity("e1", EntityType.HEADING, bb)
+        assert entity.entity_type == EntityType.HEADING
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -251,6 +323,11 @@ class TestEntity:
     def test_repr(self):
         entity = Entity("e1", EntityType.TEXT, (0.0, 0.0, 10.0, 10.0), 0)
         assert "Entity" in repr(entity)
+
+    # Cycle 5 (R7): entity_type getter
+    def test_entity_type_getter(self):
+        entity = Entity("e1", EntityType.TABLE, (10.0, 20.0, 100.0, 50.0), 1)
+        assert entity.entity_type == EntityType.TABLE
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -297,3 +374,48 @@ class TestEntityMap:
     def test_repr(self):
         em = EntityMap()
         assert "EntityMap" in repr(em)
+
+    # Cycle 7 (C1): entities_by_type preserves entity data
+    def test_entities_by_type_returns_correct_ids(self):
+        em = EntityMap()
+        em.add_entity(Entity("alpha", EntityType.TEXT, (0.0, 0.0, 10.0, 10.0), 0))
+        em.add_entity(Entity("beta", EntityType.IMAGE, (0.0, 0.0, 10.0, 10.0), 0))
+        em.add_entity(Entity("gamma", EntityType.TEXT, (10.0, 0.0, 10.0, 10.0), 0))
+        text_entities = em.entities_by_type(EntityType.TEXT)
+        ids = {e.id for e in text_entities}
+        assert ids == {"alpha", "gamma"}
+
+    # Cycle 12 (R6): repr shows entity and page counts
+    def test_repr_shows_entity_count(self):
+        em = EntityMap()
+        em.add_entity(Entity("e1", EntityType.TEXT, (0.0, 0.0, 10.0, 10.0), 0))
+        em.add_entity(Entity("e2", EntityType.TEXT, (0.0, 0.0, 10.0, 10.0), 0))
+        r = repr(em)
+        assert "entities=2" in r
+
+    def test_repr_shows_page_count(self):
+        em = EntityMap()
+        em.add_entity(Entity("e1", EntityType.TEXT, (0.0, 0.0, 10.0, 10.0), 0))
+        em.add_entity(Entity("e2", EntityType.TEXT, (0.0, 0.0, 10.0, 10.0), 1))
+        r = repr(em)
+        assert "pages=2" in r
+
+    # Cycle 13 (O2): to_format dispatch
+    def test_to_format_json(self):
+        em = EntityMap()
+        em.add_entity(Entity("e1", EntityType.TEXT, (0.0, 0.0, 10.0, 10.0), 0))
+        result = em.to_format(ExportFormat.JSON)
+        assert isinstance(result, str)
+        assert "e1" in result
+
+    def test_to_format_json_ld(self):
+        em = EntityMap()
+        em.add_entity(Entity("e1", EntityType.TEXT, (0.0, 0.0, 10.0, 10.0), 0))
+        result = em.to_format(ExportFormat.JSON_LD)
+        assert isinstance(result, str)
+        assert len(result) > 0
+
+    def test_to_format_xml_raises(self):
+        em = EntityMap()
+        with pytest.raises(NotImplementedError):
+            em.to_format(ExportFormat.XML)
