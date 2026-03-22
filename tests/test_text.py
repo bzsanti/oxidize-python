@@ -141,3 +141,113 @@ class TestTextWriting:
         doc.add_page(page)
         data = doc.save_to_bytes()
         assert len(data) > 0
+
+
+class TestCustomFont:
+    """Test custom/embedded fonts (TXT-002)."""
+
+    def test_custom_font_classmethod(self):
+        from oxidize_pdf import Font
+
+        font = Font.custom("MyCustomFont")
+        assert font is not None
+
+    def test_custom_font_repr(self):
+        from oxidize_pdf import Font
+
+        font = Font.custom("MyCustomFont")
+        assert "CUSTOM" in repr(font)
+        assert "MyCustomFont" in repr(font)
+
+    def test_custom_font_usable_in_set_font(self):
+        from oxidize_pdf import Font, Page
+
+        page = Page.a4()
+        font = Font.custom("MyFont")
+        # Should not raise — set_font accepts any Font variant
+        page.set_font(font, 12.0)
+
+    def test_font_from_file_nonexistent_raises(self):
+        from oxidize_pdf import Font, PdfError
+
+        with pytest.raises(PdfError):
+            Font.from_file("TestFont", "/nonexistent/font.ttf")
+
+    def test_font_from_bytes_invalid_raises(self):
+        from oxidize_pdf import Font, PdfError
+
+        with pytest.raises(PdfError):
+            Font.from_bytes("TestFont", b"\xff\xfe\x00\x01")
+
+
+class TestTextFlowAt:
+    """Test text alignment via text_flow_at (TXT-008)."""
+
+    def test_text_flow_at_basic(self):
+        from oxidize_pdf import Document, Font, Page
+
+        page = Page.a4()
+        page.set_font(Font.HELVETICA, 12.0)
+        page.text_flow_at(50.0, 700.0, "This is a paragraph of text that should be wrapped.")
+
+        doc = Document()
+        doc.add_page(page)
+        data = doc.save_to_bytes()
+        assert data[:5] == b"%PDF-"
+
+    def test_text_flow_at_align_center(self):
+        from oxidize_pdf import Document, Font, Page, TextAlign
+
+        page = Page.a4()
+        page.set_font(Font.HELVETICA, 12.0)
+        page.text_flow_at(
+            50.0, 700.0,
+            "Centered text paragraph.",
+            align=TextAlign.CENTER,
+        )
+
+        doc = Document()
+        doc.add_page(page)
+        data = doc.save_to_bytes()
+        assert len(data) > 0
+
+    def test_text_flow_at_align_right(self):
+        from oxidize_pdf import Document, Font, Page, TextAlign
+
+        page = Page.a4()
+        page.set_font(Font.HELVETICA, 12.0)
+        page.text_flow_at(50.0, 700.0, "Right aligned.", align=TextAlign.RIGHT)
+
+        doc = Document()
+        doc.add_page(page)
+        data = doc.save_to_bytes()
+        assert len(data) > 0
+
+    def test_text_flow_at_align_justified(self):
+        from oxidize_pdf import Document, Font, Page, TextAlign
+
+        page = Page.a4()
+        page.set_font(Font.HELVETICA, 12.0)
+        page.text_flow_at(
+            50.0, 700.0,
+            "Justified text that is long enough to wrap across multiple lines in the page.",
+            align=TextAlign.JUSTIFIED,
+        )
+
+        doc = Document()
+        doc.add_page(page)
+        data = doc.save_to_bytes()
+        assert len(data) > 0
+
+    def test_text_flow_at_default_align_is_left(self):
+        from oxidize_pdf import Document, Font, Page
+
+        page = Page.a4()
+        page.set_font(Font.HELVETICA, 12.0)
+        # No align argument — should default to LEFT
+        page.text_flow_at(50.0, 700.0, "Default alignment is left.")
+
+        doc = Document()
+        doc.add_page(page)
+        data = doc.save_to_bytes()
+        assert len(data) > 0

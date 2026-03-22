@@ -1,0 +1,25 @@
+# Verifies that docs/FEATURE_PARITY.md is consistent with the actual
+# public surface exported in python/oxidize_pdf/__init__.py.
+# Fails if a feature marked `yes` has its corresponding symbol missing.
+
+name: Feature parity check
+
+on:
+  push:
+    branches: [develop, main]
+  pull_request:
+    branches: [develop, main]
+
+jobs:
+  parity:
+    name: Check feature parity consistency
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Run parity check
+        run: python scripts/check_parity.py

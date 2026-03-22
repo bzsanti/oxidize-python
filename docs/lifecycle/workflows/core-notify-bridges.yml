@@ -1,0 +1,54 @@
+# core-notify-bridges.yml
+# Location: github.com/bzsanti/oxidizePdf/.github/workflows/notify-bridges.yml
+#
+# Fires after the core crates.io publish succeeds.
+# Sends a repository_dispatch event to each bridge repo so they can
+# open an automated dependency-update PR immediately.
+#
+# Prerequisites:
+#   - A GitHub Personal Access Token (classic) or a fine-grained PAT stored as:
+#       Repository secret: BRIDGE_DISPATCH_TOKEN
+#     The token needs:
+#       - Fine-grained: "Contents: Read and write" + "Metadata: Read" for each bridge repo
+#       - Classic: repo scope
+#   - This workflow is called from the release.yml in the core repo, not triggered directly.
+
+name: Notify bridges of core update
+
+on:
+  workflow_call:
+    inputs:
+      new_version:
+        description: "The newly published core version (e.g. 2.4.0)"
+        required: true
+        type: string
+
+jobs:
+  dispatch-to-bridges:
+    name: Dispatch to ${{ matrix.bridge.repo }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        bridge:
+          - repo: bzsanti/oxidize-python
+            event_type: core-version-updated
+          - repo: bzsanti/oxidize-pdf-dotnet
+            event_type: core-version-updated
+          - repo: bzsanti/oxidize-wasm
+            event_type: core-version-updated
+
+    steps:
+      - name: Dispatch repository_dispatch to ${{ matrix.bridge.repo }}
+        env:
+          GH_TOKEN: ${{ secrets.BRIDGE_DISPATCH_TOKEN }}
+        run: |
+          gh api \
+            --method POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            /repos/${{ matrix.bridge.repo }}/dispatches \
+            -f event_type="${{ matrix.bridge.event_type }}" \
+            -f "client_payload[new_version]=${{ inputs.new_version }}" \
+            -f "client_payload[core_repo]=bzsanti/oxidizePdf" \
+            -f "client_payload[changelog_url]=https://github.com/bzsanti/oxidizePdf/releases/tag/v${{ inputs.new_version }}"

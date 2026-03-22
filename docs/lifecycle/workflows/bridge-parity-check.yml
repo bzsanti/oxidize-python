@@ -1,0 +1,34 @@
+# bridge-parity-check.yml
+# Location: .github/workflows/parity-check.yml  (in oxidize-python repo)
+#
+# Runs on every push to develop and main.
+# Verifies that the symbols exported in python/oxidize_pdf/__init__.py
+# are consistent with the `yes` entries in docs/FEATURE_PARITY.md.
+#
+# This is a regression guard, not a completeness checker.
+# It fails if a symbol that was previously marked `yes` disappears from __init__.py.
+#
+# The check_parity.py script (scripts/check_parity.py) must exist in the repo.
+# See docs/lifecycle/scripts/check_parity.py for the implementation.
+
+name: Feature parity check
+
+on:
+  push:
+    branches: [develop, main]
+  pull_request:
+    branches: [develop, main]
+
+jobs:
+  parity:
+    name: Check feature parity consistency
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Run parity check
+        run: python scripts/check_parity.py
