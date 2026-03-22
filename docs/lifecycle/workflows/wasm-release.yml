@@ -1,0 +1,97 @@
+# wasm-release.yml
+# Location: github.com/bzsanti/oxidize-wasm/.github/workflows/release.yml
+#
+# Publishes the WASM package to npm on version tags (v*.*.*).
+#
+# Prerequisites (one-time setup):
+#   1. Create an npm account and org (or use scoped personal package @bzsanti/oxidize-pdf)
+#   2. Generate an npm automation token (Granular Access Token with "Read and write" on the package)
+#   3. Store it as repository secret: NPM_TOKEN
+#   4. The package.json in the repo root defines the npm package name.
+#
+# IMPORTANT: wasm-pack build generates pkg/package.json from Cargo.toml metadata.
+# Do not manually edit pkg/package.json — it is regenerated on every build.
+# The authoritative package name is set in package.json at the repo root,
+# which wasm-pack merges during `wasm-pack build`.
+
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: read
+  id-token: write  # for npm provenance (requires npm >=9.5.0)
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build-wasm:
+    name: Build WASM package (${{ matrix.target }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        target:
+          - bundler   # For webpack/vite/Rollup consumers
+          - nodejs    # For Node.js consumers
+          - web       # For direct <script type=module> consumers (no bundler)
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: release-wasm-${{ matrix.target }}
+
+      - name: Install wasm-pack
+        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+
+      - name: Build WASM package (target=${{ matrix.target }})
+        run: wasm-pack build --release --target ${{ matrix.target }} --out-dir pkg-${{ matrix.target }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: wasm-pkg-${{ matrix.target }}
+          path: pkg-${{ matrix.target }}/
+          if-no-files-found: error
+
+  publish:
+    name: Publish to npm
+    needs: build-wasm
+    runs-on: ubuntu-latest
+    environment:
+      name: npm
+      url: https://www.npmjs.com/package/@bzsanti/oxidize-pdf
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          registry-url: "https://registry.npmjs.org"
+
+      # Download the bundler target as the primary published package.
+      # Node.js and web targets are published as sub-packages or separate builds.
+      - name: Download bundler package
+        uses: actions/download-artifact@v4
+        with:
+          name: wasm-pkg-bundler
+          path: pkg/
+
+      - name: Verify package contents
+        run: ls -la pkg/
+
+      - name: Publish to npm
+        run: npm publish pkg/ --access public --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

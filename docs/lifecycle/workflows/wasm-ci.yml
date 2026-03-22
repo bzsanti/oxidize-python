@@ -1,0 +1,123 @@
+# wasm-ci.yml
+# Location: github.com/bzsanti/oxidize-wasm/.github/workflows/ci.yml
+#
+# CI for the WASM bridge. Tests in both Node.js and headless browser environments.
+#
+# Prerequisites (one-time setup):
+#   - Install wasm-pack on runners (done inline via cargo install or the official installer)
+#   - wasm-pack test --headless requires Chrome or Firefox; ubuntu-latest has both via apt
+#   - Node.js tests require the pkg/ directory to be built first
+
+name: CI
+
+on:
+  push:
+    branches: [develop, main]
+  pull_request:
+    branches: [develop, main]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build-and-test-node:
+    name: Build and test (Node.js ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ["18", "20", "22"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Install wasm-pack
+        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Build for Node.js target
+        run: wasm-pack build --target nodejs --dev
+
+      - name: Install JS test dependencies
+        run: npm ci
+        working-directory: tests/js
+
+      - name: Run Node.js tests
+        run: npm test
+        working-directory: tests/js
+
+  test-browser:
+    name: Test in headless browser
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Install wasm-pack
+        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+
+      - name: Install Chrome (for headless browser tests)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y google-chrome-stable
+
+      - name: Run browser tests (headless Chrome)
+        run: wasm-pack test --headless --chrome
+
+  check-wasm32-compilation:
+    name: Verify wasm32-unknown-unknown compilation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: cargo check (wasm32 target)
+        run: cargo check --target wasm32-unknown-unknown
+
+  check-typescript:
+    name: Check TypeScript types
+    runs-on: ubuntu-latest
+    needs: build-and-test-node
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Install wasm-pack
+        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Build pkg (includes .d.ts generation)
+        run: wasm-pack build --target bundler
+
+      - name: Install TypeScript
+        run: npm install -g typescript
+
+      - name: Check TypeScript definitions compile
+        run: tsc --noEmit --strict pkg/oxidize_pdf.d.ts

@@ -1,8 +1,31 @@
 use pyo3::prelude::*;
 
+use oxidize_pdf::advanced_tables::AdvancedTableExt;
+use oxidize_pdf::charts::ChartExt;
+use oxidize_pdf::PageLists;
+use oxidize_pdf::PageTables;
+
+use crate::annotations::PyAnnotation;
 use crate::errors::to_py_err;
-use crate::text::PyFont;
+use crate::graphics::{
+    PyBlendMode, PyCalibratedColor, PyClippingPath, PyLabColor, PyLineCap, PyLineDashPattern,
+    PyLineJoin,
+};
+use crate::image::PyImage;
+use crate::list::{PyBulletStyle, PyOrderedList, PyOrderedListStyle, PyUnorderedList};
+use crate::table::{PyTable, PyTableStyle};
+use crate::text::{PyFont, PyHeaderFooter, PyTextAlign, PyTextRenderingMode};
 use crate::types::{PyColor, PyMargins};
+
+#[inline]
+fn validate_opacity(opacity: f64) -> PyResult<()> {
+    if !(0.0..=1.0).contains(&opacity) {
+        return Err(pyo3::exceptions::PyValueError::new_err(format!(
+            "Opacity {opacity} out of range [0.0, 1.0]"
+        )));
+    }
+    Ok(())
+}
 
 #[pyclass(name = "Page", from_py_object)]
 #[derive(Clone)]
@@ -87,6 +110,21 @@ impl PyPage {
         );
     }
 
+    #[getter]
+    fn rotation(&self) -> i32 {
+        self.inner.get_rotation()
+    }
+
+    fn set_rotation(&mut self, degrees: i32) -> PyResult<()> {
+        if ![0, 90, 180, 270].contains(&degrees) {
+            return Err(pyo3::exceptions::PyValueError::new_err(format!(
+                "Invalid rotation: {degrees}. Must be 0, 90, 180, or 270."
+            )));
+        }
+        self.inner.set_rotation(degrees);
+        Ok(())
+    }
+
     fn __repr__(&self) -> String {
         format!("Page({}x{})", self.inner.width(), self.inner.height())
     }
@@ -118,6 +156,21 @@ impl PyPage {
         self.inner.text().set_leading(leading);
     }
 
+    /// Set horizontal text scaling (100.0 = normal).
+    fn set_horizontal_scaling(&mut self, scale: f64) {
+        self.inner.text().set_horizontal_scaling(scale);
+    }
+
+    /// Set text rise (positive = superscript, negative = subscript).
+    fn set_text_rise(&mut self, rise: f64) {
+        self.inner.text().set_text_rise(rise);
+    }
+
+    /// Set the text rendering mode.
+    fn set_rendering_mode(&mut self, mode: &PyTextRenderingMode) {
+        self.inner.text().set_rendering_mode(mode.inner);
+    }
+
     /// Write text at the given position.
     fn text_at(&mut self, x: f64, y: f64, text: &str) -> PyResult<()> {
         self.inner
@@ -140,19 +193,39 @@ impl PyPage {
         self.inner.graphics().set_stroke_color(color.inner);
     }
 
+    fn set_fill_color_calibrated(&mut self, color: &PyCalibratedColor) {
+        self.inner.graphics().set_fill_color_calibrated(color.inner.clone());
+    }
+
+    fn set_stroke_color_calibrated(&mut self, color: &PyCalibratedColor) {
+        self.inner.graphics().set_stroke_color_calibrated(color.inner.clone());
+    }
+
+    fn set_fill_color_lab(&mut self, color: &PyLabColor) {
+        self.inner.graphics().set_fill_color_lab(color.inner.clone());
+    }
+
+    fn set_stroke_color_lab(&mut self, color: &PyLabColor) {
+        self.inner.graphics().set_stroke_color_lab(color.inner.clone());
+    }
+
     /// Set the line width for subsequent stroke operations.
     fn set_line_width(&mut self, width: f64) {
         self.inner.graphics().set_line_width(width);
     }
 
     /// Set fill opacity (0.0 = transparent, 1.0 = opaque).
-    fn set_fill_opacity(&mut self, opacity: f64) {
+    fn set_fill_opacity(&mut self, opacity: f64) -> PyResult<()> {
+        validate_opacity(opacity)?;
         self.inner.graphics().set_fill_opacity(opacity);
+        Ok(())
     }
 
     /// Set stroke opacity (0.0 = transparent, 1.0 = opaque).
-    fn set_stroke_opacity(&mut self, opacity: f64) {
+    fn set_stroke_opacity(&mut self, opacity: f64) -> PyResult<()> {
+        validate_opacity(opacity)?;
         self.inner.graphics().set_stroke_opacity(opacity);
+        Ok(())
     }
 
     /// Draw a rectangle path (does not fill or stroke — call fill/stroke after).
@@ -198,6 +271,293 @@ impl PyPage {
     /// Fill and then stroke the current path.
     fn fill_and_stroke(&mut self) {
         self.inner.graphics().fill_stroke();
+    }
+
+    /// Set the line cap style.
+    fn set_line_cap(&mut self, cap: &PyLineCap) {
+        self.inner.graphics().set_line_cap(cap.inner);
+    }
+
+    /// Set the line join style.
+    fn set_line_join(&mut self, join: &PyLineJoin) {
+        self.inner.graphics().set_line_join(join.inner);
+    }
+
+    /// Set the miter limit for line joins.
+    fn set_miter_limit(&mut self, limit: f64) {
+        self.inner.graphics().set_miter_limit(limit);
+    }
+
+    /// Set the line dash pattern.
+    fn set_dash_pattern(&mut self, pattern: &PyLineDashPattern) {
+        self.inner
+            .graphics()
+            .set_line_dash_pattern(pattern.inner.clone());
+    }
+
+    /// Save the current graphics state.
+    fn save_graphics_state(&mut self) {
+        self.inner.graphics().save_state();
+    }
+
+    /// Restore the previously saved graphics state.
+    fn restore_graphics_state(&mut self) {
+        self.inner.graphics().restore_state();
+    }
+
+    /// Set a clipping path.
+    fn set_clipping_path(&mut self, path: &PyClippingPath) -> PyResult<()> {
+        self.inner
+            .graphics()
+            .set_clipping_path(path.inner.clone())
+            .map_err(to_py_err)?;
+        Ok(())
+    }
+
+    /// Clear the clipping path.
+    fn clear_clipping(&mut self) {
+        self.inner.graphics().clear_clipping();
+    }
+
+    /// Set the blend mode.
+    fn set_blend_mode(&mut self, mode: &PyBlendMode) -> PyResult<()> {
+        self.inner
+            .graphics()
+            .set_blend_mode(mode.inner.clone())
+            .map_err(to_py_err)?;
+        Ok(())
+    }
+
+    // ── Coordinate system ─────────────────────────────────────────────
+
+    /// Set the coordinate system for this page.
+    fn set_coordinate_system(&mut self, cs: &crate::tier8::PyCoordinateSystem) {
+        self.inner.set_coordinate_system(cs.inner.clone());
+    }
+
+    // ── Annotation operations ─────────────────────────────────────────
+
+    /// Add an annotation to this page.
+    fn add_annotation(&mut self, annotation: &PyAnnotation) {
+        self.inner.add_annotation(annotation.inner.clone());
+    }
+
+    // ── Table operations ────────────────────────────────────────────────
+
+    /// Render a table at the given position.
+    fn add_simple_table(&mut self, table: &PyTable, x: f64, y: f64) -> PyResult<()> {
+        self.inner
+            .add_simple_table(&table.inner, x, y)
+            .map_err(to_py_err)?;
+        Ok(())
+    }
+
+    /// Create and render a quick table from raw data.
+    #[pyo3(signature = (data, x, y, width, options=None))]
+    fn add_quick_table(
+        &mut self,
+        data: Vec<Vec<String>>,
+        x: f64,
+        y: f64,
+        width: f64,
+        options: Option<&crate::table::PyTableOptions>,
+    ) -> PyResult<()> {
+        self.inner
+            .add_quick_table(data, x, y, width, options.map(|o| o.inner.clone()))
+            .map_err(to_py_err)?;
+        Ok(())
+    }
+
+    /// Render a styled table with headers.
+    fn add_styled_table(
+        &mut self,
+        headers: Vec<String>,
+        data: Vec<Vec<String>>,
+        x: f64,
+        y: f64,
+        width: f64,
+        style: &PyTableStyle,
+    ) -> PyResult<()> {
+        self.inner
+            .add_styled_table(headers, data, x, y, width, style.inner.clone())
+            .map_err(to_py_err)?;
+        Ok(())
+    }
+
+    // ── List operations ──────────────────────────────────────────────────
+
+    /// Render an ordered list at the given position.
+    fn add_ordered_list(&mut self, list: &PyOrderedList, x: f64, y: f64) -> PyResult<()> {
+        self.inner
+            .add_ordered_list(&list.inner, x, y)
+            .map_err(to_py_err)?;
+        Ok(())
+    }
+
+    /// Render an unordered list at the given position.
+    fn add_unordered_list(&mut self, list: &PyUnorderedList, x: f64, y: f64) -> PyResult<()> {
+        self.inner
+            .add_unordered_list(&list.inner, x, y)
+            .map_err(to_py_err)?;
+        Ok(())
+    }
+
+    /// Quick ordered list from items.
+    fn add_quick_ordered_list(
+        &mut self,
+        items: Vec<String>,
+        x: f64,
+        y: f64,
+        style: &PyOrderedListStyle,
+    ) -> PyResult<()> {
+        self.inner
+            .add_quick_ordered_list(items, x, y, style.inner)
+            .map_err(to_py_err)?;
+        Ok(())
+    }
+
+    /// Quick unordered list from items.
+    fn add_quick_unordered_list(
+        &mut self,
+        items: Vec<String>,
+        x: f64,
+        y: f64,
+        bullet: &PyBulletStyle,
+    ) -> PyResult<()> {
+        self.inner
+            .add_quick_unordered_list(items, x, y, bullet.inner)
+            .map_err(to_py_err)?;
+        Ok(())
+    }
+
+    // ── Image operations ─────────────────────────────────────────────────
+
+    /// Register a named image on this page.
+    fn add_image(&mut self, name: &str, image: &PyImage) {
+        self.inner.add_image(name, image.inner.clone());
+    }
+
+    /// Draw a previously registered image at the given position and size.
+    fn draw_image(
+        &mut self,
+        name: &str,
+        x: f64,
+        y: f64,
+        width: f64,
+        height: f64,
+    ) -> PyResult<()> {
+        self.inner
+            .draw_image(name, x, y, width, height)
+            .map_err(to_py_err)
+    }
+
+    // ── Header/Footer operations ─────────────────────────────────────────
+
+    /// Set a header on this page.
+    fn set_header(&mut self, header: &PyHeaderFooter) {
+        self.inner.set_header(header.inner.clone());
+    }
+
+    /// Set a footer on this page.
+    fn set_footer(&mut self, footer: &PyHeaderFooter) {
+        self.inner.set_footer(footer.inner.clone());
+    }
+
+    // ── Chart operations ─────────────────────────────────────────────────
+
+    /// Add a bar chart at the given position and dimensions.
+    fn add_bar_chart(
+        &mut self,
+        chart: &crate::charts::PyBarChart,
+        x: f64,
+        y: f64,
+        width: f64,
+        height: f64,
+    ) -> PyResult<()> {
+        self.inner
+            .add_bar_chart(&chart.inner, x, y, width, height)
+            .map_err(to_py_err)
+    }
+
+    /// Add a pie chart at the given center position and radius.
+    fn add_pie_chart(
+        &mut self,
+        chart: &crate::charts::PyPieChart,
+        x: f64,
+        y: f64,
+        radius: f64,
+    ) -> PyResult<()> {
+        self.inner
+            .add_pie_chart(&chart.inner, x, y, radius)
+            .map_err(to_py_err)
+    }
+
+    /// Add a line chart at the given position and dimensions.
+    fn add_line_chart(
+        &mut self,
+        chart: &crate::charts::PyLineChart,
+        x: f64,
+        y: f64,
+        width: f64,
+        height: f64,
+    ) -> PyResult<()> {
+        self.inner
+            .add_line_chart(&chart.inner, x, y, width, height)
+            .map_err(to_py_err)
+    }
+
+    // ── Advanced Tables ──────────────────────────────────────────────────
+
+    /// Add an advanced table at the given position, returning the bottom Y coordinate.
+    fn add_advanced_table(
+        &mut self,
+        table: &crate::advanced_tables::PyAdvancedTable,
+        x: f64,
+        y: f64,
+    ) -> PyResult<f64> {
+        self.inner.add_advanced_table(&table.inner, x, y).map_err(to_py_err)
+    }
+
+    /// Add an advanced table with automatic positioning.
+    fn add_advanced_table_auto(
+        &mut self,
+        table: &crate::advanced_tables::PyAdvancedTable,
+    ) -> PyResult<f64> {
+        self.inner.add_advanced_table_auto(&table.inner).map_err(to_py_err)
+    }
+
+    // ── Text flow (aligned / wrapped text) ──────────────────────────────
+
+    /// Write text with word-wrapping and optional alignment.
+    ///
+    /// Uses the font previously set with ``set_font``. The text is wrapped
+    /// within the page content area (respecting margins).
+    ///
+    /// Args:
+    ///     x: Starting X position.
+    ///     y: Starting Y position.
+    ///     text: The text to write.
+    ///     align: Optional ``TextAlign`` value (defaults to ``TextAlign.LEFT``).
+    #[pyo3(signature = (x, y, text, align = None))]
+    fn text_flow_at(
+        &mut self,
+        x: f64,
+        y: f64,
+        text: &str,
+        align: Option<&PyTextAlign>,
+    ) -> PyResult<()> {
+        let mut ctx = self.inner.text_flow();
+
+        ctx.at(x, y);
+
+        if let Some(a) = align {
+            ctx.set_alignment(a.inner);
+        }
+
+        ctx.write_wrapped(text).map_err(to_py_err)?;
+
+        self.inner.add_text_flow(&ctx);
+        Ok(())
     }
 }
 

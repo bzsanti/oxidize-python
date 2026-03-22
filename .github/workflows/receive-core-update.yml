@@ -1,0 +1,137 @@
+# Handles repository_dispatch from the oxidize-pdf core repo and opens a
+# dependency update PR against `develop` automatically.
+# Also triggered manually for testing.
+# See docs/lifecycle/workflows/bridge-receive-core-update.yml for full docs.
+
+name: Receive core update
+
+on:
+  repository_dispatch:
+    types: [core-version-updated]
+  workflow_dispatch:
+    inputs:
+      new_version:
+        description: "Core version to update to (e.g. 2.4.0)"
+        required: true
+        type: string
+      changelog_url:
+        description: "URL to core changelog/release"
+        required: false
+        type: string
+        default: "https://github.com/bzsanti/oxidizePdf/releases"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  open-dependency-pr:
+    name: Open dependency update PR
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: develop
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Resolve new version
+        id: resolve
+        run: |
+          if [ "${{ github.event_name }}" = "repository_dispatch" ]; then
+            NEW_VERSION="${{ github.event.client_payload.new_version }}"
+            CHANGELOG_URL="${{ github.event.client_payload.changelog_url }}"
+          else
+            NEW_VERSION="${{ inputs.new_version }}"
+            CHANGELOG_URL="${{ inputs.changelog_url }}"
+          fi
+          echo "new_version=${NEW_VERSION}" >> "$GITHUB_OUTPUT"
+          echo "changelog_url=${CHANGELOG_URL}" >> "$GITHUB_OUTPUT"
+
+      - name: Read current pinned version
+        id: current
+        run: |
+          CURRENT=$(grep -oP '(?<=oxidize-pdf = \{ version = ")[^"]+' Cargo.toml \
+                    || grep -oP '(?<=oxidize-pdf = ")[^"]+' Cargo.toml \
+                    || echo "unknown")
+          echo "current_version=${CURRENT}" >> "$GITHUB_OUTPUT"
+
+      - name: Check if update is needed
+        id: check
+        run: |
+          NEW="${{ steps.resolve.outputs.new_version }}"
+          CURRENT="${{ steps.current.outputs.current_version }}"
+          echo "Current: ${CURRENT}, New: ${NEW}"
+          if [ "${CURRENT}" = "${NEW}" ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "Already on ${NEW}, no PR needed."
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Update Cargo.toml
+        if: steps.check.outputs.skip == 'false'
+        run: |
+          NEW="${{ steps.resolve.outputs.new_version }}"
+          sed -i -E \
+            's/(oxidize-pdf = \{ version = ")[^"]+(")/\1'"${NEW}"'\2/' \
+            Cargo.toml
+          grep "oxidize-pdf" Cargo.toml
+
+      - name: Update Cargo.lock
+        if: steps.check.outputs.skip == 'false'
+        run: cargo update oxidize-pdf
+
+      - name: Verify compilation
+        if: steps.check.outputs.skip == 'false'
+        run: cargo check
+
+      - name: Create branch and push
+        if: steps.check.outputs.skip == 'false'
+        id: push
+        run: |
+          BRANCH="chore/update-oxidize-pdf-${{ steps.resolve.outputs.new_version }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "${BRANCH}"
+          git add Cargo.toml Cargo.lock
+          git commit -m "chore: update oxidize-pdf to v${{ steps.resolve.outputs.new_version }}"
+          git push origin "${BRANCH}"
+          echo "branch=${BRANCH}" >> "$GITHUB_OUTPUT"
+
+      - name: Open pull request
+        if: steps.check.outputs.skip == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr create \
+            --base develop \
+            --head "${{ steps.push.outputs.branch }}" \
+            --title "chore: update oxidize-pdf to v${{ steps.resolve.outputs.new_version }}" \
+            --label "dependency-update,automated" \
+            --body "## Automated dependency update
+
+          | | Version |
+          |---|---|
+          | **Previous core** | \`${{ steps.current.outputs.current_version }}\` |
+          | **New core** | \`${{ steps.resolve.outputs.new_version }}\` |
+          | **Core changelog** | [${{ steps.resolve.outputs.new_version }}](${{ steps.resolve.outputs.changelog_url }}) |
+
+          ## Before merging
+
+          - [ ] Review core changelog for breaking changes or new APIs
+          - [ ] If new APIs should be exposed in Python bridge, open a separate feature/* branch
+          - [ ] If any core APIs were deprecated, add Python deprecation shims
+          - [ ] Verify all CI checks pass (3 OS x 4 Python versions)
+          - [ ] Update \`docs/FEATURE_PARITY.md\` if any feature status changed
+          - [ ] Update \`docs/COMPATIBILITY.md\` if the core version range changed
+
+          ## After merging
+
+          Decide whether a bridge release is warranted (patch / minor / none)."

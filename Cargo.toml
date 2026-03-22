@@ -1,6 +1,6 @@
 [package]
 name = "oxidize-python"
-version = "0.1.1"
+version = "0.2.0"
 edition = "2021"
 rust-version = "1.77"
 authors = ["Santiago Fernández Muñoz"]
@@ -13,4 +13,6 @@ crate-type = ["cdylib"]
 
 [dependencies]
 pyo3 = { version = "0.28", features = ["extension-module"] }
-oxidize-pdf = { version = "2.1.0", default-features = false, features = ["compression"] }
+oxidize-pdf = { version = "2.3.2", default-features = false, features = ["compression", "signatures", "semantic"] }
+tempfile = "3"
+chrono = "0.4"
