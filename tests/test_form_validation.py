@@ -123,7 +123,7 @@ def test_form_validation_system_add_validator():
 
 
 def test_form_validation_system_validate_field_valid():
-    from oxidize_pdf import FieldValidator, FieldValue, FormValidationSystem, ValidationRule
+    from oxidize_pdf import FieldValidator, FieldValue, FormValidationSystem, ValidationResult, ValidationRule
 
     fvs = FormValidationSystem()
     validator = FieldValidator("age")
@@ -131,14 +131,14 @@ def test_form_validation_system_validate_field_valid():
     fvs.add_validator(validator)
 
     result = fvs.validate_field("age", FieldValue.number(25.0))
-    assert isinstance(result, dict)
-    assert result["field_name"] == "age"
-    assert result["is_valid"] is True
-    assert result["errors"] == []
+    assert isinstance(result, ValidationResult)
+    assert result.field_name == "age"
+    assert result.is_valid is True
+    assert result.errors == []
 
 
 def test_form_validation_system_validate_field_invalid():
-    from oxidize_pdf import FieldValidator, FieldValue, FormValidationSystem, ValidationRule
+    from oxidize_pdf import FieldValidator, FieldValue, FormValidationSystem, ValidationResult, ValidationRule
 
     fvs = FormValidationSystem()
     validator = FieldValidator("age")
@@ -146,10 +146,10 @@ def test_form_validation_system_validate_field_invalid():
     fvs.add_validator(validator)
 
     result = fvs.validate_field("age", FieldValue.number(200.0))
-    assert isinstance(result, dict)
-    assert result["field_name"] == "age"
-    assert result["is_valid"] is False
-    assert len(result["errors"]) > 0
+    assert isinstance(result, ValidationResult)
+    assert result.field_name == "age"
+    assert result.is_valid is False
+    assert len(result.errors) > 0
 
 
 def test_form_validation_system_unknown_field_is_valid():
@@ -157,4 +157,4 @@ def test_form_validation_system_unknown_field_is_valid():
 
     fvs = FormValidationSystem()
     result = fvs.validate_field("unknown_field", FieldValue.text("anything"))
-    assert result["is_valid"] is True
+    assert result.is_valid is True

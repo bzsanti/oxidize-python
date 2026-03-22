@@ -13,6 +13,7 @@ use crate::security::{PyEncryptionStrength, PyPermissions};
 use crate::text::PyFontEncoding;
 use crate::types::PyRectangle;
 use crate::viewer_preferences::PyViewerPreferences;
+use crate::xmp_metadata::PyXmpMetadata;
 
 #[pyclass(name = "Document")]
 pub struct PyDocument {
@@ -299,6 +300,20 @@ impl PyDocument {
     fn set_default_font_encoding(&mut self, encoding: &PyFontEncoding) {
         self.inner
             .set_default_font_encoding(Some(encoding.inner.clone()));
+    }
+
+    // ── XMP Metadata (F78) ───────────────────────────────────────────────
+
+    /// Create an XmpMetadata object populated with this document's metadata.
+    fn create_xmp_metadata(&self) -> PyXmpMetadata {
+        PyXmpMetadata {
+            inner: self.inner.create_xmp_metadata(),
+        }
+    }
+
+    /// Return the XMP packet XML string for this document's metadata.
+    fn get_xmp_packet(&self) -> String {
+        self.inner.get_xmp_packet()
     }
 
     fn __repr__(&self) -> String {

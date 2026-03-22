@@ -1,10 +1,10 @@
 # TDD Plan — oxidize-python Feature Parity
 
-**Última actualización**: 2026-03-20
-**Estado**: ~69/113 features completadas (61%)
-**Tests**: 894 pasando, 0 warnings
-**Tiers 9-12 completados**: Charts, Advanced Tables, Page Transitions, AI/ML Pipeline (+351 tests)
-**Core**: oxidize-pdf v2.3.2
+**Última actualización**: 2026-03-21
+**Estado**: ~89/113 features completadas (79%)
+**Tests**: 1554 pasando, 0 warnings
+**Tiers 0-19 completados**: incluye Charts, Tables, Transitions, AI/ML, Graphics Adv, Text Extract, Batch/Recovery/Streaming, Forms Deep, Signatures Deep, ContentParser, XMP Metadata
+**Core**: oxidize-pdf v2.3.2 (features: compression, signatures)
 
 **Nota sobre métricas**: El plan anterior reportaba 57/64 (89%). Eso medía features de alto nivel.
 Tras gap analysis profundo contra la API completa del core (674 structs, 243 enums, 31 módulos),
@@ -239,11 +239,11 @@ PdfReader métodos: to_markdown, to_contextual, chunk, partition, rag_chunks, ra
   - PdfReader integration: rag_chunks(), rag_chunks_with_profile()
   - ~3 ciclos TDD
 
-### Tier 13 — Graphics Avanzado (F65-F70, ~20 ciclos TDD)
+### Tier 13 — Graphics Avanzado (F65-F70, ~20 ciclos TDD) ✅ COMPLETADO
 
-APIs confirmadas en core: submódulos de `graphics`.
+APIs confirmadas en core: submódulos de `graphics`. **125 tests.**
 
-- [ ] F65: Shadings (gradientes)
+- [x] F65: Shadings (gradientes)
   - Struct: `ColorStop` (position, color)
   - Struct: `AxialShading` (linear gradient) + linear_gradient factory + with_extend
   - Struct: `RadialShading` (radial gradient) + radial_gradient factory + with_extend
@@ -252,7 +252,7 @@ APIs confirmadas en core: submódulos de `graphics`.
   - Page integration: draw con shading fill
   - ~4 ciclos TDD
 
-- [ ] F66: Patterns (tiling)
+- [x] F66: Patterns (tiling)
   - Enum: `PaintType` (Colored, Uncolored), `TilingType` (3 variantes)
   - Struct: `PatternMatrix` (identity, translation, scale, rotation, multiply)
   - Struct: `TilingPattern` (add_rectangle, add_line, add_circle, stroke, fill)
@@ -260,7 +260,7 @@ APIs confirmadas en core: submódulos de `graphics`.
   - Trait: `PatternGraphicsContext` → Page.set_fill_pattern, Page.set_stroke_pattern
   - ~4 ciclos TDD
 
-- [ ] F67: FormXObject (reusable content)
+- [x] F67: FormXObject (reusable content)
   - Struct: `FormXObject` (bbox, matrix, resources, content, transparency_group)
   - Builder: `FormXObjectBuilder` (15 métodos: rectangle, move_to, line_to, fill_color, stroke_color, etc.)
   - Struct: `FormTemplates` (checkmark, cross, circle, star, logo_placeholder) — factories estáticas
@@ -268,7 +268,7 @@ APIs confirmadas en core: submódulos de `graphics`.
   - Page integration existente: Page.add_form_xobject
   - ~3 ciclos TDD
 
-- [ ] F68: ExtGState (graphics state parameters)
+- [x] F68: ExtGState (graphics state parameters)
   - Struct: `ExtGState` con 27 campos opcionales (line_width, line_cap, blend_mode, alpha, soft_mask, halftone, transfer_function, etc.)
   - 25+ métodos builder: with_line_width, with_blend_mode, with_alpha, with_gamma_correction, etc.
   - Struct: `ExtGStateManager` (add_state, get_state, to_resource_dictionary)
@@ -276,14 +276,14 @@ APIs confirmadas en core: submódulos de `graphics`.
   - Nota: ExtGState es el mecanismo subyacente para muchas features ya expuestas (blend_mode, opacity). Este feature expone el control granular completo.
   - ~3 ciclos TDD
 
-- [ ] F69: SoftMask + TransparencyGroup
+- [x] F69: SoftMask + TransparencyGroup
   - Struct: `SoftMask` (alpha, luminosity, with_background_color, with_bbox)
   - Struct: `SoftMaskState` (set_mask, push_mask, pop_mask)
   - Struct: `TransparencyGroup` (isolated, knockout, blend_mode, opacity, color_space)
   - Enum: `SoftMaskType` (Alpha, Luminosity)
   - ~3 ciclos TDD
 
-- [ ] F70: Advanced Color Spaces (ICC, Separation, DeviceN, Indexed)
+- [x] F70: Advanced Color Spaces (ICC, Separation, DeviceN, Indexed)
   - Struct: `IccProfile` (from_standard, validate) + `IccProfileManager` + `StandardIccProfile` enum (7 perfiles)
   - Struct: `SeparationColorSpace` (rgb_separation, cmyk_separation) + `SeparationColor` + `SpotColors` (Pantone presets)
   - Struct: `DeviceNColorSpace` (cmyk_plus_spots) + `ColorantDefinition` + `DeviceNAttributes`
@@ -291,17 +291,17 @@ APIs confirmadas en core: submódulos de `graphics`.
   - Enum: `IccColorSpace` (Rgb, Cmyk, Lab, Gray)
   - ~3 ciclos TDD
 
-### Tier 14 — Text Extraction & Analysis (F71-F74, ~10 ciclos TDD)
+### Tier 14 — Text Extraction & Analysis (F71-F74, ~10 ciclos TDD) ✅ COMPLETADO
 
-APIs confirmadas en core: submódulos de `text`.
+APIs confirmadas en core: submódulos de `text`. **66 tests.**
 
-- [ ] F71: TextExtractor + ExtractionOptions
+- [x] F71: TextExtractor + ExtractionOptions
   - Struct: `TextExtractor` (extract_from_document, extract_from_page)
   - Struct: `ExtractionOptions` (preserve_layout, space_threshold, detect_columns, merge_hyphenated, sort_by_position)
   - Integración: PdfReader.extract_text_advanced(options)
   - ~2 ciclos TDD
 
-- [ ] F72: PlainTextExtractor + PlainTextConfig
+- [x] F72: PlainTextExtractor + PlainTextConfig
   - Struct: `PlainTextExtractor` (extract, extract_lines)
   - Struct: `PlainTextConfig` (space_threshold, newline_threshold, preserve_layout, line_break_mode)
   - Presets: dense(), loose(), preserve_layout()
@@ -309,14 +309,14 @@ APIs confirmadas en core: submódulos de `text`.
   - Struct: `PlainTextResult` (text, line_count, char_count)
   - ~2 ciclos TDD
 
-- [ ] F73: ColumnLayout
+- [x] F73: ColumnLayout
   - Struct: `ColumnLayout` (new, with_custom_widths, column_count, column_width, column_x_position)
   - Struct: `ColumnOptions` (font, font_size, line_height, text_color, text_align, balance_columns, show_separators)
   - Struct: `ColumnContent` (text, formatting)
   - Integración: Page.render_columns(layout, content, x, y, height)
   - ~3 ciclos TDD
 
-- [ ] F74: TextValidator + InvoiceExtractor + StructuredDataDetector
+- [x] F74: TextValidator + InvoiceExtractor + StructuredDataDetector
   - Struct: `TextValidator` (search_for_target, validate_contract_text)
   - Struct: `TextValidationResult` (found, matches, confidence)
   - Struct: `InvoiceExtractor` (builder pattern, extract from text_fragments)
@@ -325,12 +325,11 @@ APIs confirmadas en core: submódulos de `text`.
   - Enum: `Language` (Spanish, English, German, Italian)
   - ~3 ciclos TDD
 
-### Tier 15 — Batch, Recovery, Streaming Full (F62-F64, ~15 ciclos TDD)
+### Tier 15 — Batch, Recovery, Streaming Full (F62-F64, ~15 ciclos TDD) ✅ COMPLETADO
 
-APIs confirmadas en core. Nota: F35/F36/F37 ya exponen constructores mínimos.
-Estos features los profundizan con las APIs completas.
+APIs confirmadas en core. **58 tests.**
 
-- [ ] F62: Batch Processing Full
+- [x] F62: Batch Processing Full
   - Struct: `BatchProcessor` (add_job, add_jobs, execute, cancel, get_progress)
   - Enum: `BatchJob` (Custom, Split, Merge, Rotate, Extract, Compress)
   - Enum: `JobResult` (Success, Failed, Cancelled)
@@ -341,7 +340,7 @@ Estos features los profundizan con las APIs completas.
   - **Nota FFI**: BatchJob::Custom usa `Box<dyn Fn()>` — requiere wrapper para Python callbacks. progress_callback usa `Arc<dyn ProgressCallback>` — requiere adapter.
   - ~5 ciclos TDD
 
-- [ ] F63: Recovery Full
+- [x] F63: Recovery Full
   - Struct: `PdfRecovery` (recover_document, recover_partial, warnings)
   - Struct: `RecoveryOptions` (aggressive_recovery, partial_content, max_errors, rebuild_xref, memory_limit)
   - Struct: `PartialRecovery` (recovered_pages, total_objects, recovered_objects)
@@ -353,7 +352,7 @@ Estos features los profundizan con las APIs completas.
   - Funciones: quick_recover, analyze_corruption, detect_corruption, repair_document
   - ~5 ciclos TDD
 
-- [ ] F64: Streaming Full
+- [x] F64: Streaming Full
   - Struct: `StreamingDocument<File>` (next_page, process_pages, memory_usage, clear_cache)
   - Struct: `StreamingPage` (number, width, height, extract_text_streaming, media_box)
   - Struct: `PageStreamer<File>` (next, seek_to_page, total_pages)
@@ -365,11 +364,11 @@ Estos features los profundizan con las APIs completas.
   - **Nota FFI**: `<R: Read + Seek>` genérico — wrappear con `File` concreto y `Cursor<Vec<u8>>` para bytes.
   - ~5 ciclos TDD
 
-### Tier 16 — Signatures & Forms Deep (F75-F76, ~8 ciclos TDD)
+### Tier 16 — Signatures & Forms Deep (F75-F76, ~8 ciclos TDD) ✅ COMPLETADO
 
-APIs confirmadas en core.
+APIs confirmadas en core. **183 tests (140 F76 + 43 F75).**
 
-- [ ] F75: Signatures Deep
+- [x] F75: Signatures Deep
   - Struct: `ParsedSignature` (digest_algorithm, signature_algorithm, signer_certificate_der, signature_value)
   - Struct: `SignatureVerificationResult` (hash_valid, signature_valid, details) + is_valid()
   - Struct: `TrustStore` (mozilla_roots, empty, root_count, is_mozilla_bundle)
@@ -380,7 +379,7 @@ APIs confirmadas en core.
   - **Nota**: Requiere feature `signatures` en Cargo.toml — actualmente solo tiene `compression`.
   - ~4 ciclos TDD
 
-- [ ] F76: Forms Deep
+- [x] F76: Forms Deep
   - Struct: `FormManager` (add_text_field, add_combo_box con Widget + FieldOptions)
   - Struct: `AcroForm` (fields, need_appearances, sig_flags, add_field, to_dict)
   - Struct: `FormData` (values HashMap, set_value, get_value)
@@ -390,11 +389,11 @@ APIs confirmadas en core.
   - Struct: `AppearanceDictionary` (set_appearance, get_appearance)
   - ~4 ciclos TDD
 
-### Tier 17 — Parser Low-Level & XMP Metadata (F77-F78, ~8 ciclos TDD)
+### Tier 17 — Parser Low-Level & XMP Metadata (F77-F78, ~8 ciclos TDD) ✅ COMPLETADO
 
-APIs confirmadas en core.
+APIs confirmadas en core. **77 tests (47 F77 + 30 F78).**
 
-- [ ] F77: ContentParser + ContentOperation
+- [x] F77: ContentParser + ContentOperation
   - Función: `ContentParser.parse_content(content: bytes) → Vec<ContentOperation>`
   - Enum: `ContentOperation` (70+ variantes organizadas en categorías):
     - Text: BeginText, EndText, ShowText, SetFont, etc.
@@ -409,7 +408,7 @@ APIs confirmadas en core.
   - **Nota**: ContentOperation requiere wrapping cuidadoso — 70+ variantes como Python enum/dataclass.
   - ~5 ciclos TDD
 
-- [ ] F78: XMP Metadata
+- [x] F78: XMP Metadata
   - Struct: `XmpMetadata` (set_text, set_date, set_array, set_bag, set_struct, add_property)
   - Struct: `XmpProperty` (namespace, name, value)
   - Enum: `XmpNamespace` (DublinCore, XmpBasic, XmpRights, XmpMediaManagement, Pdf, Photoshop, Custom)
@@ -417,18 +416,18 @@ APIs confirmadas en core.
   - Document integration: Document.set_xmp_metadata(metadata)
   - ~3 ciclos TDD
 
-### Tier 18 — Verification & Compliance (F79-F80, ~6 ciclos TDD)
+### Tier 18 — Verification & Compliance (F79-F80, ~6 ciclos TDD) ✅ COMPLETADO
 
-APIs confirmadas en core: módulo `verification`.
+APIs confirmadas en core: módulo `verification`. **28 tests.**
 
-- [ ] F79: Compliance System
+- [x] F79: Compliance System
   - Struct: `ComplianceSystem` (ISO matrix compliance verification)
   - Struct: `IsoMatrix`, `ComplianceReport`, `ComplianceStats`
   - Struct: `IsoRequirement`, `RequirementInfo`, `RequirementStatus`
   - Función: verify_iso_requirement()
   - ~3 ciclos TDD
 
-- [ ] F80: PDF Comparison Deep
+- [x] F80: PDF Comparison Deep
   - Struct: `ComparisonResult` (detailed differences)
   - Struct: `PdfDifference` (structured diffs)
   - Función: extract_pdf_differences()
@@ -437,11 +436,11 @@ APIs confirmadas en core: módulo `verification`.
   - Nota: compare_pdfs (F39) ya existe como wrapper básico. Este feature lo profundiza.
   - ~3 ciclos TDD
 
-### Tier 19 — Semantic & Graphics Extraction (F81-F82, ~6 ciclos TDD)
+### Tier 19 — Semantic & Graphics Extraction (F81-F82, ~6 ciclos TDD) ✅ COMPLETADO
 
-APIs confirmadas en core.
+APIs confirmadas en core. **68 tests (44 F81 + 24 F82).** Feature `semantic` activada.
 
-- [ ] F81: Semantic Marking (reemplaza F40 stub)
+- [x] F81: Semantic Marking (reemplaza F40 stub)
   - Struct: `SemanticEntity` (type, text, bbox, metadata, relations)
   - Struct: `SemanticMarker` (mark_entity, build_entity_map)
   - Struct: `EntityBuilder` (set_type, set_text, set_bbox, add_relation)
@@ -451,7 +450,7 @@ APIs confirmadas en core.
   - Enum: `ExportFormat`
   - ~3 ciclos TDD
 
-- [ ] F82: Graphics Extraction
+- [x] F82: Graphics Extraction
   - Struct: `GraphicsExtractor` (extract_from_page → ExtractedGraphics)
   - Struct: `ExtractedGraphics` (lines, horizontal_count, vertical_count, has_table_structure)
   - Struct: `VectorLine` (x1, y1, x2, y2, orientation, stroke_width, color, length, midpoint)
