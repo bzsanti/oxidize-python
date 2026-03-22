@@ -139,6 +139,27 @@ from oxidize_pdf._oxidize_pdf import (
     TextAnnotation,
     BorderStyleType,
     BorderStyle,
+    # F83: Annotations Deep
+    LineEndingStyle,
+    BorderEffectStyle,
+    BorderEffect,
+    CircleAnnotation,
+    SquareAnnotation,
+    LineAnnotation,
+    StampName,
+    StampAnnotation,
+    FileAttachmentIcon,
+    FileAttachmentAnnotation,
+    FreeTextAnnotation,
+    InkAnnotation,
+    PolygonAnnotation,
+    PolylineAnnotation,
+    QuadPoints,
+    HighlightAnnotation,
+    PopupFlags,
+    PopupAnnotation,
+    HighlightMode,
+    LinkAnnotation,
 )
 
 # Actions (Tier 6)
@@ -197,6 +218,10 @@ from oxidize_pdf._oxidize_pdf import (
     # Feature 33: Templates
     TemplateContext,
     TemplateRenderer,
+    # F84: Templates Deep
+    TemplateParser,
+    TemplateAnalysis,
+    Placeholder,
     # Feature 34: OCR
     MockOcrProvider,
     OcrEngine,
@@ -209,13 +234,17 @@ from oxidize_pdf._oxidize_pdf import (
     validate_pdf,
     # Feature 38: PDF/A Validation
     PdfALevel,
+    PdfAConformance,
+    PdfAValidationResult,
     PdfAValidator,
     # Feature 39: PDF Comparison
     compare_pdfs,
     # Feature 41: Dashboards
-    DashboardBuilder,
-    DashboardTheme,
+    # F86: Dashboard Deep
+    TrendDirection,
     KpiCard,
+    DashboardTheme,
+    DashboardBuilder,
 )
 
 # Security
@@ -600,6 +629,27 @@ __all__ = [
     "TextAnnotation",
     "BorderStyleType",
     "BorderStyle",
+    # F83: Annotations Deep
+    "LineEndingStyle",
+    "BorderEffectStyle",
+    "BorderEffect",
+    "CircleAnnotation",
+    "SquareAnnotation",
+    "LineAnnotation",
+    "StampName",
+    "StampAnnotation",
+    "FileAttachmentIcon",
+    "FileAttachmentAnnotation",
+    "FreeTextAnnotation",
+    "InkAnnotation",
+    "PolygonAnnotation",
+    "PolylineAnnotation",
+    "QuadPoints",
+    "HighlightAnnotation",
+    "PopupFlags",
+    "PopupAnnotation",
+    "HighlightMode",
+    "LinkAnnotation",
     # Actions
     "Destination",
     "GoToAction",
@@ -631,26 +681,35 @@ __all__ = [
     "PageLabel",
     "PageLabelStyle",
     "PageLabelTree",
-    # Tier 8
+    # Tier 8: Enterprise base
     "StandardStructureType",
     "StructTree",
     "StructureElement",
     "CoordinateSystem",
     "LabColorSpace",
-    "TemplateContext",
-    "TemplateRenderer",
     "MockOcrProvider",
     "OcrEngine",
     "BatchOptions",
     "LazyDocument",
     "StreamingOptions",
     "validate_pdf",
-    "PdfALevel",
-    "PdfAValidator",
     "compare_pdfs",
-    "DashboardBuilder",
-    "DashboardTheme",
+    # F84: Templates Deep
+    "TemplateContext",
+    "TemplateRenderer",
+    "TemplateParser",
+    "TemplateAnalysis",
+    "Placeholder",
+    # F85: PdfA Validation Deep
+    "PdfALevel",
+    "PdfAConformance",
+    "PdfAValidationResult",
+    "PdfAValidator",
+    # F86: Dashboard Deep
+    "TrendDirection",
     "KpiCard",
+    "DashboardTheme",
+    "DashboardBuilder",
     # Security
     "EncryptionStrength",
     "Permissions",

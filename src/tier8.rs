@@ -182,13 +182,55 @@ pub struct PyTemplateContext {
 #[pymethods]
 impl PyTemplateContext {
     #[new]
-    fn new() -> Self { Self { inner: oxidize_pdf::templates::TemplateContext::new() } }
+    fn new() -> Self {
+        Self {
+            inner: oxidize_pdf::templates::TemplateContext::new(),
+        }
+    }
 
+    /// Set a string variable.
     fn set(&mut self, key: &str, value: &str) {
         self.inner.set(key, value);
     }
 
-    fn __repr__(&self) -> String { "TemplateContext(...)".to_string() }
+    /// Set a floating-point number variable.
+    fn set_number(&mut self, key: &str, value: f64) {
+        self.inner.set_number(key, value);
+    }
+
+    /// Set an integer variable.
+    fn set_integer(&mut self, key: &str, value: i64) {
+        self.inner.set_integer(key, value);
+    }
+
+    /// Set a boolean variable.
+    fn set_boolean(&mut self, key: &str, value: bool) {
+        self.inner.set_boolean(key, value);
+    }
+
+    /// Check if a variable is set.
+    fn has(&self, name: &str) -> bool {
+        self.inner.has(name)
+    }
+
+    /// Get all variable names.
+    fn keys(&self) -> Vec<String> {
+        self.inner.keys()
+    }
+
+    /// Remove all variables.
+    fn clear(&mut self) {
+        self.inner.clear();
+    }
+
+    fn __repr__(&self) -> String {
+        let keys = self.inner.keys();
+        if keys.is_empty() {
+            "TemplateContext(keys=0)".to_string()
+        } else {
+            format!("TemplateContext(keys={}, names={:?})", keys.len(), keys)
+        }
+    }
 }
 
 #[pyclass(name = "TemplateRenderer")]
@@ -199,14 +241,166 @@ pub struct PyTemplateRenderer {
 #[pymethods]
 impl PyTemplateRenderer {
     #[new]
-    fn new() -> Self { Self { inner: oxidize_pdf::templates::TemplateRenderer::new() } }
-
-    fn render(&self, template: &str, ctx: &PyTemplateContext) -> PyResult<String> {
-        self.inner.render(template, &ctx.inner)
-            .map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(e.to_string()))
+    fn new() -> Self {
+        Self {
+            inner: oxidize_pdf::templates::TemplateRenderer::new(),
+        }
     }
 
-    fn __repr__(&self) -> String { "TemplateRenderer(...)".to_string() }
+    /// Render a template string with the given context.
+    fn render(&self, template: &str, ctx: &PyTemplateContext) -> PyResult<String> {
+        self.inner
+            .render(template, &ctx.inner)
+            .map_err(|e| pyo3::exceptions::PyValueError::new_err(e.to_string()))
+    }
+
+    /// Get the list of required variable names in a template.
+    fn get_required_variables(&self, template: &str) -> PyResult<Vec<String>> {
+        self.inner
+            .get_required_variables(template)
+            .map_err(|e| pyo3::exceptions::PyValueError::new_err(e.to_string()))
+    }
+
+    /// Validate a template string. Raises ValueError if invalid.
+    fn validate_template(&self, template: &str) -> PyResult<()> {
+        self.inner
+            .validate_template(template)
+            .map_err(|e| pyo3::exceptions::PyValueError::new_err(e.to_string()))
+    }
+
+    /// Check if a template string contains any placeholders.
+    fn has_placeholders(&self, template: &str) -> bool {
+        self.inner.has_placeholders(template)
+    }
+
+    /// Analyze a template and return detailed information about its placeholders.
+    fn analyze_template(&self, template: &str) -> PyResult<PyTemplateAnalysis> {
+        let analysis = self
+            .inner
+            .analyze_template(template)
+            .map_err(|e| pyo3::exceptions::PyValueError::new_err(e.to_string()))?;
+        Ok(PyTemplateAnalysis {
+            total_placeholders: analysis.total_placeholders,
+            unique_variables: analysis.unique_variables,
+            variable_names: analysis.variable_names,
+            placeholders: analysis
+                .placeholders
+                .into_iter()
+                .map(|p| PyPlaceholder {
+                    full_text: p.full_text,
+                    variable_name: p.variable_name,
+                    start: p.start,
+                    end: p.end,
+                })
+                .collect(),
+        })
+    }
+
+    fn __repr__(&self) -> String {
+        "TemplateRenderer()".to_string()
+    }
+}
+
+// ── TemplateParser ───────────────────────────────────────────────────────
+
+/// Low-level template parser for extracting placeholders.
+#[pyclass(name = "TemplateParser")]
+pub struct PyTemplateParser {
+    inner: oxidize_pdf::templates::TemplateParser,
+}
+
+#[pymethods]
+impl PyTemplateParser {
+    #[new]
+    fn new() -> Self {
+        Self {
+            inner: oxidize_pdf::templates::TemplateParser::new(),
+        }
+    }
+
+    /// Parse a template and return all placeholders found.
+    fn parse(&self, template: &str) -> PyResult<Vec<PyPlaceholder>> {
+        let placeholders = self
+            .inner
+            .parse(template)
+            .map_err(|e| pyo3::exceptions::PyValueError::new_err(e.to_string()))?;
+        Ok(placeholders
+            .into_iter()
+            .map(|p| PyPlaceholder {
+                full_text: p.full_text,
+                variable_name: p.variable_name,
+                start: p.start,
+                end: p.end,
+            })
+            .collect())
+    }
+
+    /// Get unique variable names from a template.
+    fn get_variable_names(&self, template: &str) -> PyResult<Vec<String>> {
+        self.inner
+            .get_variable_names(template)
+            .map_err(|e| pyo3::exceptions::PyValueError::new_err(e.to_string()))
+    }
+
+    /// Check if a template string contains any placeholders.
+    fn has_placeholders(&self, template: &str) -> bool {
+        self.inner.has_placeholders(template)
+    }
+
+    /// Count the number of placeholders in a template.
+    fn count_placeholders(&self, template: &str) -> usize {
+        self.inner.count_placeholders(template)
+    }
+
+    fn __repr__(&self) -> String {
+        "TemplateParser()".to_string()
+    }
+}
+
+// ── TemplateAnalysis + Placeholder ───────────────────────────────────────
+
+/// Result of analyzing a template — contains placeholder metadata.
+#[pyclass(name = "TemplateAnalysis", frozen)]
+pub struct PyTemplateAnalysis {
+    #[pyo3(get)]
+    pub total_placeholders: usize,
+    #[pyo3(get)]
+    pub unique_variables: usize,
+    #[pyo3(get)]
+    pub variable_names: Vec<String>,
+    #[pyo3(get)]
+    pub placeholders: Vec<PyPlaceholder>,
+}
+
+#[pymethods]
+impl PyTemplateAnalysis {
+    fn __repr__(&self) -> String {
+        format!(
+            "TemplateAnalysis(placeholders={}, unique={})",
+            self.total_placeholders, self.unique_variables
+        )
+    }
+}
+
+/// A single placeholder found in a template string.
+#[pyclass(name = "Placeholder", frozen, skip_from_py_object)]
+#[derive(Clone)]
+pub struct PyPlaceholder {
+    #[pyo3(get)]
+    pub full_text: String,
+    #[pyo3(get)]
+    pub variable_name: String,
+    #[pyo3(get)]
+    pub start: usize,
+    #[pyo3(get)]
+    pub end: usize,
+}
+
+#[pymethods]
+impl PyPlaceholder {
+    fn __repr__(&self) -> String {
+        format!("Placeholder(name='{}', pos={})", self.variable_name, self.start)
+    }
 }
 
 // ── Feature 34: OCR ───────────────────────────────────────────────────────
@@ -330,11 +524,114 @@ pub struct PyPdfALevel {
 
 #[pymethods]
 impl PyPdfALevel {
-    #[classattr] const A1B: Self = Self { inner: oxidize_pdf::pdfa::PdfALevel::A1b };
-    #[classattr] const A2B: Self = Self { inner: oxidize_pdf::pdfa::PdfALevel::A2b };
-    #[classattr] const A3B: Self = Self { inner: oxidize_pdf::pdfa::PdfALevel::A3b };
+    #[classattr]
+    const A1A: Self = Self { inner: oxidize_pdf::pdfa::PdfALevel::A1a };
+    #[classattr]
+    const A1B: Self = Self { inner: oxidize_pdf::pdfa::PdfALevel::A1b };
+    #[classattr]
+    const A2A: Self = Self { inner: oxidize_pdf::pdfa::PdfALevel::A2a };
+    #[classattr]
+    const A2B: Self = Self { inner: oxidize_pdf::pdfa::PdfALevel::A2b };
+    #[classattr]
+    const A2U: Self = Self { inner: oxidize_pdf::pdfa::PdfALevel::A2u };
+    #[classattr]
+    const A3A: Self = Self { inner: oxidize_pdf::pdfa::PdfALevel::A3a };
+    #[classattr]
+    const A3B: Self = Self { inner: oxidize_pdf::pdfa::PdfALevel::A3b };
+    #[classattr]
+    const A3U: Self = Self { inner: oxidize_pdf::pdfa::PdfALevel::A3u };
 
-    fn __repr__(&self) -> String { "PdfALevel(...)".to_string() }
+    fn __repr__(&self) -> String {
+        format!("PdfALevel.{}", self.inner)
+    }
+
+    fn __eq__(&self, other: &Self) -> bool {
+        self.__repr__() == other.__repr__()
+    }
+
+    fn __hash__(&self) -> u64 {
+        use std::hash::{Hash, Hasher};
+        let mut h = std::collections::hash_map::DefaultHasher::new();
+        self.__repr__().hash(&mut h);
+        h.finish()
+    }
+}
+
+/// PDF/A conformance level indicating the degree of compliance.
+///
+/// - **A** (Accessible): Full compliance including tagged structure and Unicode mapping.
+/// - **B** (Basic): Visual appearance preservation only.
+/// - **U** (Unicode): Basic compliance plus Unicode character mapping.
+#[pyclass(name = "PdfAConformance", frozen, skip_from_py_object)]
+#[derive(Clone)]
+pub struct PyPdfAConformance {
+    pub inner: oxidize_pdf::pdfa::PdfAConformance,
+}
+
+#[pymethods]
+impl PyPdfAConformance {
+    #[classattr]
+    const A: Self = Self {
+        inner: oxidize_pdf::pdfa::PdfAConformance::A,
+    };
+    #[classattr]
+    const B: Self = Self {
+        inner: oxidize_pdf::pdfa::PdfAConformance::B,
+    };
+    #[classattr]
+    const U: Self = Self {
+        inner: oxidize_pdf::pdfa::PdfAConformance::U,
+    };
+
+    fn __repr__(&self) -> String {
+        format!("PdfAConformance.{}", self.inner)
+    }
+
+    fn __eq__(&self, other: &Self) -> bool {
+        self.__repr__() == other.__repr__()
+    }
+
+    fn __hash__(&self) -> u64 {
+        use std::hash::{Hash, Hasher};
+        let mut h = std::collections::hash_map::DefaultHasher::new();
+        self.__repr__().hash(&mut h);
+        h.finish()
+    }
+}
+
+/// Result of PDF/A validation — contains errors, warnings, and validity status.
+#[pyclass(name = "PdfAValidationResult", frozen)]
+pub struct PyPdfAValidationResult {
+    #[pyo3(get)]
+    pub is_valid: bool,
+    #[pyo3(get)]
+    pub errors: Vec<String>,
+    #[pyo3(get)]
+    pub warnings: Vec<String>,
+}
+
+#[pymethods]
+impl PyPdfAValidationResult {
+    /// Number of validation errors found.
+    #[getter]
+    fn error_count(&self) -> usize {
+        self.errors.len()
+    }
+
+    /// Number of validation warnings found.
+    #[getter]
+    fn warning_count(&self) -> usize {
+        self.warnings.len()
+    }
+
+    fn __repr__(&self) -> String {
+        format!(
+            "PdfAValidationResult(valid={}, errors={}, warnings={})",
+            self.is_valid,
+            self.errors.len(),
+            self.warnings.len()
+        )
+    }
 }
 
 #[pyclass(name = "PdfAValidator", from_py_object)]
@@ -347,9 +644,45 @@ pub struct PyPdfAValidator {
 impl PyPdfAValidator {
     #[new]
     fn new(level: &PyPdfALevel) -> Self {
-        Self { inner: oxidize_pdf::pdfa::PdfAValidator::new(level.inner) }
+        Self {
+            inner: oxidize_pdf::pdfa::PdfAValidator::new(level.inner),
+        }
     }
-    fn __repr__(&self) -> String { "PdfAValidator(...)".to_string() }
+
+    /// Validate PDF data (bytes) against the configured PDF/A level.
+    fn validate_bytes(&self, data: &[u8]) -> PyResult<PyPdfAValidationResult> {
+        let cursor = std::io::Cursor::new(data.to_vec());
+        let mut reader = oxidize_pdf::PdfReader::new(cursor).map_err(|e| {
+            pyo3::exceptions::PyValueError::new_err(format!("Failed to parse PDF: {e}"))
+        })?;
+        let result = self.inner.validate(&mut reader).map_err(|e| {
+            pyo3::exceptions::PyValueError::new_err(format!("Validation failed: {e}"))
+        })?;
+        Ok(PyPdfAValidationResult {
+            is_valid: result.is_valid(),
+            errors: result.errors().iter().map(|e| e.to_string()).collect(),
+            warnings: result.warnings().iter().map(|w| w.to_string()).collect(),
+        })
+    }
+
+    /// Set whether to collect all errors (true) or stop at first error (false).
+    fn collect_all_errors(self_: PyRef<'_, Self>, collect: bool) -> Self {
+        Self {
+            inner: self_.inner.clone().collect_all_errors(collect),
+        }
+    }
+
+    /// Get the configured PDF/A level.
+    #[getter]
+    fn level(&self) -> PyPdfALevel {
+        PyPdfALevel {
+            inner: self.inner.level(),
+        }
+    }
+
+    fn __repr__(&self) -> String {
+        format!("PdfAValidator(level={})", self.inner.level())
+    }
 }
 
 // ── Feature 39: PDF Comparison ────────────────────────────────────────────
@@ -368,34 +701,52 @@ fn compare_pdfs<'py>(generated: &[u8], reference: &[u8], py: Python<'py>) -> PyR
 
 // ── Feature 41: Dashboards/Charts ─────────────────────────────────────────
 
-#[pyclass(name = "DashboardBuilder", unsendable)]
-pub struct PyDashboardBuilder {
-    pub inner: oxidize_pdf::dashboard::DashboardBuilder,
-}
+// ── TrendDirection ───────────────────────────────────────────────────────
 
-#[pymethods]
-impl PyDashboardBuilder {
-    #[new]
-    fn new() -> Self { Self { inner: oxidize_pdf::dashboard::DashboardBuilder::new() } }
-    fn __repr__(&self) -> String { "DashboardBuilder(...)".to_string() }
-}
-
-#[pyclass(name = "DashboardTheme", from_py_object)]
+/// Trend direction for KPI cards.
+#[pyclass(name = "TrendDirection", frozen, from_py_object)]
 #[derive(Clone)]
-pub struct PyDashboardTheme {
-    pub inner: oxidize_pdf::dashboard::DashboardTheme,
+pub struct PyTrendDirection {
+    pub inner: oxidize_pdf::dashboard::TrendDirection,
 }
 
 #[pymethods]
-impl PyDashboardTheme {
-    #[staticmethod]
-    fn corporate() -> Self { Self { inner: oxidize_pdf::dashboard::DashboardTheme::corporate() } }
+impl PyTrendDirection {
+    #[classattr]
+    const UP: Self = Self {
+        inner: oxidize_pdf::dashboard::TrendDirection::Up,
+    };
+    #[classattr]
+    const DOWN: Self = Self {
+        inner: oxidize_pdf::dashboard::TrendDirection::Down,
+    };
+    #[classattr]
+    const FLAT: Self = Self {
+        inner: oxidize_pdf::dashboard::TrendDirection::Flat,
+    };
 
-    #[staticmethod]
-    fn minimal() -> Self { Self { inner: oxidize_pdf::dashboard::DashboardTheme::minimal() } }
+    fn __repr__(&self) -> String {
+        let name = match self.inner {
+            oxidize_pdf::dashboard::TrendDirection::Up => "UP",
+            oxidize_pdf::dashboard::TrendDirection::Down => "DOWN",
+            oxidize_pdf::dashboard::TrendDirection::Flat => "FLAT",
+        };
+        format!("TrendDirection.{name}")
+    }
 
-    fn __repr__(&self) -> String { "DashboardTheme(...)".to_string() }
+    fn __eq__(&self, other: &Self) -> bool {
+        self.__repr__() == other.__repr__()
+    }
+
+    fn __hash__(&self) -> u64 {
+        use std::hash::{Hash, Hasher};
+        let mut h = std::collections::hash_map::DefaultHasher::new();
+        self.__repr__().hash(&mut h);
+        h.finish()
+    }
 }
+
+// ── KpiCard ──────────────────────────────────────────────────────────────
 
 #[pyclass(name = "KpiCard", from_py_object)]
 #[derive(Clone)]
@@ -407,9 +758,208 @@ pub struct PyKpiCard {
 impl PyKpiCard {
     #[new]
     fn new(title: &str, value: &str) -> Self {
-        Self { inner: oxidize_pdf::dashboard::KpiCard::new(title, value) }
+        Self {
+            inner: oxidize_pdf::dashboard::KpiCard::new(title, value),
+        }
     }
-    fn __repr__(&self) -> String { "KpiCard(...)".to_string() }
+
+    /// Set trend indicator with change percentage and direction.
+    fn with_trend(self_: PyRef<'_, Self>, change: f64, direction: &PyTrendDirection) -> Self {
+        Self {
+            inner: self_.inner.clone().with_trend(change, direction.inner.clone()),
+        }
+    }
+
+    /// Set subtitle text below the value.
+    fn with_subtitle(self_: PyRef<'_, Self>, subtitle: &str) -> Self {
+        Self {
+            inner: self_.inner.clone().with_subtitle(subtitle),
+        }
+    }
+
+    /// Set sparkline data for a mini chart.
+    fn with_sparkline(self_: PyRef<'_, Self>, data: Vec<f64>) -> Self {
+        Self {
+            inner: self_.inner.clone().with_sparkline(data),
+        }
+    }
+
+    /// Set icon name for the KPI card.
+    fn with_icon(self_: PyRef<'_, Self>, icon: &str) -> Self {
+        Self {
+            inner: self_.inner.clone().with_icon(icon),
+        }
+    }
+
+    fn __repr__(&self) -> String {
+        "KpiCard(...)".to_string()
+    }
+}
+
+// ── DashboardTheme ───────────────────────────────────────────────────────
+
+#[pyclass(name = "DashboardTheme", from_py_object)]
+#[derive(Clone)]
+pub struct PyDashboardTheme {
+    pub inner: oxidize_pdf::dashboard::DashboardTheme,
+}
+
+#[pymethods]
+impl PyDashboardTheme {
+    #[staticmethod]
+    fn corporate() -> Self {
+        Self {
+            inner: oxidize_pdf::dashboard::DashboardTheme::corporate(),
+        }
+    }
+
+    #[staticmethod]
+    fn minimal() -> Self {
+        Self {
+            inner: oxidize_pdf::dashboard::DashboardTheme::minimal(),
+        }
+    }
+
+    #[staticmethod]
+    fn dark() -> Self {
+        Self {
+            inner: oxidize_pdf::dashboard::DashboardTheme::dark(),
+        }
+    }
+
+    #[staticmethod]
+    fn colorful() -> Self {
+        Self {
+            inner: oxidize_pdf::dashboard::DashboardTheme::colorful(),
+        }
+    }
+
+    fn __repr__(&self) -> String {
+        "DashboardTheme(...)".to_string()
+    }
+}
+
+// ── DashboardBuilder ─────────────────────────────────────────────────────
+
+/// Dashboard builder. Accumulates configuration and builds on `build_to_page()`.
+///
+/// The Rust core uses a consuming builder pattern (`fn title(self) -> Self`),
+/// which is incompatible with PyO3's `PyRef`. This wrapper stores config fields
+/// and constructs the Rust builder only when `build_to_page()` is called.
+#[pyclass(name = "DashboardBuilder", skip_from_py_object)]
+#[derive(Clone)]
+pub struct PyDashboardBuilder {
+    title: Option<String>,
+    subtitle: Option<String>,
+    theme: Option<oxidize_pdf::dashboard::DashboardTheme>,
+    author: Option<String>,
+    kpi_rows: Vec<Vec<oxidize_pdf::dashboard::KpiCard>>,
+}
+
+#[pymethods]
+impl PyDashboardBuilder {
+    #[new]
+    fn new() -> Self {
+        Self {
+            title: None,
+            subtitle: None,
+            theme: None,
+            author: None,
+            kpi_rows: Vec::new(),
+        }
+    }
+
+    /// Set dashboard title.
+    fn title(self_: PyRef<'_, Self>, title: &str) -> Self {
+        let mut new = self_.clone();
+        new.title = Some(title.to_string());
+        new
+    }
+
+    /// Set dashboard subtitle.
+    fn subtitle(self_: PyRef<'_, Self>, subtitle: &str) -> Self {
+        let mut new = self_.clone();
+        new.subtitle = Some(subtitle.to_string());
+        new
+    }
+
+    /// Set dashboard theme.
+    fn theme(self_: PyRef<'_, Self>, theme: &PyDashboardTheme) -> Self {
+        let mut new = self_.clone();
+        new.theme = Some(theme.inner.clone());
+        new
+    }
+
+    /// Set dashboard author.
+    fn author(self_: PyRef<'_, Self>, author: &str) -> Self {
+        let mut new = self_.clone();
+        new.author = Some(author.to_string());
+        new
+    }
+
+    /// Add a row of KPI cards.
+    fn add_kpi_row(self_: PyRef<'_, Self>, cards: Vec<PyKpiCard>) -> Self {
+        let mut new = self_.clone();
+        new.kpi_rows
+            .push(cards.into_iter().map(|c| c.inner).collect());
+        new
+    }
+
+    /// Build the dashboard and render it onto a page.
+    fn build_to_page(&self, page: &mut crate::page::PyPage) -> PyResult<()> {
+        let mut builder = oxidize_pdf::dashboard::DashboardBuilder::new();
+        if let Some(ref t) = self.title {
+            builder = builder.title(t.as_str());
+        }
+        if let Some(ref s) = self.subtitle {
+            builder = builder.subtitle(s.as_str());
+        }
+        if let Some(ref theme) = self.theme {
+            builder = builder.theme(theme.clone());
+        }
+        if let Some(ref a) = self.author {
+            builder = builder.author(a.as_str());
+        }
+        for row in &self.kpi_rows {
+            builder = builder.add_kpi_row(row.clone());
+        }
+        let dashboard = builder.build().map_err(|e| {
+            pyo3::exceptions::PyValueError::new_err(format!("Dashboard build failed: {e}"))
+        })?;
+        dashboard.render_to_page(&mut page.inner).map_err(|e| {
+            pyo3::exceptions::PyValueError::new_err(format!("Dashboard render failed: {e}"))
+        })?;
+        Ok(())
+    }
+
+    /// Get the configured title, or None if not set.
+    #[getter(get_title)]
+    fn _get_title(&self) -> Option<String> {
+        self.title.clone()
+    }
+
+    /// Get the configured subtitle, or None if not set.
+    #[getter(get_subtitle)]
+    fn _get_subtitle(&self) -> Option<String> {
+        self.subtitle.clone()
+    }
+
+    /// Get the configured author, or None if not set.
+    #[getter(get_author)]
+    fn _get_author(&self) -> Option<String> {
+        self.author.clone()
+    }
+
+    /// Get the number of KPI rows added.
+    #[getter]
+    fn kpi_row_count(&self) -> usize {
+        self.kpi_rows.len()
+    }
+
+    fn __repr__(&self) -> String {
+        let title = self.title.as_deref().unwrap_or("(untitled)");
+        format!("DashboardBuilder(title='{title}')")
+    }
 }
 
 // ── Registration ──────────────────────────────────────────────────────────
@@ -422,6 +972,9 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyLabColorSpace>()?;
     m.add_class::<PyTemplateContext>()?;
     m.add_class::<PyTemplateRenderer>()?;
+    m.add_class::<PyTemplateParser>()?;
+    m.add_class::<PyTemplateAnalysis>()?;
+    m.add_class::<PyPlaceholder>()?;
     m.add_class::<PyMockOcrProvider>()?;
     m.add_class::<PyOcrEngine>()?;
     m.add_class::<PyBatchOptions>()?;
@@ -429,10 +982,13 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyLazyDocument>()?;
     m.add_function(wrap_pyfunction!(validate_pdf, m)?)?;
     m.add_class::<PyPdfALevel>()?;
+    m.add_class::<PyPdfAConformance>()?;
+    m.add_class::<PyPdfAValidationResult>()?;
     m.add_class::<PyPdfAValidator>()?;
     m.add_function(wrap_pyfunction!(compare_pdfs, m)?)?;
-    m.add_class::<PyDashboardBuilder>()?;
-    m.add_class::<PyDashboardTheme>()?;
+    m.add_class::<PyTrendDirection>()?;
     m.add_class::<PyKpiCard>()?;
+    m.add_class::<PyDashboardTheme>()?;
+    m.add_class::<PyDashboardBuilder>()?;
     Ok(())
 }

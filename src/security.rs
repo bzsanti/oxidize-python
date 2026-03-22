@@ -215,7 +215,7 @@ impl PyRecipient {
 
 // ── DigestAlgorithm ──────────────────────────────────────────────────────
 
-#[pyclass(name = "DigestAlgorithm", frozen, eq)]
+#[pyclass(name = "DigestAlgorithm", frozen, eq, skip_from_py_object)]
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub struct PyDigestAlgorithm {
     pub inner: DigestAlgorithm,
@@ -243,7 +243,7 @@ impl PyDigestAlgorithm {
 
 // ── SignatureAlgorithm ───────────────────────────────────────────────────
 
-#[pyclass(name = "SignatureAlgorithm", frozen, eq)]
+#[pyclass(name = "SignatureAlgorithm", frozen, eq, skip_from_py_object)]
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub struct PySignatureAlgorithm {
     pub inner: SignatureAlgorithm,
@@ -277,7 +277,7 @@ impl PySignatureAlgorithm {
 
 // ── ByteRange ────────────────────────────────────────────────────────────
 
-#[pyclass(name = "ByteRange")]
+#[pyclass(name = "ByteRange", from_py_object)]
 #[derive(Clone)]
 pub struct PyByteRange {
     pub inner: ByteRange,
@@ -330,7 +330,7 @@ impl PyByteRange {
 
 // ── SignatureField ───────────────────────────────────────────────────────
 
-#[pyclass(name = "SignatureField")]
+#[pyclass(name = "SignatureField", skip_from_py_object)]
 #[derive(Clone)]
 pub struct PySignatureField {
     pub inner: SignatureField,
@@ -392,7 +392,7 @@ impl PySignatureField {
 
 // ── TrustStore ───────────────────────────────────────────────────────────
 
-#[pyclass(name = "TrustStore")]
+#[pyclass(name = "TrustStore", from_py_object)]
 #[derive(Clone)]
 pub struct PyTrustStore {
     pub inner: TrustStore,
@@ -423,7 +423,7 @@ impl PyTrustStore {
 
 // ── ParsedSignature ──────────────────────────────────────────────────────
 
-#[pyclass(name = "ParsedSignature")]
+#[pyclass(name = "ParsedSignature", skip_from_py_object)]
 #[derive(Clone)]
 pub struct PyParsedSignature {
     pub inner: ParsedSignature,
@@ -457,7 +457,7 @@ impl PyParsedSignature {
 
 // ── HashVerificationResult ───────────────────────────────────────────────
 
-#[pyclass(name = "HashVerificationResult")]
+#[pyclass(name = "HashVerificationResult", skip_from_py_object)]
 #[derive(Clone)]
 pub struct PyHashVerificationResult {
     pub inner: HashVerificationResult,
@@ -486,7 +486,7 @@ impl PyHashVerificationResult {
 
 // ── SignatureVerificationResult ──────────────────────────────────────────
 
-#[pyclass(name = "SignatureVerificationResult")]
+#[pyclass(name = "SignatureVerificationResult", skip_from_py_object)]
 #[derive(Clone)]
 pub struct PySignatureVerificationResult {
     pub inner: SignatureVerificationResult,
@@ -522,7 +522,7 @@ impl PySignatureVerificationResult {
 
 // ── CertificateValidationResult ──────────────────────────────────────────
 
-#[pyclass(name = "CertificateValidationResult")]
+#[pyclass(name = "CertificateValidationResult", skip_from_py_object)]
 #[derive(Clone)]
 pub struct PyCertificateValidationResult {
     pub inner: CertificateValidationResult,
@@ -566,7 +566,7 @@ impl PyCertificateValidationResult {
 
 // ── FullSignatureValidationResult ────────────────────────────────────────
 
-#[pyclass(name = "FullSignatureValidationResult")]
+#[pyclass(name = "FullSignatureValidationResult", skip_from_py_object)]
 #[derive(Clone)]
 pub struct PyFullSignatureValidationResult {
     pub inner: FullSignatureValidationResult,

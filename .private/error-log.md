@@ -63,6 +63,13 @@
 - Cómo lo solucioné: Actualizar la regla — implementar TODOS los hallazgos: críticos, recomendados Y opcionales. Sin excepciones
 - Regla para evitarlo: Cuando el quality review devuelve hallazgos, implementar el 100% — críticos, recomendados y opcionales. "Opcional" en el review NO significa "omitible". Si hay duda sobre si un hallazgo aplica, preguntar al usuario
 
+[2026-03-22] Name collision: ValidationResult (forms) vs ValidationResult (pdfa) en __init__.py
+
+- Qué hice mal: Nombré la nueva clase PdfA como `ValidationResult`, colisionando con el `ValidationResult` ya existente del módulo forms. Además, al corregir usé `replace_all` en __init__.py que reemplazó TODAS las ocurrencias incluyendo la del módulo forms
+- Causa raíz: No verifiqué nombres existentes antes de crear la nueva clase. No usé replace dirigido
+- Cómo lo solucioné: Renombré a `PdfAValidationResult` y restauré manualmente la referencia forms
+- Regla para evitarlo: Antes de crear tipos nuevos, grep por el nombre en __init__.py para detectar colisiones. No usar replace_all en archivos con múltiples contextos para el mismo string
+
 [2026-03-21] Implemento 17 hallazgos del quality review sin pedir aprobación al usuario
 
 - Qué hice mal: Tras recibir el quality review con 17 hallazgos, creé una tarea e inmediatamente lancé la implementación sin presentar el plan al usuario ni pedir su aprobación
