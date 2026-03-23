@@ -1,8 +1,24 @@
 # oxidize-pdf
 
+[![PyPI version](https://img.shields.io/pypi/v/oxidize-pdf)](https://pypi.org/project/oxidize-pdf/)
+[![CI](https://github.com/bzsanti/oxidize-python/actions/workflows/ci.yml/badge.svg)](https://github.com/bzsanti/oxidize-python/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![Python](https://img.shields.io/pypi/pyversions/oxidize-pdf)](https://pypi.org/project/oxidize-pdf/)
+[![Typed](https://img.shields.io/badge/typing-typed-green)](https://github.com/bzsanti/oxidize-python)
+
 Python bindings for [oxidize-pdf](https://crates.io/crates/oxidize-pdf), a pure Rust PDF generation and manipulation library.
 
 Generate, parse, split, merge, and manipulate PDF files from Python with native performance — no C dependencies, no Java, no subprocess calls.
+
+## Why oxidize-pdf?
+
+Most Python PDF libraries are written in pure Python or wrap C/Java backends. **oxidize-pdf** is different: the core engine is written in **Rust** and compiled to a native Python extension via [PyO3](https://pyo3.rs). This means:
+
+- **Native performance** — The core is compiled Rust, not interpreted Python
+- **Zero external dependencies** — No Poppler, no Java, no Ghostscript, no subprocess calls
+- **Memory safe** — Rust's ownership model prevents crashes and memory leaks
+- **Fully typed** — Ships with type stubs, works with mypy/pyright out of the box
+- **Cross-platform wheels** — Pre-built for Linux, macOS, and Windows (x86_64 + ARM)
 
 ## Installation
 
