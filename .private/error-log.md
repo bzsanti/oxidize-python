@@ -70,6 +70,20 @@
 - Cómo lo solucioné: Renombré a `PdfAValidationResult` y restauré manualmente la referencia forms
 - Regla para evitarlo: Antes de crear tipos nuevos, grep por el nombre en __init__.py para detectar colisiones. No usar replace_all en archivos con múltiples contextos para el mismo string
 
+[2026-03-28] FastMCP v2 result.content[0].text no result[0].text
+
+- Qué hice mal: Escribí tests con `result[0].text` asumiendo que `call_tool` devuelve una lista subscriptable
+- Causa raíz: FastMCP v2 devuelve `CallToolResult` con campo `.content`, no una lista directa
+- Cómo lo solucioné: Cambié a `result.content[0].text` en todos los tests
+- Regla para evitarlo: Verificar la API de FastMCP `Client.call_tool()` return type antes de escribir tests
+
+[2026-03-28] FastMCP mcp._tool_manager no existe — usar mcp.list_tools() async
+
+- Qué hice mal: Usé `mcp._tool_manager._tools` para listar tools registradas
+- Causa raíz: Asumí una API interna de FastMCP sin verificar. La API pública es `await mcp.list_tools()`
+- Cómo lo solucioné: Cambié a `await mcp.list_tools()` y marqué los tests como async
+- Regla para evitarlo: No usar atributos internos (`_`prefixed) de FastMCP. Siempre verificar con `dir()` primero
+
 [2026-03-21] Implemento 17 hallazgos del quality review sin pedir aprobación al usuario
 
 - Qué hice mal: Tras recibir el quality review con 17 hallazgos, creé una tarea e inmediatamente lancé la implementación sin presentar el plan al usuario ni pedir su aprobación
