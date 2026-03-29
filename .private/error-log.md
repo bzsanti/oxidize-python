@@ -84,6 +84,13 @@
 - Cómo lo solucioné: Cambié a `await mcp.list_tools()` y marqué los tests como async
 - Regla para evitarlo: No usar atributos internos (`_`prefixed) de FastMCP. Siempre verificar con `dir()` primero
 
+[2026-03-29] Workflows check-core-update y receive-core-update fallan por Cargo.lock en .gitignore
+
+- Qué hice mal: Al crear los workflows, usé `git add Cargo.toml Cargo.lock` sin verificar que Cargo.lock estaba en .gitignore
+- Causa raíz: Para lib crates de Rust, Cargo.lock se excluye del repo. `git add` falla con exit code 1 cuando intenta añadir un archivo ignorado
+- Cómo lo solucioné: Separé los `git add` — Cargo.toml directo, Cargo.lock con `git add -f` y `|| true` como fallback. También agregué `--force-with-lease` al push para manejar ramas huérfanas de intentos previos
+- Regla para evitarlo: Antes de hacer `git add` en CI workflows, verificar que los archivos no están en .gitignore. Usar `git add -f` explícitamente para archivos que podrían estar ignorados
+
 [2026-03-21] Implemento 17 hallazgos del quality review sin pedir aprobación al usuario
 
 - Qué hice mal: Tras recibir el quality review con 17 hallazgos, creé una tarea e inmediatamente lancé la implementación sin presentar el plan al usuario ni pedir su aprobación
