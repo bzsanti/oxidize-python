@@ -104,6 +104,29 @@ def encrypted_pdf(mcp_workspace):
     return path
 
 
+@pytest.fixture
+def form_pdf(mcp_workspace):
+    """A PDF with a text form field for form operation tests."""
+    from oxidize_pdf import Document, Font, Page, Rectangle, TextField
+
+    path = mcp_workspace / "form.pdf"
+    doc = Document()
+    doc.enable_forms()
+
+    page = Page.a4()
+    page.set_font(Font.HELVETICA, 12.0)
+    page.text_at(50.0, 740.0, "Name:")
+    doc.add_page(page)
+
+    tf = TextField("first_name")
+    tf.with_default_value("")
+    rect = Rectangle.from_xywh(100.0, 700.0, 200.0, 30.0)
+    doc.add_text_field(tf, rect)
+
+    doc.save(str(path))
+    return path
+
+
 @pytest.fixture(autouse=True)
 def _reset_config_singleton():
     """Reset the McpConfig singleton between tests to avoid cross-test contamination."""
@@ -112,6 +135,7 @@ def _reset_config_singleton():
         import oxidize_pdf.mcp.tools.base as base_module
 
         base_module._config = None
+        base_module._session_store = None
     except ImportError:
         pass
 
