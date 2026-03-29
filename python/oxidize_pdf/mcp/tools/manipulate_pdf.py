@@ -37,22 +37,26 @@ def manipulate_pdf(
         })
 
     try:
-        dispatcher = {
-            "split": _op_split,
-            "merge": _op_merge,
-            "rotate": _op_rotate,
-            "extract_pages": _op_extract_pages,
-            "reverse": _op_reverse,
-            "overlay": _op_overlay,
-        }
-        return dispatcher[operation](
-            input_path=input_path,
-            input_paths=input_paths,
-            output_path=output_path,
-            degrees=degrees,
-            page_indices=page_indices,
-            overlay_path=overlay_path,
-        )
+        if operation == "split":
+            return _op_split(input_path=input_path, output_path=output_path)
+        elif operation == "merge":
+            return _op_merge(input_paths=input_paths, output_path=output_path)
+        elif operation == "rotate":
+            return _op_rotate(
+                input_path=input_path, output_path=output_path, degrees=degrees,
+            )
+        elif operation == "extract_pages":
+            return _op_extract_pages(
+                input_path=input_path, output_path=output_path,
+                page_indices=page_indices,
+            )
+        elif operation == "reverse":
+            return _op_reverse(input_path=input_path, output_path=output_path)
+        else:
+            return _op_overlay(
+                input_path=input_path, output_path=output_path,
+                overlay_path=overlay_path,
+            )
     except Exception as e:
         return json.dumps({"error": str(e), "code": "PDF_ERROR"})
 
@@ -102,11 +106,11 @@ def _validate_output_dir(output_path: str | None) -> tuple[str | None, str | Non
     return str(resolved), None
 
 
-def _op_split(**kwargs: object) -> str:
-    input_resolved, err = _validate_input(kwargs["input_path"])
+def _op_split(*, input_path: str | None, output_path: str | None) -> str:
+    input_resolved, err = _validate_input(input_path)
     if err:
         return err
-    output_resolved, err = _validate_output_dir(kwargs["output_path"])
+    output_resolved, err = _validate_output_dir(output_path)
     if err:
         return err
 
@@ -116,8 +120,7 @@ def _op_split(**kwargs: object) -> str:
     return json.dumps({"status": "ok", "operation": "split"})
 
 
-def _op_merge(**kwargs: object) -> str:
-    input_paths = kwargs["input_paths"]
+def _op_merge(*, input_paths: list[str] | None, output_path: str | None) -> str:
     if not input_paths:
         return json.dumps({
             "error": "input_paths is required for merge.",
@@ -133,7 +136,7 @@ def _op_merge(**kwargs: object) -> str:
             return err
         resolved_paths.append(str(resolved))
 
-    output_resolved, err = _validate_output(kwargs["output_path"])
+    output_resolved, err = _validate_output(output_path)
     if err:
         return err
 
@@ -143,15 +146,19 @@ def _op_merge(**kwargs: object) -> str:
     return json.dumps({"status": "ok", "operation": "merge"})
 
 
-def _op_rotate(**kwargs: object) -> str:
-    input_resolved, err = _validate_input(kwargs["input_path"])
+def _op_rotate(
+    *,
+    input_path: str | None,
+    output_path: str | None,
+    degrees: int | None,
+) -> str:
+    input_resolved, err = _validate_input(input_path)
     if err:
         return err
-    output_resolved, err = _validate_output(kwargs["output_path"])
+    output_resolved, err = _validate_output(output_path)
     if err:
         return err
 
-    degrees = kwargs.get("degrees")
     if degrees is None:
         return json.dumps({
             "error": "degrees is required for rotate.",
@@ -164,15 +171,19 @@ def _op_rotate(**kwargs: object) -> str:
     return json.dumps({"status": "ok", "operation": "rotate"})
 
 
-def _op_extract_pages(**kwargs: object) -> str:
-    input_resolved, err = _validate_input(kwargs["input_path"])
+def _op_extract_pages(
+    *,
+    input_path: str | None,
+    output_path: str | None,
+    page_indices: list[int] | None,
+) -> str:
+    input_resolved, err = _validate_input(input_path)
     if err:
         return err
-    output_resolved, err = _validate_output(kwargs["output_path"])
+    output_resolved, err = _validate_output(output_path)
     if err:
         return err
 
-    page_indices = kwargs.get("page_indices")
     if page_indices is None:
         return json.dumps({
             "error": "page_indices is required for extract_pages.",
@@ -185,11 +196,11 @@ def _op_extract_pages(**kwargs: object) -> str:
     return json.dumps({"status": "ok", "operation": "extract_pages"})
 
 
-def _op_reverse(**kwargs: object) -> str:
-    input_resolved, err = _validate_input(kwargs["input_path"])
+def _op_reverse(*, input_path: str | None, output_path: str | None) -> str:
+    input_resolved, err = _validate_input(input_path)
     if err:
         return err
-    output_resolved, err = _validate_output(kwargs["output_path"])
+    output_resolved, err = _validate_output(output_path)
     if err:
         return err
 
@@ -199,15 +210,19 @@ def _op_reverse(**kwargs: object) -> str:
     return json.dumps({"status": "ok", "operation": "reverse"})
 
 
-def _op_overlay(**kwargs: object) -> str:
-    input_resolved, err = _validate_input(kwargs["input_path"])
+def _op_overlay(
+    *,
+    input_path: str | None,
+    output_path: str | None,
+    overlay_path: str | None,
+) -> str:
+    input_resolved, err = _validate_input(input_path)
     if err:
         return err
-    output_resolved, err = _validate_output(kwargs["output_path"])
+    output_resolved, err = _validate_output(output_path)
     if err:
         return err
 
-    overlay_path = kwargs.get("overlay_path")
     if overlay_path is None:
         return json.dumps({
             "error": "overlay_path is required for overlay.",

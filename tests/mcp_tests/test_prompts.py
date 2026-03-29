@@ -1,6 +1,20 @@
 """Tests for MCP prompts."""
 
+import re
+
 import pytest
+
+REGISTERED_TOOLS = {
+    "read_pdf", "extract_text", "convert_pdf", "analyze_pdf",
+    "extract_entities", "manipulate_pdf", "annotate_pdf",
+    "manage_forms", "secure_pdf", "create_pdf", "add_pdf_content",
+    "save_pdf",
+}
+
+
+def _extract_tool_refs(text: str) -> set[str]:
+    """Extract backtick-quoted tool names from prompt text."""
+    return {m for m in re.findall(r"`(\w+)`", text) if m in REGISTERED_TOOLS}
 
 
 class TestCreateInvoicePrompt:
@@ -21,6 +35,15 @@ class TestCreateInvoicePrompt:
         text = result.messages[0].content.text
         assert "Acme Corp" in text
         assert "invoice" in text.lower()
+
+    async def test_prompt_references_valid_tools(self, mcp_client):
+        result = await mcp_client.get_prompt(
+            "create-invoice",
+            {"company": "Test", "items": "Item x1 $5"},
+        )
+        refs = _extract_tool_refs(result.messages[0].content.text)
+        assert refs, "Prompt should reference at least one registered tool"
+        assert refs.issubset(REGISTERED_TOOLS)
 
 
 class TestExtractForRagPrompt:

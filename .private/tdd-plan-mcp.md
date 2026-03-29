@@ -1965,32 +1965,32 @@ async def test_all_prompts_have_descriptions(mcp_client):
 
 ---
 
-## Estimacion Total (actualizado 2026-03-28)
+## Estimacion Total (actualizado 2026-03-29)
 
-- Tier 1 (Infrastructure): COMPLETADO — 37 tests pasando
-- Tier 2 (Read & Extract): 7 features (F-013 a F-020, sin smoke)
-- Tier 3 (Analyze, Entities, Manipulate): 8 features (F-021 a F-028)
-- Tier 4 (Annotate, Forms, Secure): 8 features (F-029 a F-036)
-- Tier 5 (Stateful): 6 features (F-037 a F-042)
-- Tier 6 (Resources): 6 features (F-043 a F-048)
-- Tier 7 (Prompts): 5 features (F-049 a F-053)
-- Tier 8 (Integration): 8 features (F-054 a F-062, F-064, F-065; sin F-063)
-- Tier 9 (Quality): 2 features (F-066 a F-068; sin F-069)
+- Tier 1 (Infrastructure): COMPLETADO — 37 tests
+- Tier 2 (Read & Extract): COMPLETADO — 7 features (F-013 a F-020)
+- Tier 3 (Analyze, Entities, Manipulate): COMPLETADO — 8 features (F-021 a F-028)
+- Tier 4 (Annotate, Forms, Secure): COMPLETADO — 8 features (F-029 a F-036)
+- Tier 5 (Stateful): COMPLETADO — 6 features (F-037 a F-042)
+- Tier 6 (Resources): COMPLETADO — 6 features (F-043 a F-048)
+- Tier 7 (Prompts): COMPLETADO — 5 features (F-049 a F-053)
+- Tier 8 (Integration): COMPLETADO — 8 features (F-054 a F-062, F-064, F-065)
+- Tier 9 (Quality): COMPLETADO — 3 features (F-066 a F-068)
 
 **Eliminadas**: F-001, F-002, F-003 (smoke), F-063 (smoke), F-069 (smoke)
-**Eliminados tests `*_is_listed`** individuales (cubiertos por F-054)
-**Pendientes**: ~50 features reales
+**Total tests MCP**: 166 pasando
+**Total tests proyecto**: 1960 pasando
 
 ## Criterios de Exito
 
-- [ ] Todos los tests pasan con `pytest tests/mcp/ -v`
-- [ ] `asyncio_mode = "auto"` configurado en pyproject.toml
-- [ ] 12 tools, 6 resources, 5 prompts registrados
-- [ ] Todos los tools validan paths via `security.py`
-- [ ] Sessions de creacion funcionan end-to-end (create → add → save)
-- [ ] Sin regresiion en tests existentes (`pytest tests/` completo verde)
-- [ ] Modulo importable como `from oxidize_pdf.mcp.server import mcp`
-- [ ] `fastmcp>=2.0` en optional-dependencies `[mcp]` de pyproject.toml
+- [x] Todos los tests pasan con `pytest tests/mcp_tests/ -v`
+- [x] `asyncio_mode = "auto"` configurado en pyproject.toml
+- [x] 12 tools, 6 resources, 5 prompts registrados
+- [x] Todos los tools validan paths via `security.py`
+- [x] Sessions de creacion funcionan end-to-end (create → add → save)
+- [x] Sin regresion en tests existentes (`pytest tests/` completo verde)
+- [x] Modulo importable como `from oxidize_pdf.mcp.server import mcp`
+- [x] `fastmcp>=2.0` en optional-dependencies `[mcp]` de pyproject.toml
 
 ## Archivos a Crear
 

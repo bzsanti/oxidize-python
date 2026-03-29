@@ -19,9 +19,10 @@ def manage_forms(
 
     Operations:
     - create: Create a new PDF with form fields (requires output_path and fields).
-    - fill: Create a new PDF with pre-filled field values (requires input_path, output_path, values).
-    - read: Read form field metadata from a PDF (requires input_path).
-    - validate: Validate field values against rules (requires input_path and values).
+    - fill: Create a new PDF with pre-filled form fields, preserving the original
+      document as a visual base via overlay (requires input_path, output_path, values).
+    - read: Read form structure from a PDF by extracting text entities (requires input_path).
+    - validate: Validate field values against required rules (requires input_path and values).
     """
     if operation not in _VALID_OPERATIONS:
         return json.dumps({
@@ -31,26 +32,25 @@ def manage_forms(
         })
 
     try:
-        dispatcher = {
-            "create": _op_create,
-            "fill": _op_fill,
-            "read": _op_read,
-            "validate": _op_validate,
-        }
-        return dispatcher[operation](
-            output_path=output_path,
-            input_path=input_path,
-            fields=fields,
-            values=values,
-        )
+        if operation == "create":
+            return _op_create(output_path=output_path, fields=fields)
+        elif operation == "fill":
+            return _op_fill(
+                input_path=input_path, output_path=output_path, values=values,
+            )
+        elif operation == "read":
+            return _op_read(input_path=input_path)
+        else:
+            return _op_validate(input_path=input_path, values=values)
     except Exception as e:
         return json.dumps({"error": str(e), "code": "PDF_ERROR"})
 
 
-def _op_create(**kwargs: object) -> str:
-    output_path = kwargs["output_path"]
-    fields = kwargs["fields"]
-
+def _op_create(
+    *,
+    output_path: str | None,
+    fields: list[dict] | None,
+) -> str:
     if not output_path:
         return json.dumps({"error": "output_path is required.", "code": "MISSING_PARAM"})
     if not fields:
@@ -92,11 +92,12 @@ def _op_create(**kwargs: object) -> str:
     return json.dumps({"status": "ok", "fields_created": created})
 
 
-def _op_fill(**kwargs: object) -> str:
-    input_path = kwargs["input_path"]
-    output_path = kwargs["output_path"]
-    values = kwargs["values"]
-
+def _op_fill(
+    *,
+    input_path: str | None,
+    output_path: str | None,
+    values: dict | None,
+) -> str:
     if not input_path:
         return json.dumps({"error": "input_path is required.", "code": "MISSING_PARAM"})
     if not output_path:
@@ -113,28 +114,55 @@ def _op_fill(**kwargs: object) -> str:
     if err:
         return err
 
-    from oxidize_pdf import Document, Font, Page, Rectangle, TextField
+    import tempfile
+    from pathlib import Path
 
-    doc = Document()
-    doc.enable_forms()
-    page = Page.a4()
+    from oxidize_pdf import (
+        Document,
+        Font,
+        OverlayOptions,
+        Page,
+        PdfReader,
+        Rectangle,
+        TextField,
+        overlay_pdf,
+    )
+
+    reader = PdfReader.open(str(resolved_input))
+    parsed = reader.get_page(0)
+
+    form_doc = Document()
+    form_doc.enable_forms()
+    page = Page(parsed.width, parsed.height)
     page.set_font(Font.HELVETICA, 10.0)
-    doc.add_page(page)
+    form_doc.add_page(page)
 
     filled = 0
     for name, value in values.items():
         tf = TextField(name)
         tf.with_value(str(value))
         rect = Rectangle.from_xywh(100.0, 700.0 - (filled * 40), 200.0, 30.0)
-        doc.add_text_field(tf, rect)
+        form_doc.add_text_field(tf, rect)
         filled += 1
 
-    doc.save(str(resolved_output))
+    with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as tmp:
+        form_doc.save(tmp.name)
+        form_tmp = Path(tmp.name)
+
+    try:
+        overlay_pdf(
+            str(resolved_input),
+            str(form_tmp),
+            str(resolved_output),
+            OverlayOptions(),
+        )
+    finally:
+        form_tmp.unlink(missing_ok=True)
+
     return json.dumps({"status": "ok", "fields_filled": filled})
 
 
-def _op_read(**kwargs: object) -> str:
-    input_path = kwargs["input_path"]
+def _op_read(*, input_path: str | None) -> str:
     if not input_path:
         return json.dumps({"error": "input_path is required.", "code": "MISSING_PARAM"})
 
@@ -147,17 +175,32 @@ def _op_read(**kwargs: object) -> str:
     from oxidize_pdf import PdfReader
 
     reader = PdfReader.open(str(resolved))
+    page_count = reader.page_count
+
+    fields: list[dict] = []
+    for page_idx in range(page_count):
+        chunks = reader.extract_text_chunks(page_idx)
+        for chunk in chunks:
+            fields.append({
+                "text": chunk.text,
+                "page": page_idx,
+                "x": chunk.x,
+                "y": chunk.y,
+                "font_size": chunk.font_size,
+            })
+
     return json.dumps({
         "path": input_path,
-        "fields": [],
-        "page_count": reader.page_count,
+        "fields": fields,
+        "page_count": page_count,
     })
 
 
-def _op_validate(**kwargs: object) -> str:
-    input_path = kwargs["input_path"]
-    values = kwargs["values"]
-
+def _op_validate(
+    *,
+    input_path: str | None,
+    values: dict | None,
+) -> str:
     if not input_path:
         return json.dumps({"error": "input_path is required.", "code": "MISSING_PARAM"})
     if not values:

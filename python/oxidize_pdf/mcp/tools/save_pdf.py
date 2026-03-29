@@ -38,8 +38,7 @@ def save_pdf(
             doc.encrypt(user_password, owner_password)
         doc.save(str(resolved))
 
-        session["status"] = "completed"
-        store.update(session_id, session)
+        store.delete(session_id)
 
         return json.dumps({
             "status": "ok",
@@ -62,7 +61,10 @@ def _build_document(session: dict) -> "Document":
     if author:
         doc.set_author(author)
 
-    dims = session.get("page_dimensions", (595.28, 841.89))
+    from oxidize_pdf.mcp.tools.base import PAGE_SIZES
+
+    default_dims = PAGE_SIZES["a4"]
+    dims = session.get("page_dimensions", (default_dims["width"], default_dims["height"]))
     pages = session.get("pages", [[]])
 
     for page_contents in pages:

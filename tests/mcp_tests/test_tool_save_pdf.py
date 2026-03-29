@@ -57,7 +57,7 @@ class TestSavePdfCleanup:
 
         resource = await mcp_client.read_resource(f"oxidize://session/{sid}")
         data = json.loads(resource[0].text) if resource else None
-        assert data is None or data.get("status") == "completed"
+        assert data is None, "Session should be deleted after save"
 
     async def test_save_pdf_with_encryption(self, mcp_client, mcp_workspace):
         """F-059: encrypt on save."""

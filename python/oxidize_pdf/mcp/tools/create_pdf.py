@@ -4,12 +4,6 @@ import json
 
 from oxidize_pdf.mcp.server import mcp
 
-_PAGE_SIZES = {
-    "a4": (595.28, 841.89),
-    "letter": (612.0, 792.0),
-    "legal": (612.0, 1008.0),
-}
-
 
 @mcp.tool()
 def create_pdf(
@@ -22,18 +16,19 @@ def create_pdf(
     Returns a session_id that can be used with add_pdf_content and save_pdf.
     The first page is created automatically.
     """
-    from oxidize_pdf.mcp.tools.base import get_session_store
+    from oxidize_pdf.mcp.tools.base import PAGE_SIZES, get_session_store
 
     store = get_session_store()
 
-    size = _PAGE_SIZES.get(page_size.lower(), _PAGE_SIZES["a4"])
+    size_info = PAGE_SIZES.get(page_size.lower(), PAGE_SIZES["a4"])
+    dims = (size_info["width"], size_info["height"])
 
     try:
         session_id = store.create({
             "title": title,
             "author": author,
             "page_size": page_size,
-            "page_dimensions": size,
+            "page_dimensions": dims,
             "status": "active",
             "pages": [[]],
         })

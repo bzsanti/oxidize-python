@@ -40,7 +40,7 @@ class TestManageFormsFill:
 
     pytestmark = pytest.mark.asyncio
 
-    async def test_fill_form(self, mcp_client, form_pdf, mcp_workspace):
+    async def test_fill_form_preserves_original(self, mcp_client, form_pdf, mcp_workspace):
         out = mcp_workspace / "filled.pdf"
         result = await mcp_client.call_tool(
             "manage_forms",
@@ -53,20 +53,26 @@ class TestManageFormsFill:
         )
         resp = json.loads(result.content[0].text)
         assert resp.get("status") == "ok"
+        assert out.exists()
+        assert out.stat().st_size > 0
+        assert out.read_bytes()[:5] == b"%PDF-"
 
 
 class TestManageFormsRead:
-    """F-034: manage_forms read operation."""
+    """F-034: manage_forms read operation — returns real content."""
 
     pytestmark = pytest.mark.asyncio
 
-    async def test_read_form(self, mcp_client, form_pdf):
+    async def test_read_form_returns_fields(self, mcp_client, form_pdf):
         result = await mcp_client.call_tool(
             "manage_forms",
             {"operation": "read", "input_path": str(form_pdf)},
         )
         resp = json.loads(result.content[0].text)
         assert "fields" in resp
+        assert isinstance(resp["fields"], list)
+        assert len(resp["fields"]) > 0, "Should extract text entities from form PDF"
+        assert "text" in resp["fields"][0]
 
 
 class TestManageFormsValidate:

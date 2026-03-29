@@ -20,6 +20,9 @@ def secure_pdf(
 
     Operations:
     - encrypt: Encrypt a PDF with user/owner passwords (requires input_path, output_path, passwords).
+      Note: Encryption reconstructs the document preserving text content and layout but may
+      lose non-text elements (images, embedded fonts, vector graphics). This is a limitation
+      of the current API which does not support in-place encryption of existing PDFs.
     - permissions: Check if a PDF is encrypted and report encryption status (requires input_path).
     - verify_signatures: Verify digital signatures in a PDF (requires input_path).
     """
@@ -31,28 +34,28 @@ def secure_pdf(
         })
 
     try:
-        dispatcher = {
-            "encrypt": _op_encrypt,
-            "permissions": _op_permissions,
-            "verify_signatures": _op_verify_signatures,
-        }
-        return dispatcher[operation](
-            input_path=input_path,
-            output_path=output_path,
-            user_password=user_password,
-            owner_password=owner_password,
-            password=password,
-        )
+        if operation == "encrypt":
+            return _op_encrypt(
+                input_path=input_path,
+                output_path=output_path,
+                user_password=user_password,
+                owner_password=owner_password,
+            )
+        elif operation == "permissions":
+            return _op_permissions(input_path=input_path, password=password)
+        else:
+            return _op_verify_signatures(input_path=input_path)
     except Exception as e:
         return json.dumps({"error": str(e), "code": "PDF_ERROR"})
 
 
-def _op_encrypt(**kwargs: object) -> str:
-    input_path = kwargs["input_path"]
-    output_path = kwargs["output_path"]
-    user_password = kwargs["user_password"]
-    owner_password = kwargs["owner_password"]
-
+def _op_encrypt(
+    *,
+    input_path: str | None,
+    output_path: str | None,
+    user_password: str | None,
+    owner_password: str | None,
+) -> str:
     if not input_path:
         return json.dumps({"error": "input_path is required.", "code": "MISSING_PARAM"})
     if not output_path:
@@ -77,24 +80,42 @@ def _op_encrypt(**kwargs: object) -> str:
     reader = PdfReader.open(str(resolved_input))
     doc = Document()
 
+    meta = reader.metadata()
+    if meta.title:
+        doc.set_title(meta.title)
+    if meta.author:
+        doc.set_author(meta.author)
+
     for i in range(reader.page_count):
         parsed = reader.get_page(i)
         page = Page(parsed.width, parsed.height)
-        page.set_font(Font.HELVETICA, 10.0)
-        text = reader.extract_text_from_page(i)
-        if text:
-            page.text_at(50.0, 750.0, text[:500])
+
+        chunks = reader.extract_text_chunks(i)
+        for chunk in chunks:
+            font = getattr(Font, chunk.font_name.upper().replace("-", "_"), Font.HELVETICA)
+            page.set_font(font, chunk.font_size)
+            page.text_at(chunk.x, chunk.y, chunk.text)
+
+        if not chunks:
+            page.set_font(Font.HELVETICA, 10.0)
+
         doc.add_page(page)
 
     doc.encrypt(user_password, owner_password)
     doc.save(str(resolved_output))
-    return json.dumps({"status": "ok", "operation": "encrypt"})
+    return json.dumps({
+        "status": "ok",
+        "operation": "encrypt",
+        "page_count": reader.page_count,
+        "note": "Text content preserved; non-text elements (images, vector graphics) may be lost.",
+    })
 
 
-def _op_permissions(**kwargs: object) -> str:
-    input_path = kwargs["input_path"]
-    password = kwargs.get("password")
-
+def _op_permissions(
+    *,
+    input_path: str | None,
+    password: str | None,
+) -> str:
     if not input_path:
         return json.dumps({"error": "input_path is required.", "code": "MISSING_PARAM"})
 
@@ -119,15 +140,12 @@ def _op_permissions(**kwargs: object) -> str:
         "is_encrypted": is_encrypted,
         "unlocked": unlocked,
         "permissions": {
-            "note": "Permission details require document-level access after unlock.",
             "encrypted": is_encrypted,
         },
     })
 
 
-def _op_verify_signatures(**kwargs: object) -> str:
-    input_path = kwargs["input_path"]
-
+def _op_verify_signatures(*, input_path: str | None) -> str:
     if not input_path:
         return json.dumps({"error": "input_path is required.", "code": "MISSING_PARAM"})
 

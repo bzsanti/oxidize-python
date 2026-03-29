@@ -78,9 +78,12 @@ class TestAnalyzePdfCompliance:
         )
         out = json.loads(result.content[0].text)
         assert out["check"] == "compliance"
-        assert "total_requirements" in out
-        assert "implemented_count" in out
+        assert "is_valid" in out
+        assert "error_count" in out
+        assert "warning_count" in out
         assert "compliance_percentage" in out
+        assert isinstance(out["compliance_percentage"], (int, float))
+        assert out["level"] == "PDF/A-1B"
 
 
 class TestAnalyzePdfCompare:

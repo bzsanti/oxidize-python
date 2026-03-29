@@ -10,13 +10,14 @@ def analyze_pdf(
     path: str,
     check: str = "validate",
     compare_path: str | None = None,
+    compliance_level: str = "a1b",
 ) -> str:
     """Analyze a PDF file with various checks.
 
     Available checks:
     - validate: Validate PDF structure and return error/warning counts.
     - corruption: Detect corruption and report severity, type, and page count.
-    - compliance: Check PDF/A compliance requirements.
+    - compliance: Check PDF/A compliance (level via compliance_level: a1a, a1b, a2a, a2b, a2u, a3a, a3b, a3u).
     - compare: Compare two PDFs for structural and content equivalence (requires compare_path).
     """
     from oxidize_pdf.mcp.tools.base import setup_pdf_path
@@ -31,7 +32,7 @@ def analyze_pdf(
         elif check == "corruption":
             return _check_corruption(path, str(resolved))
         elif check == "compliance":
-            return _check_compliance(path, str(resolved))
+            return _check_compliance(path, str(resolved), compliance_level)
         elif check == "compare":
             return _check_compare(path, str(resolved), compare_path)
         else:
@@ -73,27 +74,52 @@ def _check_corruption(client_path: str, resolved_path: str) -> str:
     })
 
 
-def _check_compliance(client_path: str, resolved_path: str) -> str:
+_PDFA_LEVELS = {
+    "a1a": ("PdfALevel", "A1A", "PDF/A-1A"),
+    "a1b": ("PdfALevel", "A1B", "PDF/A-1B"),
+    "a2a": ("PdfALevel", "A2A", "PDF/A-2A"),
+    "a2b": ("PdfALevel", "A2B", "PDF/A-2B"),
+    "a2u": ("PdfALevel", "A2U", "PDF/A-2U"),
+    "a3a": ("PdfALevel", "A3A", "PDF/A-3A"),
+    "a3b": ("PdfALevel", "A3B", "PDF/A-3B"),
+    "a3u": ("PdfALevel", "A3U", "PDF/A-3U"),
+}
+
+
+def _check_compliance(
+    client_path: str, resolved_path: str, compliance_level: str,
+) -> str:
     from oxidize_pdf import PdfALevel, PdfAValidator
+
+    level_key = compliance_level.lower()
+    if level_key not in _PDFA_LEVELS:
+        return json.dumps({
+            "error": f"Unknown compliance level: '{compliance_level}'. "
+            f"Valid levels: {', '.join(sorted(_PDFA_LEVELS))}.",
+            "code": "INVALID_LEVEL",
+        })
+
+    _, attr_name, display_name = _PDFA_LEVELS[level_key]
+    pdfa_level = getattr(PdfALevel, attr_name)
 
     with open(resolved_path, "rb") as f:
         data = f.read()
 
-    validator = PdfAValidator(PdfALevel.A1B)
+    validator = PdfAValidator(pdfa_level)
     validator.collect_all_errors(True)
     result = validator.validate_bytes(data)
+    total_checks = result.error_count + result.warning_count
+    passed_checks = total_checks - result.error_count
+    pct = 100.0 if total_checks == 0 else round((passed_checks / total_checks) * 100, 2)
+
     return json.dumps({
         "path": client_path,
         "check": "compliance",
-        "level": "PDF/A-1B",
-        "total_requirements": result.error_count + result.warning_count + (1 if result.is_valid else 0),
-        "implemented_count": (result.error_count + result.warning_count + 1) - result.error_count,
-        "compliance_percentage": 100.0 if result.is_valid else round(
-            max(0, (1 - result.error_count / max(1, result.error_count + result.warning_count + 1))) * 100, 2
-        ),
+        "level": display_name,
         "is_valid": result.is_valid,
         "error_count": result.error_count,
         "warning_count": result.warning_count,
+        "compliance_percentage": pct,
     })
 
 

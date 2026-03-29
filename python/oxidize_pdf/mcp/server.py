@@ -1,11 +1,15 @@
 """FastMCP server definition for oxidize-pdf."""
 
+import json
+
 from fastmcp import FastMCP
+
+MCP_SERVER_VERSION = "1.0.0"
 
 mcp = FastMCP(name="oxidize-pdf")
 
-import json
-
+# Tool and prompt modules must be imported after mcp is defined, because their
+# decorators (@mcp.tool(), @mcp.prompt()) reference the mcp instance at import time.
 import oxidize_pdf.mcp.tools  # noqa: E402, F401
 import oxidize_pdf.mcp.prompts  # noqa: E402, F401
 
@@ -22,14 +26,9 @@ def get_fonts() -> str:
 @mcp.resource("oxidize://page-sizes")
 def get_page_sizes() -> str:
     """List available page sizes with dimensions in points."""
-    return json.dumps({
-        "a4": {"width": 595.28, "height": 841.89},
-        "a4_landscape": {"width": 841.89, "height": 595.28},
-        "letter": {"width": 612.0, "height": 792.0},
-        "letter_landscape": {"width": 792.0, "height": 612.0},
-        "legal": {"width": 612.0, "height": 1008.0},
-        "legal_landscape": {"width": 1008.0, "height": 612.0},
-    })
+    from oxidize_pdf.mcp.tools.base import PAGE_SIZES
+
+    return json.dumps(PAGE_SIZES)
 
 
 @mcp.resource("oxidize://capabilities")
@@ -47,7 +46,7 @@ def get_capabilities() -> str:
             "oxidize://capabilities", "oxidize://version",
             "oxidize://workspace", "oxidize://session/{id}",
         ],
-        "version": "1.0.0",
+        "version": MCP_SERVER_VERSION,
         "features": ["stateless-tools", "stateful-sessions", "pdf-analysis", "pdf-creation"],
     })
 
@@ -60,7 +59,7 @@ def get_version() -> str:
     version = getattr(oxidize_pdf, "__version__", "unknown")
     return json.dumps({
         "oxidize_pdf": version,
-        "mcp_server": "1.0.0",
+        "mcp_server": MCP_SERVER_VERSION,
     })
 
 

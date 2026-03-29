@@ -11,15 +11,28 @@ if TYPE_CHECKING:
 
 from oxidize_pdf.mcp.sessions import SessionStore
 
+PAGE_SIZES: dict[str, dict[str, float]] = {
+    "a4": {"width": 595.28, "height": 841.89},
+    "a4_landscape": {"width": 841.89, "height": 595.28},
+    "letter": {"width": 612.0, "height": 792.0},
+    "letter_landscape": {"width": 792.0, "height": 612.0},
+    "legal": {"width": 612.0, "height": 1008.0},
+    "legal_landscape": {"width": 1008.0, "height": 612.0},
+}
+
 _config: McpConfig | None = None
 _session_store: SessionStore | None = None
 
 
 def get_session_store() -> SessionStore:
-    """Return the process-level SessionStore singleton."""
+    """Return the process-level SessionStore singleton, configured from McpConfig."""
     global _session_store
     if _session_store is None:
-        _session_store = SessionStore(max_age_seconds=3600, max_sessions=100)
+        cfg = get_config()
+        _session_store = SessionStore(
+            max_age_seconds=cfg.max_session_age_seconds,
+            max_sessions=100,
+        )
     return _session_store
 
 

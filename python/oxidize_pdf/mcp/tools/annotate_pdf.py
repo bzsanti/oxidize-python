@@ -65,6 +65,14 @@ def annotate_pdf(
             })
 
         parsed = reader.get_page(page)
+
+        if x < 0 or x > parsed.width or y < 0 or y > parsed.height:
+            return json.dumps({
+                "error": f"Coordinates ({x}, {y}) outside page bounds "
+                f"(0-{parsed.width}, 0-{parsed.height}).",
+                "code": "INVALID_COORDINATES",
+            })
+
         page_obj = Page(parsed.width, parsed.height)
 
         if annotation_type == "text":
