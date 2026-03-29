@@ -60,6 +60,7 @@ jobs:
           CURRENT=$(grep -oP '(?<=oxidize-pdf = \{ version = ")[^"]+' Cargo.toml \
                     || grep -oP '(?<=oxidize-pdf = ")[^"]+' Cargo.toml \
                     || echo "unknown")
+          CURRENT="${CURRENT#=}"
           echo "current_version=${CURRENT}" >> "$GITHUB_OUTPUT"
 
       - name: Check if update is needed
@@ -80,7 +81,7 @@ jobs:
         run: |
           NEW="${{ steps.resolve.outputs.new_version }}"
           sed -i -E \
-            's/(oxidize-pdf = \{ version = ")[^"]+(")/\1'"${NEW}"'\2/' \
+            's/(oxidize-pdf = \{ version = ")[^"]+(")/\1='"${NEW}"'\2/' \
             Cargo.toml
           grep "oxidize-pdf" Cargo.toml
 
