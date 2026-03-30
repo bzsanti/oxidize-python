@@ -41,8 +41,18 @@ Documentation = "https://github.com/bzsanti/oxidize-python#readme"
 [project.optional-dependencies]
 dev = [
     "pytest>=7.0",
+    "pytest-asyncio>=0.21",
     "mypy>=1.0",
 ]
+mcp = [
+    "fastmcp>=2.0",
+    "pydantic>=2.0",
+]
+# Note: MCP tests (tests/mcp_tests/) require both extras:
+#   pip install -e ".[dev,mcp]"
+
+[project.scripts]
+oxidize-mcp = "oxidize_pdf.mcp.server:run"
 
 [tool.maturin]
 python-source = "python"
@@ -50,5 +60,9 @@ module-name = "oxidize_pdf._oxidize_pdf"
 features = ["pyo3/extension-module"]
 python-packages = ["oxidize_pdf"]
 
+[tool.mypy]
+exclude = ["oxidize_pdf/mcp/"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+asyncio_mode = "auto"
