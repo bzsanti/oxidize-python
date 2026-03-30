@@ -60,6 +60,9 @@ module-name = "oxidize_pdf._oxidize_pdf"
 features = ["pyo3/extension-module"]
 python-packages = ["oxidize_pdf"]
 
+[tool.mypy]
+exclude = ["oxidize_pdf/mcp/"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 asyncio_mode = "auto"
