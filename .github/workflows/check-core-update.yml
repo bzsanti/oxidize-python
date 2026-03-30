@@ -43,6 +43,7 @@ jobs:
           CURRENT=$(grep -oP '(?<=oxidize-pdf = \{ version = ")[^"]+' Cargo.toml \
                     || grep -oP '(?<=oxidize-pdf = ")[^"]+' Cargo.toml \
                     || echo "unknown")
+          CURRENT="${CURRENT#=}"
           echo "current_version=${CURRENT}" >> "$GITHUB_OUTPUT"
           echo "Current pinned: ${CURRENT}"
 
@@ -70,7 +71,7 @@ jobs:
         run: |
           NEW="${{ steps.latest.outputs.version }}"
           sed -i -E \
-            's/(oxidize-pdf = \{ version = ")[^"]+(")/\1'"${NEW}"'\2/' \
+            's/(oxidize-pdf = \{ version = ")[^"]+(")/\1='"${NEW}"'\2/' \
             Cargo.toml
           grep "oxidize-pdf" Cargo.toml
 
@@ -90,9 +91,10 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout -b "${BRANCH}"
-          git add Cargo.toml Cargo.lock
+          git add Cargo.toml
+          git add -f Cargo.lock 2>/dev/null || true
           git commit -m "chore: update oxidize-pdf to v${{ steps.latest.outputs.version }}"
-          git push origin "${BRANCH}"
+          git push --force-with-lease origin "${BRANCH}"
           echo "branch=${BRANCH}" >> "$GITHUB_OUTPUT"
 
       - name: Open pull request (skip if already exists)

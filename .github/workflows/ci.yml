@@ -39,13 +39,13 @@ jobs:
         if: runner.os != 'Windows'
         run: |
           source .venv/bin/activate
-          pip install maturin pytest mypy
+          pip install maturin pytest pytest-asyncio mypy pydantic fastmcp
 
       - name: Install dependencies (Windows)
         if: runner.os == 'Windows'
         run: |
           .venv\Scripts\activate
-          pip install maturin pytest mypy
+          pip install maturin pytest pytest-asyncio mypy pydantic fastmcp
 
       - name: Build (debug, Unix)
         if: runner.os != 'Windows'

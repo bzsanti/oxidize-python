@@ -6,7 +6,7 @@
 [![Python](https://img.shields.io/pypi/pyversions/oxidize-pdf)](https://pypi.org/project/oxidize-pdf/)
 [![Typed](https://img.shields.io/badge/typing-typed-green)](https://github.com/bzsanti/oxidize-python)
 
-Python bindings for [oxidize-pdf](https://crates.io/crates/oxidize-pdf), a pure Rust PDF generation and manipulation library.
+Python bindings for [oxidize-pdf](https://crates.io/crates/oxidize-pdf), a pure Rust PDF generation and manipulation library. Includes a built-in **MCP server** for AI-powered PDF workflows.
 
 Generate, parse, split, merge, and manipulate PDF files from Python with native performance — no C dependencies, no Java, no subprocess calls.
 
@@ -19,6 +19,7 @@ Most Python PDF libraries are written in pure Python or wrap C/Java backends. **
 - **Memory safe** — Rust's ownership model prevents crashes and memory leaks
 - **Fully typed** — Ships with type stubs, works with mypy/pyright out of the box
 - **Cross-platform wheels** — Pre-built for Linux, macOS, and Windows (x86_64 + ARM)
+- **MCP server included** — Expose PDF tools to AI agents via the Model Context Protocol
 
 ## Installation
 
@@ -207,6 +208,75 @@ Exception hierarchy:
 ## Type checking
 
 oxidize-pdf ships with type stubs and a `py.typed` marker. Full autocomplete and type checking work out of the box with mypy, pyright, and IDEs.
+
+## MCP Server
+
+oxidize-pdf includes a built-in [Model Context Protocol](https://modelcontextprotocol.io/) server that exposes PDF operations as tools for AI agents like Claude, GPT, and other MCP-compatible clients.
+
+### Installation
+
+```bash
+pip install "oxidize-pdf[mcp]"
+```
+
+### Running the server
+
+```bash
+oxidize-mcp
+```
+
+Or programmatically:
+
+```python
+from oxidize_pdf.mcp.server import run
+run()
+```
+
+### Configuration
+
+Set the workspace directory via environment variable:
+
+```bash
+OXIDIZE_WORKSPACE=/path/to/pdfs oxidize-mcp
+```
+
+### Available tools
+
+| Tool | Description |
+|------|-------------|
+| `read_pdf` | Read PDF metadata — page count, version, encryption status, title, author |
+| `extract_text` | Extract text from all pages or a specific page |
+| `convert_pdf` | Convert PDF to markdown, chunks, or RAG-optimized format |
+| `create_pdf` | Create a new PDF document with optional metadata |
+| `save_pdf` | Save a PDF session to disk, with optional encryption |
+| `add_content` | Add pages, text, and graphics to a PDF session |
+| `annotate_pdf` | Add text annotations and highlights to a PDF |
+| `manipulate_pdf` | Split, merge, rotate, extract pages, reverse, or overlay PDFs |
+| `manage_forms` | Create, fill, read, and validate PDF form fields |
+| `secure_pdf` | Encrypt PDFs, check permissions, verify signatures |
+| `extract_entities` | Extract structured entities (text, metadata) from PDF pages |
+| `analyze_pdf` | Validate PDF structure, detect corruption, check PDF/A compliance |
+
+### Resources and prompts
+
+The server also exposes **6 resources** (session data, capabilities, version info) and **5 prompts** (guided workflows for common tasks like summarization, data extraction, and form filling).
+
+### Integration with Claude Desktop
+
+Add to your `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "oxidize-pdf": {
+      "command": "oxidize-mcp",
+      "env": {
+        "OXIDIZE_WORKSPACE": "/path/to/your/pdfs"
+      }
+    }
+  }
+}
+```
 
 ## Known limitations
 
