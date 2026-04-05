@@ -90,11 +90,13 @@ jobs:
           BRANCH="chore/update-oxidize-pdf-${{ steps.latest.outputs.version }}"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # Delete remote branch if it already exists from a prior failed run
+          git push origin --delete "${BRANCH}" 2>/dev/null || true
           git checkout -b "${BRANCH}"
           git add Cargo.toml
           git add -f Cargo.lock 2>/dev/null || true
           git commit -m "chore: update oxidize-pdf to v${{ steps.latest.outputs.version }}"
-          git push --force-with-lease origin "${BRANCH}"
+          git push origin "${BRANCH}"
           echo "branch=${BRANCH}" >> "$GITHUB_OUTPUT"
 
       - name: Open pull request (skip if already exists)
