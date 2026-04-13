@@ -6,12 +6,12 @@
     "url": "https://github.com/bzsanti/oxidize-python",
     "source": "github"
   },
-  "version": "0.3.1",
+  "version": "0.4.0",
   "packages": [
     {
       "registryType": "pypi",
       "identifier": "oxidize-pdf",
-      "version": "0.3.1",
+      "version": "0.4.0",
       "transport": {
         "type": "stdio"
       },
