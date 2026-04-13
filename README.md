@@ -1,36 +1,103 @@
 <!-- mcp-name: io.github.bzsanti/oxidize-pdf-mcp -->
 # oxidize-pdf
 
+<!-- mcp-name: io.github.bzsanti/oxidize-pdf-mcp -->
+
 [![PyPI version](https://img.shields.io/pypi/v/oxidize-pdf)](https://pypi.org/project/oxidize-pdf/)
 [![CI](https://github.com/bzsanti/oxidize-python/actions/workflows/ci.yml/badge.svg)](https://github.com/bzsanti/oxidize-python/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Python](https://img.shields.io/pypi/pyversions/oxidize-pdf)](https://pypi.org/project/oxidize-pdf/)
 [![Typed](https://img.shields.io/badge/typing-typed-green)](https://github.com/bzsanti/oxidize-python)
+[![MCP](https://img.shields.io/badge/MCP-compatible-purple)](https://modelcontextprotocol.io/)
 
-Python bindings for [oxidize-pdf](https://crates.io/crates/oxidize-pdf), a pure Rust PDF generation and manipulation library.
+**Rust-powered PDF library for Python.** Generate, parse, split, merge, and manipulate PDFs with native performance. Ships with a built-in [MCP server](#mcp-server) so AI agents can work with PDFs out of the box.
 
-Generate, parse, split, merge, and manipulate PDF files from Python with native performance — no C dependencies, no Java, no subprocess calls.
-
-## Why oxidize-pdf?
-
-Most Python PDF libraries are written in pure Python or wrap C/Java backends. **oxidize-pdf** is different: the core engine is written in **Rust** and compiled to a native Python extension via [PyO3](https://pyo3.rs). This means:
-
-- **Native performance** — The core is compiled Rust, not interpreted Python
-- **Zero external dependencies** — No Poppler, no Java, no Ghostscript, no subprocess calls
-- **Memory safe** — Rust's ownership model prevents crashes and memory leaks
-- **Fully typed** — Ships with type stubs, works with mypy/pyright out of the box
-- **Cross-platform wheels** — Pre-built for Linux, macOS, and Windows (x86_64 + ARM)
+No C dependencies. No Java. No subprocess calls.
 
 ## Installation
 
 ```bash
-pip install oxidize-pdf
+pip install oxidize-pdf            # Core library
+pip install "oxidize-pdf[mcp]"     # + MCP server for AI agents
 ```
 
-**Supported platforms:** Linux (x86_64, aarch64), macOS (x86_64, Apple Silicon), Windows (x86_64)
+**Platforms:** Linux (x86_64, aarch64) | macOS (x86_64, Apple Silicon) | Windows (x86_64)
 **Requires:** Python 3.10+
 
-## Quick start
+## Why oxidize-pdf?
+
+| | oxidize-pdf | Pure-Python libs | C/Java wrappers |
+|---|---|---|---|
+| **Performance** | Native (compiled Rust) | Interpreted | Native but heavy |
+| **Dependencies** | Zero | Varies | Poppler, Java, Ghostscript |
+| **Memory safety** | Rust ownership model | GC-dependent | Manual / GC |
+| **Type stubs** | Full (mypy/pyright) | Partial | Rare |
+| **AI-ready (MCP)** | Built-in | No | No |
+
+---
+
+## MCP Server
+
+Give your AI agent full PDF capabilities in one line:
+
+```bash
+oxidize-mcp
+```
+
+The built-in [Model Context Protocol](https://modelcontextprotocol.io/) server exposes **12 tools**, **6 resources**, and **5 prompts** — compatible with Claude, GPT, and any MCP client.
+
+### Claude Desktop integration
+
+Add to your `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "oxidize-pdf": {
+      "command": "oxidize-mcp",
+      "env": {
+        "OXIDIZE_WORKSPACE": "/path/to/your/pdfs"
+      }
+    }
+  }
+}
+```
+
+### Available tools
+
+| Tool | What it does |
+|------|-------------|
+| `read_pdf` | Read metadata — page count, version, encryption status, title, author |
+| `extract_text` | Extract text from all pages or a specific page |
+| `convert_pdf` | Convert to markdown, chunks, or RAG-optimized format |
+| `create_pdf` | Create a new PDF with optional metadata |
+| `save_pdf` | Save a session to disk, with optional encryption |
+| `add_content` | Add pages, text, and graphics to a session |
+| `annotate_pdf` | Add text annotations and highlights |
+| `manipulate_pdf` | Split, merge, rotate, extract pages, reverse, overlay |
+| `manage_forms` | Create, fill, read, and validate form fields |
+| `secure_pdf` | Encrypt, check permissions, verify signatures |
+| `extract_entities` | Extract structured entities from pages |
+| `analyze_pdf` | Validate structure, detect corruption, check PDF/A compliance |
+
+The server also exposes **resources** (session data, capabilities, version info) and **prompts** (guided workflows for summarization, data extraction, form filling, and more).
+
+### Configuration
+
+```bash
+OXIDIZE_WORKSPACE=/path/to/pdfs oxidize-mcp
+```
+
+Or start programmatically:
+
+```python
+from oxidize_pdf.mcp.server import run
+run()
+```
+
+---
+
+## Python API
 
 ### Create a PDF
 
@@ -61,52 +128,23 @@ from oxidize_pdf import PdfReader
 reader = PdfReader.open("document.pdf")
 print(f"Pages: {reader.page_count}, Version: {reader.version}")
 
-# Extract text from all pages
 for i, text in enumerate(reader.extract_text()):
     print(f"--- Page {i + 1} ---")
     print(text)
-
-# Inspect page dimensions
-page = reader.get_page(0)
-print(f"Size: {page.width} x {page.height} points")
 ```
 
-## Operations
-
-### Split a PDF into individual pages
+### Operations
 
 ```python
-from oxidize_pdf import split_pdf
+from oxidize_pdf import split_pdf, merge_pdfs, rotate_pdf, extract_pages
 
-files = split_pdf("input.pdf", "output_dir/")
-# Returns: ["output_dir/page_1.pdf", "output_dir/page_2.pdf", ...]
+split_pdf("input.pdf", "output_dir/")                       # Split into individual pages
+merge_pdfs(["part1.pdf", "part2.pdf"], "merged.pdf")         # Merge multiple PDFs
+rotate_pdf("input.pdf", "rotated.pdf", 90)                   # Rotate all pages
+extract_pages("input.pdf", "subset.pdf", [0, 2, 4])          # Extract specific pages
 ```
 
-### Merge multiple PDFs
-
-```python
-from oxidize_pdf import merge_pdfs
-
-merge_pdfs(["part1.pdf", "part2.pdf", "part3.pdf"], "merged.pdf")
-```
-
-### Rotate all pages
-
-```python
-from oxidize_pdf import rotate_pdf
-
-rotate_pdf("input.pdf", "rotated.pdf", 90)  # 0, 90, 180, or 270 degrees
-```
-
-### Extract specific pages
-
-```python
-from oxidize_pdf import extract_pages
-
-extract_pages("input.pdf", "subset.pdf", [0, 2, 4])  # 0-based indices
-```
-
-## Graphics
+### Graphics
 
 ```python
 from oxidize_pdf import Document, Page, Color
@@ -114,76 +152,41 @@ from oxidize_pdf import Document, Page, Color
 doc = Document()
 page = Page.a4()
 
-# Draw a filled rectangle
 page.set_fill_color(Color.hex("#3498db"))
 page.draw_rect(72.0, 700.0, 200.0, 100.0)
 page.fill()
 
-# Draw a circle with stroke
 page.set_stroke_color(Color.red())
 page.set_line_width(2.0)
 page.draw_circle(300.0, 500.0, 50.0)
 page.stroke()
 
-# Draw a custom path
-page.set_fill_color(Color.rgb(0.2, 0.8, 0.2))
-page.move_to(100.0, 400.0)
-page.line_to(200.0, 400.0)
-page.line_to(150.0, 450.0)
-page.close_path()
-page.fill_and_stroke()
-
 doc.add_page(page)
 doc.save("graphics.pdf")
 ```
 
-## Types
-
-### Color
+### Types
 
 ```python
-from oxidize_pdf import Color
+from oxidize_pdf import Color, Point, Rectangle, Margins, Font
 
-color = Color.rgb(1.0, 0.0, 0.0)       # Red (values 0.0–1.0)
-color = Color.gray(0.5)                  # 50% gray
-color = Color.cmyk(0.0, 1.0, 1.0, 0.0)  # CMYK red
-color = Color.hex("#ff6600")             # From hex string
-color = Color.black()                    # Convenience presets
+# Colors
+Color.rgb(1.0, 0.0, 0.0)          # RGB
+Color.hex("#ff6600")               # Hex
+Color.cmyk(0.0, 1.0, 1.0, 0.0)   # CMYK
+
+# Geometry
+Point(72.0, 720.0)
+Rectangle.from_xywh(72.0, 72.0, 468.0, 648.0)
+Margins.uniform(72.0)
+
+# Fonts — all 14 standard PDF fonts
+Font.HELVETICA    # Font.HELVETICA_BOLD
+Font.TIMES_ROMAN  # Font.TIMES_BOLD
+Font.COURIER      # Font.COURIER_BOLD
 ```
 
-### Point, Rectangle, Margins
-
-```python
-from oxidize_pdf import Point, Rectangle, Margins
-
-point = Point(72.0, 720.0)
-origin = Point.origin()
-
-rect = Rectangle(Point(0.0, 0.0), Point(612.0, 792.0))
-rect = Rectangle.from_xywh(72.0, 72.0, 468.0, 648.0)
-print(f"{rect.width} x {rect.height}, center: {rect.center}")
-
-margins = Margins(top=72.0, right=72.0, bottom=72.0, left=72.0)
-margins = Margins.uniform(72.0)  # Same value for all sides
-```
-
-### Fonts
-
-All 14 standard PDF fonts are available:
-
-```python
-from oxidize_pdf import Font
-
-Font.HELVETICA             # Font.HELVETICA_BOLD
-Font.TIMES_ROMAN           # Font.TIMES_BOLD
-Font.COURIER               # Font.COURIER_BOLD
-Font.SYMBOL                # Font.ZAPF_DINGBATS
-# ... and italic/oblique variants
-```
-
-## Error handling
-
-All exceptions inherit from `PdfError`:
+### Error handling
 
 ```python
 from oxidize_pdf import PdfReader, PdfError, PdfIoError, PdfParseError
@@ -198,16 +201,7 @@ except PdfError as e:
     print(f"PDF error: {e}")
 ```
 
-Exception hierarchy:
-- `PdfError` — base class
-  - `PdfIoError` — file I/O errors
-  - `PdfParseError` — malformed PDF structure
-  - `PdfEncryptionError` — encryption/decryption failures
-  - `PdfPermissionError` — operation denied by document permissions
-
-## Type checking
-
-oxidize-pdf ships with type stubs and a `py.typed` marker. Full autocomplete and type checking work out of the box with mypy, pyright, and IDEs.
+Exception hierarchy: `PdfError` > `PdfIoError`, `PdfParseError`, `PdfEncryptionError`, `PdfPermissionError`
 
 ## MCP Server
 
@@ -266,7 +260,7 @@ claude mcp add oxidize-pdf -- uvx --from "oxidize-pdf[mcp]" oxidize-mcp
 
 ## Known limitations
 
-- **Encryption write support**: `Document.encrypt()` configures encryption parameters but the underlying Rust library does not yet serialize the encryption dictionary to the PDF output. The `PdfReader.is_encrypted` / `unlock()` API for reading encrypted PDFs works correctly.
+- **Encryption write support**: `Document.encrypt()` configures encryption parameters but the underlying Rust library does not yet serialize the encryption dictionary to the PDF output. Reading encrypted PDFs works correctly.
 - **CPython only**: PyPy and GraalPy are not supported.
 
 ## License
