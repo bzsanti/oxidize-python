@@ -34,3 +34,4 @@ venv/
 .mypy_cache/
 htmlcov/
 .coverage
+.mcpregistry_*

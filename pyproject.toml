@@ -4,7 +4,7 @@ build-backend = "maturin"
 
 [project]
 name = "oxidize-pdf"
-version = "0.3.1"
+version = "0.4.0"
 description = "Python bindings for oxidize-pdf — generate, parse, split, merge, and manipulate PDF files"
 requires-python = ">=3.10"
 readme = "README.md"
