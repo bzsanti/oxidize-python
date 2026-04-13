@@ -526,6 +526,18 @@ from oxidize_pdf._oxidize_pdf import (
     GraphicsExtractor,
 )
 
+# Layout (oxidize-pdf 2.5.0)
+from oxidize_pdf._oxidize_pdf import (
+    PageConfig,
+    TextBlockMetrics,
+    fit_image_dimensions,
+    centered_image_x,
+    measure_text_block,
+    TextSpan,
+    RichText,
+    FlowLayout,
+)
+
 __all__ = [
     "__version__",
     # Errors
@@ -934,4 +946,13 @@ __all__ = [
     "ExtractedGraphics",
     "ExtractionConfig",
     "GraphicsExtractor",
+    # Layout (oxidize-pdf 2.5.0)
+    "PageConfig",
+    "TextBlockMetrics",
+    "fit_image_dimensions",
+    "centered_image_x",
+    "measure_text_block",
+    "TextSpan",
+    "RichText",
+    "FlowLayout",
 ]

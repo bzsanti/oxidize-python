@@ -1,3 +1,4 @@
+<!-- mcp-name: io.github.bzsanti/oxidize-pdf-mcp -->
 # oxidize-pdf
 
 <!-- mcp-name: io.github.bzsanti/oxidize-pdf-mcp -->
@@ -201,6 +202,61 @@ except PdfError as e:
 ```
 
 Exception hierarchy: `PdfError` > `PdfIoError`, `PdfParseError`, `PdfEncryptionError`, `PdfPermissionError`
+
+## MCP Server
+
+oxidize-pdf includes an [MCP](https://modelcontextprotocol.io/) server that exposes PDF capabilities to AI assistants like Claude. Install with the `mcp` extra:
+
+```bash
+pip install oxidize-pdf[mcp]
+```
+
+### Claude Desktop
+
+Add this to your `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "oxidize-pdf": {
+      "command": "uvx",
+      "args": ["--from", "oxidize-pdf[mcp]", "oxidize-mcp"]
+    }
+  }
+}
+```
+
+### Claude Code
+
+```bash
+claude mcp add oxidize-pdf -- uvx --from "oxidize-pdf[mcp]" oxidize-mcp
+```
+
+### Available tools
+
+| Tool | Description |
+|---|---|
+| `read_pdf` | Open a PDF and get metadata (pages, version, encryption) |
+| `extract_text` | Extract text content from PDF pages |
+| `convert_pdf` | Convert between PDF versions |
+| `analyze_pdf` | Analyze structure, fonts, images, and compliance |
+| `extract_entities` | Extract images and digital signatures |
+| `manipulate_pdf` | Split, merge, rotate, extract, and reorder pages |
+| `annotate_pdf` | Add text annotations, highlights, and stamps |
+| `manage_forms` | Create, fill, and read PDF form fields |
+| `secure_pdf` | Encrypt, decrypt, and set document permissions |
+| `create_pdf` | Create a new PDF document with pages |
+| `add_pdf_content` | Add text, shapes, and images to pages |
+| `save_pdf` | Save the document to file or bytes |
+
+### Resources
+
+- `oxidize://fonts` — Available built-in PDF fonts
+- `oxidize://page-sizes` — Standard page sizes with dimensions
+- `oxidize://capabilities` — Server capabilities and tool listing
+- `oxidize://version` — Version information
+- `oxidize://workspace` — PDF files in the workspace directory
+- `oxidize://session/{id}` — Session data by ID
 
 ## Known limitations
 

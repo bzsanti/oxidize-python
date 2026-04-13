@@ -1,27 +1,26 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.bzsanti/oxidize-pdf-mcp",
-  "description": "Read, create, manipulate, annotate, and analyze PDFs with native Rust performance.",
+  "title": "oxidize-pdf MCP Server",
+  "description": "MCP server for PDF generation, parsing, splitting, merging, and manipulation via oxidize-pdf",
+  "version": "0.4.0",
   "repository": {
     "url": "https://github.com/bzsanti/oxidize-python",
     "source": "github"
   },
-  "version": "0.4.0",
   "packages": [
     {
       "registryType": "pypi",
       "identifier": "oxidize-pdf",
       "version": "0.4.0",
+      "runtimeHint": "uvx",
       "transport": {
         "type": "stdio"
       },
-      "environmentVariables": [
+      "packageArguments": [
         {
-          "description": "Root directory where the MCP server reads and writes PDF files",
-          "isRequired": false,
-          "format": "string",
-          "isSecret": false,
-          "name": "OXIDIZE_WORKSPACE"
+          "type": "positional",
+          "value": "oxidize-mcp"
         }
       ]
     }
