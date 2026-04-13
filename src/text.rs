@@ -289,7 +289,7 @@ impl PyHeaderFooter {
 #[pyfunction]
 #[pyo3(name = "measure_text")]
 pub fn py_measure_text(text: &str, font: &PyFont, size: f64) -> f64 {
-    oxidize_pdf::measure_text(text, font.inner.clone(), size)
+    oxidize_pdf::measure_text(text, &font.inner, size)
 }
 
 #[pyfunction]

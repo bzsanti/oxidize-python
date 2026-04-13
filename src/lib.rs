@@ -14,6 +14,7 @@ mod graphics;
 mod graphics_advanced;
 mod graphics_extraction;
 mod image;
+mod layout;
 mod list;
 mod operations;
 mod outlines;
@@ -69,6 +70,7 @@ fn _oxidize_pdf(m: &Bound<'_, PyModule>) -> PyResult<()> {
     verification::register(m)?;
     semantic::register(m)?;
     graphics_extraction::register(m)?;
+    layout::register(m)?;
 
     Ok(())
 }
