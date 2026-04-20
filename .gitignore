@@ -35,3 +35,6 @@ venv/
 htmlcov/
 .coverage
 .mcpregistry_*
+
+# Temp PDFs from test runs
+tmp*.pdf

@@ -366,7 +366,7 @@ impl PyXRefTable {
     }
 
     fn add_entry(&mut self, obj_num: u32, entry: &PyXRefEntry) {
-        self.inner.add_entry(obj_num, entry.inner.clone());
+        self.inner.add_entry(obj_num, entry.inner);
     }
 
     fn get_entry(&self, obj_num: u32) -> Option<PyXRefEntry> {

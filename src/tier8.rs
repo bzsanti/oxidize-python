@@ -116,7 +116,7 @@ impl PyStructTree {
 
     fn add_child(&mut self, parent_index: usize, element: PyStructureElement) -> PyResult<usize> {
         self.inner.add_child(parent_index, element.inner)
-            .map_err(|e| pyo3::exceptions::PyValueError::new_err(e))
+            .map_err(pyo3::exceptions::PyValueError::new_err)
     }
 
     #[getter]
@@ -766,7 +766,7 @@ impl PyKpiCard {
     /// Set trend indicator with change percentage and direction.
     fn with_trend(self_: PyRef<'_, Self>, change: f64, direction: &PyTrendDirection) -> Self {
         Self {
-            inner: self_.inner.clone().with_trend(change, direction.inner.clone()),
+            inner: self_.inner.clone().with_trend(change, direction.inner),
         }
     }
 

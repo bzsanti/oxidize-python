@@ -35,6 +35,7 @@ impl PyExtractionOptions {
         merge_hyphenated = true,
         track_space_decisions = false,
     ))]
+    #[allow(clippy::too_many_arguments)]
     fn new(
         preserve_layout: bool,
         space_threshold: f64,
@@ -332,6 +333,7 @@ impl PyColumnOptions {
         separator_color = None,
         separator_width = 0.5,
     ))]
+    #[allow(clippy::too_many_arguments)]
     fn new(
         font: Option<&PyFont>,
         font_size: f64,
