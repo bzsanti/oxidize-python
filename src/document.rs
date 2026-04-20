@@ -160,7 +160,7 @@ impl PyDocument {
         field: &PyTextField,
         rect: &PyRectangle,
     ) -> PyResult<()> {
-        let widget = Widget::new(rect.inner.clone());
+        let widget = Widget::new(rect.inner);
         self.inner
             .enable_forms()
             .add_text_field(field.inner.clone(), widget, None)
@@ -174,7 +174,7 @@ impl PyDocument {
         field: &PyCheckBox,
         rect: &PyRectangle,
     ) -> PyResult<()> {
-        let widget = Widget::new(rect.inner.clone());
+        let widget = Widget::new(rect.inner);
         self.inner
             .enable_forms()
             .add_checkbox(field.inner.clone(), widget, None)
@@ -188,7 +188,7 @@ impl PyDocument {
         field: &PyComboBox,
         rect: &PyRectangle,
     ) -> PyResult<()> {
-        let widget = Widget::new(rect.inner.clone());
+        let widget = Widget::new(rect.inner);
         self.inner
             .enable_forms()
             .add_combo_box(field.inner.clone(), widget, None)
@@ -202,7 +202,7 @@ impl PyDocument {
         field: &PyListBox,
         rect: &PyRectangle,
     ) -> PyResult<()> {
-        let widget = Widget::new(rect.inner.clone());
+        let widget = Widget::new(rect.inner);
         self.inner
             .enable_forms()
             .add_list_box(field.inner.clone(), widget, None)
@@ -216,7 +216,7 @@ impl PyDocument {
         field: &PyRadioButton,
         rect: &PyRectangle,
     ) -> PyResult<()> {
-        let widget = Widget::new(rect.inner.clone());
+        let widget = Widget::new(rect.inner);
         self.inner
             .enable_forms()
             .add_radio_button(field.inner.clone(), Some(vec![widget]), None)
@@ -299,7 +299,7 @@ impl PyDocument {
 
     fn set_default_font_encoding(&mut self, encoding: &PyFontEncoding) {
         self.inner
-            .set_default_font_encoding(Some(encoding.inner.clone()));
+            .set_default_font_encoding(Some(encoding.inner));
     }
 
     // ── XMP Metadata (F78) ───────────────────────────────────────────────

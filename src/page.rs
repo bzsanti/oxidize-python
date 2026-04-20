@@ -332,7 +332,7 @@ impl PyPage {
 
     /// Set the coordinate system for this page.
     fn set_coordinate_system(&mut self, cs: &crate::tier8::PyCoordinateSystem) {
-        self.inner.set_coordinate_system(cs.inner.clone());
+        self.inner.set_coordinate_system(cs.inner);
     }
 
     // ── Annotation operations ─────────────────────────────────────────
