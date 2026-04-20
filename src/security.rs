@@ -294,7 +294,7 @@ impl PyByteRange {
     fn from_array(values: Vec<i64>) -> PyResult<Self> {
         ByteRange::from_array(&values)
             .map(|br| Self { inner: br })
-            .map_err(|e| pyo3::exceptions::PyValueError::new_err(e))
+            .map_err(pyo3::exceptions::PyValueError::new_err)
     }
 
     #[getter]

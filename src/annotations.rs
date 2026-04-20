@@ -97,7 +97,7 @@ impl PyAnnotation {
     #[new]
     fn new(annotation_type: &PyAnnotationType, rect: &PyRectangle) -> Self {
         Self {
-            inner: Annotation::new(annotation_type.inner.clone(), rect.inner),
+            inner: Annotation::new(annotation_type.inner, rect.inner),
         }
     }
 
@@ -370,7 +370,7 @@ impl PyBorderStyle {
     fn new(width: f64, style: Option<&PyBorderStyleType>) -> Self {
         let bs = BorderStyle {
             width,
-            style: style.map(|s| s.inner.clone()).unwrap_or(BorderStyleType::Solid),
+            style: style.map(|s| s.inner).unwrap_or(BorderStyleType::Solid),
             dash_pattern: None,
         };
         Self { inner: bs }

@@ -49,7 +49,7 @@ fn merge_pdfs(input_paths: Vec<String>, output_path: &str) -> PyResult<()> {
             "At least one input file is required",
         ));
     }
-    let inputs: Vec<MergeInput> = input_paths.iter().map(|p| MergeInput::new(p)).collect();
+    let inputs: Vec<MergeInput> = input_paths.iter().map(MergeInput::new).collect();
     operations::merge_pdfs(inputs, output_path, MergeOptions::default()).map_err(op_err_to_py)
 }
 
@@ -208,8 +208,10 @@ impl PyExtractImagesOptions {
     #[new]
     #[pyo3(signature = (output_dir, extract_inline=None, min_size=None))]
     fn new(output_dir: &str, extract_inline: Option<bool>, min_size: Option<u32>) -> Self {
-        let mut opts = ExtractImagesOptions::default();
-        opts.output_dir = std::path::PathBuf::from(output_dir);
+        let mut opts = ExtractImagesOptions {
+            output_dir: std::path::PathBuf::from(output_dir),
+            ..ExtractImagesOptions::default()
+        };
         if let Some(ei) = extract_inline {
             opts.extract_inline = ei;
         }
@@ -257,7 +259,7 @@ fn merge_pdfs_to_bytes(input_paths: Vec<String>) -> PyResult<Vec<u8>> {
             "At least one input file is required",
         ));
     }
-    let inputs: Vec<MergeInput> = input_paths.iter().map(|p| MergeInput::new(p)).collect();
+    let inputs: Vec<MergeInput> = input_paths.iter().map(MergeInput::new).collect();
 
     // Merge to temp file, then read bytes
     let tmpdir =
@@ -475,7 +477,7 @@ fn merge_pdfs_with_options(
             "At least one input file is required",
         ));
     }
-    let inputs: Vec<MergeInput> = input_paths.iter().map(|p| MergeInput::new(p)).collect();
+    let inputs: Vec<MergeInput> = input_paths.iter().map(MergeInput::new).collect();
     operations::merge_pdfs(inputs, output_path, options.inner.clone()).map_err(op_err_to_py)
 }
 

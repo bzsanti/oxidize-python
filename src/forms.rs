@@ -463,7 +463,7 @@ pub struct PyWidget {
 impl PyWidget {
     #[new]
     fn new(rect: &PyRectangle) -> Self {
-        Self { inner: Widget::new(rect.inner.clone()) }
+        Self { inner: Widget::new(rect.inner) }
     }
 
     fn __repr__(&self) -> String {
@@ -807,6 +807,7 @@ pub struct PyFieldActions {
 impl PyFieldActions {
     #[new]
     #[pyo3(signature = (on_focus=None, on_blur=None, on_format=None, on_keystroke=None, on_calculate=None, on_validate=None, on_mouse_enter=None, on_mouse_exit=None, on_mouse_down=None, on_mouse_up=None))]
+    #[allow(clippy::too_many_arguments)]
     fn new(
         on_focus: Option<PyFieldAction>,
         on_blur: Option<PyFieldAction>,

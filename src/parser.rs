@@ -51,6 +51,7 @@ impl PyParseOptions {
         max_recovery_bytes = 1000,
         collect_warnings = false,
     ))]
+    #[allow(clippy::too_many_arguments)]
     fn new(
         strict_mode: bool,
         recover_from_stream_errors: bool,
@@ -491,14 +492,14 @@ impl PyPdfReader {
     }
 
     /// Export document as Markdown.
-    #[allow(deprecated)]
+    #[allow(deprecated, clippy::wrong_self_convention)]
     fn to_markdown(&mut self) -> PyResult<String> {
         self.ensure_document();
         with_document!(self, doc => doc.to_markdown().map_err(pdf_err_to_py))
     }
 
     /// Export document in contextual format (for LLM prompts).
-    #[allow(deprecated)]
+    #[allow(deprecated, clippy::wrong_self_convention)]
     fn to_contextual(&mut self) -> PyResult<String> {
         self.ensure_document();
         with_document!(self, doc => doc.to_contextual().map_err(pdf_err_to_py))
