@@ -1,15 +1,16 @@
 # TDD Plan — oxidize-python Feature Parity
 
-**Última actualización**: 2026-03-21
-**Estado**: ~89/113 features completadas (79%)
-**Tests**: 1554 pasando, 0 warnings
-**Tiers 0-19 completados**: incluye Charts, Tables, Transitions, AI/ML, Graphics Adv, Text Extract, Batch/Recovery/Streaming, Forms Deep, Signatures Deep, ContentParser, XMP Metadata
-**Core**: oxidize-pdf v2.3.2 (features: compression, signatures)
+**Última actualización**: 2026-04-21
+**Estado**: 102/102 features del plan completadas (100%)
+**Tests**: 1998 pasando, 0 warnings
+**Bridge version**: 0.4.2 · **Core**: `=2.5.4` (features: compression, signatures, semantic)
+**Tiers 0-21 completados**: incluye Charts, Tables, Transitions, AI/ML, Graphics Adv, Text Extract, Batch/Recovery/Streaming, Forms Deep, Signatures Deep, ContentParser, XMP Metadata, Annotations Deep, Templates Deep, PdfA Validation Deep, Dashboard Deep
 
-**Nota sobre métricas**: El plan anterior reportaba 57/64 (89%). Eso medía features de alto nivel.
-Tras gap analysis profundo contra la API completa del core (674 structs, 243 enums, 31 módulos),
-se identificaron **49 features adicionales** no contempladas. La cobertura real de la superficie
-de API es ~18% de structs y ~16% de enums. Este plan actualizado refleja el gap completo.
+**Nota sobre métricas**: El encabezado anterior anticipaba 113 features basado en un gap analysis inicial contra la API completa del core (674 structs, 243 enums, 31 módulos). El plan ejecutable terminó con **102 features concretas**, todas completadas. La cobertura de la superficie bruta del core sigue siendo ~18% de structs y ~16% de enums — por diseño, un bridge no envuelve cada struct interna.
+
+**Gaps reales pendientes (no tracked en este plan):**
+- **OCR bridge exposure**: `oxidize-pdf-core/src/text/ocr/` (Tesseract provider) no está envuelto en el bridge. Ver `docs/FEATURE_PARITY.md` — es el único gap user-facing significativo.
+- **OPS-001**: `split_pdf` hardcodea el pattern `page_{n}.pdf`. Revisar si el core soporta patterns custom para exponerlos.
 
 ---
 
@@ -462,7 +463,7 @@ APIs confirmadas en core. **68 tests (44 F81 + 24 F82).** Feature `semantic` act
 
 APIs confirmadas en core: tipos específicos en módulo `annotations`.
 
-- [ ] F83: Specific Annotation Types
+- [x] F83: Specific Annotation Types
   - Structs con APIs ricas (vs Annotation genérica actual):
     - `CircleAnnotation`, `SquareAnnotation` (GeometricAppearance: fill_color, stroke_color, border_width)
     - `LineAnnotation` (start/end points, LineEndingStyle enum: None, Square, Circle, Diamond, OpenArrow, ClosedArrow, Butt, Slash)
@@ -480,7 +481,7 @@ APIs confirmadas en core: tipos específicos en módulo `annotations`.
 
 Estos features profundizan wrappers existentes que solo exponen constructors.
 
-- [ ] F84: Templates Deep
+- [x] F84: Templates Deep
   - Struct: `TemplateParser` (parse template string → analysis)
   - Struct: `TemplateAnalysis` (placeholders found, warnings)
   - Struct: `Placeholder` (name, position, default_value)
@@ -489,7 +490,7 @@ Estos features profundizan wrappers existentes que solo exponen constructors.
   - Profundizar TemplateRenderer con error handling y multi-value types
   - ~2 ciclos TDD
 
-- [ ] F85: PdfA Validation Deep
+- [x] F85: PdfA Validation Deep
   - Profundizar PdfAValidator: validate(data) → ValidationResult detallado
   - Struct: `ValidationResult` (errors, warnings, conformance level achieved)
   - Enum: `PdfAConformance` (variantes más allá de A1B/A2B/A3B)
@@ -497,7 +498,7 @@ Estos features profundizan wrappers existentes que solo exponen constructors.
   - Struct: `XmpPdfAIdentifier`
   - ~2 ciclos TDD
 
-- [ ] F86: Dashboard Deep
+- [x] F86: Dashboard Deep
   - Profundizar DashboardBuilder: add_component, add_kpi_card, set_theme, build → Document
   - Integración con Charts (F58): DashboardBarChart, DashboardPieChart, DashboardLineChart
   - Dashboard layout: grid system, ComponentSpan
