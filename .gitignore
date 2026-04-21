@@ -38,3 +38,6 @@ htmlcov/
 
 # Temp PDFs from test runs
 tmp*.pdf
+
+# Claude Code runtime artifacts
+.claude/scheduled_tasks.lock
