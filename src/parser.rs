@@ -339,6 +339,47 @@ impl PyPdfReader {
         }
     }
 
+    /// Open a PDF from any binary stream (io.BinaryIO-compatible).
+    ///
+    /// The stream is read fully from its **current cursor position** into
+    /// memory via `stream.read()`. The stream is NOT rewound — if you need
+    /// to read from position 0, call `stream.seek(0)` yourself first.
+    /// After this call, the stream cursor will be at end-of-stream.
+    ///
+    /// Any object with a `.read() -> bytes` method is accepted (e.g.
+    /// `io.BytesIO`, `open(path, "rb")`, `urllib` responses read fully).
+    /// Passing an object without `.read()` raises `AttributeError`; a
+    /// `.read()` that returns text (str) raises `TypeError`.
+    #[staticmethod]
+    #[pyo3(signature = (stream, options = None))]
+    fn from_stream(
+        stream: &Bound<'_, PyAny>,
+        options: Option<&PyParseOptions>,
+    ) -> PyResult<Self> {
+        let read_result = stream.call_method0("read")?;
+        let data: Vec<u8> = read_result.extract()?;
+        let cursor = Cursor::new(data);
+        let reader = if let Some(opts) = options {
+            oxidize_pdf::PdfReader::new_with_options(cursor, opts.inner.clone())
+        } else {
+            oxidize_pdf::PdfReader::new(cursor)
+        }
+        .map_err(parse_err_to_py)?;
+        let encrypted = reader.is_encrypted();
+
+        if encrypted {
+            Ok(Self {
+                state: ReaderState::RawCursor(reader),
+                encrypted,
+            })
+        } else {
+            Ok(Self {
+                state: ReaderState::CursorDocument(oxidize_pdf::PdfDocument::new(reader)),
+                encrypted,
+            })
+        }
+    }
+
     /// Whether the PDF file is encrypted.
     #[getter]
     fn is_encrypted(&self) -> bool {

@@ -1,6 +1,6 @@
 """Type stubs for the oxidize-pdf native extension module."""
 
-from typing import Optional
+from typing import BinaryIO, Optional
 
 # ── Module metadata ────────────────────────────────────────────────────────────
 
@@ -261,13 +261,70 @@ class Document:
 
     def __repr__(self) -> str: ...
 
+# ── ParseOptions ───────────────────────────────────────────────────────────────
+
+class ParseOptions:
+    """Configuration for the PDF parser (strictness, recovery, lenient modes)."""
+
+    def __init__(
+        self,
+        strict_mode: bool = True,
+        recover_from_stream_errors: bool = False,
+        ignore_corrupt_streams: bool = False,
+        partial_content_allowed: bool = False,
+        lenient_streams: bool = False,
+        lenient_encoding: bool = True,
+        lenient_syntax: bool = False,
+        max_recovery_attempts: int = 3,
+        max_recovery_bytes: int = 1000,
+        collect_warnings: bool = False,
+    ) -> None: ...
+
+    @staticmethod
+    def strict() -> ParseOptions: ...
+    @staticmethod
+    def tolerant() -> ParseOptions: ...
+    @staticmethod
+    def lenient() -> ParseOptions: ...
+    @staticmethod
+    def skip_errors() -> ParseOptions: ...
+
+    @property
+    def strict_mode(self) -> bool: ...
+    @property
+    def recover_from_stream_errors(self) -> bool: ...
+    @property
+    def ignore_corrupt_streams(self) -> bool: ...
+    @property
+    def partial_content_allowed(self) -> bool: ...
+    @property
+    def lenient_streams(self) -> bool: ...
+    @property
+    def lenient_encoding(self) -> bool: ...
+    @property
+    def lenient_syntax(self) -> bool: ...
+    @property
+    def max_recovery_attempts(self) -> int: ...
+    @property
+    def max_recovery_bytes(self) -> int: ...
+    @property
+    def collect_warnings(self) -> bool: ...
+
+    def __repr__(self) -> str: ...
+
 # ── PdfReader ──────────────────────────────────────────────────────────────────
 
 class PdfReader:
     """High-level PDF reader for parsing existing PDF files."""
 
     @staticmethod
-    def open(path: str) -> PdfReader: ...
+    def open(path: str, options: Optional[ParseOptions] = ...) -> PdfReader: ...
+    @staticmethod
+    def from_bytes(data: bytes, options: Optional[ParseOptions] = ...) -> PdfReader: ...
+    @staticmethod
+    def from_stream(
+        stream: BinaryIO, options: Optional[ParseOptions] = ...
+    ) -> PdfReader: ...
 
     @property
     def is_encrypted(self) -> bool: ...
