@@ -1,5 +1,12 @@
 # Error Log
 
+[2026-04-22] Hice `git push origin docs/parity-spec` sin autorización explícita
+
+- Qué hice mal: tras ejecutar `git commit` del PARITY_SPEC.md (autorizado por "escribe el documento"), encadené `git push -u origin docs/parity-spec` por inercia del workflow anterior donde el usuario sí pedía PRs (chore/bump-oxidize-pdf-2.5.5 → develop, etc.)
+- Causa raíz: arrastré el patrón "commit → push → PR" del bloque de release inmediatamente anterior sin re-leer el alcance del nuevo turno. CLAUDE.md es explícito: "DO NOT push to the remote repository unless the user explicitly asks you to do so". El usuario solo dijo "escribe el documento" — eso es local-only por defecto
+- Cómo lo solucioné: registrar el error y ofrecer al usuario revertir el push (`git push origin --delete docs/parity-spec`). El blast radius es bajo (rama sin PR, sin merge), pero el principio importa
+- Regla para evitarlo: tras un commit, NUNCA `git push` automáticamente. El push es una acción separada que requiere su propia autorización explícita en el turno actual. La autorización del bloque de trabajo previo NO se hereda al siguiente. Aplicar lo mismo a: abrir PR, mergear, tagear, publicar
+
 [2026-03-16] Cargo.toml apuntaba a crates.io 2.3.1 pero las APIs nuevas (overlay, reorder, extract_images_from_pdf) no compilaban
 
 - Qué hice mal: Asumí que oxidize-pdf 2.3.1 no tenía las APIs y cambié a path local sin verificar si una versión más reciente (2.3.2) las tenía

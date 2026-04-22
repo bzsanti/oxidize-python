@@ -3,6 +3,8 @@ use std::io::Cursor;
 
 use pyo3::prelude::*;
 
+use oxidize_pdf::ai::DocumentChunker;
+
 use crate::ai_pipeline::{PyDocumentChunk, PyElement, PyExtractionProfile, PyRagChunk};
 use crate::errors;
 use crate::text_extraction::{PyExtractionOptions, PyPlainTextConfig, PyPlainTextResult};
@@ -511,6 +513,40 @@ impl PyPdfReader {
         self.ensure_document();
         let chunks =
             with_document!(self, doc => doc.chunk_with(chunk_size, overlap).map_err(pdf_err_to_py))?;
+        Ok(chunks.into_iter().map(|c| PyDocumentChunk { inner: c }).collect())
+    }
+
+    /// Chunk a single page (0-based index) into LLM-friendly pieces.
+    ///
+    /// Cross-bridge counterpart of .NET's `PdfExtractor.ExtractChunksFromPageAsync`
+    /// (RAG-010 in `docs/PARITY_SPEC.md`). Each returned `DocumentChunk`
+    /// carries `page_numbers = [page_index + 1]` so consumers can later
+    /// merge per-page results into a single corpus and still know which
+    /// page each chunk belongs to.
+    ///
+    /// Defaults match `DocumentChunker.default()` (512 tokens, 50 overlap).
+    #[pyo3(signature = (page_index, chunk_size = 512, overlap = 50))]
+    fn chunk_page(
+        &mut self,
+        page_index: u32,
+        chunk_size: usize,
+        overlap: usize,
+    ) -> PyResult<Vec<PyDocumentChunk>> {
+        self.ensure_document();
+        let extracted = with_document!(self, doc =>
+            doc.extract_text_from_page(page_index).map_err(parse_err_to_py)
+        )?;
+        let chunker = DocumentChunker::new(chunk_size, overlap);
+        let mut chunks = chunker.chunk_text(&extracted.text).map_err(pdf_err_to_py)?;
+        // Stamp the source page on every chunk. The core's `chunk_text`
+        // does not know which page the string came from, so without this
+        // injection `page_numbers` would be empty and consumers would lose
+        // the ability to filter/group by page after merging multiple
+        // `chunk_page` calls.
+        let page_number = (page_index as usize) + 1;
+        for chunk in chunks.iter_mut() {
+            chunk.page_numbers = vec![page_number];
+        }
         Ok(chunks.into_iter().map(|c| PyDocumentChunk { inner: c }).collect())
     }
 
