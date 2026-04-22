@@ -1,8 +1,8 @@
 # Feature Parity — oxidize-python
 
-Bridge version: 0.1.1
-Core dependency: >=2.3.1, <3.0.0
-Last updated: 2026-03-15
+Bridge version: 0.4.3
+Core dependency: =2.5.5
+Last updated: 2026-04-22
 
 Reference: [API Surface definition](lifecycle/API_SURFACE.md)
 
@@ -63,7 +63,7 @@ Status values:
 | GFX-010 | Fill | yes |
 | GFX-011 | Stroke | yes |
 | GFX-012 | Fill-and-stroke | yes |
-| GFX-013 | Image embedding | no |
+| GFX-013 | Image embedding | yes |
 
 ## PARSE — PDF parsing
 
@@ -88,8 +88,8 @@ Status values:
 | OPS-002 | Merge from files | yes |
 | OPS-003 | Rotate all pages | yes |
 | OPS-004 | Extract pages | yes |
-| OPS-005 | Overlay/watermark | no |
-| OPS-006 | Page reordering | no |
+| OPS-005 | Overlay/watermark | yes |
+| OPS-006 | Page reordering | yes |
 
 ## ERR — Error model
 
@@ -103,9 +103,11 @@ Status values:
 
 ---
 
-## Known gaps requiring work
+## Scope of this document
 
-- **GFX-013** (images): Depends on whether core has image embedding (TBD in core).
-- **OPS-005** (overlay/watermark): TBD in core.
-- **OPS-006** (page reordering): TBD in core.
-- **OPS-001**: Current `split_pdf` uses a hardcoded `page_{n}.pdf` naming pattern. The core may support custom patterns — check if this should be exposed.
+This table covers the **core PDF generation, parsing, and operations surface** that the ecosystem-wide parity framework tracks across bridges (Python, .NET, WASM). The Python bridge also exposes a larger feature set not represented in this core surface — tables, charts, dashboards, annotations (deep), forms (deep), AI/ML pipeline (`DocumentChunker`, `MarkdownExporter`, `RagChunk`), signatures, PDF/A validation, XMP metadata, templates, MCP server. Those live in the internal TDD plan (`.private/tdd-plan-full.md`) and in the `_oxidize_pdf.pyi` type stub.
+
+## Known gaps
+
+- **OCR**: the Rust core exposes a Tesseract-backed OCR provider (`oxidize-pdf-core/src/text/ocr/`), but it is **not wrapped in the Python bridge** yet. This is the main user-facing gap for scanned-PDF pipelines.
+- **OPS-001**: `split_pdf` uses a hardcoded `page_{n}.pdf` naming pattern. The core may support custom patterns — check if this should be exposed.
