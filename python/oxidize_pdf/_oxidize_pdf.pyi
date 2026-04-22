@@ -1,6 +1,6 @@
 """Type stubs for the oxidize-pdf native extension module."""
 
-from typing import Optional
+from typing import BinaryIO, Optional
 
 # ── Module metadata ────────────────────────────────────────────────────────────
 
@@ -267,7 +267,13 @@ class PdfReader:
     """High-level PDF reader for parsing existing PDF files."""
 
     @staticmethod
-    def open(path: str) -> PdfReader: ...
+    def open(path: str, options: Optional[ParseOptions] = ...) -> PdfReader: ...
+    @staticmethod
+    def from_bytes(data: bytes, options: Optional[ParseOptions] = ...) -> PdfReader: ...
+    @staticmethod
+    def from_stream(
+        stream: BinaryIO, options: Optional[ParseOptions] = ...
+    ) -> PdfReader: ...
 
     @property
     def is_encrypted(self) -> bool: ...
