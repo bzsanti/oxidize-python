@@ -532,6 +532,20 @@ impl PyPdfReader {
         chunk_size: usize,
         overlap: usize,
     ) -> PyResult<Vec<PyDocumentChunk>> {
+        // Bridge-level input validation. The underlying `DocumentChunker`
+        // does not bounds-check `chunk_size` and enters an infinite loop
+        // when it is 0 (slice never advances). Reject at the boundary
+        // rather than hanging the worker thread.
+        if chunk_size == 0 {
+            return Err(pyo3::exceptions::PyValueError::new_err(
+                "chunk_size must be > 0",
+            ));
+        }
+        if overlap >= chunk_size {
+            return Err(pyo3::exceptions::PyValueError::new_err(format!(
+                "overlap ({overlap}) must be < chunk_size ({chunk_size})"
+            )));
+        }
         self.ensure_document();
         let extracted = with_document!(self, doc =>
             doc.extract_text_from_page(page_index).map_err(parse_err_to_py)
