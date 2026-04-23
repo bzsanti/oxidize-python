@@ -295,6 +295,17 @@ impl PyDocument {
             .map_err(to_py_err)
     }
 
+    /// Save the document to bytes using the supplied WriterConfig.
+    ///
+    /// In-memory counterpart of :py:meth:`save_with_config` — honors the
+    /// config's ``pdf_version``, xref/object stream toggles, compression
+    /// flag, and incremental-update mode.
+    fn save_to_bytes_with_config(&mut self, config: &PyWriterConfig) -> PyResult<Vec<u8>> {
+        self.inner
+            .to_bytes_with_config(config.inner.clone())
+            .map_err(to_py_err)
+    }
+
     // ── Font Encoding (F48) ──────────────────────────────────────────────
 
     fn set_default_font_encoding(&mut self, encoding: &PyFontEncoding) {
@@ -332,11 +343,19 @@ pub struct PyWriterConfig {
 #[pymethods]
 impl PyWriterConfig {
     #[new]
-    #[pyo3(signature = (compress_streams=None, use_xref_streams=None, use_object_streams=None))]
+    #[pyo3(signature = (
+        compress_streams=None,
+        use_xref_streams=None,
+        use_object_streams=None,
+        pdf_version=None,
+        incremental_update=None,
+    ))]
     fn new(
         compress_streams: Option<bool>,
         use_xref_streams: Option<bool>,
         use_object_streams: Option<bool>,
+        pdf_version: Option<String>,
+        incremental_update: Option<bool>,
     ) -> Self {
         let mut cfg = WriterConfig::default();
         if let Some(v) = compress_streams {
@@ -347,6 +366,12 @@ impl PyWriterConfig {
         }
         if let Some(v) = use_object_streams {
             cfg.use_object_streams = v;
+        }
+        if let Some(v) = pdf_version {
+            cfg.pdf_version = v;
+        }
+        if let Some(v) = incremental_update {
+            cfg.incremental_update = v;
         }
         Self { inner: cfg }
     }
@@ -364,6 +389,16 @@ impl PyWriterConfig {
     #[getter]
     fn use_object_streams(&self) -> bool {
         self.inner.use_object_streams
+    }
+
+    #[getter]
+    fn pdf_version(&self) -> String {
+        self.inner.pdf_version.clone()
+    }
+
+    #[getter]
+    fn incremental_update(&self) -> bool {
+        self.inner.incremental_update
     }
 
     #[staticmethod]
@@ -389,10 +424,12 @@ impl PyWriterConfig {
 
     fn __repr__(&self) -> String {
         format!(
-            "WriterConfig(compress={}, xref_streams={}, object_streams={})",
+            "WriterConfig(pdf_version={:?}, compress={}, xref_streams={}, object_streams={}, incremental_update={})",
+            self.inner.pdf_version,
             self.inner.compress_streams,
             self.inner.use_xref_streams,
-            self.inner.use_object_streams
+            self.inner.use_object_streams,
+            self.inner.incremental_update,
         )
     }
 }

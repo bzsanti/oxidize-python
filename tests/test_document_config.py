@@ -223,6 +223,121 @@ def test_save_with_config_legacy(tmp_path):
     assert os.path.exists(path)
 
 
+# ── WRITE-006 completion: pdf_version + save_to_bytes_with_config ─────────
+#
+# The preset factories already carry the right pdf_version in the core
+# config, but the Python bridge neither exposes a getter nor accepts a
+# kwarg — so callers can build a "modern" config without being able to
+# read or override the version string. The in-memory variant
+# `save_to_bytes_with_config` is also missing, forcing every roundtrip
+# through tmpfiles even when bytes are what the caller actually wants.
+
+
+def test_writer_config_default_pdf_version_is_1_7():
+    from oxidize_pdf import WriterConfig
+
+    assert WriterConfig().pdf_version == "1.7"
+
+
+def test_writer_config_modern_pdf_version_is_1_5():
+    from oxidize_pdf import WriterConfig
+
+    assert WriterConfig.modern().pdf_version == "1.5"
+
+
+def test_writer_config_legacy_pdf_version_is_1_4():
+    from oxidize_pdf import WriterConfig
+
+    assert WriterConfig.legacy().pdf_version == "1.4"
+
+
+def test_writer_config_incremental_pdf_version_is_1_4():
+    from oxidize_pdf import WriterConfig
+
+    assert WriterConfig.incremental().pdf_version == "1.4"
+
+
+def test_writer_config_accepts_custom_pdf_version_kwarg():
+    from oxidize_pdf import WriterConfig
+
+    assert WriterConfig(pdf_version="1.6").pdf_version == "1.6"
+
+
+def test_writer_config_incremental_update_default_is_false():
+    from oxidize_pdf import WriterConfig
+
+    assert WriterConfig().incremental_update is False
+
+
+def test_writer_config_incremental_preset_sets_incremental_update():
+    from oxidize_pdf import WriterConfig
+
+    assert WriterConfig.incremental().incremental_update is True
+
+
+def test_writer_config_modern_does_not_use_incremental_update():
+    from oxidize_pdf import WriterConfig
+
+    assert WriterConfig.modern().incremental_update is False
+
+
+def test_save_to_bytes_with_config_returns_non_empty_bytes():
+    from oxidize_pdf import Document, Page, WriterConfig
+
+    doc = Document()
+    doc.add_page(Page.a4())
+    data = doc.save_to_bytes_with_config(WriterConfig.modern())
+    assert isinstance(data, bytes)
+    assert len(data) > 0
+
+
+def test_save_to_bytes_with_config_writes_requested_pdf_version_header():
+    from oxidize_pdf import Document, Page, WriterConfig
+
+    doc = Document()
+    doc.add_page(Page.a4())
+    data = doc.save_to_bytes_with_config(WriterConfig(pdf_version="1.6"))
+    assert data.startswith(b"%PDF-1.6")
+
+
+def test_save_to_bytes_with_config_modern_header_matches_preset_version():
+    from oxidize_pdf import Document, Page, WriterConfig
+
+    doc = Document()
+    doc.add_page(Page.a4())
+    data = doc.save_to_bytes_with_config(WriterConfig.modern())
+    assert data.startswith(b"%PDF-1.5")
+
+
+def test_save_to_bytes_with_config_legacy_header_matches_preset_version():
+    from oxidize_pdf import Document, Page, WriterConfig
+
+    doc = Document()
+    doc.add_page(Page.a4())
+    data = doc.save_to_bytes_with_config(WriterConfig.legacy())
+    assert data.startswith(b"%PDF-1.4")
+
+
+def test_save_to_bytes_with_config_modern_differs_from_legacy():
+    """Modern (xref streams + object streams) produces a structurally
+    different container than Legacy. If both outputs were identical the
+    config would effectively be a no-op."""
+    from oxidize_pdf import Document, Page, WriterConfig
+
+    doc_modern = Document()
+    doc_modern.add_page(Page.a4())
+    modern_bytes = doc_modern.save_to_bytes_with_config(WriterConfig.modern())
+
+    doc_legacy = Document()
+    doc_legacy.add_page(Page.a4())
+    legacy_bytes = doc_legacy.save_to_bytes_with_config(WriterConfig.legacy())
+
+    assert modern_bytes != legacy_bytes
+    # Modern uses XRef streams (binary), legacy uses the classic xref table.
+    assert b"\nxref\n" in legacy_bytes
+    assert b"\nxref\n" not in modern_bytes
+
+
 # ── Feature 48: FontEncoding ──────────────────────────────────────────────
 
 
