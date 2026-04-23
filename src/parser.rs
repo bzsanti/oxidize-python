@@ -685,6 +685,24 @@ impl PyPdfReader {
         )
     }
 
+    /// Return the decoded content streams of the page at ``index``.
+    ///
+    /// The PDF ``/Contents`` entry may be a single stream or an array of
+    /// streams; the bridge flattens both forms into a list of ``bytes``
+    /// in writer-emission order. Each entry is the decoded (filters
+    /// applied, e.g. FlateDecode removed) operator sequence — callers
+    /// parse the PostScript-like content stream directly.
+    ///
+    /// Pages without a ``/Contents`` entry return an empty list. An out
+    /// of range ``index`` raises ``PdfError``.
+    fn get_page_content_streams(&mut self, index: u32) -> PyResult<Vec<Vec<u8>>> {
+        self.ensure_document();
+        with_document!(self, doc => {
+            let page = doc.get_page(index).map_err(parse_err_to_py)?;
+            doc.get_page_content_streams(&page).map_err(parse_err_to_py)
+        })
+    }
+
     /// Return the structured ``/Resources`` view of the page at ``index``.
     ///
     /// Returns ``None`` when the page has neither a direct ``/Resources``
