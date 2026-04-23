@@ -1,6 +1,6 @@
 # Bridge Parity Spec — oxidize-pdf (Python + .NET)
 
-**Last updated:** 2026-04-22
+**Last updated:** 2026-04-23
 **Bridge versions checkpoint:** Python `oxidize-pdf` 0.4.3 (=core 2.5.5) · .NET `OxidizePdf.NET` 0.6.0+ (=core 2.5.5)
 
 This document is the **canonical contract** that both bridges must satisfy. The same matrix exists in [`oxidize-pdf-dotnet/docs/PARITY_SPEC.md`](https://github.com/bzsanti/oxidize-pdf-dotnet/blob/main/docs/PARITY_SPEC.md). Any divergence between the two copies is a bug — the IDs, capability descriptions, and "Action for parity" cells must stay synchronized.
@@ -35,7 +35,7 @@ The reason we maintain bridges in lockstep. A consumer building a RAG pipeline m
 | RAG-007 | `ReadingOrderStrategy` (`Simple`, `None`, `XyCut(min_gap)`) | ✅ | ❌ | **.NET: add enum `ReadingOrderStrategy`** |
 | RAG-008 | Low-level reusable chunker (chunk arbitrary text, not just PDFs) | ✅ `DocumentChunker(size, overlap).chunk_text(str)` | ❌ | **.NET: add standalone `DocumentChunker`** |
 | RAG-009 | Token estimation utility | ✅ `DocumentChunker.estimate_tokens(str)` static | ❌ | **.NET: add `DocumentChunker.EstimateTokens(string)` static** |
-| RAG-010 | Per-page chunking | ❌ | ✅ `ExtractChunksFromPageAsync()` | **Python: add `PdfReader.chunk_page(idx, options)`** |
+| RAG-010 | Per-page chunking | ✅ `PdfReader.chunk_page(idx, options)` | ✅ `ExtractChunksFromPageAsync()` | — |
 | RAG-011 | Markdown export | ✅ `PdfReader.to_markdown()` | ✅ `ToMarkdownAsync()` | — |
 | RAG-012 | Markdown export with configurable `MarkdownOptions` | ✅ `MarkdownExporter(opts).export(text)` | ❌ | **.NET: add `MarkdownOptions` + overload `ToMarkdownAsync(opts)`** |
 | RAG-013 | Contextual export (LLM context windows) | ✅ `to_contextual()` | ✅ `ToContextualAsync()` | — |
@@ -50,7 +50,7 @@ The reason we maintain bridges in lockstep. A consumer building a RAG pipeline m
 
 ### Tier 0 priority within itself
 
-1. **Immediate (zero risk, high impact):** RAG-003, RAG-004, RAG-006, RAG-008, RAG-009, RAG-010, RAG-012, RAG-020.
+1. **Immediate (zero risk, high impact):** RAG-003, RAG-004, RAG-006, RAG-008, RAG-009, RAG-012, RAG-020.
 2. **After (philosophy decisions required):** RAG-014, RAG-019, RAG-021.
 
 ---
@@ -63,7 +63,7 @@ Consumed downstream by every RAG/AI use case, so kept high-priority even though 
 |---|---|---|---|---|
 | READ-001 | Open PDF from file path | ✅ `PdfReader.open(path)` | ⚠️ requires `File.ReadAllBytes` + `ExtractTextAsync(bytes)` | **.NET: add overload `Open(string path)` or extension method** |
 | READ-002 | Open PDF from bytes | ✅ `PdfReader.from_bytes(bytes)` | ✅ all methods accept `byte[]` | — |
-| READ-003 | Open PDF from stream (cloud/network) | ❌ | ✅ via `byte[]` | **Python: add `PdfReader.from_stream(stream)`** |
+| READ-003 | Open PDF from stream (cloud/network) | ✅ `PdfReader.from_stream(stream)` | ✅ via `byte[]` | — |
 | READ-004 | Page count | ✅ `len(reader)` / `reader.page_count` | ✅ `GetPageCountAsync()` | — |
 | READ-005 | PDF version | ✅ `reader.version` | ✅ `GetPdfVersionAsync()` | — |
 | READ-006 | Extract text (single page) | ✅ `extract_text_from_page(idx)` | ✅ `ExtractTextFromPageAsync(bytes, idx)` | **Align page indexing — Python 0-based, .NET 1-based; pick one** |
@@ -71,9 +71,13 @@ Consumed downstream by every RAG/AI use case, so kept high-priority even though 
 | READ-008 | Extract text with `ExtractionOptions` | ✅ `extract_text_with_options(opts)` | ✅ `ExtractTextAsync(bytes, opts)` | — |
 | READ-009 | Document metadata | ✅ `reader.metadata` property | ✅ `ExtractMetadataAsync()` | — |
 | READ-010 | Page dimensions | ✅ `ParsedPage(width, height, rotation)` | ⚠️ `(Width, Height)` tuple, no rotation | **.NET: add `Rotation` to return** |
-| READ-011 | Page resources (fonts, images) | ❌ | ✅ `GetPageResourcesAsync()` | **Python: add `get_page_resources(idx)`** |
-| READ-012 | Page content streams (raw decoded bytes) | ❌ | ✅ `GetPageContentStreamAsync()` | **Python: add `get_page_content_stream(idx)`** |
+| READ-011 | Page resources (fonts, images) | ✅ `get_page_resources(idx) → PageResources` rich hierarchy (fonts, images, forms, ext_g_states, proc_sets, resource_keys) | ✅ `GetPageResourcesAsync()` | — |
+| READ-012 | Page content streams (raw decoded bytes) | ✅ `get_page_content_streams(idx) → list[bytes]` (decoded) | ✅ `GetPageContentStreamAsync()` | — |
 | READ-013 | Lenient/tolerant parsing | ✅ `ParseOptions.strict()/.tolerant()/.lenient()/.skip_errors()` + kwargs, accepted by `PdfReader.open/from_bytes/from_stream` | ✅ `ParseOptions::lenient()` | — |
+| READ-014 | Extract embedded font program bytes | ❌ | ❌ | **BOTH: expose `/FontDescriptor/FontFile*` bytes via `get_embedded_font_bytes(page_idx, font_name)`** |
+| READ-015 | Extract single image XObject by name | ❌ | ❌ | **BOTH: selective image extraction beyond batch `extract_images()`** |
+| READ-016 | Distinguish direct vs inherited resources | ❌ | ❌ | **BOTH: surface `ParsedPage.inherited_resources` (core has it in `page_tree.rs`)** |
+| READ-017 | Raw undecoded content streams + filter chain metadata | ❌ | ❌ | **BOTH: forensic/debug API for filter-chain analysis (FlateDecode, DCTDecode, …)** |
 
 ---
 
@@ -86,13 +90,13 @@ Consumed downstream by every RAG/AI use case, so kept high-priority even though 
 | WRITE-003 | Add pages | ✅ `add_page(page)` | ✅ `AddPage(page)` | — |
 | WRITE-004 | Save to bytes | ✅ `save_to_bytes()` | ✅ `SaveToBytes()` | — |
 | WRITE-005 | Save to file | ✅ `save(path)` | ✅ `SaveToFile(path)` | — |
-| WRITE-006 | Save with `WriterConfig` presets (compression, xref streams, PDF version) | ❌ | ✅ `SaveToBytes(PdfSaveOptions)` with Default/Modern/Legacy | **Python: add `save_with_config(path, config)` + enum `WriterConfig`** |
+| WRITE-006 | Save with `WriterConfig` presets (compression, xref streams, PDF version) | ✅ `WriterConfig.modern()/legacy()/incremental()` + kwargs (`pdf_version`, `compress_streams`, `use_xref_streams`, `use_object_streams`, `incremental_update`) + `Document.save_with_config()` / `save_to_bytes_with_config()` | ✅ `SaveToBytes(PdfSaveOptions)` with Default/Modern/Legacy | — |
 | WRITE-007 | Encrypt RC4-128 | ✅ `encrypt(user_pwd, owner_pwd)` | ✅ `Encrypt()` | — |
-| WRITE-008 | Encrypt AES-128 | ⚠️ via generic `encrypt()` | ✅ `EncryptAes128()` explicit | **Align API: both should expose algorithm explicitly** |
-| WRITE-009 | Encrypt AES-256 | ⚠️ via generic `encrypt()` | ✅ `EncryptAes256()` explicit | same as WRITE-008 |
+| WRITE-008 | Encrypt AES-128 | ✅ `doc.encrypt(user, owner, strength=EncryptionStrength.AES_128)` (Python idiom: kwarg+enum) | ✅ `EncryptAes128()` explicit | — |
+| WRITE-009 | Encrypt AES-256 | ✅ `doc.encrypt(user, owner, strength=EncryptionStrength.AES_256)` (Python idiom: kwarg+enum) | ✅ `EncryptAes256()` explicit | — |
 | WRITE-010 | Permissions | ✅ | ✅ | — |
 | WRITE-011 | Embed font from bytes | ✅ | ✅ `AddFont(name, bytes)` | — |
-| WRITE-012 | Embed font from file path | ⚠️ via byte load | ✅ `AddFontFromFile(name, path)` | **Python: add convenience `add_font_from_file()`** |
+| WRITE-012 | Embed font from file path | ✅ `doc.add_font(name, path)` accepts a path directly (plus `add_font_from_bytes(name, data)` for the bytes case) | ✅ `AddFontFromFile(name, path)` | — |
 | WRITE-013 | Open action (GoTo page, URI) | ✅ | ❌ | **.NET: implement (already in backlog as DOC-014)** |
 | WRITE-014 | Viewer preferences | ✅ | ✅ DOC-015 (recent: commit `6e7e9c4`) | — |
 | WRITE-015 | Outlines/bookmarks tree | ✅ `OutlineTree` + `OutlineItem` (read+write) | ⚠️ `SetOutline()` write-only, no read | **.NET: add `GetOutlineAsync()`** |
@@ -100,6 +104,8 @@ Consumed downstream by every RAG/AI use case, so kept high-priority even though 
 | WRITE-017 | Page labels (custom numbering) | ✅ | ❌ | **.NET: implement (DOC-018 backlog)** |
 | WRITE-018 | Tagged PDF (Structure tree) | ❌ | ❌ | **BOTH: accessibility backlog** |
 | WRITE-019 | Semantic entities (AI-ready markup) | ✅ `Entity`/`EntityMap` | ❌ | **.NET: implement (DOC-021 backlog)** |
+| WRITE-020 | `WriterConfig.pdf_version` / `PdfSaveOptions.PdfVersion` explicit version kwarg | ✅ kwarg + getter on `WriterConfig` | ✅ `PdfSaveOptions.PdfVersion` property | — |
+| WRITE-021 | In-memory save with config (no file roundtrip) | ✅ `Document.save_to_bytes_with_config(config)` | ✅ `PdfDocument.SaveToBytes(PdfSaveOptions)` | — |
 
 ---
 
@@ -137,6 +143,9 @@ This tier exposes the largest current asymmetry: Python is "build + read"; .NET 
 | OPS-008 | Overlay/watermark | ✅ | ✅ | — |
 | OPS-009 | Reorder/swap/move/reverse pages | ✅ | ✅ | — |
 | OPS-010 | Extract images | ✅ | ✅ `ExtractImagesAsync()` | — |
+| OPS-011 | `SplitMode.Ranges` constructor (core has the variant) | ❌ | ❌ | **BOTH: neither bridge constructs `Ranges` even though the core variant exists** |
+| OPS-012 | `SplitOptions` full shape (`output_pattern` + `preserve_metadata` + `optimize`) | ❌ | ❌ | **BOTH: three fields are silently discarded by both bridges** |
+| OPS-013 | Expose `MetadataMode` in merge | ❌ | ❌ | **BOTH: needed for multi-PDF publishing flows that fix a unified title** |
 
 ---
 
@@ -180,24 +189,45 @@ This tier exposes the largest current asymmetry: Python is "build + read"; .NET 
 
 ---
 
+## Tier 8 — OCR (ecosystem gap)
+
+Tesseract-based OCR exists in the core but is absent from both bridges. This tier blocks every RAG-019 consumer that processes scanned documents.
+
+| ID | Capability | Python | .NET | Action for parity |
+|---|---|---|---|---|
+| OCR-001 | `TesseractOcrProvider` real provider | ❌ | ❌ | **BOTH: expose the core provider; ship as extras (`pip install oxidize-pdf[ocr]` / NuGet `OxidizePdf.Ocr`) with Tesseract as a documented system dependency** |
+| OCR-002 | `OcrOptions.preprocessing` (deskew, denoise, enhance_contrast) | ❌ | ❌ | **BOTH: domain-tuning knobs without dropping to Rust** |
+| OCR-003 | `OcrProcessingResult.fragments` with per-word confidence | ❌ | ❌ | **BOTH: enables hybrid OCR + human-review pipelines** |
+| OCR-004 | `PdfOcrConverter` / `to_searchable_pdf()` | ❌ | ❌ | **BOTH: flagship OCR workflow — generate PDF with invisible text layer** |
+| OCR-005 | `OcrProvider` protocol (Python ABC / C# interface) | ❌ | ❌ | **BOTH: lets cloud providers (AWS Textract, GCP Vision) plug in without Rust changes** |
+
+---
+
 ## Summary: work owed by each side
 
-### .NET — 20 actions to reach parity (priority RAG first)
+### .NET — bridge-specific actions (priority RAG first)
 
-**RAG/AI (Tier 0):** RAG-003, RAG-004, RAG-006, RAG-007, RAG-008, RAG-009, RAG-010, RAG-012, RAG-020 (tests). Decisions pending: RAG-019 (OCR), RAG-021 (NuGet KernelMemory package).
+**RAG/AI (Tier 0):** RAG-003, RAG-004, RAG-006, RAG-007, RAG-008, RAG-009, RAG-012, RAG-020 (tests). Decisions pending: RAG-019 (OCR), RAG-021 (NuGet KernelMemory package).
 
 **Reading:** READ-001 (path overload), READ-007 (per-page list), READ-010 (rotation).
-**Writing:** WRITE-006 (config presets), WRITE-013 (open action), WRITE-015 (outline read), WRITE-017 (page labels), WRITE-019 (semantic entities).
-**Annotations/Forms:** ANN-005 (file attachment), ANN-006 (free text), FORM-002 (create), FORM-003 (fill).
+**Writing:** WRITE-013 (open action), WRITE-015 (outline read), WRITE-017 (page labels), WRITE-019 (semantic entities).
+**Annotations/Forms:** ANN-005 (file attachment), ANN-006 (free text), FORM-002 (create), FORM-003 (fill), FORM-004/005 (calculation + validation).
 **Other:** PDFA-001, PDFA-002, MCP-001, INT-002 (NuGet pkg), INT-005 (Semantic Kernel), QA-001, QA-004.
 
-### Python — 8 actions to reach parity
+### Python — 6 bridge-specific actions
 
-**RAG/AI:** RAG-010 (per-page chunking), RAG-019 (OCR — known gap).
-**Reading:** READ-003 (stream input), READ-011 (page resources), READ-012 (content streams).
-**Writing:** WRITE-006 (writer config), WRITE-008/009 (explicit algorithms), WRITE-012 (font from file convenience).
+**RAG/AI:** RAG-019 (OCR — known gap, covered by Tier 8).
 **Ops:** OPS-002, OPS-004 (page ranges).
 **Integrations:** INT-003 (LangChain), INT-004 (Haystack), MCP-002 (refresh registry).
+
+### Ecosystem gaps shared by both bridges
+
+Neither side exposes these today. Listed as first-class rows above to gain visibility in scheduling.
+
+**Reading:** READ-014 (embedded font bytes), READ-015 (single-image extraction by name), READ-016 (direct vs inherited resources), READ-017 (raw content streams + filter chain).
+**Writing:** WRITE-018 (tagged PDF / structure tree).
+**Ops:** OPS-011 (`SplitMode.Ranges`), OPS-012 (`SplitOptions` full shape), OPS-013 (`MetadataMode` in merge).
+**OCR (Tier 8):** OCR-001 through OCR-005 — blocks every RAG-019 consumer.
 
 ---
 
