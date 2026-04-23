@@ -47,6 +47,10 @@ from oxidize_pdf._oxidize_pdf import (
 # Parser
 from oxidize_pdf._oxidize_pdf import (
     DocumentMetadata,
+    FontResource,
+    FormXObjectResource,
+    ImageResource,
+    PageResources,
     ParsedPage,
     ParseOptions,
     PdfReader,
@@ -569,6 +573,10 @@ __all__ = [
     "UnorderedList",
     # Parser
     "DocumentMetadata",
+    "FontResource",
+    "FormXObjectResource",
+    "ImageResource",
+    "PageResources",
     "ParsedPage",
     "ParseOptions",
     "PdfReader",

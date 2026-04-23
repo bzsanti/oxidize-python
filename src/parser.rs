@@ -685,6 +685,28 @@ impl PyPdfReader {
         )
     }
 
+    /// Return the structured ``/Resources`` view of the page at ``index``.
+    ///
+    /// Returns ``None`` when the page has neither a direct ``/Resources``
+    /// entry nor an inherited one. Raises ``PdfError`` if ``index`` is out
+    /// of bounds.
+    fn get_page_resources(
+        &mut self,
+        py: Python<'_>,
+        index: u32,
+    ) -> PyResult<Option<PyPageResources>> {
+        self.ensure_document();
+        with_document!(self, doc => {
+            let page = doc.get_page(index).map_err(parse_err_to_py)?;
+            let Some(resources) = page.get_resources() else {
+                return Ok(None);
+            };
+            let resources = resources.clone();
+            let built = build_page_resources(py, &resources, doc)?;
+            Ok(Some(built))
+        })
+    }
+
     fn __repr__(&mut self) -> PyResult<String> {
         self.ensure_document();
         let count = with_document!(self, doc => doc.page_count().map_err(parse_err_to_py))?;
@@ -759,6 +781,496 @@ impl PyParsedPage {
     }
 }
 
+// ── PageResources / FontResource / ImageResource / FormXObjectResource ───────
+
+/// A font referenced by a page's ``/Resources /Font`` sub-dictionary.
+#[pyclass(name = "FontResource", frozen)]
+pub struct PyFontResource {
+    /// Font subtype (``Type1``, ``TrueType``, ``Type0``, etc.).
+    #[pyo3(get)]
+    pub subtype: String,
+    /// Value of ``/BaseFont`` (e.g. ``"Helvetica-Bold"`` or ``"ABCDEF+Arial"``).
+    #[pyo3(get)]
+    pub base_font: String,
+    /// Name of the encoding dictionary or predefined encoding, if present.
+    #[pyo3(get)]
+    pub encoding: Option<String>,
+    /// ``True`` if the font descriptor carries embedded font program data
+    /// (``/FontFile``, ``/FontFile2`` or ``/FontFile3``).
+    #[pyo3(get)]
+    pub is_embedded: bool,
+    /// ``True`` if ``base_font`` begins with a 6-letter subset tag like ``ABCDEF+``.
+    #[pyo3(get)]
+    pub is_subset: bool,
+}
+
+#[pymethods]
+impl PyFontResource {
+    fn __repr__(&self) -> String {
+        format!(
+            "FontResource(base_font={:?}, subtype={:?}, embedded={}, subset={})",
+            self.base_font, self.subtype, self.is_embedded, self.is_subset,
+        )
+    }
+}
+
+/// An image (``/Subtype /Image`` XObject) referenced by a page's Resources.
+#[pyclass(name = "ImageResource", frozen)]
+pub struct PyImageResource {
+    #[pyo3(get)]
+    pub width: u32,
+    #[pyo3(get)]
+    pub height: u32,
+    #[pyo3(get)]
+    pub bits_per_component: u32,
+    /// Filter chain, in application order (outermost last per PDF spec).
+    #[pyo3(get)]
+    pub filter: Vec<String>,
+    /// Color-space name (``DeviceGray``, ``DeviceRGB``, ``ICCBased``, …).
+    #[pyo3(get)]
+    pub color_space: String,
+}
+
+#[pymethods]
+impl PyImageResource {
+    fn __repr__(&self) -> String {
+        format!(
+            "ImageResource({}x{}, bpc={}, color_space={:?}, filter={:?})",
+            self.width, self.height, self.bits_per_component, self.color_space, self.filter,
+        )
+    }
+}
+
+/// A Form XObject (``/Subtype /Form``) referenced by a page's Resources.
+///
+/// Minimal shape for the current pass — extended as callers consume it.
+#[pyclass(name = "FormXObjectResource", frozen)]
+pub struct PyFormXObjectResource {
+    /// Form bounding box ``(llx, lly, urx, ury)`` if declared.
+    #[pyo3(get)]
+    pub bbox: Option<(f64, f64, f64, f64)>,
+}
+
+#[pymethods]
+impl PyFormXObjectResource {
+    fn __repr__(&self) -> String {
+        format!("FormXObjectResource(bbox={:?})", self.bbox)
+    }
+}
+
+/// Structured view of a page's ``/Resources`` dictionary.
+///
+/// Unlike .NET's flat ``(fonts, images)`` shape — dictated by its JSON
+/// boundary — Python uses a hierarchical form: each category is a dict
+/// keyed by the resource name used in the page's content stream.
+#[pyclass(name = "PageResources")]
+pub struct PyPageResources {
+    fonts: Py<pyo3::types::PyDict>,
+    images: Py<pyo3::types::PyDict>,
+    forms: Py<pyo3::types::PyDict>,
+    ext_g_states: Py<pyo3::types::PyDict>,
+    proc_sets: Vec<String>,
+    resource_keys: Vec<String>,
+}
+
+#[pymethods]
+impl PyPageResources {
+    #[getter]
+    fn fonts<'py>(&self, py: Python<'py>) -> Bound<'py, pyo3::types::PyDict> {
+        self.fonts.bind(py).clone()
+    }
+
+    #[getter]
+    fn images<'py>(&self, py: Python<'py>) -> Bound<'py, pyo3::types::PyDict> {
+        self.images.bind(py).clone()
+    }
+
+    #[getter]
+    fn forms<'py>(&self, py: Python<'py>) -> Bound<'py, pyo3::types::PyDict> {
+        self.forms.bind(py).clone()
+    }
+
+    #[getter]
+    fn ext_g_states<'py>(&self, py: Python<'py>) -> Bound<'py, pyo3::types::PyDict> {
+        self.ext_g_states.bind(py).clone()
+    }
+
+    #[getter]
+    fn proc_sets(&self) -> Vec<String> {
+        self.proc_sets.clone()
+    }
+
+    #[getter]
+    fn resource_keys(&self) -> Vec<String> {
+        self.resource_keys.clone()
+    }
+
+    fn __repr__(&self) -> String {
+        format!(
+            "PageResources(keys={:?}, proc_sets={:?})",
+            self.resource_keys, self.proc_sets,
+        )
+    }
+}
+
+/// Resolve an indirect reference to a dictionary-bearing object, returning
+/// an owned `PdfDictionary`. For streams, returns the stream's dictionary.
+fn resolve_to_dict<R: std::io::Read + std::io::Seek>(
+    obj: &oxidize_pdf::parser::objects::PdfObject,
+    doc: &oxidize_pdf::PdfDocument<R>,
+) -> Option<oxidize_pdf::parser::objects::PdfDictionary> {
+    use oxidize_pdf::parser::objects::PdfObject;
+    let resolved = doc.resolve(obj).ok()?;
+    match resolved {
+        PdfObject::Dictionary(d) => Some(d),
+        PdfObject::Stream(s) => Some(s.dict),
+        _ => None,
+    }
+}
+
+/// Look up a sub-dictionary by key inside a page's Resources, transparently
+/// following an indirect reference if present. Returns None when the key is
+/// absent or the target is not a dictionary.
+fn get_sub_dict<R: std::io::Read + std::io::Seek>(
+    parent: &oxidize_pdf::parser::objects::PdfDictionary,
+    key: &str,
+    doc: &oxidize_pdf::PdfDocument<R>,
+) -> Option<oxidize_pdf::parser::objects::PdfDictionary> {
+    use oxidize_pdf::parser::objects::PdfObject;
+    match parent.get(key)? {
+        PdfObject::Dictionary(d) => Some(d.clone()),
+        obj @ PdfObject::Reference(_, _) => resolve_to_dict(obj, doc),
+        _ => None,
+    }
+}
+
+fn is_subset_font_name(name: &str) -> bool {
+    let bytes = name.as_bytes();
+    if bytes.len() < 8 {
+        return false;
+    }
+    if bytes[6] != b'+' {
+        return false;
+    }
+    bytes[..6].iter().all(|b| b.is_ascii_uppercase())
+}
+
+fn font_descriptor_has_font_file(fd_dict: &oxidize_pdf::parser::objects::PdfDictionary) -> bool {
+    fd_dict.contains_key("FontFile")
+        || fd_dict.contains_key("FontFile2")
+        || fd_dict.contains_key("FontFile3")
+}
+
+/// Check whether a font carries embedded program data.
+///
+/// For simple fonts (``/Type1``, ``/TrueType``, ``/Type3``) we walk directly
+/// into ``/FontDescriptor``. For composite fonts (``/Type0``) the descriptor
+/// lives inside the CIDFont referenced by ``/DescendantFonts`` — the top-level
+/// Type0 dictionary has no descriptor of its own. Without this second path
+/// any embedded CJK / emoji font would be misreported as non-embedded.
+fn has_embedded_font_data<R: std::io::Read + std::io::Seek>(
+    font_dict: &oxidize_pdf::parser::objects::PdfDictionary,
+    doc: &oxidize_pdf::PdfDocument<R>,
+) -> bool {
+    use oxidize_pdf::parser::objects::PdfObject;
+
+    if let Some(fd_obj) = font_dict.get("FontDescriptor") {
+        if let Some(fd_dict) = resolve_to_dict(fd_obj, doc) {
+            if font_descriptor_has_font_file(&fd_dict) {
+                return true;
+            }
+        }
+    }
+
+    // Composite fonts: descend into /DescendantFonts.
+    let Some(desc_obj) = font_dict.get("DescendantFonts") else {
+        return false;
+    };
+    let resolved = match desc_obj {
+        PdfObject::Reference(_, _) => match doc.resolve(desc_obj).ok() {
+            Some(o) => o,
+            None => return false,
+        },
+        other => other.clone(),
+    };
+    let PdfObject::Array(arr) = resolved else {
+        return false;
+    };
+    for entry in &arr.0 {
+        let Some(cid_dict) = resolve_to_dict(entry, doc) else {
+            continue;
+        };
+        if let Some(fd_obj) = cid_dict.get("FontDescriptor") {
+            if let Some(fd_dict) = resolve_to_dict(fd_obj, doc) {
+                if font_descriptor_has_font_file(&fd_dict) {
+                    return true;
+                }
+            }
+        }
+    }
+    false
+}
+
+fn build_font_resource<R: std::io::Read + std::io::Seek>(
+    font_obj: &oxidize_pdf::parser::objects::PdfObject,
+    doc: &oxidize_pdf::PdfDocument<R>,
+) -> Option<PyFontResource> {
+    use oxidize_pdf::parser::objects::PdfObject;
+
+    let font_dict = resolve_to_dict(font_obj, doc)?;
+
+    let subtype = font_dict
+        .get("Subtype")
+        .and_then(|o| o.as_name())
+        .map(|n| n.0.clone())
+        .unwrap_or_default();
+
+    let base_font = font_dict
+        .get("BaseFont")
+        .and_then(|o| o.as_name())
+        .map(|n| n.0.clone())
+        .unwrap_or_default();
+
+    let encoding = font_dict.get("Encoding").and_then(|o| {
+        let resolved = match o {
+            PdfObject::Reference(_, _) => doc.resolve(o).ok()?,
+            other => other.clone(),
+        };
+        match resolved {
+            PdfObject::Name(n) => Some(n.0),
+            PdfObject::Dictionary(d) => d
+                .get("BaseEncoding")
+                .and_then(|be| be.as_name())
+                .map(|n| n.0.clone()),
+            _ => None,
+        }
+    });
+
+    let is_subset = is_subset_font_name(&base_font);
+    let is_embedded = has_embedded_font_data(&font_dict, doc);
+
+    Some(PyFontResource {
+        subtype,
+        base_font,
+        encoding,
+        is_embedded,
+        is_subset,
+    })
+}
+
+fn build_image_resource<R: std::io::Read + std::io::Seek>(
+    xobj: &oxidize_pdf::parser::objects::PdfObject,
+    doc: &oxidize_pdf::PdfDocument<R>,
+) -> Option<PyImageResource> {
+    use oxidize_pdf::parser::objects::PdfObject;
+
+    let dict = resolve_to_dict(xobj, doc)?;
+
+    let to_u32 = |key: &str| -> u32 {
+        dict.get(key)
+            .and_then(|o| o.as_integer())
+            .and_then(|i| u32::try_from(i).ok())
+            .unwrap_or(0)
+    };
+    let width = to_u32("Width");
+    let height = to_u32("Height");
+    let bits_per_component = to_u32("BitsPerComponent");
+
+    let filter = match dict.get("Filter") {
+        Some(PdfObject::Name(n)) => vec![n.0.clone()],
+        Some(PdfObject::Array(arr)) => arr
+            .0
+            .iter()
+            .filter_map(|o| o.as_name().map(|n| n.0.clone()))
+            .collect(),
+        _ => Vec::new(),
+    };
+
+    let color_space_obj = dict.get("ColorSpace").and_then(|o| match o {
+        PdfObject::Reference(_, _) => doc.resolve(o).ok(),
+        other => Some(other.clone()),
+    });
+    let color_space = match color_space_obj {
+        Some(PdfObject::Name(n)) => n.0,
+        Some(PdfObject::Array(arr)) => arr
+            .0
+            .first()
+            .and_then(|o| o.as_name())
+            .map(|n| n.0.clone())
+            .unwrap_or_default(),
+        _ => String::new(),
+    };
+
+    Some(PyImageResource {
+        width,
+        height,
+        bits_per_component,
+        filter,
+        color_space,
+    })
+}
+
+fn build_form_resource<R: std::io::Read + std::io::Seek>(
+    xobj: &oxidize_pdf::parser::objects::PdfObject,
+    doc: &oxidize_pdf::PdfDocument<R>,
+) -> Option<PyFormXObjectResource> {
+    use oxidize_pdf::parser::objects::PdfObject;
+
+    let dict = resolve_to_dict(xobj, doc)?;
+    let bbox = match dict.get("BBox") {
+        Some(PdfObject::Array(arr)) if arr.0.len() == 4 => {
+            let vals: Vec<f64> = arr
+                .0
+                .iter()
+                .map(|o| {
+                    o.as_real()
+                        .or_else(|| o.as_integer().map(|i| i as f64))
+                        .unwrap_or(0.0)
+                })
+                .collect();
+            Some((vals[0], vals[1], vals[2], vals[3]))
+        }
+        _ => None,
+    };
+    Some(PyFormXObjectResource { bbox })
+}
+
+/// Maximum recursion depth when converting nested PDF objects to Python.
+/// Beyond this the converter collapses to ``None`` instead of risking a
+/// stack overflow on adversarial or circular-resolved input.
+const PDF_TO_PY_MAX_DEPTH: u8 = 64;
+
+/// Convert a `PdfObject` into a Python primitive. Streams and unresolved
+/// references collapse to ``None`` — callers that need those branches should
+/// drop to the core layer directly. Recursion is bounded by
+/// [`PDF_TO_PY_MAX_DEPTH`].
+fn pdf_object_to_py(
+    py: Python<'_>,
+    obj: &oxidize_pdf::parser::objects::PdfObject,
+    depth: u8,
+) -> PyResult<Py<PyAny>> {
+    use oxidize_pdf::parser::objects::PdfObject;
+    use pyo3::types::{PyBool, PyBytes, PyDict, PyFloat, PyInt, PyList, PyString};
+
+    if depth >= PDF_TO_PY_MAX_DEPTH {
+        return Ok(py.None());
+    }
+
+    match obj {
+        PdfObject::Null => Ok(py.None()),
+        PdfObject::Boolean(b) => Ok(PyBool::new(py, *b).to_owned().into_any().unbind()),
+        PdfObject::Integer(i) => Ok(PyInt::new(py, *i).into_any().unbind()),
+        PdfObject::Real(f) => Ok(PyFloat::new(py, *f).into_any().unbind()),
+        PdfObject::Name(n) => Ok(PyString::new(py, &n.0).into_any().unbind()),
+        PdfObject::String(s) => match s.as_str() {
+            Ok(text) => Ok(PyString::new(py, text).into_any().unbind()),
+            Err(_) => Ok(PyBytes::new(py, s.as_bytes()).into_any().unbind()),
+        },
+        PdfObject::Array(arr) => {
+            let list = PyList::empty(py);
+            for item in &arr.0 {
+                list.append(pdf_object_to_py(py, item, depth + 1)?)?;
+            }
+            Ok(list.into_any().unbind())
+        }
+        PdfObject::Dictionary(d) => {
+            let dict = PyDict::new(py);
+            for (k, v) in &d.0 {
+                dict.set_item(&k.0, pdf_object_to_py(py, v, depth + 1)?)?;
+            }
+            Ok(dict.into_any().unbind())
+        }
+        PdfObject::Reference(_, _) | PdfObject::Stream(_) => Ok(py.None()),
+    }
+}
+
+fn build_page_resources<R: std::io::Read + std::io::Seek>(
+    py: Python<'_>,
+    resources: &oxidize_pdf::parser::objects::PdfDictionary,
+    doc: &oxidize_pdf::PdfDocument<R>,
+) -> PyResult<PyPageResources> {
+    use oxidize_pdf::parser::objects::PdfObject;
+    use pyo3::types::PyDict;
+
+    let fonts = PyDict::new(py);
+    let images = PyDict::new(py);
+    let forms = PyDict::new(py);
+    let ext_g_states = PyDict::new(py);
+    let mut proc_sets: Vec<String> = Vec::new();
+
+    if let Some(font_dict) = get_sub_dict(resources, "Font", doc) {
+        for (name, font_obj) in &font_dict.0 {
+            if let Some(font) = build_font_resource(font_obj, doc) {
+                fonts.set_item(&name.0, Py::new(py, font)?)?;
+            }
+        }
+    }
+
+    if let Some(xo_dict) = get_sub_dict(resources, "XObject", doc) {
+        for (name, xo_obj) in &xo_dict.0 {
+            let Some(xo_dict_resolved) = resolve_to_dict(xo_obj, doc) else {
+                continue;
+            };
+            let subtype = xo_dict_resolved
+                .get("Subtype")
+                .and_then(|o| o.as_name())
+                .map(|n| n.0.as_str())
+                .unwrap_or_default();
+            match subtype {
+                "Image" => {
+                    if let Some(img) = build_image_resource(xo_obj, doc) {
+                        images.set_item(&name.0, Py::new(py, img)?)?;
+                    }
+                }
+                "Form" => {
+                    if let Some(form) = build_form_resource(xo_obj, doc) {
+                        forms.set_item(&name.0, Py::new(py, form)?)?;
+                    }
+                }
+                _ => {}
+            }
+        }
+    }
+
+    if let Some(gs_dict) = get_sub_dict(resources, "ExtGState", doc) {
+        for (name, gs_obj) in &gs_dict.0 {
+            let Some(gs_entry) = resolve_to_dict(gs_obj, doc) else {
+                continue;
+            };
+            let entry_dict = PyDict::new(py);
+            for (k, v) in &gs_entry.0 {
+                entry_dict.set_item(&k.0, pdf_object_to_py(py, v, 0)?)?;
+            }
+            ext_g_states.set_item(&name.0, entry_dict)?;
+        }
+    }
+
+    if let Some(ps_obj) = resources.get("ProcSet") {
+        let resolved = match ps_obj {
+            PdfObject::Reference(_, _) => doc.resolve(ps_obj).ok(),
+            other => Some(other.clone()),
+        };
+        if let Some(PdfObject::Array(arr)) = resolved {
+            for item in &arr.0 {
+                if let Some(n) = item.as_name() {
+                    proc_sets.push(n.0.clone());
+                }
+            }
+        }
+    }
+
+    let resource_keys: Vec<String> = resources.0.keys().map(|n| n.0.clone()).collect();
+
+    Ok(PyPageResources {
+        fonts: fonts.unbind(),
+        images: images.unbind(),
+        forms: forms.unbind(),
+        ext_g_states: ext_g_states.unbind(),
+        proc_sets,
+        resource_keys,
+    })
+}
+
 // ── verify_pdf_signatures ─────────────────────────────────────────────────────
 
 /// Verify digital signatures in a PDF byte buffer.
@@ -818,6 +1330,10 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyPdfReader>()?;
     m.add_class::<PyParsedPage>()?;
     m.add_class::<PyTextChunk>()?;
+    m.add_class::<PyFontResource>()?;
+    m.add_class::<PyImageResource>()?;
+    m.add_class::<PyFormXObjectResource>()?;
+    m.add_class::<PyPageResources>()?;
     m.add_function(wrap_pyfunction!(verify_pdf_signatures, m)?)?;
     Ok(())
 }
