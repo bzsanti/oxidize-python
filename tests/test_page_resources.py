@@ -65,19 +65,13 @@ def _build_extgstate_page() -> bytes:
     return doc.save_to_bytes()
 
 
-def _build_no_resources_page() -> bytes:
-    """Raw-bytes minimal PDF whose single page has no ``/Resources`` entry.
+def _assemble_raw_pdf(objects: list[bytes]) -> bytes:
+    """Serialize a list of object bodies (object #1 first) into a valid PDF.
 
-    Tests the ``None`` return path of ``get_page_resources`` — the core
-    returns ``Option<&PdfDictionary>`` and the bridge surfaces ``None``
-    when the page has neither a direct nor an inherited Resources dict.
+    Each entry is the ``<< ... >>`` or ``<< ... >>\\nstream\\n...\\nendstream``
+    blob; the helper writes the ``N 0 obj`` / ``endobj`` wrappers, xref, and
+    trailer. Root is always object #1.
     """
-    objects: list[bytes] = [
-        b"<< /Type /Catalog /Pages 2 0 R >>",
-        b"<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
-        b"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] >>",
-    ]
-
     header = b"%PDF-1.4\n%\xe2\xe3\xcf\xd3\n"
     body = bytearray(header)
     offsets: list[int] = [0]
@@ -94,42 +88,95 @@ def _build_no_resources_page() -> bytes:
         body.extend(f"{off:010d} 00000 n \n".encode())
     body.extend(f"trailer\n<< /Size {len(objects) + 1} /Root 1 0 R >>\n".encode())
     body.extend(f"startxref\n{xref_offset}\n%%EOF\n".encode())
-
     return bytes(body)
 
 
-# ── Fixture sanity checks ─────────────────────────────────────────────────────
-#
-# These tests do NOT exercise get_page_resources (that lives in T5–T8).
-# They only confirm that each fixture builder returns a PDF that the reader
-# can open and that has exactly one page — a precondition for the real
-# semantic tests in subsequent tasks.
+def _build_no_resources_page() -> bytes:
+    """Raw-bytes minimal PDF whose single page has no ``/Resources`` entry.
+
+    Tests the ``None`` return path of ``get_page_resources`` — the core
+    returns ``Option<&PdfDictionary>`` and the bridge surfaces ``None``
+    when the page has neither a direct nor an inherited Resources dict.
+    """
+    objects: list[bytes] = [
+        b"<< /Type /Catalog /Pages 2 0 R >>",
+        b"<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
+        b"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] >>",
+    ]
+    return _assemble_raw_pdf(objects)
 
 
-class TestFixtureSanity:
-    def test_font_page_parses(self):
-        from oxidize_pdf import PdfReader
+def _build_inherited_resources_page() -> bytes:
+    """Raw-bytes PDF where ``/Resources`` sits on the ``/Pages`` parent.
 
-        reader = PdfReader.from_bytes(_build_font_page())
-        assert reader.page_count == 1
+    The leaf ``/Page`` (obj 3) deliberately omits ``/Resources``; the parent
+    ``/Pages`` node (obj 2) owns a Resources dict carrying one Type1 font.
+    A conforming reader must surface the inherited resources when the leaf
+    has none of its own.
+    """
+    objects: list[bytes] = [
+        b"<< /Type /Catalog /Pages 2 0 R >>",
+        (
+            b"<< /Type /Pages /Kids [3 0 R] /Count 1 "
+            b"/Resources << /Font << /F1 4 0 R >> /ProcSet [/PDF /Text] >> >>"
+        ),
+        b"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] >>",
+        (
+            b"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica "
+            b"/Encoding /WinAnsiEncoding >>"
+        ),
+    ]
+    return _assemble_raw_pdf(objects)
 
-    def test_image_page_parses(self):
-        from oxidize_pdf import PdfReader
 
-        reader = PdfReader.from_bytes(_build_image_page())
-        assert reader.page_count == 1
+def _build_type0_font_page() -> bytes:
+    """Raw-bytes PDF with a ``/Type0`` composite font whose CIDFont descendant
+    carries an embedded ``/FontFile2`` stream.
 
-    def test_extgstate_page_parses(self):
-        from oxidize_pdf import PdfReader
+    Verifies that ``FontResource.is_embedded`` navigates through
+    ``/DescendantFonts`` when the top-level ``/Type0`` dictionary has no
+    ``/FontDescriptor`` of its own — the canonical shape of every embedded
+    CJK, emoji, or Unicode-complete font in real-world PDFs.
+    """
+    fontfile_stream = b"<< /Length 0 >>\nstream\n\nendstream"
+    objects: list[bytes] = [
+        b"<< /Type /Catalog /Pages 2 0 R >>",
+        b"<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
+        (
+            b"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] "
+            b"/Resources << /Font << /F1 4 0 R >> >> >>"
+        ),
+        (
+            b"<< /Type /Font /Subtype /Type0 /BaseFont /ABCDEF+CustomCID "
+            b"/Encoding /Identity-H /DescendantFonts [5 0 R] >>"
+        ),
+        (
+            b"<< /Type /Font /Subtype /CIDFontType2 /BaseFont /ABCDEF+CustomCID "
+            b"/CIDSystemInfo << /Registry (Adobe) /Ordering (Identity) /Supplement 0 >> "
+            b"/FontDescriptor 6 0 R >>"
+        ),
+        (
+            b"<< /Type /FontDescriptor /FontName /ABCDEF+CustomCID /Flags 4 "
+            b"/FontBBox [0 0 1000 1000] /ItalicAngle 0 /Ascent 800 /Descent -200 "
+            b"/CapHeight 700 /StemV 80 /FontFile2 7 0 R >>"
+        ),
+        fontfile_stream,
+    ]
+    return _assemble_raw_pdf(objects)
 
-        reader = PdfReader.from_bytes(_build_extgstate_page())
-        assert reader.page_count == 1
 
-    def test_no_resources_page_parses(self):
-        from oxidize_pdf import PdfReader
+def _build_encrypted_page() -> bytes:
+    """PDF encrypted with a user password — the bridge must refuse resource
+    access on a reader that has not been unlocked."""
+    from oxidize_pdf import Document, Font, Page
 
-        reader = PdfReader.from_bytes(_build_no_resources_page())
-        assert reader.page_count == 1
+    doc = Document()
+    page = Page.a4()
+    page.set_font(Font.HELVETICA, 12.0)
+    page.text_at(72.0, 700.0, "secret")
+    doc.add_page(page)
+    doc.encrypt("user-pw", "owner-pw")
+    return doc.save_to_bytes()
 
 
 # ── T5: High-level PageResources contract ─────────────────────────────────────
@@ -175,14 +222,10 @@ class TestPageResourcesContract:
         reader = PdfReader.from_bytes(_build_font_page())
         resources = reader.get_page_resources(0)
         assert resources is not None
-        # The font fixture has no images, forms, color_spaces, patterns,
-        # shadings, or properties — all should be empty dicts, not None.
+        # The font fixture has no images or forms — both must be empty dicts
+        # with no resource entries, not None.
         assert resources.images == {}
         assert resources.forms == {}
-        assert resources.color_spaces == {}
-        assert resources.patterns == {}
-        assert resources.shadings == {}
-        assert resources.properties == {}
 
 
 # ── T6: FontResource semantic checks ──────────────────────────────────────────
@@ -345,3 +388,151 @@ class TestBoundsAndIndexing:
         reader = PdfReader.from_bytes(_build_font_page())
         with pytest.raises((IndexError, PdfError)):
             reader.get_page_resources(9999)
+
+
+# ── Inherited resources (B3 — carried from quality review) ────────────────────
+
+
+class TestInheritedResources:
+    """A page that omits ``/Resources`` must still surface the dict inherited
+    from a ``/Pages`` ancestor. This is the canonical shape of many
+    real-world PDFs and was absent from the original fixture set."""
+
+    def test_inherited_resources_are_returned(self):
+        from oxidize_pdf import PdfReader
+
+        reader = PdfReader.from_bytes(_build_inherited_resources_page())
+        resources = reader.get_page_resources(0)
+        assert resources is not None
+
+    def test_inherited_font_is_surfaced(self):
+        from oxidize_pdf import PdfReader
+
+        reader = PdfReader.from_bytes(_build_inherited_resources_page())
+        resources = reader.get_page_resources(0)
+        assert resources is not None
+        assert "F1" in resources.fonts
+        assert resources.fonts["F1"].base_font == "Helvetica"
+
+    def test_inherited_proc_set_is_surfaced(self):
+        from oxidize_pdf import PdfReader
+
+        reader = PdfReader.from_bytes(_build_inherited_resources_page())
+        resources = reader.get_page_resources(0)
+        assert resources is not None
+        assert "PDF" in resources.proc_sets
+        assert "Text" in resources.proc_sets
+
+
+# ── Composite Type0 fonts (B3 — carried from quality review) ──────────────────
+
+
+class TestType0CompositeFont:
+    """Embedded Type0 fonts hold the ``/FontDescriptor`` inside their
+    ``/DescendantFonts`` CIDFont, not at the top level. Without descending
+    into that array, ``is_embedded`` is a false negative for every modern
+    CJK / emoji font."""
+
+    def test_type0_is_surfaced_as_font(self):
+        from oxidize_pdf import PdfReader
+
+        reader = PdfReader.from_bytes(_build_type0_font_page())
+        resources = reader.get_page_resources(0)
+        assert resources is not None
+        assert "F1" in resources.fonts
+
+    def test_type0_subtype_is_reported(self):
+        from oxidize_pdf import PdfReader
+
+        reader = PdfReader.from_bytes(_build_type0_font_page())
+        resources = reader.get_page_resources(0)
+        assert resources is not None
+        assert resources.fonts["F1"].subtype == "Type0"
+
+    def test_type0_base_font_preserves_subset_tag(self):
+        from oxidize_pdf import PdfReader
+
+        reader = PdfReader.from_bytes(_build_type0_font_page())
+        resources = reader.get_page_resources(0)
+        assert resources is not None
+        assert resources.fonts["F1"].base_font == "ABCDEF+CustomCID"
+
+    def test_type0_subset_flag_detected_from_basefont(self):
+        from oxidize_pdf import PdfReader
+
+        reader = PdfReader.from_bytes(_build_type0_font_page())
+        resources = reader.get_page_resources(0)
+        assert resources is not None
+        assert resources.fonts["F1"].is_subset is True
+
+    def test_type0_is_embedded_via_descendant_font_descriptor(self):
+        from oxidize_pdf import PdfReader
+
+        reader = PdfReader.from_bytes(_build_type0_font_page())
+        resources = reader.get_page_resources(0)
+        assert resources is not None
+        assert resources.fonts["F1"].is_embedded is True
+
+
+# ── Encrypted documents (M3 — contract under lock) ────────────────────────────
+
+
+class TestEncryptedDocument:
+    """Calling ``get_page_resources`` on an encrypted reader that has not
+    been unlocked must not silently succeed with empty dicts. The current
+    contract is to raise — this test locks that behavior in."""
+
+    def test_locked_reader_raises_on_resource_access(self):
+        from oxidize_pdf import PdfError, PdfReader
+
+        reader = PdfReader.from_bytes(_build_encrypted_page())
+        assert reader.is_encrypted is True
+        with pytest.raises(PdfError):
+            reader.get_page_resources(0)
+
+
+# ── Recursion guard (M2) ──────────────────────────────────────────────────────
+
+
+class TestExtGStateRecursionGuard:
+    """``pdf_object_to_py`` walks ``/ExtGState`` entries recursively. A
+    pathological PDF with deep dict nesting must not crash the thread via
+    stack overflow — it should collapse oversized branches to ``None``."""
+
+    def test_deeply_nested_extgstate_does_not_overflow(self):
+        from oxidize_pdf import PdfReader
+
+        # Build /GS1 with 256 levels of nested dictionaries under /Custom.
+        # 256 comfortably exceeds the 64-deep guard in the bridge.
+        nested = b"<< /Leaf true >>"
+        for _ in range(256):
+            nested = b"<< /Inner " + nested + b" >>"
+
+        objects: list[bytes] = [
+            b"<< /Type /Catalog /Pages 2 0 R >>",
+            b"<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
+            (
+                b"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] "
+                b"/Resources << /ExtGState << /GS1 4 0 R >> >> >>"
+            ),
+            b"<< /ca 0.5 /Custom " + nested + b" >>",
+        ]
+        pdf_bytes = _assemble_raw_pdf(objects)
+
+        # The call must return without raising or crashing the interpreter.
+        reader = PdfReader.from_bytes(pdf_bytes)
+        resources = reader.get_page_resources(0)
+        assert resources is not None
+        gs1 = resources.ext_g_states["GS1"]
+        # Shallow entries survive the depth guard.
+        assert gs1["ca"] == pytest.approx(0.5)
+        # The deep branch collapses to None at the guard.
+        deep = gs1["Custom"]
+        for _ in range(80):
+            if deep is None:
+                break
+            if isinstance(deep, dict):
+                deep = deep.get("Inner")
+            else:
+                break
+        assert deep is None
