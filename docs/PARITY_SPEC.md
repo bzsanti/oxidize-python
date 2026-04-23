@@ -73,7 +73,7 @@ Consumed downstream by every RAG/AI use case, so kept high-priority even though 
 | READ-010 | Page dimensions | ✅ `ParsedPage(width, height, rotation)` | ⚠️ `(Width, Height)` tuple, no rotation | **.NET: add `Rotation` to return** |
 | READ-011 | Page resources (fonts, images) | ❌ | ✅ `GetPageResourcesAsync()` | **Python: add `get_page_resources(idx)`** |
 | READ-012 | Page content streams (raw decoded bytes) | ❌ | ✅ `GetPageContentStreamAsync()` | **Python: add `get_page_content_stream(idx)`** |
-| READ-013 | Lenient/tolerant parsing | ⚠️ always on, not togglable | ✅ `ParseOptions::lenient()` | **Align: expose toggle in Python or document .NET behavior** |
+| READ-013 | Lenient/tolerant parsing | ✅ `ParseOptions.strict()/.tolerant()/.lenient()/.skip_errors()` + kwargs, accepted by `PdfReader.open/from_bytes/from_stream` | ✅ `ParseOptions::lenient()` | — |
 
 ---
 
@@ -191,10 +191,10 @@ This tier exposes the largest current asymmetry: Python is "build + read"; .NET 
 **Annotations/Forms:** ANN-005 (file attachment), ANN-006 (free text), FORM-002 (create), FORM-003 (fill).
 **Other:** PDFA-001, PDFA-002, MCP-001, INT-002 (NuGet pkg), INT-005 (Semantic Kernel), QA-001, QA-004.
 
-### Python — 9 actions to reach parity
+### Python — 8 actions to reach parity
 
 **RAG/AI:** RAG-010 (per-page chunking), RAG-019 (OCR — known gap).
-**Reading:** READ-003 (stream input), READ-011 (page resources), READ-012 (content streams), READ-013 (parser strictness toggle).
+**Reading:** READ-003 (stream input), READ-011 (page resources), READ-012 (content streams).
 **Writing:** WRITE-006 (writer config), WRITE-008/009 (explicit algorithms), WRITE-012 (font from file convenience).
 **Ops:** OPS-002, OPS-004 (page ranges).
 **Integrations:** INT-003 (LangChain), INT-004 (Haystack), MCP-002 (refresh registry).
