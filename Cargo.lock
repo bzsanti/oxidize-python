@@ -698,7 +698,7 @@ dependencies = [
 
 [[package]]
 name = "oxidize-python"
-version = "0.4.3"
+version = "0.5.0"
 dependencies = [
  "chrono",
  "oxidize-pdf",

@@ -1,8 +1,8 @@
 # Feature Parity — oxidize-python
 
-Bridge version: 0.4.3
-Core dependency: =2.5.5
-Last updated: 2026-04-22
+Bridge version: 0.5.0
+Core dependency: =2.6.0
+Last updated: 2026-05-05
 
 Reference: [API Surface definition](lifecycle/API_SURFACE.md)
 

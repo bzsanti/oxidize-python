@@ -1,7 +1,7 @@
 # Bridge Parity Spec — oxidize-pdf (Python + .NET)
 
-**Last updated:** 2026-04-23
-**Bridge versions checkpoint:** Python `oxidize-pdf` 0.4.3 (=core 2.5.5) · .NET `OxidizePdf.NET` 0.6.0+ (=core 2.5.5)
+**Last updated:** 2026-05-05
+**Bridge versions checkpoint:** Python `oxidize-pdf` 0.5.0 (=core 2.6.0) · .NET `OxidizePdf.NET` 0.6.0+ (=core 2.5.5)
 
 This document is the **canonical contract** that both bridges must satisfy. The same matrix exists in [`oxidize-pdf-dotnet/docs/PARITY_SPEC.md`](https://github.com/bzsanti/oxidize-pdf-dotnet/blob/main/docs/PARITY_SPEC.md). Any divergence between the two copies is a bug — the IDs, capability descriptions, and "Action for parity" cells must stay synchronized.
 
@@ -134,17 +134,17 @@ This tier exposes the largest current asymmetry: Python is "build + read"; .NET 
 | ID | Capability | Python | .NET | Action for parity |
 |---|---|---|---|---|
 | OPS-001 | Split to individual pages | ✅ `split()` | ✅ `SplitAsync()` | — |
-| OPS-002 | Split by size/range | ⚠️ pattern hardcoded | ✅ `SplitAsync(PdfSplitOptions)` rich | **Python: expose `SplitOptions`** |
+| OPS-002 | Split by size/range | ✅ `split_pdf_with_options(SplitOptions)` | ✅ `SplitAsync(PdfSplitOptions)` rich | — |
 | OPS-003 | Merge documents | ✅ | ✅ `MergeAsync()` | — |
-| OPS-004 | Merge with selective page ranges | ⚠️ | ✅ `PdfMergeInput + PdfPageRange` | **Python: add page range support** |
+| OPS-004 | Merge with selective page ranges | ✅ `merge_pdfs_with_inputs(MergeInput, PageRange)` | ✅ `PdfMergeInput + PdfPageRange` | — |
 | OPS-005 | Rotate all pages | ✅ | ✅ | — |
 | OPS-006 | Rotate selective pages | ✅ | ✅ `RotatePagesAsync(PdfPageRange)` | — |
 | OPS-007 | Extract pages | ✅ | ✅ | — |
 | OPS-008 | Overlay/watermark | ✅ | ✅ | — |
 | OPS-009 | Reorder/swap/move/reverse pages | ✅ | ✅ | — |
 | OPS-010 | Extract images | ✅ | ✅ `ExtractImagesAsync()` | — |
-| OPS-011 | `SplitMode.Ranges` constructor (core has the variant) | ❌ | ❌ | **BOTH: neither bridge constructs `Ranges` even though the core variant exists** |
-| OPS-012 | `SplitOptions` full shape (`output_pattern` + `preserve_metadata` + `optimize`) | ❌ | ❌ | **BOTH: three fields are silently discarded by both bridges** |
+| OPS-011 | `SplitMode.Ranges` constructor (core has the variant) | ✅ `SplitMode.ranges([PageRange])` | ❌ | **.NET: expose `Ranges` constructor** |
+| OPS-012 | `SplitOptions` full shape (`output_pattern` + `preserve_metadata` + `optimize`) | ✅ `SplitOptions(mode, output_pattern, preserve_metadata, optimize)` | ❌ | **.NET: expose all three fields on `PdfSplitOptions`** |
 | OPS-013 | Expose `MetadataMode` in merge | ❌ | ❌ | **BOTH: needed for multi-PDF publishing flows that fix a unified title** |
 
 ---
