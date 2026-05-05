@@ -1,7 +1,7 @@
 # Bridge Parity Spec — oxidize-pdf (Python + .NET)
 
 **Last updated:** 2026-05-05
-**Bridge versions checkpoint:** Python `oxidize-pdf` 0.5.0 (=core 2.6.0) · .NET `OxidizePdf.NET` 0.6.0+ (=core 2.5.5)
+**Bridge versions checkpoint:** Python `oxidize-pdf` 0.5.0 (=core 2.6.0) · .NET `OxidizePdf.NET` 0.8.0 (=core 2.6.0)
 
 This document is the **canonical contract** that both bridges must satisfy. The same matrix exists in [`oxidize-pdf-dotnet/docs/PARITY_SPEC.md`](https://github.com/bzsanti/oxidize-pdf-dotnet/blob/main/docs/PARITY_SPEC.md). Any divergence between the two copies is a bug — the IDs, capability descriptions, and "Action for parity" cells must stay synchronized.
 
@@ -28,16 +28,16 @@ The reason we maintain bridges in lockstep. A consumer building a RAG pipeline m
 |---|---|---|---|---|
 | RAG-001 | Partition document → semantic elements | ✅ `PdfReader.partition()` | ✅ `PdfExtractor.PartitionAsync()` | — |
 | RAG-002 | RAG chunks (default config) | ✅ `PdfReader.rag_chunks()` | ✅ `PdfExtractor.RagChunksAsync()` | — |
-| RAG-003 | RAG chunks with `ExtractionProfile` | ✅ `PdfReader.rag_chunks_with_profile(p)` | ❌ | **.NET: add `RagChunksWithProfileAsync(profile)`** |
-| RAG-004 | `ExtractionProfile` enum (7 values: `STANDARD`, `RAG`, `ACADEMIC`, `FORM`, `GOVERNMENT`, `DENSE`, `PRESENTATION`) | ✅ | ❌ | **.NET: add enum `ExtractionProfile`** |
-| RAG-005 | RAG chunks with granular `HybridChunkConfig` (`max_tokens`, `overlap_tokens`, `merge_adjacent`, `propagate_headings`, `merge_policy`) | ✅ `rag_chunks_with(config)` | ⚠️ `ChunkOptions` flat (4 fields, missing `propagate_headings` and `merge_policy`) | **.NET: extend `ChunkOptions` or add `HybridChunkConfig`** |
-| RAG-006 | `MergePolicy` enum (`AnyInlineContent`, `SameTypeOnly`, `None`) | ✅ | ❌ | **.NET: add enum `MergePolicy`** |
-| RAG-007 | `ReadingOrderStrategy` (`Simple`, `None`, `XyCut(min_gap)`) | ✅ | ❌ | **.NET: add enum `ReadingOrderStrategy`** |
-| RAG-008 | Low-level reusable chunker (chunk arbitrary text, not just PDFs) | ✅ `DocumentChunker(size, overlap).chunk_text(str)` | ❌ | **.NET: add standalone `DocumentChunker`** |
-| RAG-009 | Token estimation utility | ✅ `DocumentChunker.estimate_tokens(str)` static | ❌ | **.NET: add `DocumentChunker.EstimateTokens(string)` static** |
+| RAG-003 | RAG chunks with `ExtractionProfile` | ✅ `PdfReader.rag_chunks_with_profile(p)` | ✅ `RagChunksAsync(byte[], ExtractionProfile)` | — |
+| RAG-004 | `ExtractionProfile` enum (7 values: `STANDARD`, `RAG`, `ACADEMIC`, `FORM`, `GOVERNMENT`, `DENSE`, `PRESENTATION`) | ✅ | ✅ | — |
+| RAG-005 | RAG chunks with granular `HybridChunkConfig` (`max_tokens`, `overlap_tokens`, `merge_adjacent`, `propagate_headings`, `merge_policy`) | ✅ `rag_chunks_with(config)` | ✅ `RagChunksAsync(byte[], PartitionConfig?, HybridChunkConfig?)` (5 fields, all present) | — |
+| RAG-006 | `MergePolicy` enum (`AnyInlineContent`, `SameTypeOnly`) | ✅ (2 variants) | ✅ (2 variants) | **Python: drop spurious `None` variant from this row (docs-only drift; Rust core + Python bridge both expose 2)** |
+| RAG-007 | `ReadingOrderStrategy` (`Simple`, `None`, `XyCut(min_gap)`) | ✅ | ✅ | — |
+| RAG-008 | Low-level reusable chunker (chunk arbitrary text, not just PDFs) | ✅ `DocumentChunker(size, overlap).chunk_text(str)` | ✅ `DocumentChunker(chunkSize, overlap).ChunkText(text)` | — |
+| RAG-009 | Token estimation utility | ✅ `DocumentChunker.estimate_tokens(str)` static | ✅ `DocumentChunker.EstimateTokens(string)` static | — |
 | RAG-010 | Per-page chunking | ✅ `PdfReader.chunk_page(idx, options)` | ✅ `ExtractChunksFromPageAsync()` | — |
 | RAG-011 | Markdown export | ✅ `PdfReader.to_markdown()` | ✅ `ToMarkdownAsync()` | — |
-| RAG-012 | Markdown export with configurable `MarkdownOptions` | ✅ `MarkdownExporter(opts).export(text)` | ❌ | **.NET: add `MarkdownOptions` + overload `ToMarkdownAsync(opts)`** |
+| RAG-012 | Markdown export with configurable `MarkdownOptions` | ✅ `MarkdownExporter(opts).export(text)` | ✅ `ToMarkdownAsync(byte[], MarkdownOptions)` | — |
 | RAG-013 | Contextual export (LLM context windows) | ✅ `to_contextual()` | ✅ `ToContextualAsync()` | — |
 | RAG-014 | Structured JSON export | ⚠️ via `EntityMap.to_json()` (entity-centric) | ⚠️ `ToJsonAsync()` direct (extraction-centric) | **Decide single philosophy; recommend direct method on both:** `to_json()` / `ToJsonAsync()` |
 | RAG-015 | `RagChunk` schema (`chunk_index`, `text`, `full_text`, `page_numbers`, `element_types`, `heading_context`, `token_estimate`, `is_oversized`) | ✅ | ✅ | — (verify identical serialization in cross-bridge integration test) |
@@ -45,12 +45,12 @@ The reason we maintain bridges in lockstep. A consumer building a RAG pipeline m
 | RAG-017 | `DocumentChunk` schema | ✅ | ✅ | — |
 | RAG-018 | Page content analysis (text/scanned/mixed) | ✅ `analyze_page_content(idx)` | ✅ `AnalyzePageContentAsync()` | — |
 | RAG-019 | OCR for scanned PDFs (Tesseract) | ❌ (known gap) | ❌ | **BOTH: expose core's `OcrProvider`** |
-| RAG-020 | **Semantic disjointness regression tests** (known input → expected output) | ✅ 12 bridge + 7 reader (`test_rag_chunks_disjoint.py`, `test_reader_disjoint.py`) | ❌ only `ChunkOptionsValidationTests` (input validation, not semantics) | **.NET: port the 12 bridge tests as `RagChunksDisjointnessTests.cs`** |
+| RAG-020 | **Semantic disjointness regression tests** (known input → expected output) | ✅ 12 bridge + 7 reader (`test_rag_chunks_disjoint.py`, `test_reader_disjoint.py`) | ✅ 12 ported (`RagChunksDisjointnessTests.cs`) | — |
 | RAG-021 | First-class adapter for ecosystem RAG framework | ✅ `llama-index-readers-oxidize-pdf 0.1.1` (PyPI) | ⚠️ `examples/KernelMemory/` (sample, not a NuGet package) | **.NET: package `OxidizePdf.KernelMemory.DocumentReader` as a NuGet** |
 
 ### Tier 0 priority within itself
 
-1. **Immediate (zero risk, high impact):** RAG-003, RAG-004, RAG-006, RAG-008, RAG-009, RAG-012, RAG-020.
+1. **Immediate (zero risk, high impact):** RAG-003, RAG-004, RAG-005, RAG-006, RAG-007, RAG-008, RAG-009, RAG-012, RAG-020. **All closed for .NET in 0.8.0.**
 2. **After (philosophy decisions required):** RAG-014, RAG-019, RAG-021.
 
 ---
@@ -207,7 +207,7 @@ Tesseract-based OCR exists in the core but is absent from both bridges. This tie
 
 ### .NET — bridge-specific actions (priority RAG first)
 
-**RAG/AI (Tier 0):** RAG-003, RAG-004, RAG-006, RAG-007, RAG-008, RAG-009, RAG-012, RAG-020 (tests). Decisions pending: RAG-019 (OCR), RAG-021 (NuGet KernelMemory package).
+**RAG/AI (Tier 0):** ~~RAG-003~~, ~~RAG-004~~, ~~RAG-005~~, ~~RAG-006~~, ~~RAG-007~~, ~~RAG-008~~, ~~RAG-009~~, ~~RAG-012~~, ~~RAG-020 (tests)~~ — **all closed in 0.8.0**. Decisions still pending: RAG-014 (JSON export philosophy), RAG-019 (OCR), RAG-021 (NuGet KernelMemory package).
 
 **Reading:** READ-001 (path overload), READ-007 (per-page list), READ-010 (rotation).
 **Writing:** WRITE-013 (open action), WRITE-015 (outline read), WRITE-017 (page labels), WRITE-019 (semantic entities).
