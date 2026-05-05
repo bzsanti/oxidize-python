@@ -86,9 +86,15 @@ from oxidize_pdf._oxidize_pdf import (
     PageRange,
     SplitMode,
     split_pdf_with_mode,
+    # OPS-002: SplitOptions
+    SplitOptions,
+    split_pdf_with_options,
     # Feature 50: MergeOptions
     MergeOptions,
     merge_pdfs_with_options,
+    # OPS-004: MergeInput
+    MergeInput,
+    merge_pdfs_with_inputs,
     # Feature 51: RotateOptions
     RotationAngle,
     RotateOptions,
@@ -604,9 +610,15 @@ __all__ = [
     "PageRange",
     "SplitMode",
     "split_pdf_with_mode",
+    # OPS-002
+    "SplitOptions",
+    "split_pdf_with_options",
     # Feature 50
     "MergeOptions",
     "merge_pdfs_with_options",
+    # OPS-004
+    "MergeInput",
+    "merge_pdfs_with_inputs",
     # Feature 51
     "RotationAngle",
     "RotateOptions",
