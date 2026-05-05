@@ -220,6 +220,147 @@ class TestPdfReaderFromBytes:
             PdfReader.from_bytes(b"")
 
 
+class TestPdfReaderFromStream:
+    """Test opening PDFs from binary streams (READ-003)."""
+
+    @pytest.fixture
+    def sample_pdf_bytes(self):
+        """Generate a sample PDF as bytes for stream tests."""
+        from oxidize_pdf import Document, Font, Page
+
+        doc = Document()
+        page = Page.a4()
+        page.set_font(Font.HELVETICA, 12.0)
+        page.text_at(100.0, 700.0, "Hello from stream")
+        doc.add_page(page)
+
+        page2 = Page.letter()
+        page2.set_font(Font.COURIER, 14.0)
+        page2.text_at(100.0, 700.0, "Stream page two")
+        doc.add_page(page2)
+
+        return doc.save_to_bytes()
+
+    def test_from_bytesio_page_count(self, sample_pdf_bytes):
+        import io
+
+        from oxidize_pdf import PdfReader
+
+        stream = io.BytesIO(sample_pdf_bytes)
+        reader = PdfReader.from_stream(stream)
+        assert reader.page_count == 2
+
+    def test_from_bytesio_extract_text(self, sample_pdf_bytes):
+        import io
+
+        from oxidize_pdf import PdfReader
+
+        stream = io.BytesIO(sample_pdf_bytes)
+        reader = PdfReader.from_stream(stream)
+        text = reader.extract_text_from_page(0)
+        assert "Hello" in text or "stream" in text
+
+    def test_from_bytesio_version(self, sample_pdf_bytes):
+        import io
+
+        from oxidize_pdf import PdfReader
+
+        stream = io.BytesIO(sample_pdf_bytes)
+        reader = PdfReader.from_stream(stream)
+        assert reader.version.startswith("1.")
+
+    def test_from_bytesio_len(self, sample_pdf_bytes):
+        import io
+
+        from oxidize_pdf import PdfReader
+
+        stream = io.BytesIO(sample_pdf_bytes)
+        reader = PdfReader.from_stream(stream)
+        assert len(reader) == 2
+
+    def test_from_bytesio_get_page_dimensions(self, sample_pdf_bytes):
+        import io
+
+        from oxidize_pdf import PdfReader
+
+        stream = io.BytesIO(sample_pdf_bytes)
+        reader = PdfReader.from_stream(stream)
+        page = reader.get_page(0)
+        assert abs(page.width - 595.0) < 1.0  # A4
+
+    def test_from_opened_binary_file(self, sample_pdf_bytes, tmp_dir):
+        from oxidize_pdf import PdfReader
+
+        path = tmp_dir / "stream.pdf"
+        path.write_bytes(sample_pdf_bytes)
+
+        with open(path, "rb") as fh:
+            reader = PdfReader.from_stream(fh)
+            assert reader.page_count == 2
+            text = reader.extract_text_from_page(1)
+            assert "Stream" in text or "page two" in text
+
+    def test_from_stream_with_tolerant_options(self, sample_pdf_bytes):
+        """ParseOptions kwarg plumbs through to the underlying reader."""
+        import io
+
+        from oxidize_pdf import ParseOptions, PdfReader
+
+        stream = io.BytesIO(sample_pdf_bytes)
+        reader = PdfReader.from_stream(stream, options=ParseOptions.tolerant())
+        assert reader.page_count == 2
+
+    def test_from_stream_honors_cursor_position(self, sample_pdf_bytes):
+        """Reads from current cursor, not from 0 — idiomatic Python stream behaviour.
+
+        A stream pre-seeked past the PDF header must fail parsing, proving we
+        do NOT silently rewind.
+        """
+        import io
+
+        from oxidize_pdf import PdfParseError, PdfReader
+
+        stream = io.BytesIO(sample_pdf_bytes)
+        stream.seek(10)
+        with pytest.raises(PdfParseError):
+            PdfReader.from_stream(stream)
+
+    def test_from_stream_invalid_content(self):
+        import io
+
+        from oxidize_pdf import PdfParseError, PdfReader
+
+        stream = io.BytesIO(b"not a valid pdf")
+        with pytest.raises(PdfParseError):
+            PdfReader.from_stream(stream)
+
+    def test_from_stream_empty(self):
+        import io
+
+        from oxidize_pdf import PdfParseError, PdfReader
+
+        stream = io.BytesIO(b"")
+        with pytest.raises(PdfParseError):
+            PdfReader.from_stream(stream)
+
+    def test_from_stream_rejects_non_stream(self):
+        """Passing an object without .read() must raise a clear Python error."""
+        from oxidize_pdf import PdfReader
+
+        with pytest.raises((TypeError, AttributeError)):
+            PdfReader.from_stream("not a stream")  # type: ignore[arg-type]
+
+    def test_from_stream_consumes_stream(self, sample_pdf_bytes):
+        """After from_stream, the cursor is at end-of-stream (fully read)."""
+        import io
+
+        from oxidize_pdf import PdfReader
+
+        stream = io.BytesIO(sample_pdf_bytes)
+        PdfReader.from_stream(stream)
+        assert stream.tell() == len(sample_pdf_bytes)
+
+
 class TestTextChunking:
     """Test text chunking / positional text extraction (PARSE-010)."""
 

@@ -404,14 +404,74 @@ impl PySplitMode {
         }
     }
 
+    /// Split into one file per `PageRange` provided.
+    #[staticmethod]
+    fn ranges(ranges: Vec<PyPageRange>) -> Self {
+        let inner_ranges: Vec<PageRange> = ranges.into_iter().map(|r| r.inner).collect();
+        Self {
+            inner: SplitMode::Ranges(inner_ranges),
+        }
+    }
+
     fn __repr__(&self) -> String {
         match &self.inner {
             SplitMode::SinglePages => "SplitMode.single_pages()".to_string(),
             SplitMode::ChunkSize(n) => format!("SplitMode.chunk_size({n})"),
             SplitMode::SplitAt(pts) => format!("SplitMode.split_at({pts:?})"),
-            SplitMode::Ranges(_) => "SplitMode.ranges(...)".to_string(),
+            SplitMode::Ranges(rngs) => format!("SplitMode.ranges({} ranges)", rngs.len()),
         }
     }
+}
+
+// ── OPS-002: SplitOptions + split_pdf_with_options ───────────────────────────
+
+/// Options for PDF splitting with a configurable output pattern.
+#[pyclass(name = "SplitOptions", from_py_object)]
+#[derive(Clone)]
+pub struct PySplitOptions {
+    pub inner: SplitOptions,
+}
+
+#[pymethods]
+impl PySplitOptions {
+    #[new]
+    #[pyo3(signature = (mode, output_pattern=None, preserve_metadata=true, optimize=false))]
+    fn new(
+        mode: &PySplitMode,
+        output_pattern: Option<String>,
+        preserve_metadata: bool,
+        optimize: bool,
+    ) -> Self {
+        let inner = SplitOptions {
+            mode: mode.inner.clone(),
+            output_pattern: output_pattern.unwrap_or_else(|| "page_{}.pdf".to_string()),
+            preserve_metadata,
+            optimize,
+        };
+        Self { inner }
+    }
+
+    fn __repr__(&self) -> String {
+        format!(
+            "SplitOptions(output_pattern={:?}, preserve_metadata={}, optimize={})",
+            self.inner.output_pattern,
+            self.inner.preserve_metadata,
+            self.inner.optimize,
+        )
+    }
+}
+
+#[pyfunction]
+fn split_pdf_with_options(
+    input_path: &str,
+    options: &PySplitOptions,
+) -> PyResult<Vec<String>> {
+    let paths =
+        operations::split_pdf(input_path, options.inner.clone()).map_err(op_err_to_py)?;
+    Ok(paths
+        .into_iter()
+        .map(|p| p.to_string_lossy().into_owned())
+        .collect())
 }
 
 #[pyfunction]
@@ -479,6 +539,92 @@ fn merge_pdfs_with_options(
     }
     let inputs: Vec<MergeInput> = input_paths.iter().map(MergeInput::new).collect();
     operations::merge_pdfs(inputs, output_path, options.inner.clone()).map_err(op_err_to_py)
+}
+
+// ── OPS-004: MergeInput pyclass + merge_pdfs_with_inputs ─────────────────────
+//
+// Note: upstream `MergeOptions.page_ranges` is intentionally NOT exposed here.
+// The merger (`merge.rs:135`) reads the per-input `MergeInput.pages`; the
+// `MergeOptions.page_ranges` field is only inspected by upstream tests, never
+// by the merge algorithm. Surfacing it from Python would be a footgun.
+
+/// Specifies one input file for `merge_pdfs_with_inputs`, optionally restricted
+/// to a `PageRange`.
+#[pyclass(name = "MergeInput", from_py_object)]
+#[derive(Clone)]
+pub struct PyMergeInput {
+    pub path: String,
+    pub pages: Option<PageRange>,
+}
+
+#[pymethods]
+impl PyMergeInput {
+    #[new]
+    #[pyo3(signature = (path, pages=None))]
+    fn new(path: &str, pages: Option<&PyPageRange>) -> Self {
+        Self {
+            path: path.to_string(),
+            pages: pages.map(|p| p.inner.clone()),
+        }
+    }
+
+    /// Build an input that includes only the given `PageRange`.
+    #[staticmethod]
+    fn with_pages(path: &str, pages: &PyPageRange) -> Self {
+        Self {
+            path: path.to_string(),
+            pages: Some(pages.inner.clone()),
+        }
+    }
+
+    fn __repr__(&self) -> String {
+        let basename = std::path::Path::new(&self.path)
+            .file_name()
+            .and_then(|s| s.to_str())
+            .unwrap_or(&self.path)
+            .to_string();
+        match &self.pages {
+            None => format!("MergeInput({basename:?})"),
+            Some(range) => {
+                let range_repr = match range {
+                    PageRange::All => "all".to_string(),
+                    PageRange::Single(p) => format!("single({p})"),
+                    PageRange::Range(s, e) => format!("range({s}, {e})"),
+                    PageRange::List(pages) => format!("list({pages:?})"),
+                };
+                format!("MergeInput({basename:?}, pages={range_repr})")
+            }
+        }
+    }
+}
+
+impl PyMergeInput {
+    fn build(&self) -> MergeInput {
+        match &self.pages {
+            None => MergeInput::new(&self.path),
+            Some(range) => MergeInput::with_pages(&self.path, range.clone()),
+        }
+    }
+}
+
+#[pyfunction]
+#[pyo3(signature = (inputs, output_path, options=None))]
+fn merge_pdfs_with_inputs(
+    inputs: Vec<PyMergeInput>,
+    output_path: &str,
+    options: Option<&PyMergeOptions>,
+) -> PyResult<()> {
+    if inputs.is_empty() {
+        return Err(pyo3::exceptions::PyValueError::new_err(
+            "At least one input is required",
+        ));
+    }
+    let merge_inputs: Vec<MergeInput> = inputs.iter().map(|i| i.build()).collect();
+    let merge_options = match options {
+        None => MergeOptions::default(),
+        Some(opts) => opts.inner.clone(),
+    };
+    operations::merge_pdfs(merge_inputs, output_path, merge_options).map_err(op_err_to_py)
 }
 
 // ── Feature 51: RotationAngle enum + RotateOptions + rotate_pdf_with_options ─
@@ -736,9 +882,15 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyPageRange>()?;
     m.add_class::<PySplitMode>()?;
     m.add_function(wrap_pyfunction!(split_pdf_with_mode, m)?)?;
+    // OPS-002: SplitOptions + split_pdf_with_options
+    m.add_class::<PySplitOptions>()?;
+    m.add_function(wrap_pyfunction!(split_pdf_with_options, m)?)?;
     // Feature 50: MergeOptions
     m.add_class::<PyMergeOptions>()?;
     m.add_function(wrap_pyfunction!(merge_pdfs_with_options, m)?)?;
+    // OPS-004: MergeInput + merge_pdfs_with_inputs
+    m.add_class::<PyMergeInput>()?;
+    m.add_function(wrap_pyfunction!(merge_pdfs_with_inputs, m)?)?;
     // Feature 51: RotateOptions
     m.add_class::<PyRotationAngle>()?;
     m.add_class::<PyRotateOptions>()?;

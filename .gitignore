@@ -41,3 +41,7 @@ tmp*.pdf
 
 # Claude Code runtime artifacts
 .claude/scheduled_tasks.lock
+
+# Working notes — local only, not for the public repo
+# (error logs, in-flight plans, audit scripts that reference local paths)
+.private/
