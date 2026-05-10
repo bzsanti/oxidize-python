@@ -19,7 +19,8 @@ use oxidize_pdf::{
     FieldAction, FieldActions, FieldActionSystem,
     FormatActionType, ValidateActionType, SpecialFormatType, ActionSettings,
 };
-use crate::types::PyRectangle;
+use crate::text::PyFont;
+use crate::types::{PyColor, PyRectangle};
 use crate::errors::to_py_err as pdf_err_to_py;
 
 
@@ -68,6 +69,28 @@ impl PyTextField {
     fn password(self_: PyRef<'_, Self>) -> Self {
         Self {
             inner: self_.inner.clone().password(),
+        }
+    }
+
+    /// Attach a typed default appearance (font, size, colour) used by
+    /// ``Document.fill_field`` when regenerating the field's ``/AP/N``
+    /// stream. Required for non-WinAnsi fills (CJK, Arabic, Latin
+    /// extended) — without it the fill path falls back to Helvetica +
+    /// WinAnsi and rejects values it cannot encode. The font, when a
+    /// custom one, must already be registered on the Document via
+    /// ``add_font_from_bytes``.
+    fn with_default_appearance(
+        self_: PyRef<'_, Self>,
+        font: &PyFont,
+        size: f64,
+        color: &PyColor,
+    ) -> Self {
+        Self {
+            inner: self_.inner.clone().with_default_appearance(
+                font.inner.clone(),
+                size,
+                color.inner.clone(),
+            ),
         }
     }
 
@@ -179,6 +202,27 @@ impl PyComboBox {
     fn with_value(self_: PyRef<'_, Self>, value: &str) -> Self {
         Self {
             inner: self_.inner.clone().with_value(value),
+        }
+    }
+
+    /// Attach a typed default appearance for this Choice field. Mirrors
+    /// :meth:`TextField.with_default_appearance`. Selecting a custom
+    /// Type0/CID font here is the only path that lets ``fill_field``
+    /// emit a correct appearance for non-WinAnsi values (CJK, Arabic,
+    /// non-WinAnsi Latin). The font must be registered on the Document
+    /// via ``add_font_from_bytes`` if it's a custom font.
+    fn with_default_appearance(
+        self_: PyRef<'_, Self>,
+        font: &PyFont,
+        size: f64,
+        color: &PyColor,
+    ) -> Self {
+        Self {
+            inner: self_.inner.clone().with_default_appearance(
+                font.inner.clone(),
+                size,
+                color.inner.clone(),
+            ),
         }
     }
 
