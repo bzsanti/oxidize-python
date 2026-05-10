@@ -1,3 +1,16 @@
+# Publishing
+
+This repository ships two artifacts to two registries:
+
+- The **`oxidize-pdf` PyPI package** — published from this repo via `release.yml` on every `v*.*.*` tag (instructions below).
+- The **MCP server registry entry** at `io.github.bzsanti/oxidize-pdf-mcp` — the manifest and publishing workflow live in [`oxidize-pdf-integrations`](https://github.com/bzsanti/oxidize-pdf-integrations) under `mcp/server.json` and `.github/workflows/publish-mcp.yml`. After a PyPI release lands, refresh the registry with:
+
+  ```bash
+  gh workflow run publish-mcp.yml -R bzsanti/oxidize-pdf-integrations -f version=X.Y.Z
+  ```
+
+  The workflow uses GitHub Actions OIDC (no PAT, no rotated secret).
+
 # Publishing to PyPI
 
 ## One-time setup: Trusted Publisher

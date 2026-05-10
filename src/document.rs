@@ -60,6 +60,35 @@ impl PyDocument {
         self.inner.add_page(page.inner.clone());
     }
 
+    /// Create a new A4 page already bound to this Document's font
+    /// metrics store. Recommended over :meth:`Page.a4` for code that
+    /// uses custom fonts: the returned page measures ``Font.custom(...)``
+    /// against this Document's per-instance metrics, avoiding the
+    /// deprecated process-wide registry. Mirrors upstream
+    /// ``Document::new_page_a4``.
+    fn new_page_a4(&self) -> PyPage {
+        PyPage {
+            inner: self.inner.new_page_a4(),
+        }
+    }
+
+    /// Create a new US Letter page bound to this Document's font
+    /// metrics store. Mirrors upstream ``Document::new_page_letter``.
+    fn new_page_letter(&self) -> PyPage {
+        PyPage {
+            inner: self.inner.new_page_letter(),
+        }
+    }
+
+    /// Create a new page of arbitrary dimensions bound to this
+    /// Document's font metrics store. Mirrors upstream
+    /// ``Document::new_page``.
+    fn new_page(&self, width: f64, height: f64) -> PyPage {
+        PyPage {
+            inner: self.inner.new_page(width, height),
+        }
+    }
+
     /// Save the document to a file.
     fn save(&mut self, path: &str) -> PyResult<()> {
         self.inner.save(path).map_err(to_py_err)
