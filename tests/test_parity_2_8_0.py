@@ -1,4 +1,4 @@
-"""Parity coverage for upstream oxidize-pdf 2.7.0 / 2.8.0 additions.
+"""Parity coverage for upstream oxidize-pdf 2.8.0 additions.
 
 Surface added in this module:
 
@@ -96,7 +96,27 @@ def test_new_page_a4_with_custom_font_round_trip(output_pdf):
     reader = PdfReader.open(str(output_pdf))
     assert reader.page_count == 1
     extracted = reader.extract_text_from_page(0)
+    assert extracted, (
+        "PdfReader.extract_text_from_page returned empty — "
+        "if this fails, suspect the text extractor's custom-font path, "
+        "not the new_page_a4 factory itself"
+    )
     assert "Hola mundo Roboto" in extracted
+
+
+def test_new_page_letter_round_trip(output_pdf):
+    doc = Document()
+    page = doc.new_page_letter()
+    page.set_font(Font.HELVETICA, 12.0)
+    page.text_at(72.0, 720.0, "Letter factory smoke")
+
+    doc.add_page(page)
+    doc.save(str(output_pdf))
+
+    reader = PdfReader.open(str(output_pdf))
+    assert reader.page_count == 1
+    extracted = reader.extract_text_from_page(0)
+    assert "Letter factory smoke" in extracted
 
 
 def test_new_page_with_custom_dimensions_round_trip(output_pdf):
@@ -117,21 +137,14 @@ def test_new_page_with_custom_dimensions_round_trip(output_pdf):
 # ── TextField.with_default_appearance ──────────────────────────────────────
 
 
-def test_textfield_with_default_appearance_is_chainable():
-    field = TextField("name").with_default_appearance(
-        Font.HELVETICA, 12.0, Color.rgb(0.0, 0.0, 0.0)
-    )
-    assert isinstance(field, TextField)
-
-
 def test_textfield_default_appearance_reaches_acroform_da(output_pdf):
     """The typed /DA built via ``with_default_appearance`` must land
     in the saved PDF's AcroForm field dictionary. Upstream
     ``DefaultAppearance::to_da_string`` emits the form
-    ``/<font_resource> <size> Tf <r> <g> <b> rg`` for an RGB colour.
-    We don't lock the exact font-resource name (writer-assigned) but
-    we lock the size, the ``Tf`` and ``rg`` tokens — those guarantee
-    the typed DA was serialised, not the default fallback."""
+    ``/<font_resource> <size> Tf <r> <g> <b> rg`` for an RGB colour:
+    size via Rust's ``{}`` Display (so 13.5f64 → "13.5") and the
+    colour triple via ``{:.3}`` (three decimals). We don't lock the
+    writer-assigned font resource name."""
     doc = Document()
     field = TextField("name").with_default_appearance(
         Font.HELVETICA, 13.5, Color.rgb(0.25, 0.5, 0.75)
@@ -145,26 +158,13 @@ def test_textfield_default_appearance_reaches_acroform_da(output_pdf):
     doc.save(str(output_pdf))
 
     raw = pathlib.Path(str(output_pdf)).read_bytes()
-    # Look for a /DA entry whose contents include `13.5 Tf` and the RGB triple.
-    assert b"/DA" in raw, "AcroForm field is missing /DA"
-    assert b"13.5 Tf" in raw or b"13.500 Tf" in raw, (
-        "expected /DA to carry size 13.5 via Tf"
-    )
-    assert b"0.250 0.500 0.750 rg" in raw or b"0.25 0.5 0.75 rg" in raw, (
-        "expected /DA to carry the RGB fill colour via rg"
+    assert b"13.5 Tf" in raw, "expected /DA to carry size 13.5 via Tf"
+    assert b"0.250 0.500 0.750 rg" in raw, (
+        "expected /DA to carry the RGB fill colour via three-decimal rg"
     )
 
 
 # ── ComboBox.with_default_appearance ───────────────────────────────────────
-
-
-def test_combobox_with_default_appearance_is_chainable():
-    field = (
-        ComboBox("country")
-        .add_option("es", "España")
-        .with_default_appearance(Font.HELVETICA, 11.0, Color.black())
-    )
-    assert isinstance(field, ComboBox)
 
 
 def test_combobox_default_appearance_reaches_acroform_da(output_pdf):
@@ -188,11 +188,7 @@ def test_combobox_default_appearance_reaches_acroform_da(output_pdf):
     doc.save(str(output_pdf))
 
     raw = pathlib.Path(str(output_pdf)).read_bytes()
-    assert b"/DA" in raw, "AcroForm Choice field is missing /DA"
-    assert b"10 Tf" in raw or b"10.0 Tf" in raw or b"10.000 Tf" in raw, (
-        "expected /DA to carry size 10 via Tf"
+    assert b"10 Tf" in raw, "expected /DA to carry size 10 via Tf"
+    assert b"0.100 0.200 0.300 rg" in raw, (
+        "expected /DA to carry the RGB fill colour via three-decimal rg"
     )
-    assert (
-        b"0.100 0.200 0.300 rg" in raw
-        or b"0.1 0.2 0.3 rg" in raw
-    ), "expected /DA to carry the RGB fill colour via rg"

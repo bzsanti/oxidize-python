@@ -1,0 +1,20 @@
+Test fixtures — origin and license
+===================================
+
+Roboto-Regular.ttf
+------------------
+Source:   https://fonts.google.com/specimen/Roboto
+Designer: Christian Robertson (Google)
+License:  Apache License 2.0
+          https://www.apache.org/licenses/LICENSE-2.0
+
+Used by:  tests/test_parity_2_8_0.py — round-trip test that registers
+          a custom font on a Document via add_font_from_bytes,
+          renders a text run on a Document.new_page_a4() page, saves,
+          and re-reads via PdfReader.extract_text_from_page.
+
+The font binary is NOT distributed in the published wheel; it is
+only present in the source tree for the test suite. The Apache 2.0
+license requires preservation of copyright and notice information
+embedded in the font file's sfnt name table — that information
+travels with the binary and is not stripped or modified.

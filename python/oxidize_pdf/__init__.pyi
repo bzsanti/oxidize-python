@@ -2,6 +2,7 @@
 
 from oxidize_pdf._oxidize_pdf import (
     Color as Color,
+    ComboBox as ComboBox,
     Document as Document,
     Font as Font,
     Margins as Margins,
@@ -17,6 +18,7 @@ from oxidize_pdf._oxidize_pdf import (
     Point as Point,
     Rectangle as Rectangle,
     TextAlign as TextAlign,
+    TextField as TextField,
     __version__ as __version__,
     extract_pages as extract_pages,
     merge_pdfs as merge_pdfs,
