@@ -30,6 +30,9 @@ impl PyDocument {
     }
 
     /// Number of pages in the document.
+    ///
+    /// Read-only property. Access as ``doc.page_count`` (an integer), not
+    /// ``doc.page_count()`` — calling a property raises ``TypeError``.
     #[getter]
     fn page_count(&self) -> usize {
         self.inner.page_count()
