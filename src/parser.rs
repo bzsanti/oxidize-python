@@ -407,6 +407,9 @@ impl PyPdfReader {
     }
 
     /// Number of pages in the document.
+    ///
+    /// Read-only property. Access as ``reader.page_count`` (an integer), not
+    /// ``reader.page_count()`` — calling a property raises ``TypeError``.
     #[getter]
     fn page_count(&mut self) -> PyResult<u32> {
         self.ensure_document();
