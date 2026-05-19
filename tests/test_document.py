@@ -90,6 +90,60 @@ class TestDocument:
         assert doc.page_count == 2
 
 
+class TestPageCountPropertyContract:
+    """Regression for downstream issue #59.
+
+    All three ``page_count`` surfaces (``Document``, ``PdfReader``, ``LazyDocument``)
+    must be exposed as read-only properties — and the docstring must say so, so
+    ``help(Document.page_count)`` does not mislead callers into ``doc.page_count()``.
+    """
+
+    def _doc_is_property(self, cls):
+        descriptor = cls.__dict__.get("page_count")
+        assert descriptor is not None, f"{cls.__name__}.page_count missing from class dict"
+        return descriptor
+
+    def test_document_page_count_is_getset_descriptor(self):
+        from oxidize_pdf import Document
+
+        descriptor = self._doc_is_property(Document)
+        assert type(descriptor).__name__ == "getset_descriptor", (
+            f"Document.page_count must be a getset_descriptor (property), got {type(descriptor).__name__}"
+        )
+
+    def test_document_page_count_docstring_says_read_only_property(self):
+        from oxidize_pdf import Document
+
+        doc = Document.page_count.__doc__ or ""
+        assert "read-only property" in doc.lower(), (
+            f"Document.page_count docstring should mark it as a read-only property; got: {doc!r}"
+        )
+
+    def test_pdfreader_page_count_docstring_says_read_only_property(self):
+        from oxidize_pdf import PdfReader
+
+        doc = PdfReader.page_count.__doc__ or ""
+        assert "read-only property" in doc.lower(), (
+            f"PdfReader.page_count docstring should mark it as a read-only property; got: {doc!r}"
+        )
+
+    def test_lazydocument_page_count_docstring_says_read_only_property(self):
+        from oxidize_pdf import LazyDocument
+
+        doc = LazyDocument.page_count.__doc__ or ""
+        assert "read-only property" in doc.lower(), (
+            f"LazyDocument.page_count docstring should mark it as a read-only property; got: {doc!r}"
+        )
+
+    def test_document_page_count_call_raises_typeerror(self):
+        """Calling a property as a method must raise — explicit guard against API drift."""
+        from oxidize_pdf import Document
+
+        d = Document()
+        with pytest.raises(TypeError, match="not callable"):
+            d.page_count()  # type: ignore[operator]
+
+
 class TestPage:
     """Test the Page class."""
 

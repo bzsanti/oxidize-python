@@ -494,6 +494,10 @@ impl PyLazyDocument {
         Ok(Self { inner: doc })
     }
 
+    /// Number of pages in the document.
+    ///
+    /// Read-only property. Access as ``lazy_doc.page_count`` (an integer), not
+    /// ``lazy_doc.page_count()`` — calling a property raises ``TypeError``.
     #[getter]
     fn page_count(&self) -> u32 { self.inner.page_count() }
 
