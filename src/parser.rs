@@ -7,7 +7,7 @@ use oxidize_pdf::ai::DocumentChunker;
 
 use crate::ai_pipeline::{PyDocumentChunk, PyElement, PyExtractionProfile, PyRagChunk};
 use crate::errors;
-use crate::text_extraction::{PyExtractionOptions, PyPlainTextConfig, PyPlainTextResult};
+use crate::text_extraction::{PyExtractionOptions, PyPlainTextConfig, PyPlainTextResult, PyTextFragment};
 
 /// Convert a parser `ParseError` into the appropriate Python exception.
 ///
@@ -639,12 +639,69 @@ impl PyPdfReader {
     /// Extract text from all pages using advanced options.
     ///
     /// Returns a list of strings, one per page.
+    ///
+    /// See also: :meth:`extract_fragments_with_options` for the same
+    /// extraction with positional fragments instead of concatenated text.
     fn extract_text_with_options(&mut self, options: &PyExtractionOptions) -> PyResult<Vec<String>> {
         self.ensure_document();
         let texts = with_document!(self, doc =>
             doc.extract_text_with_options(options.inner.clone()).map_err(parse_err_to_py)
         )?;
         Ok(texts.into_iter().map(|t| t.text).collect())
+    }
+
+    /// Extract positional text fragments from all pages using advanced options.
+    ///
+    /// Returns a list of pages; each page is a list of ``TextFragment``
+    /// objects carrying coordinates, font metadata, and (for tagged PDFs)
+    /// marked-content identifiers (``mcid`` / ``struct_tag``).
+    ///
+    /// Requires ``options.preserve_layout = True`` to receive fragments;
+    /// otherwise upstream returns an empty fragment list per page.
+    ///
+    /// See also: :meth:`extract_text_with_options` for concatenated
+    /// per-page text from the same extraction call.
+    ///
+    /// New in oxidize-python 0.6.0 (oxidize-pdf 2.10.0, issue #269).
+    fn extract_fragments_with_options(
+        &mut self,
+        options: &PyExtractionOptions,
+    ) -> PyResult<Vec<Vec<PyTextFragment>>> {
+        self.ensure_document();
+        let pages = with_document!(self, doc =>
+            doc.extract_text_with_options(options.inner.clone()).map_err(parse_err_to_py)
+        )?;
+        Ok(pages
+            .into_iter()
+            .map(|page| {
+                page.fragments
+                    .into_iter()
+                    .map(|f| PyTextFragment { inner: f })
+                    .collect()
+            })
+            .collect())
+    }
+
+    /// Extract positional text fragments from a single page using advanced
+    /// options. Returns a list of ``TextFragment`` objects for the given
+    /// 0-based page index.
+    ///
+    /// New in oxidize-python 0.6.0 (oxidize-pdf 2.10.0, issue #269).
+    fn extract_fragments_from_page(
+        &mut self,
+        page_index: u32,
+        options: &PyExtractionOptions,
+    ) -> PyResult<Vec<PyTextFragment>> {
+        self.ensure_document();
+        let extracted = with_document!(self, doc =>
+            doc.extract_text_from_page_with_options(page_index, options.inner.clone())
+                .map_err(parse_err_to_py)
+        )?;
+        Ok(extracted
+            .fragments
+            .into_iter()
+            .map(|f| PyTextFragment { inner: f })
+            .collect())
     }
 
     /// Extract plain text from a single page using PlainTextExtractor.

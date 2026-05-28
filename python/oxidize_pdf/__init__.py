@@ -402,8 +402,10 @@ from oxidize_pdf._oxidize_pdf import (
 
 # Text Extraction Deep (Tier 14 — F71-F74)
 from oxidize_pdf._oxidize_pdf import (
-    # F71: ExtractionOptions
+    # F71: ExtractionOptions + TextFragment + SpaceDecision (oxidize-pdf 2.10.0)
     ExtractionOptions,
+    TextFragment,
+    SpaceDecision,
     # F72: LineBreakMode, PlainTextConfig, PlainTextResult
     LineBreakMode,
     PlainTextConfig,
@@ -858,6 +860,8 @@ __all__ = [
     # Text Extraction Deep (Tier 14 — F71-F74)
     # F71
     "ExtractionOptions",
+    "TextFragment",
+    "SpaceDecision",
     # F72
     "LineBreakMode",
     "PlainTextConfig",
