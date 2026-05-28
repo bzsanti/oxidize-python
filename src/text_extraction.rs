@@ -5,9 +5,11 @@
 
 use pyo3::prelude::*;
 
+use oxidize_pdf::text::extraction::SpaceDecision;
 use oxidize_pdf::text::{
     ColumnContent, ColumnLayout, ColumnOptions, ExtractionOptions, LineBreakMode, MatchType,
-    PlainTextConfig, PlainTextResult, TextMatch, TextValidationResult, TextValidator,
+    PlainTextConfig, PlainTextResult, TextFragment, TextMatch, TextValidationResult,
+    TextValidator,
 };
 
 use crate::text::PyFont;
@@ -34,6 +36,9 @@ impl PyExtractionOptions {
         column_threshold = 50.0,
         merge_hyphenated = true,
         track_space_decisions = false,
+        tj_space_threshold = 0.2,
+        reconstruct_paragraphs = false,
+        include_artifacts = false,
     ))]
     #[allow(clippy::too_many_arguments)]
     fn new(
@@ -45,6 +50,9 @@ impl PyExtractionOptions {
         column_threshold: f64,
         merge_hyphenated: bool,
         track_space_decisions: bool,
+        tj_space_threshold: f64,
+        reconstruct_paragraphs: bool,
+        include_artifacts: bool,
     ) -> Self {
         Self {
             inner: ExtractionOptions {
@@ -56,6 +64,9 @@ impl PyExtractionOptions {
                 column_threshold,
                 merge_hyphenated,
                 track_space_decisions,
+                tj_space_threshold,
+                reconstruct_paragraphs,
+                include_artifacts,
             },
         }
     }
@@ -100,11 +111,45 @@ impl PyExtractionOptions {
         self.inner.track_space_decisions
     }
 
+    /// Threshold for synthesising an implicit U+0020 from a TJ numeric
+    /// kerning offset, expressed as a fraction of the font size.
+    ///
+    /// Default ``0.2`` (200 milli-em). Set to ``0.0`` to disable TJ-kern
+    /// space synthesis entirely (the extractor will never insert a space
+    /// purely from a numeric kern; only literal whitespace bytes count).
+    /// Useful tuning range is typically ``0.05`` (very aggressive, more
+    /// false-positive spaces in tightly kerned typography) to ``0.5``
+    /// (conservative, may miss inter-word gaps in PDFs that encode them
+    /// as wide negative kerns rather than literal spaces — common with
+    /// LaTeX, InDesign, and academic publishers).
+    ///
+    /// New in oxidize-pdf 2.10.0 (issue #272).
+    #[getter]
+    fn tj_space_threshold(&self) -> f64 {
+        self.inner.tj_space_threshold
+    }
+
+    /// Reconstruct visual lines and paragraphs from raw text fragments.
+    /// New in oxidize-pdf 2.10.0 (issue #261).
+    #[getter]
+    fn reconstruct_paragraphs(&self) -> bool {
+        self.inner.reconstruct_paragraphs
+    }
+
+    /// Include content inside /Artifact marked-content scopes (headers,
+    /// footers, watermarks). Default false — filters out artifacts.
+    /// New in oxidize-pdf 2.10.0 (issue #269).
+    #[getter]
+    fn include_artifacts(&self) -> bool {
+        self.inner.include_artifacts
+    }
+
     fn __repr__(&self) -> String {
         format!(
             "ExtractionOptions(preserve_layout={}, space_threshold={}, newline_threshold={}, \
              sort_by_position={}, detect_columns={}, column_threshold={}, \
-             merge_hyphenated={}, track_space_decisions={})",
+             merge_hyphenated={}, track_space_decisions={}, tj_space_threshold={}, \
+             reconstruct_paragraphs={}, include_artifacts={})",
             self.inner.preserve_layout,
             self.inner.space_threshold,
             self.inner.newline_threshold,
@@ -113,6 +158,9 @@ impl PyExtractionOptions {
             self.inner.column_threshold,
             self.inner.merge_hyphenated,
             self.inner.track_space_decisions,
+            self.inner.tj_space_threshold,
+            self.inner.reconstruct_paragraphs,
+            self.inner.include_artifacts,
         )
     }
 }
@@ -162,12 +210,14 @@ impl PyPlainTextConfig {
         newline_threshold = 10.0,
         preserve_layout = false,
         line_break_mode = None,
+        tj_space_threshold = 0.2,
     ))]
     fn new(
         space_threshold: f64,
         newline_threshold: f64,
         preserve_layout: bool,
         line_break_mode: Option<&PyLineBreakMode>,
+        tj_space_threshold: f64,
     ) -> Self {
         let mode = line_break_mode.map(|m| m.inner).unwrap_or(LineBreakMode::Auto);
         Self {
@@ -176,6 +226,7 @@ impl PyPlainTextConfig {
                 newline_threshold,
                 preserve_layout,
                 line_break_mode: mode,
+                tj_space_threshold,
             },
         }
     }
@@ -218,10 +269,27 @@ impl PyPlainTextConfig {
         PyLineBreakMode { inner: self.inner.line_break_mode }
     }
 
+    /// Threshold for synthesising an implicit space from a TJ numeric
+    /// kerning offset, expressed as a fraction of the font size.
+    ///
+    /// Mirrors :attr:`ExtractionOptions.tj_space_threshold`. Default
+    /// ``0.2`` (``0.1`` for the ``dense()`` preset, ``0.25`` for
+    /// ``loose()``). Set to ``0.0`` to disable TJ-kern space synthesis.
+    ///
+    /// New in oxidize-pdf 2.10.0 (issue #272).
+    #[getter]
+    fn tj_space_threshold(&self) -> f64 {
+        self.inner.tj_space_threshold
+    }
+
     fn __repr__(&self) -> String {
         format!(
-            "PlainTextConfig(space_threshold={}, newline_threshold={}, preserve_layout={})",
-            self.inner.space_threshold, self.inner.newline_threshold, self.inner.preserve_layout,
+            "PlainTextConfig(space_threshold={}, newline_threshold={}, preserve_layout={}, \
+             tj_space_threshold={})",
+            self.inner.space_threshold,
+            self.inner.newline_threshold,
+            self.inner.preserve_layout,
+            self.inner.tj_space_threshold,
         )
     }
 }
@@ -578,11 +646,221 @@ impl PyTextValidator {
     }
 }
 
+// ── SpaceDecision (F71 — track_space_decisions output) ──────────────────
+
+/// One space-insertion decision recorded by the extractor.
+///
+/// Populated only when ``ExtractionOptions.track_space_decisions = True``
+/// and surfaced through ``TextFragment.space_decisions``. Each entry
+/// describes one point in the text run where the extractor either
+/// inserted or suppressed a space, along with the geometric evidence
+/// used to make the call.
+#[pyclass(name = "SpaceDecision", frozen)]
+pub struct PySpaceDecision {
+    pub inner: SpaceDecision,
+}
+
+#[pymethods]
+impl PySpaceDecision {
+    /// Character offset in the extracted text where the decision applies.
+    #[getter]
+    fn offset(&self) -> usize {
+        self.inner.offset
+    }
+
+    /// Actual horizontal gap (dx) in text space units.
+    #[getter]
+    fn dx(&self) -> f64 {
+        self.inner.dx
+    }
+
+    /// Threshold the extractor compared `dx` against.
+    #[getter]
+    fn threshold(&self) -> f64 {
+        self.inner.threshold
+    }
+
+    /// Confidence in the decision: `|dx - threshold| / threshold`,
+    /// clamped to `[0.0, 1.0]`.
+    #[getter]
+    fn confidence(&self) -> f64 {
+        self.inner.confidence
+    }
+
+    /// Whether a `U+0020` was inserted at this point (`True`) or
+    /// suppressed (`False`).
+    #[getter]
+    fn inserted(&self) -> bool {
+        self.inner.inserted
+    }
+
+    fn __repr__(&self) -> String {
+        format!(
+            "SpaceDecision(offset={}, dx={}, threshold={}, confidence={}, inserted={})",
+            self.inner.offset,
+            self.inner.dx,
+            self.inner.threshold,
+            self.inner.confidence,
+            self.inner.inserted,
+        )
+    }
+}
+
+// ── TextFragment (F71 — positional extraction, oxidize-pdf 2.10.0) ───────
+
+/// A positioned text fragment produced by layout-aware extraction.
+///
+/// Returned by `PdfReader.extract_fragments_with_options(...)`. Each
+/// fragment carries page-space coordinates, font metadata, and — for
+/// tagged PDFs — the innermost marked-content identifier (`mcid`) and
+/// structural tag (`struct_tag`, e.g. `"P"`, `"H1"`, `"Figure"`,
+/// `"Artifact"`).
+#[pyclass(name = "TextFragment", frozen)]
+pub struct PyTextFragment {
+    pub inner: TextFragment,
+}
+
+#[pymethods]
+impl PyTextFragment {
+    /// Text content of the fragment.
+    #[getter]
+    fn text(&self) -> &str {
+        &self.inner.text
+    }
+
+    /// X position in page coordinates.
+    #[getter]
+    fn x(&self) -> f64 {
+        self.inner.x
+    }
+
+    /// Y position in page coordinates.
+    #[getter]
+    fn y(&self) -> f64 {
+        self.inner.y
+    }
+
+    /// Width of the fragment.
+    #[getter]
+    fn width(&self) -> f64 {
+        self.inner.width
+    }
+
+    /// Height of the fragment.
+    #[getter]
+    fn height(&self) -> f64 {
+        self.inner.height
+    }
+
+    /// Font size in points.
+    #[getter]
+    fn font_size(&self) -> f64 {
+        self.inner.font_size
+    }
+
+    /// Font name resolved from the PDF, if known.
+    #[getter]
+    fn font_name(&self) -> Option<&str> {
+        self.inner.font_name.as_deref()
+    }
+
+    /// Whether the font was detected as bold from its name.
+    #[getter]
+    fn is_bold(&self) -> bool {
+        self.inner.is_bold
+    }
+
+    /// Whether the font was detected as italic from its name.
+    #[getter]
+    fn is_italic(&self) -> bool {
+        self.inner.is_italic
+    }
+
+    /// Fill colour from the graphics state, or None if unspecified.
+    #[getter]
+    fn color(&self) -> Option<PyColor> {
+        self.inner.color.map(|c| PyColor { inner: c })
+    }
+
+    /// Marked-content identifier inherited from the innermost ancestor
+    /// BDC with `/MCID`. `None` for non-tagged PDFs.
+    /// New in oxidize-pdf 2.10.0 (issue #269).
+    #[getter]
+    fn mcid(&self) -> Option<u32> {
+        self.inner.mcid
+    }
+
+    /// Structural tag of the owning BDC (e.g. `"P"`, `"H1"`, `"Figure"`,
+    /// `"Artifact"`). Set on the same ancestor that supplied `mcid`.
+    /// New in oxidize-pdf 2.10.0 (issue #269).
+    #[getter]
+    fn struct_tag(&self) -> Option<&str> {
+        self.inner.struct_tag.as_deref()
+    }
+
+    /// Space-insertion decisions recorded for this fragment.
+    ///
+    /// Empty unless ``ExtractionOptions.track_space_decisions`` was set
+    /// to ``True`` for the extraction call that produced this fragment.
+    /// Each entry is a :class:`SpaceDecision` describing one decision
+    /// point in the run.
+    #[getter]
+    fn space_decisions(&self) -> Vec<PySpaceDecision> {
+        self.inner
+            .space_decisions
+            .iter()
+            .map(|d| PySpaceDecision { inner: d.clone() })
+            .collect()
+    }
+
+    fn __repr__(&self) -> String {
+        format!(
+            "TextFragment(text={:?}, x={}, y={}, width={}, height={}, font_size={}, \
+             font_name={:?}, mcid={:?}, struct_tag={:?})",
+            self.inner.text,
+            self.inner.x,
+            self.inner.y,
+            self.inner.width,
+            self.inner.height,
+            self.inner.font_size,
+            self.inner.font_name,
+            self.inner.mcid,
+            self.inner.struct_tag,
+        )
+    }
+
+    /// Structural equality across content, position, geometry, font
+    /// metadata, colour, and marked-content identity.
+    ///
+    /// `space_decisions` is intentionally excluded: it is opt-in
+    /// instrumentation, not part of fragment identity. Comparing two
+    /// fragments that differ only in whether the producer enabled
+    /// `track_space_decisions` would otherwise return `False`.
+    fn __eq__(&self, other: &Self) -> bool {
+        let a = &self.inner;
+        let b = &other.inner;
+        a.text == b.text
+            && a.x == b.x
+            && a.y == b.y
+            && a.width == b.width
+            && a.height == b.height
+            && a.font_size == b.font_size
+            && a.font_name == b.font_name
+            && a.is_bold == b.is_bold
+            && a.is_italic == b.is_italic
+            && a.color == b.color
+            && a.mcid == b.mcid
+            && a.struct_tag == b.struct_tag
+    }
+}
+
 // ── Registration ──────────────────────────────────────────────────────────
 
 pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     // F71
     m.add_class::<PyExtractionOptions>()?;
+    m.add_class::<PyTextFragment>()?;
+    m.add_class::<PySpaceDecision>()?;
     // F72
     m.add_class::<PyLineBreakMode>()?;
     m.add_class::<PyPlainTextConfig>()?;
