@@ -47,6 +47,10 @@ class TestExtractionOptions:
         assert opts.column_threshold == pytest.approx(50.0)
         assert opts.merge_hyphenated is True
         assert opts.track_space_decisions is False
+        # New in oxidize-pdf 2.10.0
+        assert opts.tj_space_threshold == pytest.approx(0.2)
+        assert opts.reconstruct_paragraphs is False
+        assert opts.include_artifacts is False
 
     def test_custom_values(self):
         opts = op.ExtractionOptions(
@@ -58,6 +62,9 @@ class TestExtractionOptions:
             column_threshold=75.0,
             merge_hyphenated=False,
             track_space_decisions=True,
+            tj_space_threshold=0.35,
+            reconstruct_paragraphs=True,
+            include_artifacts=True,
         )
         assert opts.preserve_layout is True
         assert opts.space_threshold == pytest.approx(0.5)
@@ -67,11 +74,18 @@ class TestExtractionOptions:
         assert opts.column_threshold == pytest.approx(75.0)
         assert opts.merge_hyphenated is False
         assert opts.track_space_decisions is True
+        assert opts.tj_space_threshold == pytest.approx(0.35)
+        assert opts.reconstruct_paragraphs is True
+        assert opts.include_artifacts is True
 
     def test_repr(self):
         opts = op.ExtractionOptions()
         r = repr(opts)
         assert "ExtractionOptions" in r
+        # New 2.10.0 fields surface in repr
+        assert "tj_space_threshold" in r
+        assert "reconstruct_paragraphs" in r
+        assert "include_artifacts" in r
 
 
 # ── F72: LineBreakMode ─────────────────────────────────────────────────────
@@ -105,17 +119,23 @@ class TestPlainTextConfig:
         assert cfg.space_threshold == pytest.approx(0.3)
         assert cfg.newline_threshold == pytest.approx(10.0)
         assert cfg.preserve_layout_flag is False
+        # New in oxidize-pdf 2.10.0
+        assert cfg.tj_space_threshold == pytest.approx(0.2)
 
     def test_dense_preset(self):
         cfg = op.PlainTextConfig.dense()
         assert cfg.space_threshold == pytest.approx(0.1)
         assert cfg.newline_threshold == pytest.approx(8.0)
         assert cfg.preserve_layout_flag is False
+        # Locks the upstream 2.10.0 dense preset against silent drift
+        assert cfg.tj_space_threshold == pytest.approx(0.1)
 
     def test_loose_preset(self):
         cfg = op.PlainTextConfig.loose()
         assert cfg.space_threshold == pytest.approx(0.4)
         assert cfg.newline_threshold == pytest.approx(15.0)
+        # Locks the upstream 2.10.0 loose preset against silent drift
+        assert cfg.tj_space_threshold == pytest.approx(0.25)
 
     def test_preserve_layout_preset(self):
         cfg = op.PlainTextConfig.preserve_layout()
@@ -123,10 +143,16 @@ class TestPlainTextConfig:
         assert "PRESERVE_ALL" in repr(cfg.line_break_mode)
 
     def test_custom_values(self):
-        cfg = op.PlainTextConfig(space_threshold=0.2, newline_threshold=12.0, preserve_layout=True)
+        cfg = op.PlainTextConfig(
+            space_threshold=0.2,
+            newline_threshold=12.0,
+            preserve_layout=True,
+            tj_space_threshold=0.4,
+        )
         assert cfg.space_threshold == pytest.approx(0.2)
         assert cfg.newline_threshold == pytest.approx(12.0)
         assert cfg.preserve_layout_flag is True
+        assert cfg.tj_space_threshold == pytest.approx(0.4)
 
     def test_repr(self):
         cfg = op.PlainTextConfig()
@@ -440,3 +466,201 @@ class TestPdfReaderTextExtraction:
     def test_extract_plain_text_char_count_consistent(self, sample_reader):
         result = sample_reader.extract_plain_text(0)
         assert result.char_count == len(result.text)
+
+
+# ── F71 (2.10.0): TextFragment + extract_fragments_* ──────────────────────
+
+class TestTextFragmentExtraction:
+    """Positional fragment extraction wired in oxidize-python 0.6.0 to
+    surface oxidize-pdf 2.10.0's TextFragment.mcid / struct_tag.
+
+    The sample PDF emits five single-line `Tj` operators at known
+    coordinates via `Page.text_at`, so we can assert exact contents and
+    positions rather than relying on counts only.
+    """
+
+    def test_extract_fragments_with_options_returns_per_page_lists(
+        self, sample_reader
+    ):
+        opts = op.ExtractionOptions(preserve_layout=True)
+        pages = sample_reader.extract_fragments_with_options(opts)
+        assert isinstance(pages, list)
+        assert len(pages) == 1
+        assert isinstance(pages[0], list)
+        # Five text_at() calls in _create_sample_pdf
+        assert len(pages[0]) >= 5
+
+    def test_extract_fragments_from_page_sorted_by_y_descending(self, sample_reader):
+        """Fragments come back sorted top-to-bottom (Y descending in PDF space).
+
+        The sample PDF places its five `text_at` lines at exactly
+        y = 750, 720, 700, 680, 660. With default `sort_by_position = True`,
+        the extractor must surface them in that exact order: first fragment
+        anchored near y=750, last near y=660, and every step monotonically
+        non-increasing. A regression that broke `sort_by_position`, swapped
+        Y semantics, or dropped fragments would fail this test.
+        """
+        opts = op.ExtractionOptions(preserve_layout=True)
+        fragments = sample_reader.extract_fragments_from_page(0, opts)
+        assert len(fragments) >= 5
+        ys = [f.y for f in fragments]
+        assert ys[0] == pytest.approx(750.0, abs=1.0)
+        assert ys[-1] == pytest.approx(660.0, abs=1.0)
+        for prev, nxt in zip(ys, ys[1:]):
+            assert prev >= nxt, f"Y not monotonically non-increasing: {prev} -> {nxt}"
+
+    def test_fragment_exposes_position_and_font_metadata(self, sample_reader):
+        opts = op.ExtractionOptions(preserve_layout=True)
+        fragments = sample_reader.extract_fragments_from_page(0, opts)
+        contract_frag = next(
+            f for f in fragments if "Contract #12345" in f.text
+        )
+        # text_at(50.0, 750.0, "Contract #12345") with Helvetica 12pt
+        assert contract_frag.x == pytest.approx(50.0, abs=0.5)
+        assert contract_frag.y == pytest.approx(750.0, abs=0.5)
+        assert contract_frag.font_size == pytest.approx(12.0)
+        assert contract_frag.width > 0.0
+        assert contract_frag.height > 0.0
+        # Helvetica is not bold/italic
+        assert contract_frag.is_bold is False
+        assert contract_frag.is_italic is False
+        assert isinstance(contract_frag.font_name, (str, type(None)))
+
+    def test_fragment_mcid_and_struct_tag_none_for_untagged_pdf(
+        self, sample_reader
+    ):
+        """Untagged PDFs (no BDC/EMC structure) leave mcid/struct_tag empty.
+
+        The 2.10.0 contract is: mcid and struct_tag are populated only when
+        the content stream wraps text in `/MCID … BDC … EMC`. The sample
+        PDF emits plain Tj operators, so both fields must be None.
+        """
+        opts = op.ExtractionOptions(preserve_layout=True)
+        fragments = sample_reader.extract_fragments_from_page(0, opts)
+        for fragment in fragments:
+            assert fragment.mcid is None
+            assert fragment.struct_tag is None
+
+    def test_fragment_repr_includes_text_and_position(self, sample_reader):
+        opts = op.ExtractionOptions(preserve_layout=True)
+        fragments = sample_reader.extract_fragments_from_page(0, opts)
+        rendered = repr(fragments[0])
+        assert "TextFragment" in rendered
+        assert "x=" in rendered
+        assert "y=" in rendered
+        assert "mcid=" in rendered
+        assert "struct_tag=" in rendered
+
+    def test_extract_fragments_without_preserve_layout_yields_empty(
+        self, sample_reader
+    ):
+        """Without preserve_layout, upstream returns no fragments — only
+        the concatenated `text` field. This bridge exposes that contract
+        verbatim instead of synthesising fragments.
+        """
+        opts = op.ExtractionOptions(preserve_layout=False)
+        fragments = sample_reader.extract_fragments_from_page(0, opts)
+        assert fragments == []
+
+    def test_extract_fragments_from_invalid_page_raises(self, sample_reader):
+        opts = op.ExtractionOptions(preserve_layout=True)
+        # parse_err_to_py wildcard maps to PdfParseError; ensure the bridge
+        # surfaces a typed PDF exception, not a stray generic Exception
+        # (which would silently mask a panic or a type-system regression).
+        with pytest.raises(op.PdfParseError):
+            sample_reader.extract_fragments_from_page(99, opts)
+
+    def test_fragment_eq_is_structural(self, sample_reader):
+        """``__eq__`` compares content + position + font + tagging.
+
+        Two independent extractions of the same fixture must produce
+        pair-wise equal fragments. A different fragment from the same
+        page must compare unequal.
+        """
+        opts = op.ExtractionOptions(preserve_layout=True)
+        first = sample_reader.extract_fragments_from_page(0, opts)
+        # Re-open the same bytes to force a fresh extraction with no
+        # object identity overlap.
+        second_reader = op.PdfReader.from_bytes(_create_sample_pdf())
+        second = second_reader.extract_fragments_from_page(0, opts)
+        assert len(first) == len(second)
+        for a, b in zip(first, second):
+            assert a == b
+        # Distinct fragments from the same page differ on at least one
+        # identity field (here: text + y position).
+        assert first[0] != first[-1]
+
+    def test_space_decisions_returns_list_with_or_without_flag(self, sample_reader):
+        """``TextFragment.space_decisions`` is always a list, never None.
+
+        oxidize-pdf 2.10.0 declares the ``track_space_decisions`` flag
+        and the ``SpaceDecision`` type, but no extractor path currently
+        pushes onto the vector — it is empty in both modes. This test
+        locks the observable contract of the binding (always a list,
+        possibly empty) and intentionally asserts the no-producer
+        invariant so that when upstream wires the producer this test
+        will fail loudly, signalling that it must be replaced by one
+        demanding non-empty output under ``track_space_decisions=True``.
+        """
+        for flag in (False, True):
+            opts = op.ExtractionOptions(
+                preserve_layout=True,
+                track_space_decisions=flag,
+            )
+            fragments = sample_reader.extract_fragments_from_page(0, opts)
+            for fragment in fragments:
+                # Must be a list, not None, regardless of the flag.
+                assert isinstance(fragment.space_decisions, list)
+                # Each call returns an independent list, not a shared
+                # reference to the same Vec on the Rust side.
+                assert fragment.space_decisions is not fragment.space_decisions
+            # Upstream 2.10.0 ships no producer; both modes yield empty.
+            assert all(
+                f.space_decisions == [] for f in fragments
+            ), (
+                "All fragments expected to carry empty space_decisions in "
+                f"upstream 2.10.0 (flag={flag}). If this test fails, "
+                "upstream now emits SpaceDecisions and this test should be "
+                "replaced by one asserting the SpaceDecision contract."
+            )
+
+    def test_fragment_color_reflects_set_fill_color(self):
+        """``TextFragment.color`` round-trips through the graphics state.
+
+        Reproduces the upstream issue #57 fix flow: pre-existing fill
+        colour from a graphics op (rectangle fill) is overridden by a
+        second ``set_fill_color`` call before ``text_at``. The producer
+        emits ``rg`` for both colours; the extractor must surface the
+        second one — the text colour — on the resulting fragment.
+
+        Just calling ``set_fill_color`` + ``text_at`` is not sufficient
+        because the writer suppresses the implied ``rg`` when no
+        intervening graphics op forces a flush; the intervening fill
+        below mirrors the issue #57 reproducer exactly.
+        """
+        doc = op.Document()
+        page = op.Page.a4()
+        # First fill: opaque magenta band (graphics-state preamble).
+        page.set_fill_color(op.Color.rgb(0.851, 0.275, 0.937))
+        page.draw_rect(0.0, 600.0, 595.0, 200.0)
+        page.fill()
+        # Switch to pure red and write text on top.
+        page.set_fill_color(op.Color.rgb(1.0, 0.0, 0.0))
+        page.set_font(op.Font.HELVETICA_BOLD, 14.0)
+        page.text_at(80.0, 700.0, "Red marker")
+        doc.add_page(page)
+
+        reader = op.PdfReader.from_bytes(doc.save_to_bytes())
+        opts = op.ExtractionOptions(preserve_layout=True)
+        fragments = reader.extract_fragments_from_page(0, opts)
+        marker = next(f for f in fragments if "Red marker" in f.text)
+
+        assert marker.color is not None, (
+            "Expected fragment.color to surface the graphics-state fill "
+            "colour set via Page.set_fill_color; got None instead."
+        )
+        # The text was written after a switch to red; the extractor must
+        # carry that red onto the fragment, not the prior magenta.
+        assert marker.color.r == pytest.approx(1.0, abs=1e-6)
+        assert marker.color.g == pytest.approx(0.0, abs=1e-6)
+        assert marker.color.b == pytest.approx(0.0, abs=1e-6)
