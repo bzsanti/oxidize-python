@@ -1,9 +1,14 @@
+use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
+use pyo3::types::{PyBool, PyDict, PyList};
 
 use oxidize_pdf::graphics::calibrated_color::{CalGrayColorSpace, CalRgbColorSpace, CalibratedColor};
 use oxidize_pdf::graphics::lab_color::LabColor;
 use oxidize_pdf::graphics::state::{BlendMode, LineDashPattern};
-use oxidize_pdf::graphics::{ClippingPath, LineCap, LineJoin};
+use oxidize_pdf::graphics::{
+    ClippingPath, DeviceColorSpace, LineCap, LineJoin, PageColorSpace, ParameterisedFamily,
+};
+use oxidize_pdf::objects::{Dictionary, Object};
 
 use crate::tier8::PyLabColorSpace;
 
@@ -401,6 +406,207 @@ impl PyLabColor {
     }
 }
 
+// ── PageColorSpace (GFX-019 — page-level colour-space resources) ────────────
+
+/// Convert a single Python value to a PDF [`Object`] for color-space
+/// parameter dictionaries. Supports the scalar/array shapes calibrated and
+/// ICC parameter dicts use: int, float, str (PDF name), and lists thereof.
+fn py_to_pdf_object(value: &Bound<'_, PyAny>) -> PyResult<Object> {
+    // bool before int: Python bool is a subclass of int, so extract::<i64>()
+    // would silently accept True/False as 1/0. PDF parameter dicts have no
+    // boolean type, so a bool here is always a caller mistake — reject it.
+    if value.is_instance_of::<PyBool>() {
+        return Err(PyValueError::new_err(
+            "bool is not a valid PDF parameter value; use int or float",
+        ));
+    }
+    // int before float: f64 extraction would also accept Python ints, but a
+    // PDF /N channel count must serialise as an integer, not 3.0.
+    if let Ok(i) = value.extract::<i64>() {
+        return Ok(Object::Integer(i));
+    }
+    if let Ok(f) = value.extract::<f64>() {
+        return Ok(Object::Real(f));
+    }
+    if let Ok(s) = value.extract::<String>() {
+        return Ok(Object::Name(s));
+    }
+    if let Ok(list) = value.cast::<PyList>() {
+        let mut arr = Vec::with_capacity(list.len());
+        for item in list.iter() {
+            arr.push(py_to_pdf_object(&item)?);
+        }
+        return Ok(Object::Array(arr));
+    }
+    Err(PyValueError::new_err(
+        "unsupported value in color-space parameter dict; use int, float, \
+         str (a PDF name), or a list of those",
+    ))
+}
+
+/// Convert a Python ``dict[str, ...]`` into a PDF [`Dictionary`] for the
+/// `parameterised` escape-hatch constructor.
+fn py_dict_to_dictionary(params: &Bound<'_, PyDict>) -> PyResult<Dictionary> {
+    let mut dict = Dictionary::new();
+    for (key, value) in params.iter() {
+        let key = key.extract::<String>().map_err(|_| {
+            PyValueError::new_err("color-space parameter dict keys must be strings")
+        })?;
+        dict.set(key, py_to_pdf_object(&value)?);
+    }
+    Ok(dict)
+}
+
+/// Extract the parameter [`Dictionary`] from a colour space's
+/// `[/<family> <<params>>]` PDF array representation. The family name is
+/// tracked separately by [`PageColorSpace::Parameterised`], so only the
+/// parameter dictionary (the array's second element) is needed here.
+///
+/// Returns an error rather than an empty dictionary if no `Dictionary` is
+/// present: a calibrated colour space with empty params (`[/CalGray <<>>]`)
+/// is invalid (missing `/WhitePoint`), so a future upstream change to
+/// `to_pdf_array` must surface as an explicit error, never a silent
+/// malformed colour space.
+fn params_dict_from_array(array: Vec<Object>) -> PyResult<Dictionary> {
+    array
+        .into_iter()
+        .find_map(|o| match o {
+            Object::Dictionary(d) => Some(d),
+            _ => None,
+        })
+        .ok_or_else(|| {
+            PyValueError::new_err(
+                "color-space array carried no parameter dictionary; \
+                 cannot build a valid calibrated color space",
+            )
+        })
+}
+
+/// A colour space registrable on a [`crate::page::PyPage`] via
+/// ``add_color_space`` and emitted at ``/Resources/ColorSpace/<name>``
+/// (ISO 32000-1 §8.6). Construct via the typed static factories; use
+/// ``parameterised`` for families the typed constructors don't cover.
+#[pyclass(name = "PageColorSpace", from_py_object)]
+#[derive(Clone)]
+pub struct PyPageColorSpace {
+    pub inner: PageColorSpace,
+}
+
+#[pymethods]
+impl PyPageColorSpace {
+    /// A named device-space alias. `name` is one of ``DeviceGray``,
+    /// ``DeviceRGB``, ``DeviceCMYK``, ``Pattern``.
+    #[staticmethod]
+    fn device(name: &str) -> PyResult<Self> {
+        let device = match name {
+            "DeviceGray" => DeviceColorSpace::Gray,
+            "DeviceRGB" => DeviceColorSpace::Rgb,
+            "DeviceCMYK" => DeviceColorSpace::Cmyk,
+            "Pattern" => DeviceColorSpace::Pattern,
+            other => {
+                return Err(PyValueError::new_err(format!(
+                    "unknown device color space {other:?}; expected DeviceGray, \
+                     DeviceRGB, DeviceCMYK, or Pattern"
+                )))
+            }
+        };
+        Ok(Self {
+            inner: PageColorSpace::DeviceAlias(device),
+        })
+    }
+
+    /// An ICCBased colour space with `n` channels (1=Gray, 3=RGB, 4=CMYK)
+    /// and a device `alternate` (e.g. ``DeviceRGB``). Raises ``ValueError``
+    /// if `n` is not 1, 3, or 4 (ISO 32000-1 §8.6.5.5).
+    #[staticmethod]
+    fn icc_based(n: i64, alternate: &str) -> PyResult<Self> {
+        if !matches!(n, 1 | 3 | 4) {
+            return Err(PyValueError::new_err(format!(
+                "ICC channel count /N must be 1 (Gray), 3 (RGB/Lab), or 4 (CMYK); got {n}"
+            )));
+        }
+        let mut params = Dictionary::new();
+        params.set("N", Object::Integer(n));
+        params.set("Alternate", Object::Name(alternate.to_string()));
+        Ok(Self {
+            inner: PageColorSpace::Parameterised {
+                family: ParameterisedFamily::IccBased,
+                params,
+            },
+        })
+    }
+
+    /// A CalGray calibrated colour space built from a ``CalGrayColorSpace``.
+    #[staticmethod]
+    fn cal_gray(cs: &PyCalGrayColorSpace) -> PyResult<Self> {
+        Ok(Self {
+            inner: PageColorSpace::Parameterised {
+                family: ParameterisedFamily::CalGray,
+                params: params_dict_from_array(cs.inner.to_pdf_array())?,
+            },
+        })
+    }
+
+    /// A CalRGB calibrated colour space built from a ``CalRgbColorSpace``.
+    #[staticmethod]
+    fn cal_rgb(cs: &PyCalRgbColorSpace) -> PyResult<Self> {
+        Ok(Self {
+            inner: PageColorSpace::Parameterised {
+                family: ParameterisedFamily::CalRgb,
+                params: params_dict_from_array(cs.inner.to_pdf_array())?,
+            },
+        })
+    }
+
+    /// A Lab colour space built from a ``LabColorSpace``.
+    #[staticmethod]
+    fn lab(cs: &PyLabColorSpace) -> PyResult<Self> {
+        Ok(Self {
+            inner: PageColorSpace::Parameterised {
+                family: ParameterisedFamily::Lab,
+                params: params_dict_from_array(cs.inner.to_pdf_array())?,
+            },
+        })
+    }
+
+    /// Generic escape hatch. `family` is one of ``CalGray``, ``CalRGB``,
+    /// ``Lab``, ``ICCBased``; `params` is a dict of raw PDF parameter
+    /// entries (values: int, float, str, or list of those).
+    #[staticmethod]
+    fn parameterised(family: &str, params: &Bound<'_, PyDict>) -> PyResult<Self> {
+        let family = match family {
+            "CalGray" => ParameterisedFamily::CalGray,
+            "CalRGB" => ParameterisedFamily::CalRgb,
+            "Lab" => ParameterisedFamily::Lab,
+            "ICCBased" => ParameterisedFamily::IccBased,
+            other => {
+                return Err(PyValueError::new_err(format!(
+                    "unknown parameterised color-space family {other:?}; expected \
+                     CalGray, CalRGB, Lab, or ICCBased"
+                )))
+            }
+        };
+        Ok(Self {
+            inner: PageColorSpace::Parameterised {
+                family,
+                params: py_dict_to_dictionary(params)?,
+            },
+        })
+    }
+
+    fn __repr__(&self) -> String {
+        match &self.inner {
+            PageColorSpace::DeviceAlias(_) => "PageColorSpace.device(...)".to_string(),
+            // pdf_name() yields the ISO name (CalRGB, ICCBased), not the Rust
+            // variant name (CalRgb, IccBased), so the repr matches the PDF.
+            PageColorSpace::Parameterised { family, .. } => {
+                format!("PageColorSpace.{}(...)", family.pdf_name())
+            }
+            _ => "PageColorSpace(...)".to_string(),
+        }
+    }
+}
+
 // ── Registration ──────────────────────────────────────────────────────────
 
 pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
@@ -413,5 +619,6 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyCalRgbColorSpace>()?;
     m.add_class::<PyCalibratedColor>()?;
     m.add_class::<PyLabColor>()?;
+    m.add_class::<PyPageColorSpace>()?;
     Ok(())
 }

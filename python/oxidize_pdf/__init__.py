@@ -136,6 +136,8 @@ from oxidize_pdf._oxidize_pdf import (
     CalRgbColorSpace,
     CalibratedColor,
     LabColor,
+    # GFX-019: Page-level colour-space resources (oxidize-pdf 2.11.0)
+    PageColorSpace,
 )
 
 # Annotations (Tier 6)
@@ -653,6 +655,8 @@ __all__ = [
     "CalRgbColorSpace",
     "CalibratedColor",
     "LabColor",
+    # GFX-019: Page-level colour-space resources (oxidize-pdf 2.11.0)
+    "PageColorSpace",
     # Annotations
     "Annotation",
     "AnnotationType",
