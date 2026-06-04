@@ -284,6 +284,66 @@ impl PyHeaderFooter {
     }
 }
 
+// ── EmbeddedFont (glyph-coverage diagnostics, issue #287) ───────────────────
+
+/// A custom font embedded in a :class:`Document`, exposing glyph-coverage
+/// diagnostics.
+///
+/// Obtained from :meth:`Document.embedded_font`. Characters with no glyph in
+/// the embedded font render as ``.notdef`` (an empty box); these methods let
+/// you detect such gaps before rendering — e.g. to substitute a character or
+/// pick a different font.
+#[pyclass(name = "EmbeddedFont", frozen)]
+pub struct PyEmbeddedFont {
+    pub inner: std::sync::Arc<oxidize_pdf::fonts::Font>,
+}
+
+#[pymethods]
+impl PyEmbeddedFont {
+    /// The font's name as registered on the Document.
+    #[getter]
+    fn name(&self) -> &str {
+        &self.inner.name
+    }
+
+    /// Whether the embedded font has a glyph for ``ch`` (a single character).
+    ///
+    /// Raises ``ValueError`` if ``ch`` is not exactly one character.
+    fn has_glyph(&self, ch: &str) -> PyResult<bool> {
+        let mut chars = ch.chars();
+        let c = chars.next().ok_or_else(|| {
+            pyo3::exceptions::PyValueError::new_err(
+                "Expected a single character, got empty string",
+            )
+        })?;
+        if chars.next().is_some() {
+            return Err(pyo3::exceptions::PyValueError::new_err(format!(
+                "Expected a single character, got string of length {}",
+                ch.len()
+            )));
+        }
+        Ok(self.inner.has_glyph(c))
+    }
+
+    /// Characters in ``text`` the embedded font cannot render, deduplicated in
+    /// first-seen order.
+    ///
+    /// Returns an empty list when every character is covered *or* when glyph
+    /// coverage could not be determined for this font (e.g. the font's cmap
+    /// was not parsed). Control characters are ignored.
+    fn missing_glyphs(&self, text: &str) -> Vec<String> {
+        self.inner
+            .missing_glyphs(text)
+            .into_iter()
+            .map(|c| c.to_string())
+            .collect()
+    }
+
+    fn __repr__(&self) -> String {
+        format!("EmbeddedFont(name={:?})", self.inner.name)
+    }
+}
+
 // ── Text measurement ──────────────────────────────────────────────────────
 
 #[pyfunction]
@@ -413,6 +473,7 @@ impl PyFontEncoding {
 
 pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyFont>()?;
+    m.add_class::<PyEmbeddedFont>()?;
     m.add_class::<PyTextAlign>()?;
     m.add_class::<PyHeaderFooterOptions>()?;
     m.add_class::<PyHeaderFooter>()?;

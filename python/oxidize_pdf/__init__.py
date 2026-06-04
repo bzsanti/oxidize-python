@@ -27,6 +27,7 @@ from oxidize_pdf._oxidize_pdf import (
 
 # Text
 from oxidize_pdf._oxidize_pdf import (
+    EmbeddedFont,
     Font,
     HeaderFooter,
     HeaderFooterOptions,
@@ -570,6 +571,7 @@ __all__ = [
     "Page",
     # Text
     "Font",
+    "EmbeddedFont",
     "HeaderFooter",
     "HeaderFooterOptions",
     "TextAlign",

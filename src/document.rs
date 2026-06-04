@@ -381,6 +381,28 @@ impl PyDocument {
         self.inner.has_custom_font(name)
     }
 
+    /// Get a handle to an embedded custom font for glyph-coverage diagnostics
+    /// (issue #287), or ``None`` if no font is registered under ``name``.
+    fn embedded_font(&self, name: &str) -> Option<crate::text::PyEmbeddedFont> {
+        self.inner
+            .embedded_font(name)
+            .map(|inner| crate::text::PyEmbeddedFont { inner })
+    }
+
+    /// Characters in ``text`` that the named embedded font cannot render
+    /// (deduplicated, first-seen order), so they would appear as ``.notdef``
+    /// boxes. Convenience over :meth:`embedded_font` for one-off checks.
+    ///
+    /// Returns an empty list when the font is not registered, every character
+    /// is covered, or coverage could not be determined.
+    fn font_missing_glyphs(&self, font_name: &str, text: &str) -> Vec<String> {
+        self.inner
+            .font_missing_glyphs(font_name, text)
+            .into_iter()
+            .map(|c| c.to_string())
+            .collect()
+    }
+
     fn custom_font_names(&self) -> Vec<String> {
         self.inner.custom_font_names()
     }
