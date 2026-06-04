@@ -4,6 +4,7 @@ from oxidize_pdf._oxidize_pdf import (
     Color as Color,
     ComboBox as ComboBox,
     Document as Document,
+    EmbeddedFont as EmbeddedFont,
     Font as Font,
     Margins as Margins,
     Page as Page,
