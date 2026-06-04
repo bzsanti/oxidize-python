@@ -1,3 +1,4 @@
+use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 
 use oxidize_pdf::advanced_tables::AdvancedTableExt;
@@ -9,7 +10,7 @@ use crate::annotations::PyAnnotation;
 use crate::errors::to_py_err;
 use crate::graphics::{
     PyBlendMode, PyCalibratedColor, PyClippingPath, PyLabColor, PyLineCap, PyLineDashPattern,
-    PyLineJoin,
+    PyLineJoin, PyPageColorSpace,
 };
 use crate::image::PyImage;
 use crate::list::{PyBulletStyle, PyOrderedList, PyOrderedListStyle, PyUnorderedList};
@@ -207,6 +208,78 @@ impl PyPage {
 
     fn set_stroke_color_lab(&mut self, color: &PyLabColor) {
         self.inner.graphics().set_stroke_color_lab(color.inner.clone());
+    }
+
+    // ── Page-level colour-space resources (GFX-019) ────────────────────────
+
+    /// Register a colour space on this page under
+    /// ``/Resources/ColorSpace/<name>`` (ISO 32000-1 §8.6).
+    ///
+    /// Required before drawing with ``set_fill_color_icc`` or the ``_named``
+    /// calibrated/Lab setters, which reference the colour space by ``name``.
+    /// Raises ``PdfError`` if ``name`` is not a valid PDF resource name
+    /// (ISO 32000-1 §7.3.5).
+    fn add_color_space(&mut self, name: &str, color_space: &PyPageColorSpace) -> PyResult<()> {
+        self.inner
+            .add_color_space(name, color_space.inner.clone())
+            .map_err(to_py_err)
+    }
+
+    /// Set fill colour using an ICC-based colour space previously registered
+    /// via ``add_color_space``. ``components`` are the channel values for the
+    /// profile (1=Gray, 3=RGB, 4=CMYK) and must be non-empty: an empty list
+    /// would emit a bare ``sc`` operator with no operands (invalid per ISO
+    /// 32000-1 §8.6.8). Upstream only guards this with a ``debug_assert!``
+    /// (compiled out in release), so this binding enforces it in all builds.
+    fn set_fill_color_icc(&mut self, name: &str, components: Vec<f64>) -> PyResult<()> {
+        if components.is_empty() {
+            return Err(PyValueError::new_err(
+                "ICC fill color components must not be empty",
+            ));
+        }
+        self.inner.graphics().set_fill_color_icc(name, components);
+        Ok(())
+    }
+
+    /// Set stroke colour using a registered ICC-based colour space.
+    /// ``components`` must be non-empty (see ``set_fill_color_icc``).
+    fn set_stroke_color_icc(&mut self, name: &str, components: Vec<f64>) -> PyResult<()> {
+        if components.is_empty() {
+            return Err(PyValueError::new_err(
+                "ICC stroke color components must not be empty",
+            ));
+        }
+        self.inner.graphics().set_stroke_color_icc(name, components);
+        Ok(())
+    }
+
+    /// Set fill colour using a calibrated colour space registered under
+    /// ``name`` — lets multiple calibrated spaces coexist on one page.
+    fn set_fill_color_calibrated_named(&mut self, name: &str, color: &PyCalibratedColor) {
+        self.inner
+            .graphics()
+            .set_fill_color_calibrated_named(name, color.inner.clone());
+    }
+
+    /// Set stroke colour using a calibrated colour space registered under ``name``.
+    fn set_stroke_color_calibrated_named(&mut self, name: &str, color: &PyCalibratedColor) {
+        self.inner
+            .graphics()
+            .set_stroke_color_calibrated_named(name, color.inner.clone());
+    }
+
+    /// Set fill colour using a Lab colour space registered under ``name``.
+    fn set_fill_color_lab_named(&mut self, name: &str, color: &PyLabColor) {
+        self.inner
+            .graphics()
+            .set_fill_color_lab_named(name, color.inner.clone());
+    }
+
+    /// Set stroke colour using a Lab colour space registered under ``name``.
+    fn set_stroke_color_lab_named(&mut self, name: &str, color: &PyLabColor) {
+        self.inner
+            .graphics()
+            .set_stroke_color_lab_named(name, color.inner.clone());
     }
 
     /// Set the line width for subsequent stroke operations.
