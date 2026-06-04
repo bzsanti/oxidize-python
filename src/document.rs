@@ -10,7 +10,7 @@ use crate::outlines::PyOutlineTree;
 use crate::page::PyPage;
 use crate::page_labels::PyPageLabelTree;
 use crate::security::{PyEncryptionStrength, PyPermissions};
-use crate::text::PyFontEncoding;
+use crate::text::{PyFont, PyFontEncoding};
 use crate::types::PyRectangle;
 use crate::viewer_preferences::PyViewerPreferences;
 use crate::xmp_metadata::PyXmpMetadata;
@@ -18,6 +18,16 @@ use crate::xmp_metadata::PyXmpMetadata;
 #[pyclass(name = "Document")]
 pub struct PyDocument {
     pub inner: oxidize_pdf::Document,
+    /// Pages added via :meth:`add_page`, held as live handles to the Python
+    /// ``Page`` objects rather than eager clones. This is what lets draws
+    /// issued *after* ``add_page`` reach the saved page (issue #80): the
+    /// page's current content is materialised into ``inner`` only at save
+    /// time. ``Document::add_page`` consumes a ``Page`` by value, so each
+    /// handle is materialised exactly once — tracked by ``flushed_pages`` —
+    /// to support saving the same document more than once.
+    pending_pages: Vec<Py<PyPage>>,
+    /// Count of ``pending_pages`` already materialised into ``inner``.
+    flushed_pages: usize,
 }
 
 #[pymethods]
@@ -26,6 +36,8 @@ impl PyDocument {
     fn new() -> Self {
         Self {
             inner: oxidize_pdf::Document::new(),
+            pending_pages: Vec::new(),
+            flushed_pages: 0,
         }
     }
 
@@ -35,7 +47,9 @@ impl PyDocument {
     /// ``doc.page_count()`` — calling a property raises ``TypeError``.
     #[getter]
     fn page_count(&self) -> usize {
-        self.inner.page_count()
+        // Pages already flushed live in `inner`; pending-but-unflushed pages
+        // are counted directly so the property is accurate before save.
+        self.inner.page_count() + (self.pending_pages.len() - self.flushed_pages)
     }
 
     fn set_title(&mut self, title: &str) {
@@ -58,9 +72,13 @@ impl PyDocument {
         self.inner.set_creator(creator);
     }
 
-    /// Add a page to the document. The page is cloned internally.
-    fn add_page(&mut self, page: &PyPage) {
-        self.inner.add_page(page.inner.clone());
+    /// Add a page to the document.
+    ///
+    /// The page is held by reference, not snapshotted: any draw issued on the
+    /// ``Page`` object after ``add_page`` still appears in the saved document
+    /// (issue #80). The page's content is materialised at save time.
+    fn add_page(&mut self, page: Py<PyPage>) {
+        self.pending_pages.push(page);
     }
 
     /// Create a new A4 page already bound to this Document's font
@@ -93,12 +111,14 @@ impl PyDocument {
     }
 
     /// Save the document to a file.
-    fn save(&mut self, path: &str) -> PyResult<()> {
+    fn save(&mut self, py: Python<'_>, path: &str) -> PyResult<()> {
+        self.flush_pending_pages(py);
         self.inner.save(path).map_err(to_py_err)
     }
 
     /// Save the document to bytes and return them.
-    fn save_to_bytes(&mut self) -> PyResult<Vec<u8>> {
+    fn save_to_bytes(&mut self, py: Python<'_>) -> PyResult<Vec<u8>> {
+        self.flush_pending_pages(py);
         self.inner.to_bytes().map_err(to_py_err)
     }
 
@@ -293,14 +313,68 @@ impl PyDocument {
 
     // ── Font Management (F46) ────────────────────────────────────────────
 
+    /// Embed a custom TrueType/OpenType font from a file path.
+    ///
+    /// Reads the file and delegates to the byte-loading path so the font's
+    /// embedded glyph widths are registered in this Document's font metrics
+    /// store. This makes :meth:`measure_text` / :meth:`measure_char` return
+    /// the real per-glyph widths for ``Font.custom(name)`` instead of a
+    /// fallback (issue #78). Upstream's path-only ``add_font`` does not
+    /// register metrics; routing through bytes closes that gap.
     fn add_font(&mut self, name: &str, path: &str) -> PyResult<()> {
-        self.inner.add_font(name, path).map_err(to_py_err)
+        let data = std::fs::read(path).map_err(|e| to_py_err(e.into()))?;
+        self.inner
+            .add_font_from_bytes(name, data)
+            .map_err(to_py_err)
     }
 
     fn add_font_from_bytes(&mut self, name: &str, data: &[u8]) -> PyResult<()> {
         self.inner
             .add_font_from_bytes(name, data.to_vec())
             .map_err(to_py_err)
+    }
+
+    /// Measure the rendered width of ``text`` in ``font`` at ``size`` points,
+    /// scoped to this Document's embedded fonts.
+    ///
+    /// Unlike the module-level :func:`oxidize_pdf.measure_text`, this resolves
+    /// ``Font.custom(name)`` against the fonts embedded on *this* Document via
+    /// :meth:`add_font` / :meth:`add_font_from_bytes`, returning the embedded
+    /// glyph widths rather than a fallback (issue #78). Built-in fonts measure
+    /// identically to the free function.
+    fn measure_text(&self, text: &str, font: &PyFont, size: f64) -> f64 {
+        oxidize_pdf::text::metrics::measure_text_with(
+            text,
+            &font.inner,
+            size,
+            Some(self.inner.font_metrics()),
+        )
+    }
+
+    /// Measure the rendered width of a single character in ``font`` at
+    /// ``size`` points, scoped to this Document's embedded fonts.
+    ///
+    /// Document-bound counterpart of :func:`oxidize_pdf.measure_char`; see
+    /// :meth:`measure_text` for why the scope matters (issue #78).
+    fn measure_char(&self, ch: &str, font: &PyFont, size: f64) -> PyResult<f64> {
+        let mut chars = ch.chars();
+        let c = chars.next().ok_or_else(|| {
+            pyo3::exceptions::PyValueError::new_err(
+                "Expected a single character, got empty string",
+            )
+        })?;
+        if chars.next().is_some() {
+            return Err(pyo3::exceptions::PyValueError::new_err(format!(
+                "Expected a single character, got string of length {}",
+                ch.len()
+            )));
+        }
+        Ok(oxidize_pdf::text::metrics::measure_char_with(
+            c,
+            font.inner.clone(),
+            size,
+            Some(self.inner.font_metrics()),
+        ))
     }
 
     fn has_custom_font(&self, name: &str) -> bool {
@@ -321,7 +395,13 @@ impl PyDocument {
         self.inner.enable_xref_streams(enable);
     }
 
-    fn save_with_config(&mut self, path: &str, config: &PyWriterConfig) -> PyResult<()> {
+    fn save_with_config(
+        &mut self,
+        py: Python<'_>,
+        path: &str,
+        config: &PyWriterConfig,
+    ) -> PyResult<()> {
+        self.flush_pending_pages(py);
         self.inner
             .save_with_config(path, config.inner.clone())
             .map_err(to_py_err)
@@ -332,7 +412,12 @@ impl PyDocument {
     /// In-memory counterpart of :py:meth:`save_with_config` — honors the
     /// config's ``pdf_version``, xref/object stream toggles, compression
     /// flag, and incremental-update mode.
-    fn save_to_bytes_with_config(&mut self, config: &PyWriterConfig) -> PyResult<Vec<u8>> {
+    fn save_to_bytes_with_config(
+        &mut self,
+        py: Python<'_>,
+        config: &PyWriterConfig,
+    ) -> PyResult<Vec<u8>> {
+        self.flush_pending_pages(py);
         self.inner
             .to_bytes_with_config(config.inner.clone())
             .map_err(to_py_err)
@@ -360,7 +445,21 @@ impl PyDocument {
     }
 
     fn __repr__(&self) -> String {
-        format!("Document(pages={})", self.inner.page_count())
+        format!("Document(pages={})", self.page_count())
+    }
+}
+
+impl PyDocument {
+    /// Materialise any pages added via :meth:`add_page` that have not yet been
+    /// pushed into the underlying document, capturing each page's *current*
+    /// content (issue #80). Idempotent across repeated saves: each page handle
+    /// is materialised exactly once, tracked by ``flushed_pages``.
+    fn flush_pending_pages(&mut self, py: Python<'_>) {
+        for i in self.flushed_pages..self.pending_pages.len() {
+            let page_inner = self.pending_pages[i].borrow(py).inner.clone();
+            self.inner.add_page(page_inner);
+        }
+        self.flushed_pages = self.pending_pages.len();
     }
 }
 
