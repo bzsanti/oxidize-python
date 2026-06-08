@@ -350,10 +350,13 @@ from oxidize_pdf._oxidize_pdf import (
 
 # AI/ML Pipeline (F59)
 from oxidize_pdf._oxidize_pdf import (
+    DetectedLanguage,
     DocumentChunk,
     DocumentChunker,
     MarkdownOptions,
     MarkdownExporter,
+    TokenEfficientExporter,
+    JsonExporter,
     ExtractionProfile,
     ReadingOrderStrategy,
     PartitionConfig,
@@ -815,10 +818,13 @@ __all__ = [
     "AdvancedTableBuilder",
     "AdvTableRenderer",
     # AI/ML Pipeline (F59)
+    "DetectedLanguage",
     "DocumentChunk",
     "DocumentChunker",
     "MarkdownOptions",
     "MarkdownExporter",
+    "TokenEfficientExporter",
+    "JsonExporter",
     "ExtractionProfile",
     "ReadingOrderStrategy",
     "PartitionConfig",

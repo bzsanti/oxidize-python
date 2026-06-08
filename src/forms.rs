@@ -89,7 +89,7 @@ impl PyTextField {
             inner: self_.inner.clone().with_default_appearance(
                 font.inner.clone(),
                 size,
-                color.inner.clone(),
+                color.inner,
             ),
         }
     }
@@ -221,7 +221,7 @@ impl PyComboBox {
             inner: self_.inner.clone().with_default_appearance(
                 font.inner.clone(),
                 size,
-                color.inner.clone(),
+                color.inner,
             ),
         }
     }

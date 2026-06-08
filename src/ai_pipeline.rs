@@ -5,7 +5,10 @@
 
 use pyo3::prelude::*;
 
-use oxidize_pdf::ai::{DocumentChunk, DocumentChunker, MarkdownExporter, MarkdownOptions};
+use oxidize_pdf::ai::{
+    ChunkExporter, DetectedLanguage, DocumentChunk, DocumentChunker, JsonExporter, JsonOptions,
+    MarkdownExporter, MarkdownOptions, TokenEfficientExporter,
+};
 use oxidize_pdf::pipeline::{
     ExtractionProfile, HybridChunkConfig, MergePolicy, PartitionConfig, RagChunk,
     ReadingOrderStrategy, SemanticChunkConfig,
@@ -15,6 +18,46 @@ use crate::errors::to_py_err;
 
 fn pdf_err_to_py(err: oxidize_pdf::PdfError) -> PyErr {
     to_py_err(err)
+}
+
+// ── PyDetectedLanguage ─────────────────────────────────────────────────────
+
+/// A language detected for a chunk or aggregated over a document.
+///
+/// `code` is the ISO 639-3 code (e.g. `"eng"`, `"spa"`, `"cmn"`). Short or
+/// ambiguous text can yield an unreliable detection with an effectively-random
+/// code; gate routing on `reliable` (and `confidence`).
+#[pyclass(name = "DetectedLanguage", frozen)]
+pub struct PyDetectedLanguage {
+    pub inner: DetectedLanguage,
+}
+
+#[pymethods]
+impl PyDetectedLanguage {
+    /// ISO 639-3 language code (e.g. "eng", "spa").
+    #[getter]
+    fn code(&self) -> &str {
+        &self.inner.code
+    }
+
+    /// Detector confidence in `[0.0, 1.0]`.
+    #[getter]
+    fn confidence(&self) -> f32 {
+        self.inner.confidence
+    }
+
+    /// Whether the detector considers this detection reliable.
+    #[getter]
+    fn reliable(&self) -> bool {
+        self.inner.reliable
+    }
+
+    fn __repr__(&self) -> String {
+        format!(
+            "DetectedLanguage(code={:?}, confidence={:.4}, reliable={})",
+            self.inner.code, self.inner.confidence, self.inner.reliable,
+        )
+    }
 }
 
 // ── PyDocumentChunk ────────────────────────────────────────────────────────
@@ -57,6 +100,17 @@ impl PyDocumentChunk {
         self.inner.chunk_index
     }
 
+    /// Detected language for this chunk, or `None` if language detection did not
+    /// run (`DocumentChunker.with_language_detection(True)`).
+    #[getter]
+    fn language(&self) -> Option<PyDetectedLanguage> {
+        self.inner
+            .metadata
+            .language
+            .clone()
+            .map(|inner| PyDetectedLanguage { inner })
+    }
+
     fn __repr__(&self) -> String {
         format!(
             "DocumentChunk(id={:?}, tokens={}, chunk_index={})",
@@ -86,6 +140,14 @@ impl PyDocumentChunker {
         Self { inner: DocumentChunker::default() }
     }
 
+    /// Enable per-chunk language detection (ISO 639-3 via `whatlang`).
+    ///
+    /// When enabled, each chunk's `language` is populated during `chunk_text`.
+    /// Disabled by default.
+    fn with_language_detection(&self, enabled: bool) -> Self {
+        Self { inner: self.inner.clone().with_language_detection(enabled) }
+    }
+
     /// Chunk a text string into fixed-size pieces with overlap.
     fn chunk_text(&self, text: &str) -> PyResult<Vec<PyDocumentChunk>> {
         let chunks = self.inner.chunk_text(text).map_err(pdf_err_to_py)?;
@@ -96,6 +158,14 @@ impl PyDocumentChunker {
     #[staticmethod]
     fn estimate_tokens(text: &str) -> usize {
         DocumentChunker::estimate_tokens(text)
+    }
+
+    /// Dominant language across chunks carrying a detected language, weighted by
+    /// chunk content length. Returns `None` if no chunk has a detected language.
+    #[staticmethod]
+    fn document_language(chunks: Vec<PyRef<PyDocumentChunk>>) -> Option<PyDetectedLanguage> {
+        let owned: Vec<DocumentChunk> = chunks.iter().map(|c| c.inner.clone()).collect();
+        DocumentChunker::document_language(&owned).map(|inner| PyDetectedLanguage { inner })
     }
 
     fn __repr__(&self) -> String {
@@ -173,6 +243,84 @@ impl PyMarkdownExporter {
 
     fn __repr__(&self) -> String {
         "MarkdownExporter(...)".to_string()
+    }
+}
+
+// ── PyTokenEfficientExporter ───────────────────────────────────────────────
+
+/// Token-efficient, tabular serializer for RAG chunks (upstream #291).
+///
+/// Declares the column names once in a header line, then emits one tab-separated
+/// row per chunk — roughly halving the serialized-token count versus JSON while
+/// staying fully round-trippable via `parse_chunks`.
+#[pyclass(name = "TokenEfficientExporter")]
+pub struct PyTokenEfficientExporter {
+    inner: TokenEfficientExporter,
+}
+
+#[pymethods]
+impl PyTokenEfficientExporter {
+    #[new]
+    fn new() -> Self {
+        Self { inner: TokenEfficientExporter::new() }
+    }
+
+    /// Serialize chunks to the token-efficient tabular format.
+    fn export_chunks(&self, chunks: Vec<PyRef<PyDocumentChunk>>) -> PyResult<String> {
+        let owned: Vec<DocumentChunk> = chunks.iter().map(|c| c.inner.clone()).collect();
+        self.inner.export_chunks(&owned).map_err(pdf_err_to_py)
+    }
+
+    /// Parse a token-efficient document back into chunks (inverse of
+    /// `export_chunks`). Raises on a wrong version marker, wrong header, or a row
+    /// whose column count does not match the header.
+    #[staticmethod]
+    fn parse_chunks(input: &str) -> PyResult<Vec<PyDocumentChunk>> {
+        TokenEfficientExporter::parse_chunks(input)
+            .map(|v| v.into_iter().map(|inner| PyDocumentChunk { inner }).collect())
+            .map_err(pdf_err_to_py)
+    }
+
+    fn __repr__(&self) -> String {
+        "TokenEfficientExporter()".to_string()
+    }
+}
+
+// ── PyJsonExporter ─────────────────────────────────────────────────────────
+
+/// Exporter for converting PDF content and RAG chunks to JSON.
+#[pyclass(name = "JsonExporter")]
+pub struct PyJsonExporter {
+    inner: JsonExporter,
+}
+
+#[pymethods]
+impl PyJsonExporter {
+    #[new]
+    #[pyo3(signature = (pretty_print = true, include_chunks = false))]
+    fn new(pretty_print: bool, include_chunks: bool) -> Self {
+        Self { inner: JsonExporter::new(JsonOptions { pretty_print, include_chunks }) }
+    }
+
+    /// Create a JSON exporter with default options (pretty-printed).
+    #[staticmethod]
+    fn default() -> Self {
+        Self { inner: JsonExporter::default() }
+    }
+
+    /// Export text to a simple JSON document using the configured options.
+    fn export(&self, text: &str) -> PyResult<String> {
+        self.inner.export(text).map_err(pdf_err_to_py)
+    }
+
+    /// Serialize chunks to a structured `chunked_document` JSON object.
+    fn export_chunks(&self, chunks: Vec<PyRef<PyDocumentChunk>>) -> PyResult<String> {
+        let owned: Vec<DocumentChunk> = chunks.iter().map(|c| c.inner.clone()).collect();
+        self.inner.export_chunks(&owned).map_err(pdf_err_to_py)
+    }
+
+    fn __repr__(&self) -> String {
+        "JsonExporter(...)".to_string()
     }
 }
 
@@ -290,10 +438,26 @@ impl PyPartitionConfig {
         Self { inner: self.inner.clone().with_min_table_confidence(threshold) }
     }
 
+    /// Disable the ruling-based (vector-grid) table detector. Only the spatial
+    /// detector runs and no page graphics are extracted.
+    fn without_ruling_tables(&self) -> Self {
+        let mut inner = self.inner.clone();
+        inner.prefer_ruling_tables = false;
+        Self { inner }
+    }
+
+    /// Whether the ruling-based table detector is preferred (default true).
+    #[getter]
+    fn prefer_ruling_tables(&self) -> bool {
+        self.inner.prefer_ruling_tables
+    }
+
     fn __repr__(&self) -> String {
         format!(
-            "PartitionConfig(detect_tables={}, detect_headers_footers={})",
-            self.inner.detect_tables, self.inner.detect_headers_footers,
+            "PartitionConfig(detect_tables={}, detect_headers_footers={}, prefer_ruling_tables={})",
+            self.inner.detect_tables,
+            self.inner.detect_headers_footers,
+            self.inner.prefer_ruling_tables,
         )
     }
 }
@@ -517,10 +681,13 @@ impl PyRagChunk {
 // ── Registration ──────────────────────────────────────────────────────────
 
 pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
+    m.add_class::<PyDetectedLanguage>()?;
     m.add_class::<PyDocumentChunk>()?;
     m.add_class::<PyDocumentChunker>()?;
     m.add_class::<PyMarkdownOptions>()?;
     m.add_class::<PyMarkdownExporter>()?;
+    m.add_class::<PyTokenEfficientExporter>()?;
+    m.add_class::<PyJsonExporter>()?;
     m.add_class::<PyExtractionProfile>()?;
     m.add_class::<PyReadingOrderStrategy>()?;
     m.add_class::<PyPartitionConfig>()?;
