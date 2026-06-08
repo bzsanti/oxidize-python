@@ -140,8 +140,6 @@ oxidize-pdf-dotnet currently exposes only text extraction and chunking. The work
 
 `docs/lifecycle/COMPATIBILITY_MATRIX.md` in this repository (used as the ecosystem-wide reference).
 
-Each bridge repo also contains `docs/COMPATIBILITY.md` scoped to that bridge only.
-
 ### Format
 
 ```markdown
@@ -219,7 +217,7 @@ Each bridge opens a `release/vX.0.0-deprecation-cleanup` branch (following the r
 1. Remove the deprecated bridge API shims.
 2. Update the `Cargo.toml` dependency to the new core major range (`>=3.0.0, <4.0.0`).
 3. Update the bridge MAJOR version.
-4. Update `docs/FEATURE_PARITY.md` and `docs/COMPATIBILITY.md`.
+4. Update `docs/FEATURE_PARITY.md`.
 
 The PR for this branch is the bridge's major release PR. It must not be merged until CI passes on all platforms.
 
