@@ -156,7 +156,6 @@ jobs:
           - [ ] If any core APIs were deprecated, update the bridge deprecation shims accordingly.
           - [ ] Verify all CI checks pass (full matrix).
           - [ ] Update \`docs/FEATURE_PARITY.md\` if any features changed status.
-          - [ ] Update \`docs/COMPATIBILITY.md\` with the new core version range if needed.
 
           ## After merging
 

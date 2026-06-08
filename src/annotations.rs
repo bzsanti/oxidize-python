@@ -1126,7 +1126,7 @@ pub struct PyQuadPoints {
 impl PyQuadPoints {
     #[new]
     fn new(points: Vec<f64>) -> PyResult<Self> {
-        if points.is_empty() || points.len() % 8 != 0 {
+        if points.is_empty() || !points.len().is_multiple_of(8) {
             return Err(pyo3::exceptions::PyValueError::new_err(format!(
                 "QuadPoints requires a non-empty multiple of 8 floats (8 per quadrilateral), got {}",
                 points.len()
