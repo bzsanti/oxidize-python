@@ -132,7 +132,6 @@ jobs:
           - [ ] If any core APIs were deprecated, add Python deprecation shims
           - [ ] Verify all CI checks pass (3 OS x 4 Python versions)
           - [ ] Update \`docs/FEATURE_PARITY.md\` if any feature status changed
-          - [ ] Update \`docs/COMPATIBILITY.md\` if the core version range changed
 
           ## After merging
 

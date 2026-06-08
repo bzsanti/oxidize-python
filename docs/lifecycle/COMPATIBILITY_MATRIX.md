@@ -2,8 +2,7 @@
 
 Last updated: 2026-03-14
 
-This is the ecosystem-wide compatibility reference. Each bridge repo also contains
-a `docs/COMPATIBILITY.md` scoped to that bridge only.
+This is the ecosystem-wide compatibility reference.
 
 ---
 
