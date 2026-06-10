@@ -1,6 +1,6 @@
 """Type stubs for the oxidize-pdf native extension module."""
 
-from typing import Any, BinaryIO, Optional
+from typing import BinaryIO, Optional, Union
 
 # ── Module metadata ────────────────────────────────────────────────────────────
 
@@ -187,6 +187,14 @@ class TextAlign:
 
     def __repr__(self) -> str: ...
 
+# ── Shadings (gradients, F65 / #297) ────────────────────────────────────────────
+# Partial stubs: only enough to type :meth:`Page.add_shading`. The full
+# construction surface (linear_gradient, radial_gradient, ShadingManager, …) is
+# exposed at runtime but not yet modelled here.
+
+class AxialShading: ...
+class RadialShading: ...
+
 # ── Page ───────────────────────────────────────────────────────────────────────
 
 class Page:
@@ -242,12 +250,13 @@ class Page:
     def stroke(self) -> None: ...
     def fill_and_stroke(self) -> None: ...
 
-    # Gradient rendering (oxidize-pdf 2.14.0, #297)
+    # ── Gradient rendering (oxidize-pdf 2.14.0, #297) ────────────────────────
     def clip(self) -> None: ...
     def clip_even_odd(self) -> None: ...
     def end_path(self) -> None: ...
-    # ``shading`` is an AxialShading or RadialShading (not modelled in this stub).
-    def add_shading(self, name: str, shading: Any) -> None: ...
+    def add_shading(
+        self, name: str, shading: Union["AxialShading", "RadialShading"]
+    ) -> None: ...
     def paint_shading(self, name: str) -> None: ...
 
     # Page-level colour-space resources (GFX-019, oxidize-pdf 2.11.0)

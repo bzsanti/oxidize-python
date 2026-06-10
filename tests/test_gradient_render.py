@@ -116,6 +116,23 @@ def test_paint_shading_emits_sh_operator():
     assert b"/Sh1 sh\n" in content, content
 
 
+def test_paint_shading_without_registration_writes_no_shading_resource():
+    """Unregistered name: the `sh` operator is emitted but no /Shading dict
+    is written — the documented "undefined resource" contract (#297)."""
+    doc = Document()
+    page = Page.a4()
+    page.paint_shading("Ghost")
+    doc.add_page(page)
+
+    pdf_bytes = doc.save_to_bytes()
+    content = b"".join(PdfReader.from_bytes(pdf_bytes).get_page_content_streams(0))
+
+    assert b"/Ghost sh\n" in content, content
+    assert b"/Shading" not in pdf_bytes, (
+        "no shading was registered, so no /Shading resource must be written"
+    )
+
+
 # ── add_shading: resource registration ─────────────────────────────────────────
 
 
@@ -185,6 +202,10 @@ def test_axial_gradient_full_workflow_stream_and_resources():
     assert b"/Shading" in pdf_bytes, "/Shading resource dict missing"
     assert b"/ShadingType 2" in pdf_bytes, "axial ShadingType 2 missing"
     assert b"/Function" in pdf_bytes, "/Function missing — gradient not real (#297)"
+    # Two colour stops → a type-2 (exponential) function, not a placeholder int
+    assert b"/FunctionType 2" in pdf_bytes, (
+        "2-stop axial gradient must emit a Type 2 exponential function (#297)"
+    )
 
 
 def test_radial_gradient_full_workflow_registers_shading_type_3():
@@ -205,3 +226,28 @@ def test_radial_gradient_full_workflow_registers_shading_type_3():
     assert b"/Sh2 sh\n" in content, content
     assert b"/ShadingType 3" in pdf_bytes, "radial ShadingType 3 missing"
     assert b"/Function" in pdf_bytes, "/Function missing — gradient not real (#297)"
+
+
+def test_two_shadings_on_same_page_coexist():
+    """Distinct shadings registered under different names must both survive in
+    the page resource dict and both be paintable."""
+    doc = Document()
+    page = Page.a4()
+
+    page.add_shading("Sh1", _axial("Sh1"))
+    page.add_shading("Sh2", _radial("Sh2"))
+    page.paint_shading("Sh1")
+    page.paint_shading("Sh2")
+    doc.add_page(page)
+
+    pdf_bytes = doc.save_to_bytes()
+    content = b"".join(PdfReader.from_bytes(pdf_bytes).get_page_content_streams(0))
+
+    # Both operators present, in registration order
+    sh1 = _pos(content, b"/Sh1 sh\n")
+    sh2 = content.find(b"/Sh2 sh\n", sh1)
+    assert sh2 != -1, f"second shading paint missing:\n{content!r}"
+
+    # Both shading types coexist in resources (axial + radial, not overwritten)
+    assert b"/ShadingType 2" in pdf_bytes, "axial entry overwritten or missing"
+    assert b"/ShadingType 3" in pdf_bytes, "radial entry overwritten or missing"

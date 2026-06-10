@@ -3,6 +3,7 @@ use pyo3::prelude::*;
 
 use oxidize_pdf::advanced_tables::AdvancedTableExt;
 use oxidize_pdf::charts::ChartExt;
+use oxidize_pdf::graphics::ShadingDefinition;
 use oxidize_pdf::PageLists;
 use oxidize_pdf::PageTables;
 
@@ -428,8 +429,6 @@ impl PyPage {
     /// characters). Raises :class:`PdfError` for an invalid name and
     /// :class:`TypeError` for an unsupported shading object.
     fn add_shading(&mut self, name: &str, shading: &Bound<'_, PyAny>) -> PyResult<()> {
-        use oxidize_pdf::graphics::ShadingDefinition;
-
         let def = if let Ok(axial) = shading.extract::<PyRef<'_, PyAxialShading>>() {
             ShadingDefinition::Axial(axial.inner.clone())
         } else if let Ok(radial) = shading.extract::<PyRef<'_, PyRadialShading>>() {
@@ -444,9 +443,14 @@ impl PyPage {
 
     /// Paint the named shading into the current clip region (``/name sh``).
     ///
-    /// The shading must have been registered with :meth:`add_shading`. ``sh``
-    /// fills the entire current clip (the whole page if unclipped), so callers
-    /// typically bound it with a ``clip()`` / ``end_path()`` sequence.
+    /// The shading must have been registered with :meth:`add_shading` under
+    /// the same ``name``. If it was not, the ``sh`` operator is still emitted
+    /// but references an undefined resource: no ``/Shading`` entry is written
+    /// and conforming viewers silently skip the paint. The caller is
+    /// responsible for pairing this with a prior :meth:`add_shading`.
+    ///
+    /// ``sh`` fills the entire current clip (the whole page if unclipped), so
+    /// callers typically bound it with a ``clip()`` / ``end_path()`` sequence.
     fn paint_shading(&mut self, name: &str) {
         self.inner.graphics().paint_shading(name);
     }
