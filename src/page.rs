@@ -12,6 +12,7 @@ use crate::graphics::{
     PyBlendMode, PyCalibratedColor, PyClippingPath, PyLabColor, PyLineCap, PyLineDashPattern,
     PyLineJoin, PyPageColorSpace,
 };
+use crate::graphics_advanced::{PyAxialShading, PyRadialShading};
 use crate::image::PyImage;
 use crate::list::{PyBulletStyle, PyOrderedList, PyOrderedListStyle, PyUnorderedList};
 use crate::table::{PyTable, PyTableStyle};
@@ -346,6 +347,33 @@ impl PyPage {
         self.inner.graphics().fill_stroke();
     }
 
+    /// Intersect the clipping region with the current path using the
+    /// non-zero winding rule (``W`` operator).
+    ///
+    /// Must be followed by :meth:`end_path` to complete the clip-path
+    /// painting sequence (``W n``). The canonical bounded-gradient idiom is
+    /// ``save_graphics_state()``, build a path, ``clip()``, ``end_path()``,
+    /// ``paint_shading(name)``, ``restore_graphics_state()``.
+    fn clip(&mut self) {
+        self.inner.graphics().clip();
+    }
+
+    /// Intersect the clipping region with the current path using the
+    /// even-odd rule (``W*`` operator).
+    ///
+    /// Must be followed by :meth:`end_path` (``W* n``).
+    fn clip_even_odd(&mut self) {
+        self.inner.graphics().clip_even_odd();
+    }
+
+    /// End the current path without filling or stroking (``n`` operator).
+    ///
+    /// Required to terminate a clipping path opened with :meth:`clip` or
+    /// :meth:`clip_even_odd`.
+    fn end_path(&mut self) {
+        self.inner.graphics().end_path();
+    }
+
     /// Set the line cap style.
     fn set_line_cap(&mut self, cap: &PyLineCap) {
         self.inner.graphics().set_line_cap(cap.inner);
@@ -390,6 +418,37 @@ impl PyPage {
     /// Clear the clipping path.
     fn clear_clipping(&mut self) {
         self.inner.graphics().clear_clipping();
+    }
+
+    /// Register a shading on this page under ``/Resources/Shading/<name>``.
+    ///
+    /// ``shading`` must be an :class:`AxialShading` or :class:`RadialShading`.
+    /// ``name`` is the resource key referenced by :meth:`paint_shading`; it
+    /// must be a valid PDF resource name (no whitespace or delimiter
+    /// characters). Raises :class:`PdfError` for an invalid name and
+    /// :class:`TypeError` for an unsupported shading object.
+    fn add_shading(&mut self, name: &str, shading: &Bound<'_, PyAny>) -> PyResult<()> {
+        use oxidize_pdf::graphics::ShadingDefinition;
+
+        let def = if let Ok(axial) = shading.extract::<PyRef<'_, PyAxialShading>>() {
+            ShadingDefinition::Axial(axial.inner.clone())
+        } else if let Ok(radial) = shading.extract::<PyRef<'_, PyRadialShading>>() {
+            ShadingDefinition::Radial(radial.inner.clone())
+        } else {
+            return Err(pyo3::exceptions::PyTypeError::new_err(
+                "shading must be an AxialShading or RadialShading",
+            ));
+        };
+        self.inner.add_shading(name, def).map_err(to_py_err)
+    }
+
+    /// Paint the named shading into the current clip region (``/name sh``).
+    ///
+    /// The shading must have been registered with :meth:`add_shading`. ``sh``
+    /// fills the entire current clip (the whole page if unclipped), so callers
+    /// typically bound it with a ``clip()`` / ``end_path()`` sequence.
+    fn paint_shading(&mut self, name: &str) {
+        self.inner.graphics().paint_shading(name);
     }
 
     /// Set the blend mode.
