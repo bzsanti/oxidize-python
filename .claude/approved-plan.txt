@@ -1,14 +1,5 @@
-2026-05-28T15:24:52+00:00
-
-Quality review hallazgos aprobados por el usuario.
-Orden de implementación: críticos (1-3) → recomendados (4-6) → opcionales (7-9).
-
-1. CRIT — sustituir test_extract_fragments_from_page_returns_flat_list por test_extract_fragments_from_page_sorted_by_y_descending
-2. CRIT — exponer PySpaceDecision + getter space_decisions en PyTextFragment + reexport
-3. CRIT — asserts tj_space_threshold en presets dense() y loose()
-4. REC  — font_name/struct_tag → Option<&str> con as_deref()
-5. REC  — docstring tj_space_threshold con rango útil y comportamiento en 0.0
-6. REC  — pytest.raises(op.PdfParseError) en lugar de Exception
-7. OPT  — See also entre extract_text_with_options y extract_fragments_with_options
-8. OPT  — __eq__ en PyTextFragment
-9. OPT  — test específico para TextFragment.color con set_fill_color
+Approved: 2026-06-10T20:21:06+00:00
+Scope: quality findings #1-#7 (all)
+Decision #2: polymorphic add_shading (keep); .pyi -> Union[AxialShading,RadialShading] + minimal class stubs
+Branch: feature/gradient-render
+Commit base: b18e29d
