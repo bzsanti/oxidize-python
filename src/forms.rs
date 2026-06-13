@@ -19,6 +19,7 @@ use oxidize_pdf::{
     FieldAction, FieldActions, FieldActionSystem,
     FormatActionType, ValidateActionType, SpecialFormatType, ActionSettings,
 };
+use oxidize_pdf::writer::IncrementalFormFiller;
 use crate::text::PyFont;
 use crate::types::{PyColor, PyRectangle};
 use crate::errors::to_py_err as pdf_err_to_py;
@@ -1498,6 +1499,72 @@ impl PyAppearanceStream {
     }
 }
 
+// ── IncrementalFormFiller ───────────────────────────────────────────────────
+
+/// Fill AcroForm fields on an already-serialized PDF via an ISO 32000-1 §7.5.6
+/// incremental update.
+///
+/// The base bytes are preserved verbatim; only the modified field objects and
+/// the ``/AcroForm`` dictionary are rewritten in an appended revision (partial
+/// cross-reference section, chained ``/Prev``, regenerated ``/ID``). This is the
+/// "fill an existing form template" use case: a form reader recovers each
+/// field's ``/V`` after re-parsing.
+///
+/// Field names are fully qualified (e.g. ``"address.street"`` for hierarchical
+/// fields). Encrypted documents are rejected.
+///
+/// Example:
+///     >>> filler = IncrementalFormFiller(template_bytes)
+///     >>> filled = filler.fill("full_name", "Ada Lovelace")
+#[pyclass(name = "IncrementalFormFiller")]
+pub struct PyIncrementalFormFiller {
+    base: Vec<u8>,
+}
+
+#[pymethods]
+impl PyIncrementalFormFiller {
+    #[new]
+    fn new(base_bytes: Vec<u8>) -> Self {
+        Self { base: base_bytes }
+    }
+
+    /// Set a single field's value and return the updated PDF bytes.
+    ///
+    /// Args:
+    ///     field_name: Fully-qualified AcroForm field name.
+    ///     value: New value to store in the field's ``/V``.
+    ///
+    /// Raises:
+    ///     Exception: If the field does not exist, the base PDF is malformed,
+    ///         or the document is encrypted.
+    fn fill(&self, field_name: &str, value: &str) -> PyResult<Vec<u8>> {
+        IncrementalFormFiller::new(&self.base)
+            .fill(field_name, value)
+            .map_err(pdf_err_to_py)
+    }
+
+    /// Set several fields in a single incremental update and return the bytes.
+    ///
+    /// Args:
+    ///     fields: Sequence of ``(field_name, value)`` pairs. Duplicate names
+    ///         collapse to the last value supplied.
+    ///
+    /// Raises:
+    ///     Exception: If any field does not exist, the base PDF is malformed,
+    ///         or the document is encrypted.
+    fn fill_many(&self, fields: Vec<(String, String)>) -> PyResult<Vec<u8>> {
+        let refs: Vec<(&str, &str)> =
+            fields.iter().map(|(k, v)| (k.as_str(), v.as_str())).collect();
+        IncrementalFormFiller::new(&self.base)
+            .fill_many(&refs)
+            .map_err(pdf_err_to_py)
+    }
+
+    fn __repr__(&self) -> String {
+        format!("IncrementalFormFiller(base_len={})", self.base.len())
+    }
+}
+
 // ── Registration ──────────────────────────────────────────────────────────
 
 pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
@@ -1540,5 +1607,7 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     // Group D
     m.add_class::<PyAppearanceState>()?;
     m.add_class::<PyAppearanceStream>()?;
+    // Incremental form filling (oxidize-pdf 2.15.0, #318)
+    m.add_class::<PyIncrementalFormFiller>()?;
     Ok(())
 }

@@ -441,6 +441,17 @@ class ComboBox:
 
     def __repr__(self) -> str: ...
 
+class IncrementalFormFiller:
+    """Fill AcroForm fields on an already-serialized PDF via an ISO 32000-1
+    §7.5.6 incremental update, preserving the original bytes verbatim."""
+
+    def __init__(self, base_bytes: bytes) -> None: ...
+
+    def fill(self, field_name: str, value: str) -> bytes: ...
+    def fill_many(self, fields: list[tuple[str, str]]) -> bytes: ...
+
+    def __repr__(self) -> str: ...
+
 # ── WriterConfig ───────────────────────────────────────────────────────────────
 
 class WriterConfig:

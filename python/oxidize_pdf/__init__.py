@@ -487,6 +487,8 @@ from oxidize_pdf._oxidize_pdf import (
     AppearanceStream,
     # Validation result (dedicated type)
     ValidationResult,
+    # Incremental form filling (oxidize-pdf 2.15.0, #318)
+    IncrementalFormFiller,
 )
 
 # Content Parser (Tier 17 — F77)
@@ -942,6 +944,7 @@ __all__ = [
     "AppearanceState",
     "AppearanceStream",
     "ValidationResult",
+    "IncrementalFormFiller",
     # Content Parser (Tier 17 — F77)
     "ContentParser",
     "ContentOperation",
