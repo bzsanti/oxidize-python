@@ -267,10 +267,21 @@ class TestContentParser:
         assert isinstance(ops, list)
         assert len(ops) >= 2
 
-    def test_parse_strict_raises_on_invalid(self):
-        """parse_strict raises ValueError for invalid content bytes."""
-        with pytest.raises((ValueError, Exception)):
-            ContentParser.parse_strict(b"\x00\xff\xfe\xfd\x00\xff")
+    def test_parse_strict_best_effort_on_garbage(self):
+        """Best-effort parsing (upstream #319): unparseable bytes yield an empty
+        operator list instead of raising. parse_strict shares parse's tokenizer,
+        which stops at the first unrecoverable byte rather than aborting with an
+        error."""
+        ops = ContentParser.parse_strict(b"\x00\xff\xfe\xfd\x00\xff")
+        assert isinstance(ops, list)
+        assert ops == []
+
+    def test_parse_strict_keeps_valid_operators_before_garbage(self):
+        """A valid prefix is preserved even when the stream ends in garbage: the
+        tokenizer keeps every operator parsed before the unrecoverable tail
+        instead of discarding the whole stream (the #319 page-recovery contract)."""
+        ops = ContentParser.parse_strict(b"BT ET \x00\xff\xfe\xfd")
+        assert [op.op_type for op in ops] == ["BeginText", "EndText"]
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
