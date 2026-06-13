@@ -1535,8 +1535,8 @@ impl PyIncrementalFormFiller {
     ///     value: New value to store in the field's ``/V``.
     ///
     /// Raises:
-    ///     Exception: If the field does not exist, the base PDF is malformed,
-    ///         or the document is encrypted.
+    ///     PdfError: If the field does not exist or the base PDF is malformed.
+    ///     PdfPermissionError: If the document is encrypted.
     fn fill(&self, field_name: &str, value: &str) -> PyResult<Vec<u8>> {
         IncrementalFormFiller::new(&self.base)
             .fill(field_name, value)
@@ -1547,11 +1547,12 @@ impl PyIncrementalFormFiller {
     ///
     /// Args:
     ///     fields: Sequence of ``(field_name, value)`` pairs. Duplicate names
-    ///         collapse to the last value supplied.
+    ///         collapse to the last value supplied. An empty sequence still
+    ///         appends a valid incremental update (setting ``/NeedAppearances``).
     ///
     /// Raises:
-    ///     Exception: If any field does not exist, the base PDF is malformed,
-    ///         or the document is encrypted.
+    ///     PdfError: If any field does not exist or the base PDF is malformed.
+    ///     PdfPermissionError: If the document is encrypted.
     fn fill_many(&self, fields: Vec<(String, String)>) -> PyResult<Vec<u8>> {
         let refs: Vec<(&str, &str)> =
             fields.iter().map(|(k, v)| (k.as_str(), v.as_str())).collect();

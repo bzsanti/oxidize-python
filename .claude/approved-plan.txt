@@ -1,5 +1,7 @@
-Approved: 2026-06-10T20:21:06+00:00
-Scope: quality findings #1-#7 (all)
-Decision #2: polymorphic add_shading (keep); .pyi -> Union[AxialShading,RadialShading] + minimal class stubs
-Branch: feature/gradient-render
-Commit base: b18e29d
+APPROVED: 2026-06-13T21:05:47Z
+Scope: quality-review findings on commit 743c05b (0.10.0 IncrementalFormFiller)
+User approval: "ok con la recomendacion" (findings 1,2,3,4; 5 and 6 discarded)
+Changes:
+ - tests/test_incremental_form_fill.py: PdfError in error tests (#1); special-char
+   escaping, duplicate-last-value, empty-list fill_many tests (#2,#3)
+ - src/forms.rs: docstring Raises: PdfError/PdfPermissionError instead of Exception (#4)

@@ -16,6 +16,7 @@ from oxidize_pdf import (
     Font,
     IncrementalFormFiller,
     Page,
+    PdfError,
     Point,
     Rectangle,
     TextField,
@@ -61,6 +62,15 @@ class TestFillSingleField:
         # inside a synthesized /AP appearance stream.
         assert b"/V (Ada Lovelace)" in appended
 
+    def test_value_with_pdf_special_chars_is_escaped(self):
+        base = _base_form_pdf()
+        # Parentheses and backslash are reserved in a PDF literal string and
+        # must be escaped, or the /V value would corrupt the object syntax.
+        filled = IncrementalFormFiller(base).fill("name_field", r"O'Brien (Jr.) \test")
+
+        appended = filled[len(base):]
+        assert br"/V (O'Brien \(Jr.\) \\test)" in appended
+
     def test_incremental_revision_has_its_own_xref(self):
         base = _base_form_pdf()
         filled = IncrementalFormFiller(base).fill("name_field", "Ada Lovelace")
@@ -91,15 +101,38 @@ class TestFillMany:
         # Two fields, one incremental update -> exactly one extra xref section.
         assert filled.count(b"startxref") == base.count(b"startxref") + 1
 
+    def test_fill_many_duplicate_field_uses_last_value(self):
+        base = _base_form_pdf()
+        # Duplicate names collapse to the last value (documented contract).
+        filled = IncrementalFormFiller(base).fill_many(
+            [("name_field", "First"), ("name_field", "Last")]
+        )
+
+        appended = filled[len(base):]
+        assert b"/V (Last)" in appended
+        assert b"/V (First)" not in appended
+
+    def test_fill_many_empty_list_still_emits_incremental_update(self):
+        base = _base_form_pdf()
+        # No fields modified, but the AcroForm-level /NeedAppearances flag is
+        # set, so a valid one-revision incremental update is still appended.
+        filled = IncrementalFormFiller(base).fill_many([])
+
+        assert filled[: len(base)] == base
+        assert filled.count(b"startxref") == base.count(b"startxref") + 1
+        assert b"/NeedAppearances true" in filled[len(base):]
+
 
 class TestErrors:
     def test_unknown_field_name_raises(self):
         base = _base_form_pdf()
-        with pytest.raises(Exception) as exc:
+        # FieldNotFound maps to the PdfError base type (errors.rs wildcard arm).
+        with pytest.raises(PdfError) as exc:
             IncrementalFormFiller(base).fill("does_not_exist", "x")
-        # FieldNotFound surfaces the offending name.
+        # The offending name is surfaced.
         assert "does_not_exist" in str(exc.value)
 
     def test_malformed_base_bytes_raise(self):
-        with pytest.raises(Exception):
+        # A base that does not parse as a PDF maps to PdfParseError (a PdfError).
+        with pytest.raises(PdfError):
             IncrementalFormFiller(b"not a pdf at all").fill("name_field", "x")
