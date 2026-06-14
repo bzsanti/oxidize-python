@@ -15,7 +15,7 @@ FROM python:3.12-slim
 
 # Pinned to the current release so the image is reproducible. Bump on each
 # release that changes the MCP surface.
-ARG OXIDIZE_PDF_VERSION=0.9.0
+ARG OXIDIZE_PDF_VERSION=0.10.0
 
 # Non-root user: the server only reads/writes PDFs passed over stdio.
 RUN useradd --create-home --uid 10001 oxidize
