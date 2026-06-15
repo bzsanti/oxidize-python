@@ -9,6 +9,7 @@ mod charts;
 mod content_parser;
 mod document;
 mod errors;
+mod experimental_spi;
 mod forms;
 mod graphics;
 mod graphics_advanced;
@@ -71,6 +72,7 @@ fn _oxidize_pdf(m: &Bound<'_, PyModule>) -> PyResult<()> {
     semantic::register(m)?;
     graphics_extraction::register(m)?;
     layout::register(m)?;
+    experimental_spi::register(m)?;
 
     Ok(())
 }
