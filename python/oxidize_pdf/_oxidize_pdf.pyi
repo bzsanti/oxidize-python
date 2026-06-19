@@ -1,6 +1,6 @@
 """Type stubs for the oxidize-pdf native extension module."""
 
-from typing import BinaryIO, Optional, Union
+from typing import Any, BinaryIO, Optional, Union
 
 # ── Module metadata ────────────────────────────────────────────────────────────
 
@@ -738,3 +738,181 @@ def extract_pages(input_path: str, output_path: str, page_indices: list[int]) ->
         ValueError: If the page list is empty.
     """
     ...
+
+# ── Analysis pipeline (RAG) ────────────────────────────────────────────────────
+
+class Element:
+    """A single partitioned document element (title, paragraph, table, …).
+
+    Frozen value type produced by the analysis pipeline; constructed natively,
+    not from Python.
+    """
+
+    @property
+    def type_name(self) -> str:
+        """Snake-case type name: "title", "paragraph", "table", etc."""
+        ...
+    @property
+    def text(self) -> str:
+        """Primary text content of this element."""
+        ...
+    @property
+    def display_text(self) -> str:
+        """Human-readable text (tables show pipe-separated rows)."""
+        ...
+    @property
+    def page(self) -> int:
+        """Page number (0-indexed) where this element appears."""
+        ...
+    @property
+    def class_label(self) -> Optional[str]:
+        """Open class label assigned by a custom ``ElementClassifier`` before
+        chunking. ``None`` when no classifier ran or it returned ``None``."""
+        ...
+
+    def __repr__(self) -> str: ...
+
+class DocumentSource:
+    """Source-document metadata stamped on every chunk a pipeline produces."""
+
+    def __init__(
+        self,
+        filename: Optional[str] = None,
+        doc_hash: Optional[str] = None,
+    ) -> None: ...
+
+    @property
+    def title(self) -> Optional[str]: ...
+    @property
+    def author(self) -> Optional[str]: ...
+    @property
+    def creation_date(self) -> Optional[str]: ...
+    @property
+    def filename(self) -> Optional[str]: ...
+    @property
+    def doc_hash(self) -> Optional[str]: ...
+    @property
+    def total_pages(self) -> Optional[int]: ...
+
+    def __repr__(self) -> str: ...
+
+# ── Experimental analysis SPI ──────────────────────────────────────────────────
+
+class ChunkGroup:
+    """An ordered group of elements that form a single chunk.
+
+    Returned by a custom chunking strategy's ``chunk(elements)`` method.
+    """
+
+    def __init__(
+        self,
+        elements: list[Element],
+        heading_context: Optional[str] = None,
+    ) -> None: ...
+
+    @property
+    def elements(self) -> list[Element]:
+        """The elements that form this chunk, in order."""
+        ...
+    @property
+    def heading_context(self) -> Optional[str]:
+        """Optional heading context to prepend for embedding."""
+        ...
+
+    def __repr__(self) -> str: ...
+
+class ClassLabel:
+    """An open class label assigned to an element by an ``ElementClassifier``.
+
+    The label is an opaque string — semantics live entirely in the provider.
+    """
+
+    def __init__(self, label: str) -> None: ...
+
+    def as_str(self) -> str:
+        """The label as a string."""
+        ...
+
+    def __str__(self) -> str: ...
+    def __repr__(self) -> str: ...
+    def __eq__(self, other: object) -> bool: ...
+    def __hash__(self) -> int: ...
+
+class ClassifyContext:
+    """Read-only context handed to an ``ElementClassifier``.
+
+    Constructed natively, not from Python.
+    """
+
+    @property
+    def elements(self) -> list[Element]:
+        """All elements of the document, in order."""
+        ...
+    @property
+    def index(self) -> int:
+        """Index of the element currently being classified."""
+        ...
+
+    def __repr__(self) -> str: ...
+
+class EnrichContext:
+    """Read-only context handed to a ``MetadataEnricher``.
+
+    Constructed natively, not from Python.
+    """
+
+    @property
+    def text(self) -> str:
+        """The chunk's text (elements joined by newlines)."""
+        ...
+    @property
+    def elements(self) -> list[Element]:
+        """The elements that compose this chunk, in order."""
+        ...
+    @property
+    def heading_path(self) -> list[str]:
+        """The chunk's heading breadcrumb, root → leaf."""
+        ...
+
+    def __repr__(self) -> str: ...
+
+class AnalysisPipeline:
+    """Composable analysis pipeline with pluggable chunking, classification and
+    metadata enrichment.
+
+    Builder methods return a new pipeline; the original is left unchanged. The
+    default pipeline (no overrides) reproduces ``PdfReader.rag_chunks`` exactly.
+    """
+
+    def __init__(self) -> None: ...
+
+    def with_chunking(self, strategy: Any) -> "AnalysisPipeline":
+        """Replace the chunking strategy.
+
+        ``strategy`` must expose
+        ``chunk(self, elements: list[Element]) -> list[ChunkGroup]``.
+        """
+        ...
+    def with_max_tokens(self, max_tokens: int) -> "AnalysisPipeline":
+        """Set the token budget used to flag oversized chunks."""
+        ...
+    def with_classifier(self, classifier: Any) -> "AnalysisPipeline":
+        """Register a classifier that labels elements before chunking.
+
+        ``classifier`` must expose
+        ``classify(self, element: Element, ctx: ClassifyContext) -> ClassLabel | None``.
+        """
+        ...
+    def with_enricher(self, enricher: Any) -> "AnalysisPipeline":
+        """Register an enricher that writes provider-specific fields into each
+        chunk's ``extra`` bag after metadata is derived.
+
+        ``enricher`` must expose
+        ``enrich(self, ctx: EnrichContext, extra: dict[str, Any]) -> None``.
+        """
+        ...
+    def with_source(self, source: DocumentSource) -> "AnalysisPipeline":
+        """Stamp source-document metadata on every chunk produced."""
+        ...
+
+    def __repr__(self) -> str: ...
