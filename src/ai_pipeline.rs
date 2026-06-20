@@ -10,8 +10,9 @@ use oxidize_pdf::ai::{
     MarkdownExporter, MarkdownOptions, TokenEfficientExporter,
 };
 use oxidize_pdf::pipeline::{
-    ExtractionProfile, HybridChunkConfig, MergePolicy, PartitionConfig, RagChunk,
-    ReadingOrderStrategy, SemanticChunkConfig,
+    ContentTypeFlags, DocumentSource, ElementBBox, ExtractionProfile, HybridChunkConfig,
+    MergePolicy, PageRegion, PartitionConfig, RagChunk, ReadingOrderStrategy,
+    SemanticChunkConfig,
 };
 
 use crate::errors::to_py_err;
@@ -603,11 +604,220 @@ impl PyElement {
         self.inner.page()
     }
 
+    /// Open class label assigned by a custom
+    /// :class:`oxidize_pdf.experimental.ElementClassifier` before chunking.
+    /// ``None`` when no classifier ran or the classifier returned ``None``.
+    #[getter]
+    fn class_label(&self) -> Option<String> {
+        self.inner.metadata().class_label.clone()
+    }
+
     fn __repr__(&self) -> String {
         format!(
             "Element(type={:?}, page={})",
             self.inner.type_name(),
             self.inner.page(),
+        )
+    }
+}
+
+// ── PyElementBBox ──────────────────────────────────────────────────────────
+
+/// Axis-aligned bounding box for a pipeline element or page region.
+///
+/// PDF coordinate system: origin at bottom-left, `y` grows upward.
+#[pyclass(name = "ElementBBox", frozen, skip_from_py_object)]
+#[derive(Clone, Copy)]
+pub struct PyElementBBox {
+    pub inner: ElementBBox,
+}
+
+#[pymethods]
+impl PyElementBBox {
+    /// Left edge X coordinate (PDF points).
+    #[getter]
+    fn x(&self) -> f64 {
+        self.inner.x
+    }
+
+    /// Bottom edge Y coordinate (PDF points, origin at page bottom).
+    #[getter]
+    fn y(&self) -> f64 {
+        self.inner.y
+    }
+
+    /// Width of the bounding box (PDF points).
+    #[getter]
+    fn width(&self) -> f64 {
+        self.inner.width
+    }
+
+    /// Height of the bounding box (PDF points).
+    #[getter]
+    fn height(&self) -> f64 {
+        self.inner.height
+    }
+
+    fn __repr__(&self) -> String {
+        format!(
+            "ElementBBox(x={:.2}, y={:.2}, width={:.2}, height={:.2})",
+            self.inner.x, self.inner.y, self.inner.width, self.inner.height,
+        )
+    }
+}
+
+// ── PyContentTypeFlags ─────────────────────────────────────────────────────
+
+/// Boolean flags describing the kinds of content present in a chunk.
+#[pyclass(name = "ContentTypeFlags", frozen, skip_from_py_object)]
+#[derive(Clone, Copy)]
+pub struct PyContentTypeFlags {
+    pub inner: ContentTypeFlags,
+}
+
+#[pymethods]
+impl PyContentTypeFlags {
+    /// True if the chunk contains at least one table element.
+    #[getter]
+    fn has_table(&self) -> bool {
+        self.inner.has_table
+    }
+
+    /// True if the chunk contains at least one list item.
+    #[getter]
+    fn has_list(&self) -> bool {
+        self.inner.has_list
+    }
+
+    /// True if the chunk contains at least one code block.
+    #[getter]
+    fn has_code(&self) -> bool {
+        self.inner.has_code
+    }
+
+    /// True if the chunk is composed solely of heading (title) elements.
+    #[getter]
+    fn heading_only(&self) -> bool {
+        self.inner.heading_only
+    }
+
+    fn __repr__(&self) -> String {
+        format!(
+            "ContentTypeFlags(has_table={}, has_list={}, has_code={}, heading_only={})",
+            self.inner.has_table,
+            self.inner.has_list,
+            self.inner.has_code,
+            self.inner.heading_only,
+        )
+    }
+}
+
+// ── PyPageRegion ───────────────────────────────────────────────────────────
+
+/// Citation anchor for a chunk on a single page: the page number and the
+/// union bounding box of the chunk's elements on that page.
+#[pyclass(name = "PageRegion", frozen, skip_from_py_object)]
+#[derive(Clone, Copy)]
+pub struct PyPageRegion {
+    pub inner: PageRegion,
+}
+
+#[pymethods]
+impl PyPageRegion {
+    /// Page number (as stored on the elements — 0-indexed in core).
+    #[getter]
+    fn page(&self) -> u32 {
+        self.inner.page
+    }
+
+    /// Union bounding box of the chunk's elements on this page.
+    #[getter]
+    fn bbox(&self) -> PyElementBBox {
+        PyElementBBox {
+            inner: self.inner.bbox,
+        }
+    }
+
+    fn __repr__(&self) -> String {
+        format!(
+            "PageRegion(page={}, bbox=ElementBBox(x={:.2}, y={:.2}, w={:.2}, h={:.2}))",
+            self.inner.page,
+            self.inner.bbox.x,
+            self.inner.bbox.y,
+            self.inner.bbox.width,
+            self.inner.bbox.height,
+        )
+    }
+}
+
+// ── PyDocumentSource ───────────────────────────────────────────────────────
+
+/// Metadata about the source document a chunk came from.
+///
+/// Construct with the keyword args ``filename`` and/or ``doc_hash``; the rest
+/// (``title``/``author``/``creation_date``/``total_pages``) is auto-filled by
+/// :meth:`PdfReader.rag_chunks_with_source` from the PDF info dictionary
+/// when the caller leaves them at the default (``None``).
+#[pyclass(name = "DocumentSource", frozen, skip_from_py_object)]
+#[derive(Clone)]
+pub struct PyDocumentSource {
+    pub inner: DocumentSource,
+}
+
+#[pymethods]
+impl PyDocumentSource {
+    #[new]
+    #[pyo3(signature = (filename = None, doc_hash = None))]
+    fn new(filename: Option<String>, doc_hash: Option<String>) -> Self {
+        Self {
+            inner: DocumentSource::with_file(filename, doc_hash),
+        }
+    }
+
+    /// Document title from the info dictionary, if present (auto-filled).
+    #[getter]
+    fn title(&self) -> Option<String> {
+        self.inner.title.clone()
+    }
+
+    /// Document author from the info dictionary, if present (auto-filled).
+    #[getter]
+    fn author(&self) -> Option<String> {
+        self.inner.author.clone()
+    }
+
+    /// Creation date string from the info dictionary, if present.
+    #[getter]
+    fn creation_date(&self) -> Option<String> {
+        self.inner.creation_date.clone()
+    }
+
+    /// Originating file name (caller-supplied).
+    #[getter]
+    fn filename(&self) -> Option<String> {
+        self.inner.filename.clone()
+    }
+
+    /// Stable document hash (caller-supplied; used as the ``chunk_id`` prefix).
+    #[getter]
+    fn doc_hash(&self) -> Option<String> {
+        self.inner.doc_hash.clone()
+    }
+
+    /// Total page count of the source document.
+    #[getter]
+    fn total_pages(&self) -> Option<u32> {
+        self.inner.total_pages
+    }
+
+    fn __repr__(&self) -> String {
+        format!(
+            "DocumentSource(filename={:?}, doc_hash={:?}, title={:?}, author={:?}, total_pages={:?})",
+            self.inner.filename,
+            self.inner.doc_hash,
+            self.inner.title,
+            self.inner.author,
+            self.inner.total_pages,
         )
     }
 }
@@ -670,10 +880,168 @@ impl PyRagChunk {
         self.inner.is_oversized
     }
 
+    // ── ChunkMetadata getters (upstream 2.16.0) ──────────────────────────
+
+    /// Full section breadcrumb, root→leaf (e.g. `["1 Intro", "1.2 Scope"]`).
+    #[getter]
+    fn heading_path(&self) -> Vec<String> {
+        self.inner.metadata.heading_path.clone()
+    }
+
+    /// Dominant font (char-weighted majority across the chunk's elements).
+    #[getter]
+    fn dominant_font(&self) -> Option<String> {
+        self.inner.metadata.dominant_font.clone()
+    }
+
+    /// Dominant font size in points (char-weighted majority).
+    #[getter]
+    fn dominant_font_size(&self) -> Option<f64> {
+        self.inner.metadata.dominant_font_size
+    }
+
+    /// True if the majority of characters in the chunk are bold.
+    #[getter]
+    fn is_bold(&self) -> bool {
+        self.inner.metadata.is_bold
+    }
+
+    /// True if the majority of characters in the chunk are italic.
+    #[getter]
+    fn is_italic(&self) -> bool {
+        self.inner.metadata.is_italic
+    }
+
+    /// Lowest classification confidence among the chunk's elements.
+    #[getter]
+    fn min_confidence(&self) -> f32 {
+        self.inner.metadata.min_confidence
+    }
+
+    /// Content-type flags derived from element types.
+    #[getter]
+    fn content_types(&self) -> PyContentTypeFlags {
+        PyContentTypeFlags {
+            inner: self.inner.metadata.content_types,
+        }
+    }
+
+    /// Character count of the chunk text.
+    #[getter]
+    fn char_count(&self) -> usize {
+        self.inner.metadata.char_count
+    }
+
+    /// Whitespace-separated word count.
+    #[getter]
+    fn word_count(&self) -> usize {
+        self.inner.metadata.word_count
+    }
+
+    /// Sentence count (uses the chunker's sentence splitter).
+    #[getter]
+    fn sentence_count(&self) -> usize {
+        self.inner.metadata.sentence_count
+    }
+
+    /// Detected language code (ISO 639-3, via `whatlang`); `None` if the
+    /// detection is inconclusive.
+    #[getter]
+    fn language(&self) -> Option<String> {
+        self.inner.metadata.language.clone()
+    }
+
+    /// Detection confidence in `(0, 1]` for `language`; `None` when no
+    /// language was detected.
+    #[getter]
+    fn language_confidence(&self) -> Option<f32> {
+        self.inner.metadata.language_confidence
+    }
+
+    /// Whether the language detection is considered reliable; `None` when no
+    /// language was detected.
+    #[getter]
+    fn language_reliable(&self) -> Option<bool> {
+        self.inner.metadata.language_reliable
+    }
+
+    /// Deterministic, stable identifier for this chunk.
+    #[getter]
+    fn chunk_id(&self) -> String {
+        self.inner.metadata.chunk_id.clone()
+    }
+
+    /// Identifier of the previous chunk in the document, if any.
+    #[getter]
+    fn prev_chunk_id(&self) -> Option<String> {
+        self.inner.metadata.prev_chunk_id.clone()
+    }
+
+    /// Identifier of the next chunk in the document, if any.
+    #[getter]
+    fn next_chunk_id(&self) -> Option<String> {
+        self.inner.metadata.next_chunk_id.clone()
+    }
+
+    /// First and last page the chunk's elements touch (inclusive), or `None`
+    /// when the chunk has no positioned elements.
+    #[getter]
+    fn page_span(&self) -> Option<(u32, u32)> {
+        self.inner.metadata.page_span
+    }
+
+    /// Per-page citation regions (union bbox of the chunk's elements on each
+    /// page), sorted ascending by page.
+    #[getter]
+    fn page_regions(&self) -> Vec<PyPageRegion> {
+        self.inner
+            .metadata
+            .page_regions
+            .iter()
+            .map(|r| PyPageRegion { inner: *r })
+            .collect()
+    }
+
+    /// Row count of the chunk's largest table, or `None` if no table.
+    #[getter]
+    fn table_rows(&self) -> Option<usize> {
+        self.inner.metadata.table_rows
+    }
+
+    /// Column count of the same table reported by `table_rows`; `None` when
+    /// the chunk has no table.
+    #[getter]
+    fn table_cols(&self) -> Option<usize> {
+        self.inner.metadata.table_cols
+    }
+
+    /// Source-document metadata, if the chunk was produced through
+    /// :meth:`PdfReader.rag_chunks_with_source` (or the ``_and_config``
+    /// variant). ``None`` for chunks from the bare ``rag_chunks()``.
+    #[getter]
+    fn source(&self) -> Option<PyDocumentSource> {
+        self.inner
+            .metadata
+            .source
+            .clone()
+            .map(|inner| PyDocumentSource { inner })
+    }
+
+    /// Open extension bag for provider-supplied fields, populated by
+    /// :class:`oxidize_pdf.experimental.MetadataEnricher` implementations.
+    /// Returns an empty dict when no enricher ran.
+    #[getter]
+    fn extra<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, pyo3::types::PyDict>> {
+        crate::experimental_spi::extra_map_to_py_dict(py, &self.inner.metadata.extra)
+    }
+
     fn __repr__(&self) -> String {
         format!(
-            "RagChunk(chunk_index={}, pages={:?}, token_estimate={})",
-            self.inner.chunk_index, self.inner.page_numbers, self.inner.token_estimate,
+            "RagChunk(chunk_index={}, pages={:?}, token_estimate={}, chunk_id={:?})",
+            self.inner.chunk_index,
+            self.inner.page_numbers,
+            self.inner.token_estimate,
+            self.inner.metadata.chunk_id,
         )
     }
 }
@@ -696,5 +1064,9 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PySemanticChunkConfig>()?;
     m.add_class::<PyElement>()?;
     m.add_class::<PyRagChunk>()?;
+    m.add_class::<PyElementBBox>()?;
+    m.add_class::<PyContentTypeFlags>()?;
+    m.add_class::<PyPageRegion>()?;
+    m.add_class::<PyDocumentSource>()?;
     Ok(())
 }

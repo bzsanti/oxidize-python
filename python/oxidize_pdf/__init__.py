@@ -365,6 +365,11 @@ from oxidize_pdf._oxidize_pdf import (
     SemanticChunkConfig,
     Element,
     RagChunk,
+    # Upstream 2.16.0 — enriched chunk metadata + source stamping
+    ElementBBox,
+    ContentTypeFlags,
+    PageRegion,
+    DocumentSource,
 )
 
 # Advanced Graphics (Tier 13 — F65-F70)
@@ -835,6 +840,10 @@ __all__ = [
     "SemanticChunkConfig",
     "Element",
     "RagChunk",
+    "ElementBBox",
+    "ContentTypeFlags",
+    "PageRegion",
+    "DocumentSource",
     # Advanced Graphics (Tier 13 — F65-F70)
     # F65: Shadings
     "ShadingType",
