@@ -5,7 +5,11 @@ use pyo3::prelude::*;
 
 use oxidize_pdf::ai::DocumentChunker;
 
-use crate::ai_pipeline::{PyDocumentChunk, PyElement, PyExtractionProfile, PyRagChunk};
+use crate::ai_pipeline::{
+    PyDocumentChunk, PyDocumentSource, PyElement, PyExtractionProfile, PyHybridChunkConfig,
+    PyRagChunk,
+};
+use crate::experimental_spi::PyAnalysisPipeline;
 use crate::errors;
 use crate::text_extraction::{PyExtractionOptions, PyPlainTextConfig, PyPlainTextResult, PyTextFragment};
 
@@ -633,6 +637,74 @@ impl PyPdfReader {
         let chunks = with_document!(self, doc =>
             doc.rag_chunks_with_profile(profile.inner.clone()).map_err(parse_err_to_py)
         )?;
+        Ok(chunks.into_iter().map(|c| PyRagChunk { inner: c }).collect())
+    }
+
+    /// Get RAG-ready chunks stamped with source-document metadata.
+    ///
+    /// The caller supplies ``filename`` and ``doc_hash`` on the
+    /// :class:`DocumentSource`; ``title``/``author``/``creation_date``/
+    /// ``total_pages`` are auto-filled from the PDF info dictionary when the
+    /// caller left them ``None``. ``chunk_id`` is prefixed with
+    /// ``doc_hash`` so chunks from different documents cannot collide
+    /// downstream.
+    fn rag_chunks_with_source(
+        &mut self,
+        source: &PyDocumentSource,
+    ) -> PyResult<Vec<PyRagChunk>> {
+        self.ensure_document();
+        let chunks = with_document!(self, doc =>
+            doc.rag_chunks_with_source(source.inner.clone()).map_err(parse_err_to_py)
+        )?;
+        Ok(chunks.into_iter().map(|c| PyRagChunk { inner: c }).collect())
+    }
+
+    /// Like :meth:`rag_chunks_with_source` but with a custom chunking config.
+    ///
+    /// Use when you need both source-document stamping and a non-default
+    /// token budget (e.g. tighter chunks for an embedding model with a
+    /// shorter context window).
+    fn rag_chunks_with_source_and_config(
+        &mut self,
+        source: &PyDocumentSource,
+        config: &PyHybridChunkConfig,
+    ) -> PyResult<Vec<PyRagChunk>> {
+        self.ensure_document();
+        let chunks = with_document!(self, doc =>
+            doc.rag_chunks_with_source_and_config(
+                source.inner.clone(),
+                config.inner.clone(),
+            ).map_err(parse_err_to_py)
+        )?;
+        Ok(chunks.into_iter().map(|c| PyRagChunk { inner: c }).collect())
+    }
+
+    /// Run a custom :class:`oxidize_pdf.experimental.AnalysisPipeline`.
+    ///
+    /// ``AnalysisPipeline()`` with no overrides reproduces :meth:`rag_chunks`
+    /// exactly; swap in a custom strategy via ``with_chunking(...)`` to
+    /// override how elements group into chunks while the pipeline keeps
+    /// ownership of ``chunk_id`` / prev-next links / ``ChunkMetadata``.
+    ///
+    /// **Stability:** behind the unstable SPI; exempt from semver until
+    /// upstream promotes it.
+    fn rag_chunks_with_pipeline(
+        &mut self,
+        py: Python<'_>,
+        pipeline: &PyAnalysisPipeline,
+    ) -> PyResult<Vec<PyRagChunk>> {
+        self.ensure_document();
+        let (analysis, err_slot) = pipeline.build(py);
+        let result = with_document!(self, doc =>
+            doc.rag_chunks_with_pipeline(&analysis)
+        );
+        // Surface a Python-side strategy error before any upstream error —
+        // an empty `Vec<ChunkGroup>` from a failing adapter can produce a
+        // misleading downstream error.
+        if let Some(err) = err_slot.lock().unwrap().take() {
+            return Err(err);
+        }
+        let chunks = result.map_err(parse_err_to_py)?;
         Ok(chunks.into_iter().map(|c| PyRagChunk { inner: c }).collect())
     }
 

@@ -12,7 +12,8 @@ name = "_oxidize_pdf"
 crate-type = ["cdylib"]
 
 [dependencies]
-pyo3 = { version = "0.28", features = ["extension-module"] }
-oxidize-pdf = { version = "=2.15.0", default-features = false, features = ["compression", "signatures", "semantic", "language-detection"] }
+pyo3 = { version = "0.28", features = ["extension-module", "abi3-py310"] }
+oxidize-pdf = { version = "=2.16.3", default-features = false, features = ["compression", "signatures", "semantic", "language-detection", "unstable-spi"] }
+serde_json = "1"
 tempfile = "3"
 chrono = "0.4"
