@@ -1,38 +1,71 @@
 """MCP tool: secure_pdf — encrypt, check permissions, and verify signatures."""
 
 import json
+from typing import Annotated, Literal, Optional
+
+from mcp.types import ToolAnnotations
+from pydantic import Field
 
 from oxidize_pdf.mcp.server import mcp
 
-_VALID_OPERATIONS = frozenset({"encrypt", "permissions", "verify_signatures"})
 
-
-@mcp.tool()
+@mcp.tool(
+    annotations=ToolAnnotations(
+        title="Encrypt / inspect PDF security",
+        readOnlyHint=False,
+        destructiveHint=True,
+        idempotentHint=False,
+        openWorldHint=False,
+    )
+)
 def secure_pdf(
-    operation: str,
-    input_path: str | None = None,
-    output_path: str | None = None,
-    user_password: str | None = None,
-    owner_password: str | None = None,
-    password: str | None = None,
+    operation: Annotated[
+        Literal["encrypt", "permissions", "verify_signatures"],
+        Field(
+            description="'encrypt' writes a password-protected copy; "
+            "'permissions' reports encryption status; 'verify_signatures' checks "
+            "digital signatures. Only 'encrypt' writes a file."
+        ),
+    ],
+    input_path: Annotated[
+        Optional[str],
+        Field(description="Source PDF. Required for all three operations."),
+    ] = None,
+    output_path: Annotated[
+        Optional[str],
+        Field(
+            description="Destination .pdf for the encrypted copy (overwritten if "
+            "present). Required for 'encrypt'; unused otherwise."
+        ),
+    ] = None,
+    user_password: Annotated[
+        Optional[str],
+        Field(description="Open password for the encrypted copy. Required for 'encrypt'."),
+    ] = None,
+    owner_password: Annotated[
+        Optional[str],
+        Field(description="Owner/permissions password. Required for 'encrypt'."),
+    ] = None,
+    password: Annotated[
+        Optional[str],
+        Field(
+            description="Password used to unlock the file when checking "
+            "'permissions' on an encrypted PDF. Unused by other operations."
+        ),
+    ] = None,
 ) -> str:
-    """Secure PDF operations: encrypt, check permissions, verify signatures.
+    """Encrypt a PDF, report its encryption status, or verify its signatures.
 
-    Operations:
-    - encrypt: Encrypt a PDF with user/owner passwords (requires input_path, output_path, passwords).
-      Note: Encryption reconstructs the document preserving text content and layout but may
-      lose non-text elements (images, embedded fonts, vector graphics). This is a limitation
-      of the current API which does not support in-place encryption of existing PDFs.
-    - permissions: Check if a PDF is encrypted and report encryption status (requires input_path).
-    - verify_signatures: Verify digital signatures in a PDF (requires input_path).
+    Returns JSON per operation: encrypt→{status, operation, page_count, note};
+    permissions→{path, is_encrypted, unlocked, permissions}; verify_signatures→
+    {path, signatures, signature_count}. 'permissions' and 'verify_signatures'
+    are read-only; 'encrypt' writes output_path (overwriting).
+
+    Caveat: 'encrypt' rebuilds the document from its text, preserving content and
+    layout but possibly dropping images, embedded fonts and vector graphics (the
+    current API has no in-place encryption). To encrypt a PDF you are authoring,
+    pass the passwords to save_pdf instead.
     """
-    if operation not in _VALID_OPERATIONS:
-        return json.dumps({
-            "error": f"Unknown operation: '{operation}'. "
-            f"Valid operations: {', '.join(sorted(_VALID_OPERATIONS))}.",
-            "code": "INVALID_OPERATION",
-        })
-
     try:
         if operation == "encrypt":
             return _op_encrypt(

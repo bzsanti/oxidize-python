@@ -1,24 +1,64 @@
 """MCP tool: analyze_pdf — validate, detect corruption, check compliance, compare PDFs."""
 
 import json
+from typing import Annotated, Literal, Optional
+
+from mcp.types import ToolAnnotations
+from pydantic import Field
 
 from oxidize_pdf.mcp.server import mcp
 
 
-@mcp.tool()
+@mcp.tool(
+    annotations=ToolAnnotations(
+        title="Analyze / validate a PDF",
+        readOnlyHint=True,
+        idempotentHint=True,
+        openWorldHint=False,
+    )
+)
 def analyze_pdf(
-    path: str,
-    check: str = "validate",
-    compare_path: str | None = None,
-    compliance_level: str = "a1b",
+    path: Annotated[
+        str,
+        Field(description="Path to the PDF file to analyze, relative to the workspace."),
+    ],
+    check: Annotated[
+        Literal["validate", "corruption", "compliance", "compare"],
+        Field(
+            description="Which analysis to run: 'validate' = structural validity "
+            "with error/warning counts; 'corruption' = damage severity and type; "
+            "'compliance' = PDF/A conformance at compliance_level; 'compare' = "
+            "diff against compare_path."
+        ),
+    ] = "validate",
+    compare_path: Annotated[
+        Optional[str],
+        Field(
+            description="Second PDF to diff against. Required when check='compare', "
+            "ignored otherwise."
+        ),
+    ] = None,
+    compliance_level: Annotated[
+        Literal["a1a", "a1b", "a2a", "a2b", "a2u", "a3a", "a3b", "a3u"],
+        Field(
+            description="PDF/A conformance level to test. Used only when "
+            "check='compliance'. Letter = conformance class (a/b/u), number = "
+            "PDF/A part (1/2/3)."
+        ),
+    ] = "a1b",
 ) -> str:
-    """Analyze a PDF file with various checks.
+    """Inspect a PDF's structural health or conformance (does not read content).
 
-    Available checks:
-    - validate: Validate PDF structure and return error/warning counts.
-    - corruption: Detect corruption and report severity, type, and page count.
-    - compliance: Check PDF/A compliance (level via compliance_level: a1a, a1b, a2a, a2b, a2u, a3a, a3b, a3u).
-    - compare: Compare two PDFs for structural and content equivalence (requires compare_path).
+    Returns JSON keyed by the chosen check: validate → {valid, error_count,
+    warning_count}; corruption → {corrupted, corruption_type, severity,
+    found_pages, file_size, errors}; compliance → {level, is_valid,
+    error_count, warning_count, compliance_percentage}; compare →
+    {structurally_equivalent, content_equivalent, similarity_score,
+    difference_count}. Read-only.
+
+    Use this to verify a file is well-formed, archival-grade, or identical to
+    another. To read titles/author/page counts use read_pdf; for the text use
+    extract_text.
     """
     from oxidize_pdf.mcp.tools.base import setup_pdf_path
 
@@ -33,14 +73,8 @@ def analyze_pdf(
             return _check_corruption(path, str(resolved))
         elif check == "compliance":
             return _check_compliance(path, str(resolved), compliance_level)
-        elif check == "compare":
-            return _check_compare(path, str(resolved), compare_path)
-        else:
-            return json.dumps({
-                "error": f"Unknown check type: '{check}'. "
-                "Valid checks: validate, corruption, compliance, compare.",
-                "code": "INVALID_CHECK",
-            })
+        # check == "compare" (the Literal type guarantees no other value here)
+        return _check_compare(path, str(resolved), compare_path)
     except Exception as e:
         return json.dumps({"error": str(e), "code": "PDF_ERROR"})
 
@@ -91,15 +125,7 @@ def _check_compliance(
 ) -> str:
     from oxidize_pdf import PdfALevel, PdfAValidator
 
-    level_key = compliance_level.lower()
-    if level_key not in _PDFA_LEVELS:
-        return json.dumps({
-            "error": f"Unknown compliance level: '{compliance_level}'. "
-            f"Valid levels: {', '.join(sorted(_PDFA_LEVELS))}.",
-            "code": "INVALID_LEVEL",
-        })
-
-    _, attr_name, display_name = _PDFA_LEVELS[level_key]
+    _, attr_name, display_name = _PDFA_LEVELS[compliance_level.lower()]
     pdfa_level = getattr(PdfALevel, attr_name)
 
     with open(resolved_path, "rb") as f:

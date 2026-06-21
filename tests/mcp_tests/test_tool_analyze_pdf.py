@@ -146,8 +146,11 @@ class TestAnalyzePdfCompare:
         assert "error" in out
 
     async def test_unknown_check_returns_error(self, mcp_client, sample_pdf):
-        result = await mcp_client.call_tool(
-            "analyze_pdf", {"path": str(sample_pdf), "check": "quantum_analysis"}
-        )
-        out = json.loads(result.content[0].text)
-        assert "error" in out
+        # check is a Literal: an unknown value is rejected by schema validation
+        # before the tool runs (ToolError), not as a JSON error body.
+        from fastmcp.exceptions import ToolError
+
+        with pytest.raises(ToolError, match="should be"):
+            await mcp_client.call_tool(
+                "analyze_pdf", {"path": str(sample_pdf), "check": "quantum_analysis"}
+            )

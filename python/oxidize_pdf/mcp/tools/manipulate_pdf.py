@@ -1,41 +1,77 @@
 """MCP tool: manipulate_pdf — split, merge, rotate, extract_pages, reverse, overlay."""
 
 import json
+from typing import Annotated, Literal, Optional
+
+from mcp.types import ToolAnnotations
+from pydantic import Field
 
 from oxidize_pdf.mcp.server import mcp
 
-_VALID_OPERATIONS = frozenset({
-    "split", "merge", "rotate", "extract_pages", "reverse", "overlay",
-})
 
-
-@mcp.tool()
+@mcp.tool(
+    annotations=ToolAnnotations(
+        title="Restructure PDF pages",
+        readOnlyHint=False,
+        destructiveHint=True,
+        idempotentHint=False,
+        openWorldHint=False,
+    )
+)
 def manipulate_pdf(
-    operation: str,
-    input_path: str | None = None,
-    input_paths: list[str] | None = None,
-    output_path: str | None = None,
-    degrees: int | None = None,
-    page_indices: list[int] | None = None,
-    overlay_path: str | None = None,
+    operation: Annotated[
+        Literal["split", "merge", "rotate", "extract_pages", "reverse", "overlay"],
+        Field(
+            description="Page operation: 'split' one PDF into per-page files; "
+            "'merge' several PDFs into one; 'rotate' all pages; 'extract_pages' "
+            "a subset; 'reverse' page order; 'overlay' one PDF on top of another."
+        ),
+    ],
+    input_path: Annotated[
+        Optional[str],
+        Field(
+            description="Source PDF. Required for every operation except 'merge' "
+            "(which uses input_paths)."
+        ),
+    ] = None,
+    input_paths: Annotated[
+        Optional[list[str]],
+        Field(description="Ordered list of PDFs to combine. Required for 'merge'."),
+    ] = None,
+    output_path: Annotated[
+        Optional[str],
+        Field(
+            description="Output location, overwritten if it exists. For 'split' "
+            "this is an existing directory; for all other operations a .pdf file."
+        ),
+    ] = None,
+    degrees: Annotated[
+        Optional[int],
+        Field(description="Clockwise rotation in degrees (e.g. 90, 180, 270). Required for 'rotate'."),
+    ] = None,
+    page_indices: Annotated[
+        Optional[list[int]],
+        Field(
+            description="0-based page indices to keep, in order. Required for "
+            "'extract_pages'."
+        ),
+    ] = None,
+    overlay_path: Annotated[
+        Optional[str],
+        Field(description="PDF stamped on top of input_path. Required for 'overlay'."),
+    ] = None,
 ) -> str:
-    """Manipulate PDF files with various operations.
+    """Restructure the pages of existing PDF file(s) and write a new PDF.
 
-    Operations:
-    - split: Split a PDF into individual pages (output_path is a directory).
-    - merge: Merge multiple PDFs into one (requires input_paths).
-    - rotate: Rotate all pages by degrees (requires degrees).
-    - extract_pages: Extract specific pages (requires page_indices).
-    - reverse: Reverse page order.
-    - overlay: Overlay one PDF on another (requires overlay_path).
+    Each operation writes to output_path (overwriting any existing file) and
+    returns JSON {status, operation}; on a missing required argument it returns
+    {error, code}. Per-operation requirements: merge→input_paths; rotate→degrees;
+    extract_pages→page_indices; overlay→overlay_path; split→output_path is a
+    directory. Page indices are 0-based.
+
+    Use this for page-level structure. To stamp notes/highlights use
+    annotate_pdf; to fill form fields use manage_forms; to encrypt use secure_pdf.
     """
-    if operation not in _VALID_OPERATIONS:
-        return json.dumps({
-            "error": f"Unknown operation: '{operation}'. "
-            f"Valid operations: {', '.join(sorted(_VALID_OPERATIONS))}.",
-            "code": "INVALID_OPERATION",
-        })
-
     try:
         if operation == "split":
             return _op_split(input_path=input_path, output_path=output_path)

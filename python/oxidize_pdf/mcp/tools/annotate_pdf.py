@@ -3,29 +3,76 @@
 import json
 import tempfile
 from pathlib import Path
+from typing import Annotated, Literal, Optional
+
+from mcp.types import ToolAnnotations
+from pydantic import Field
 
 from oxidize_pdf.mcp.server import mcp
 
-_VALID_TYPES = frozenset({"text", "highlight"})
 
-
-@mcp.tool()
+@mcp.tool(
+    annotations=ToolAnnotations(
+        title="Annotate a PDF",
+        readOnlyHint=False,
+        destructiveHint=True,
+        idempotentHint=False,
+        openWorldHint=False,
+    )
+)
 def annotate_pdf(
-    input_path: str,
-    output_path: str,
-    annotation_type: str,
-    page: int,
-    x: float,
-    y: float,
-    contents: str | None = None,
-    width: float = 100.0,
-    height: float = 20.0,
+    input_path: Annotated[
+        str,
+        Field(description="Source PDF to annotate, relative to the workspace."),
+    ],
+    output_path: Annotated[
+        str,
+        Field(description="Destination .pdf path; overwritten if it already exists."),
+    ],
+    annotation_type: Annotated[
+        Literal["text", "highlight"],
+        Field(
+            description="'text' adds a sticky-note marker at (x, y); 'highlight' "
+            "draws a highlight rectangle of width×height anchored at (x, y)."
+        ),
+    ],
+    page: Annotated[
+        int,
+        Field(description="0-based index of the page to annotate."),
+    ],
+    x: Annotated[
+        float,
+        Field(description="Horizontal anchor in PDF points from the left edge."),
+    ],
+    y: Annotated[
+        float,
+        Field(
+            description="Vertical anchor in PDF points from the bottom edge "
+            "(origin is bottom-left)."
+        ),
+    ],
+    contents: Annotated[
+        Optional[str],
+        Field(description="Note text for a 'text' annotation. Ignored for 'highlight'."),
+    ] = None,
+    width: Annotated[
+        float,
+        Field(description="Highlight width in points. Used only for 'highlight'."),
+    ] = 100.0,
+    height: Annotated[
+        float,
+        Field(description="Highlight height in points. Used only for 'highlight'."),
+    ] = 20.0,
 ) -> str:
-    """Add an annotation to an existing PDF.
+    """Stamp a sticky note or highlight onto a page of an existing PDF.
 
-    Supported annotation types:
-    - text: A sticky note annotation at (x, y) with optional contents.
-    - highlight: A highlight rectangle at (x, y) with given width and height.
+    Writes the annotated copy to output_path (overwriting any existing file) and
+    returns JSON {status, annotation_type}; out-of-range pages or coordinates
+    outside the page bounds return {error, code}. Coordinates are in PDF points
+    with the origin at the bottom-left.
+
+    Use this to mark up a document. To reorder/rotate/overlay whole pages use
+    manipulate_pdf; to author a new PDF use create_pdf.
     """
     from oxidize_pdf.mcp.tools.base import setup_output_path, setup_pdf_path
 
@@ -36,13 +83,6 @@ def annotate_pdf(
     resolved_output, err = setup_output_path(output_path)
     if err:
         return err
-
-    if annotation_type not in _VALID_TYPES:
-        return json.dumps({
-            "error": f"Unknown annotation type: '{annotation_type}'. "
-            f"Valid types: {', '.join(sorted(_VALID_TYPES))}.",
-            "code": "INVALID_TYPE",
-        })
 
     try:
         from oxidize_pdf import (
