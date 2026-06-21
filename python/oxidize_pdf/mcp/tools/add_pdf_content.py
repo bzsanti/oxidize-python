@@ -30,31 +30,25 @@ def add_pdf_content(
             "page; 'new_page' appends a blank page and makes it current."
         ),
     ],
-    content: Annotated[
-        Optional[str],
-        Field(description="Text to draw. Required when content_type='text'."),
-    ] = None,
-    x: Annotated[
-        Optional[float],
-        Field(
-            description="Horizontal position in PDF points from the left edge. "
-            "Required when content_type='text'."
-        ),
-    ] = None,
-    y: Annotated[
-        Optional[float],
-        Field(
-            description="Vertical position in PDF points from the bottom edge "
-            "(origin is bottom-left). Required when content_type='text'."
-        ),
-    ] = None,
-    font: Annotated[
-        Optional[str],
-        Field(
-            description="Font name (e.g. 'Helvetica', 'Courier', 'Times-Roman'). "
-            "Defaults to Helvetica when omitted."
-        ),
-    ] = None,
+    content: Optional[str] = Field(
+        default=None,
+        description="Text to draw. Required when content_type='text'.",
+    ),
+    x: Optional[float] = Field(
+        default=None,
+        description="Horizontal position in PDF points from the left edge. "
+        "Required when content_type='text'.",
+    ),
+    y: Optional[float] = Field(
+        default=None,
+        description="Vertical position in PDF points from the bottom edge "
+        "(origin is bottom-left). Required when content_type='text'.",
+    ),
+    font: Optional[str] = Field(
+        default=None,
+        description="Font name (e.g. 'Helvetica', 'Courier', 'Times-Roman'). "
+        "Defaults to Helvetica when omitted.",
+    ),
     font_size: Annotated[
         float,
         Field(description="Font size in points for text content."),

@@ -31,13 +31,11 @@ def analyze_pdf(
             "diff against compare_path."
         ),
     ] = "validate",
-    compare_path: Annotated[
-        Optional[str],
-        Field(
-            description="Second PDF to diff against. Required when check='compare', "
-            "ignored otherwise."
-        ),
-    ] = None,
+    compare_path: Optional[str] = Field(
+        default=None,
+        description="Second PDF to diff against. Required when check='compare', "
+        "ignored otherwise.",
+    ),
     compliance_level: Annotated[
         Literal["a1a", "a1b", "a2a", "a2b", "a2u", "a3a", "a3b", "a3u"],
         Field(

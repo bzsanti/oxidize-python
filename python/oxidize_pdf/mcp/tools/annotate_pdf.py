@@ -51,10 +51,10 @@ def annotate_pdf(
             "(origin is bottom-left)."
         ),
     ],
-    contents: Annotated[
-        Optional[str],
-        Field(description="Note text for a 'text' annotation. Ignored for 'highlight'."),
-    ] = None,
+    contents: Optional[str] = Field(
+        default=None,
+        description="Note text for a 'text' annotation. Ignored for 'highlight'.",
+    ),
     width: Annotated[
         float,
         Field(description="Highlight width in points. Used only for 'highlight'."),

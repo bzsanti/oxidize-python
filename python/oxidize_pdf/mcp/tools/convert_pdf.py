@@ -30,10 +30,10 @@ def convert_pdf(
             "heading-aware semantic chunks for retrieval pipelines."
         ),
     ],
-    password: Annotated[
-        Optional[str],
-        Field(description="User password to unlock an encrypted PDF before conversion."),
-    ] = None,
+    password: Optional[str] = Field(
+        default=None,
+        description="User password to unlock an encrypted PDF before conversion.",
+    ),
     max_tokens: Annotated[
         int,
         Field(
