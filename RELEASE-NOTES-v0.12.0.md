@@ -57,11 +57,15 @@ inputs are unaffected.
 
 ## Compatibility
 
-- **Python 3.10+** — tool parameter annotations use `typing.Optional[...]`
-  (not PEP 604 `X | None`) inside `Annotated` so that
-  `get_type_hints(include_extras=True)` preserves the `Field` metadata on
-  Python 3.10 (CPython gh-90353, fixed in 3.11). Verified across the
-  3.10–3.13 × ubuntu/macos/windows matrix.
+- **Python 3.10+** — optional tool parameters are declared as
+  `name: Optional[T] = Field(default=None, description=...)` rather than
+  `name: Annotated[Optional[T], Field(...)] = None`. On Python 3.10 the
+  latter form drops the `Field` description from the generated schema for
+  None-typed parameters (reproduced with FastMCP 3.4.2 / pydantic 2.13.4 on
+  CPython 3.10.20; required and non-None-default parameters are unaffected and
+  keep the `Annotated` form). Verified that all 12 tools expose descriptions
+  for every parameter on 3.10, and across the 3.10–3.13 × ubuntu/macos/windows
+  CI matrix.
 
 ## Breaking Changes
 

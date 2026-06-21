@@ -23,10 +23,10 @@ def create_pdf(
         str,
         Field(description="Document title; stored in the PDF metadata on save."),
     ],
-    author: Annotated[
-        Optional[str],
-        Field(description="Document author; stored in the PDF metadata on save."),
-    ] = None,
+    author: Optional[str] = Field(
+        default=None,
+        description="Document author; stored in the PDF metadata on save.",
+    ),
     page_size: Annotated[
         Literal[
             "a4", "a4_landscape", "letter", "letter_landscape",

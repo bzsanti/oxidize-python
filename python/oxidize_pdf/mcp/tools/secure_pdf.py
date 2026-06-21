@@ -27,32 +27,28 @@ def secure_pdf(
             "digital signatures. Only 'encrypt' writes a file."
         ),
     ],
-    input_path: Annotated[
-        Optional[str],
-        Field(description="Source PDF. Required for all three operations."),
-    ] = None,
-    output_path: Annotated[
-        Optional[str],
-        Field(
-            description="Destination .pdf for the encrypted copy (overwritten if "
-            "present). Required for 'encrypt'; unused otherwise."
-        ),
-    ] = None,
-    user_password: Annotated[
-        Optional[str],
-        Field(description="Open password for the encrypted copy. Required for 'encrypt'."),
-    ] = None,
-    owner_password: Annotated[
-        Optional[str],
-        Field(description="Owner/permissions password. Required for 'encrypt'."),
-    ] = None,
-    password: Annotated[
-        Optional[str],
-        Field(
-            description="Password used to unlock the file when checking "
-            "'permissions' on an encrypted PDF. Unused by other operations."
-        ),
-    ] = None,
+    input_path: Optional[str] = Field(
+        default=None,
+        description="Source PDF. Required for all three operations.",
+    ),
+    output_path: Optional[str] = Field(
+        default=None,
+        description="Destination .pdf for the encrypted copy (overwritten if "
+        "present). Required for 'encrypt'; unused otherwise.",
+    ),
+    user_password: Optional[str] = Field(
+        default=None,
+        description="Open password for the encrypted copy. Required for 'encrypt'.",
+    ),
+    owner_password: Optional[str] = Field(
+        default=None,
+        description="Owner/permissions password. Required for 'encrypt'.",
+    ),
+    password: Optional[str] = Field(
+        default=None,
+        description="Password used to unlock the file when checking "
+        "'permissions' on an encrypted PDF. Unused by other operations.",
+    ),
 ) -> str:
     """Encrypt a PDF, report its encryption status, or verify its signatures.
 

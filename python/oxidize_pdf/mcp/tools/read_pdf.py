@@ -22,14 +22,12 @@ def read_pdf(
         str,
         Field(description="Path to the PDF file, relative to the configured workspace."),
     ],
-    password: Annotated[
-        Optional[str],
-        Field(
-            description="User password to unlock an encrypted PDF. Omit for "
-            "unencrypted files; if omitted on an encrypted file the tool reports "
-            "it as locked instead of failing."
-        ),
-    ] = None,
+    password: Optional[str] = Field(
+        default=None,
+        description="User password to unlock an encrypted PDF. Omit for "
+        "unencrypted files; if omitted on an encrypted file the tool reports "
+        "it as locked instead of failing.",
+    ),
     include_page_details: Annotated[
         bool,
         Field(

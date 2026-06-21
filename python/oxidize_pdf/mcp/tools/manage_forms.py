@@ -27,34 +27,26 @@ def manage_forms(
             "'validate' supplied values. 'read' and 'validate' do not write a file."
         ),
     ],
-    output_path: Annotated[
-        Optional[str],
-        Field(
-            description="Destination .pdf path (overwritten if present). Required "
-            "for 'create' and 'fill'; unused for 'read'/'validate'."
-        ),
-    ] = None,
-    input_path: Annotated[
-        Optional[str],
-        Field(
-            description="Source PDF. Required for 'fill', 'read' and 'validate'; "
-            "unused for 'create'."
-        ),
-    ] = None,
-    fields: Annotated[
-        Optional[list[dict]],
-        Field(
-            description="Field definitions for 'create'. Each: {name, type:'text', "
-            "x, y, width, height (points), default_value?}."
-        ),
-    ] = None,
-    values: Annotated[
-        Optional[dict],
-        Field(
-            description="Map of field name to value. Required for 'fill' and "
-            "'validate'."
-        ),
-    ] = None,
+    output_path: Optional[str] = Field(
+        default=None,
+        description="Destination .pdf path (overwritten if present). Required "
+        "for 'create' and 'fill'; unused for 'read'/'validate'.",
+    ),
+    input_path: Optional[str] = Field(
+        default=None,
+        description="Source PDF. Required for 'fill', 'read' and 'validate'; "
+        "unused for 'create'.",
+    ),
+    fields: Optional[list[dict]] = Field(
+        default=None,
+        description="Field definitions for 'create'. Each: {name, type:'text', "
+        "x, y, width, height (points), default_value?}.",
+    ),
+    values: Optional[dict] = Field(
+        default=None,
+        description="Map of field name to value. Required for 'fill' and "
+        "'validate'.",
+    ),
 ) -> str:
     """Create, fill, read or validate PDF form fields.
 

@@ -30,20 +30,16 @@ def save_pdf(
             "file at this path is overwritten."
         ),
     ],
-    user_password: Annotated[
-        Optional[str],
-        Field(
-            description="If set together with owner_password, the saved PDF is "
-            "encrypted; this is the password required to open it."
-        ),
-    ] = None,
-    owner_password: Annotated[
-        Optional[str],
-        Field(
-            description="Owner/permissions password. Encryption is applied only "
-            "when both user_password and owner_password are provided."
-        ),
-    ] = None,
+    user_password: Optional[str] = Field(
+        default=None,
+        description="If set together with owner_password, the saved PDF is "
+        "encrypted; this is the password required to open it.",
+    ),
+    owner_password: Optional[str] = Field(
+        default=None,
+        description="Owner/permissions password. Encryption is applied only "
+        "when both user_password and owner_password are provided.",
+    ),
 ) -> str:
     """Render an open create_pdf session to a PDF file (step 3 of 3, terminal).
 

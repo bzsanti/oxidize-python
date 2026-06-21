@@ -27,39 +27,33 @@ def manipulate_pdf(
             "a subset; 'reverse' page order; 'overlay' one PDF on top of another."
         ),
     ],
-    input_path: Annotated[
-        Optional[str],
-        Field(
-            description="Source PDF. Required for every operation except 'merge' "
-            "(which uses input_paths)."
-        ),
-    ] = None,
-    input_paths: Annotated[
-        Optional[list[str]],
-        Field(description="Ordered list of PDFs to combine. Required for 'merge'."),
-    ] = None,
-    output_path: Annotated[
-        Optional[str],
-        Field(
-            description="Output location, overwritten if it exists. For 'split' "
-            "this is an existing directory; for all other operations a .pdf file."
-        ),
-    ] = None,
-    degrees: Annotated[
-        Optional[int],
-        Field(description="Clockwise rotation in degrees (e.g. 90, 180, 270). Required for 'rotate'."),
-    ] = None,
-    page_indices: Annotated[
-        Optional[list[int]],
-        Field(
-            description="0-based page indices to keep, in order. Required for "
-            "'extract_pages'."
-        ),
-    ] = None,
-    overlay_path: Annotated[
-        Optional[str],
-        Field(description="PDF stamped on top of input_path. Required for 'overlay'."),
-    ] = None,
+    input_path: Optional[str] = Field(
+        default=None,
+        description="Source PDF. Required for every operation except 'merge' "
+        "(which uses input_paths).",
+    ),
+    input_paths: Optional[list[str]] = Field(
+        default=None,
+        description="Ordered list of PDFs to combine. Required for 'merge'.",
+    ),
+    output_path: Optional[str] = Field(
+        default=None,
+        description="Output location, overwritten if it exists. For 'split' "
+        "this is an existing directory; for all other operations a .pdf file.",
+    ),
+    degrees: Optional[int] = Field(
+        default=None,
+        description="Clockwise rotation in degrees (e.g. 90, 180, 270). Required for 'rotate'.",
+    ),
+    page_indices: Optional[list[int]] = Field(
+        default=None,
+        description="0-based page indices to keep, in order. Required for "
+        "'extract_pages'.",
+    ),
+    overlay_path: Optional[str] = Field(
+        default=None,
+        description="PDF stamped on top of input_path. Required for 'overlay'.",
+    ),
 ) -> str:
     """Restructure the pages of existing PDF file(s) and write a new PDF.
 
