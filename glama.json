@@ -1,0 +1,13 @@
+{
+  "$schema": "https://glama.ai/mcp/schemas/server.json",
+  "maintainers": ["bzsanti"],
+  "mcpServers": {
+    "oxidize-pdf": {
+      "command": "uvx",
+      "args": ["--from", "oxidize-pdf[mcp]", "oxidize-mcp"],
+      "env": {
+        "PYTHONUNBUFFERED": "1"
+      }
+    }
+  }
+}
