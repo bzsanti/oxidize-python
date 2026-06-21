@@ -10,6 +10,8 @@
 [![Typed](https://img.shields.io/badge/typing-typed-green)](https://github.com/bzsanti/oxidize-python)
 [![MCP](https://img.shields.io/badge/MCP-compatible-purple)](https://modelcontextprotocol.io/)
 
+[![oxidize-python MCP server](https://glama.ai/mcp/servers/bzsanti/oxidize-python/badges/card.svg)](https://glama.ai/mcp/servers/bzsanti/oxidize-python)
+
 **Rust-powered PDF library for Python.** Generate, parse, split, merge, and manipulate PDFs with native performance. Ships with a built-in [MCP server](#mcp-server) so AI agents can work with PDFs out of the box.
 
 No C dependencies. No Java. No subprocess calls.
