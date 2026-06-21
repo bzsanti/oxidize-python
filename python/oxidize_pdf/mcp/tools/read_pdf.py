@@ -1,20 +1,53 @@
 """MCP tool: read_pdf — read PDF metadata and structure."""
 
 import json
+from typing import Annotated, Optional
+
+from mcp.types import ToolAnnotations
+from pydantic import Field
 
 from oxidize_pdf.mcp.server import mcp
 
 
-@mcp.tool()
+@mcp.tool(
+    annotations=ToolAnnotations(
+        title="Read PDF metadata",
+        readOnlyHint=True,
+        idempotentHint=True,
+        openWorldHint=False,
+    )
+)
 def read_pdf(
-    path: str,
-    password: str | None = None,
-    include_page_details: bool = False,
+    path: Annotated[
+        str,
+        Field(description="Path to the PDF file, relative to the configured workspace."),
+    ],
+    password: Optional[str] = Field(
+        default=None,
+        description="User password to unlock an encrypted PDF. Omit for "
+        "unencrypted files; if omitted on an encrypted file the tool reports "
+        "it as locked instead of failing.",
+    ),
+    include_page_details: Annotated[
+        bool,
+        Field(
+            description="When true, also return per-page width, height (in PDF "
+            "points) and rotation. Off by default to keep the response small."
+        ),
+    ] = False,
 ) -> str:
-    """Read a PDF file and return its metadata: page count, encryption status, version, title, author, subject, and keywords.
+    """Read a single PDF's document-level metadata without parsing its content.
 
-    Optionally include per-page details (dimensions, rotation) with include_page_details=True.
-    For encrypted PDFs, provide a password to unlock and read full metadata.
+    Returns a JSON object with: page_count, is_encrypted, version, title,
+    author, subject, keywords, and (when include_page_details=true) a `pages`
+    array of {index, width, height, rotation}. Read-only: never modifies the
+    file.
+
+    Use this to inspect what a PDF is before deciding how to process it. For
+    structural validation, corruption/PDF-A checks, or comparing two files use
+    analyze_pdf instead; for the actual text use extract_text. Encrypted files
+    without a password return {is_encrypted, locked, message} rather than
+    metadata.
     """
     from oxidize_pdf.mcp.tools.base import setup_pdf_path
 

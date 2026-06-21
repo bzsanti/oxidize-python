@@ -1,25 +1,69 @@
 """MCP tool: add_pdf_content — add content to a PDF creation session."""
 
 import json
+from typing import Annotated, Literal, Optional
+
+from mcp.types import ToolAnnotations
+from pydantic import Field
 
 from oxidize_pdf.mcp.server import mcp
 
 
-@mcp.tool()
+@mcp.tool(
+    annotations=ToolAnnotations(
+        title="Add content to a PDF session",
+        readOnlyHint=False,
+        destructiveHint=False,
+        idempotentHint=False,
+        openWorldHint=False,
+    )
+)
 def add_pdf_content(
-    session_id: str,
-    content_type: str,
-    content: str | None = None,
-    x: float | None = None,
-    y: float | None = None,
-    font: str | None = None,
-    font_size: float = 12.0,
+    session_id: Annotated[
+        str,
+        Field(description="Session id returned by create_pdf. Must be active."),
+    ],
+    content_type: Annotated[
+        Literal["text", "new_page"],
+        Field(
+            description="'text' draws a text string at (x, y) on the current "
+            "page; 'new_page' appends a blank page and makes it current."
+        ),
+    ],
+    content: Optional[str] = Field(
+        default=None,
+        description="Text to draw. Required when content_type='text'.",
+    ),
+    x: Optional[float] = Field(
+        default=None,
+        description="Horizontal position in PDF points from the left edge. "
+        "Required when content_type='text'.",
+    ),
+    y: Optional[float] = Field(
+        default=None,
+        description="Vertical position in PDF points from the bottom edge "
+        "(origin is bottom-left). Required when content_type='text'.",
+    ),
+    font: Optional[str] = Field(
+        default=None,
+        description="Font name (e.g. 'Helvetica', 'Courier', 'Times-Roman'). "
+        "Defaults to Helvetica when omitted.",
+    ),
+    font_size: Annotated[
+        float,
+        Field(description="Font size in points for text content."),
+    ] = 12.0,
 ) -> str:
-    """Add content to an active PDF creation session.
+    """Append text or a new page to an open create_pdf session (step 2 of 3).
 
-    Content types:
-    - text: Add text at position (x, y). Requires content, x, y.
-    - new_page: Add a new blank page to the session.
+    Mutates the in-memory session; nothing is written to disk until save_pdf.
+    Returns JSON {status, session_id, page_count} on success, or {error, code}
+    if the session is missing/inactive or required text fields are absent.
+    Coordinates use PDF points with the origin at the bottom-left of the page.
+
+    Call repeatedly to build up pages, then call save_pdf. This only works on a
+    session from create_pdf — to add notes/highlights to an existing PDF file
+    use annotate_pdf instead.
     """
     from oxidize_pdf.mcp.tools.base import get_session_store
 
@@ -60,16 +104,10 @@ def add_pdf_content(
             "page_count": len(pages),
         })
 
-    elif content_type == "new_page":
-        pages.append([])
-        return json.dumps({
-            "status": "ok",
-            "session_id": session_id,
-            "page_count": len(pages),
-        })
-
-    else:
-        return json.dumps({
-            "error": f"Unknown content type: '{content_type}'.",
-            "code": "INVALID_TYPE",
-        })
+    # content_type == "new_page" (the Literal type guarantees no other value)
+    pages.append([])
+    return json.dumps({
+        "status": "ok",
+        "session_id": session_id,
+        "page_count": len(pages),
+    })

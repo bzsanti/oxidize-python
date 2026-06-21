@@ -1,21 +1,55 @@
 """MCP tool: save_pdf — finalize a PDF creation session and save to file."""
 
 import json
+from typing import Annotated, Optional
+
+from mcp.types import ToolAnnotations
+from pydantic import Field
 
 from oxidize_pdf.mcp.server import mcp
 
 
-@mcp.tool()
+@mcp.tool(
+    annotations=ToolAnnotations(
+        title="Save and close a PDF session",
+        readOnlyHint=False,
+        destructiveHint=True,
+        idempotentHint=False,
+        openWorldHint=False,
+    )
+)
 def save_pdf(
-    session_id: str,
-    output_path: str,
-    user_password: str | None = None,
-    owner_password: str | None = None,
+    session_id: Annotated[
+        str,
+        Field(description="Session id returned by create_pdf to finalize."),
+    ],
+    output_path: Annotated[
+        str,
+        Field(
+            description="Destination .pdf path inside the workspace. An existing "
+            "file at this path is overwritten."
+        ),
+    ],
+    user_password: Optional[str] = Field(
+        default=None,
+        description="If set together with owner_password, the saved PDF is "
+        "encrypted; this is the password required to open it.",
+    ),
+    owner_password: Optional[str] = Field(
+        default=None,
+        description="Owner/permissions password. Encryption is applied only "
+        "when both user_password and owner_password are provided.",
+    ),
 ) -> str:
-    """Save an active PDF creation session to a file.
+    """Render an open create_pdf session to a PDF file (step 3 of 3, terminal).
 
-    Builds a Document from the session's accumulated content and writes it to output_path.
-    The session is marked as completed after saving.
+    Builds a Document from the session's accumulated pages, writes it to
+    output_path (overwriting any existing file), then deletes the session — so
+    the session_id is no longer usable afterwards. Returns JSON {status, path,
+    page_count}, or {error, code} if the session is missing.
+
+    Only finalizes sessions created via create_pdf/add_pdf_content. To encrypt an
+    already-saved PDF use secure_pdf; to add annotations use annotate_pdf.
     """
     from oxidize_pdf.mcp.tools.base import get_session_store, setup_output_path
 
