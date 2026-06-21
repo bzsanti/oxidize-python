@@ -1,19 +1,47 @@
 """MCP tool: extract_text — extract text content from PDF pages."""
 
 import json
+from typing import Annotated
+
+from mcp.types import ToolAnnotations
+from pydantic import Field
 
 from oxidize_pdf.mcp.server import mcp
 
 
-@mcp.tool()
+@mcp.tool(
+    annotations=ToolAnnotations(
+        title="Extract plain text",
+        readOnlyHint=True,
+        idempotentHint=True,
+        openWorldHint=False,
+    )
+)
 def extract_text(
-    path: str,
-    page: int | None = None,
-    password: str | None = None,
+    path: Annotated[
+        str,
+        Field(description="Path to the PDF file, relative to the configured workspace."),
+    ],
+    page: Annotated[
+        int | None,
+        Field(
+            description="0-based page index to extract. Omit to extract every "
+            "page joined by newlines. Out-of-range indices return an error."
+        ),
+    ] = None,
+    password: Annotated[
+        str | None,
+        Field(description="User password to unlock an encrypted PDF before extraction."),
+    ] = None,
 ) -> str:
-    """Extract text from a PDF file. Returns all text by default, or text from a specific page if page index is provided.
+    """Extract the raw, unformatted text of a PDF as a single string.
 
-    For encrypted PDFs, provide a password to unlock before extraction.
+    Returns JSON {text, page_count} (plus `page` when a specific page was
+    requested). Read-only.
+
+    Use this when you want the plain reading text. If you need Markdown
+    structure or chunking for LLM/RAG pipelines use convert_pdf; if you need
+    each text run with its on-page coordinates and font use extract_entities.
     """
     from oxidize_pdf.mcp.tools.base import setup_pdf_path
 

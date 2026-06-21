@@ -78,16 +78,19 @@ class TestAnnotateSecurity:
     async def test_annotate_invalid_type_returns_error(
         self, mcp_client, sample_pdf, mcp_workspace
     ):
-        result = await mcp_client.call_tool(
-            "annotate_pdf",
-            {
-                "input_path": str(sample_pdf),
-                "output_path": str(mcp_workspace / "out.pdf"),
-                "annotation_type": "sparkle",
-                "page": 0,
-                "x": 0.0,
-                "y": 0.0,
-            },
-        )
-        resp = json.loads(result.content[0].text)
-        assert "error" in resp
+        # annotation_type is a Literal: an unknown value is rejected by schema
+        # validation before the tool runs (ToolError), not as a JSON error body.
+        from fastmcp.exceptions import ToolError
+
+        with pytest.raises(ToolError, match="should be 'text' or 'highlight'"):
+            await mcp_client.call_tool(
+                "annotate_pdf",
+                {
+                    "input_path": str(sample_pdf),
+                    "output_path": str(mcp_workspace / "out.pdf"),
+                    "annotation_type": "sparkle",
+                    "page": 0,
+                    "x": 0.0,
+                    "y": 0.0,
+                },
+            )

@@ -112,16 +112,19 @@ class TestManipulateInvalidOperation:
     async def test_invalid_operation_returns_error(
         self, mcp_client, sample_pdf, mcp_workspace
     ):
-        result = await mcp_client.call_tool(
-            "manipulate_pdf",
-            {
-                "operation": "vaporize",
-                "input_path": str(sample_pdf),
-                "output_path": str(mcp_workspace / "x.pdf"),
-            },
-        )
-        resp = json.loads(result.content[0].text)
-        assert "error" in resp
+        # operation is a Literal: an unknown value is rejected by schema
+        # validation before the tool runs (ToolError), not as a JSON error body.
+        from fastmcp.exceptions import ToolError
+
+        with pytest.raises(ToolError, match="should be"):
+            await mcp_client.call_tool(
+                "manipulate_pdf",
+                {
+                    "operation": "vaporize",
+                    "input_path": str(sample_pdf),
+                    "output_path": str(mcp_workspace / "x.pdf"),
+                },
+            )
 
 
 class TestManipulateReverse:

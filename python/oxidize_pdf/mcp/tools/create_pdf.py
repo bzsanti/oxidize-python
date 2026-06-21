@@ -1,20 +1,49 @@
 """MCP tool: create_pdf — start a stateful PDF creation session."""
 
 import json
+from typing import Annotated, Literal
+
+from mcp.types import ToolAnnotations
+from pydantic import Field
 
 from oxidize_pdf.mcp.server import mcp
 
 
-@mcp.tool()
+@mcp.tool(
+    annotations=ToolAnnotations(
+        title="Start a PDF creation session",
+        readOnlyHint=False,
+        destructiveHint=False,
+        idempotentHint=False,
+        openWorldHint=False,
+    )
+)
 def create_pdf(
-    title: str,
-    author: str | None = None,
-    page_size: str = "a4",
+    title: Annotated[
+        str,
+        Field(description="Document title; stored in the PDF metadata on save."),
+    ],
+    author: Annotated[
+        str | None,
+        Field(description="Document author; stored in the PDF metadata on save."),
+    ] = None,
+    page_size: Annotated[
+        Literal[
+            "a4", "a4_landscape", "letter", "letter_landscape",
+            "legal", "legal_landscape",
+        ],
+        Field(description="Page size for every page in this document."),
+    ] = "a4",
 ) -> str:
-    """Create a new PDF creation session.
+    """Open an in-memory PDF building session; the first step of authoring a PDF.
 
-    Returns a session_id that can be used with add_pdf_content and save_pdf.
-    The first page is created automatically.
+    Returns JSON {session_id, status, page_size}. No file is written here — this
+    only allocates a session (with one blank starting page) held in server
+    memory and subject to a TTL. Not idempotent: each call creates a new session.
+
+    Workflow: create_pdf → add_pdf_content (text / new pages, repeatable) →
+    save_pdf (writes the file and closes the session). To annotate or fill an
+    existing PDF instead of authoring one, use annotate_pdf or manage_forms.
     """
     from oxidize_pdf.mcp.tools.base import PAGE_SIZES, get_session_store
 

@@ -1,36 +1,74 @@
 """MCP tool: manage_forms — create, fill, read, and validate PDF forms."""
 
 import json
+from typing import Annotated, Literal
+
+from mcp.types import ToolAnnotations
+from pydantic import Field
 
 from oxidize_pdf.mcp.server import mcp
 
-_VALID_OPERATIONS = frozenset({"create", "fill", "read", "validate"})
 
-
-@mcp.tool()
+@mcp.tool(
+    annotations=ToolAnnotations(
+        title="Manage PDF form fields",
+        readOnlyHint=False,
+        destructiveHint=True,
+        idempotentHint=False,
+        openWorldHint=False,
+    )
+)
 def manage_forms(
-    operation: str,
-    output_path: str | None = None,
-    input_path: str | None = None,
-    fields: list[dict] | None = None,
-    values: dict | None = None,
+    operation: Annotated[
+        Literal["create", "fill", "read", "validate"],
+        Field(
+            description="'create' a new PDF with text fields; 'fill' values onto "
+            "a copy of an existing PDF; 'read' the text content of a form; "
+            "'validate' supplied values. 'read' and 'validate' do not write a file."
+        ),
+    ],
+    output_path: Annotated[
+        str | None,
+        Field(
+            description="Destination .pdf path (overwritten if present). Required "
+            "for 'create' and 'fill'; unused for 'read'/'validate'."
+        ),
+    ] = None,
+    input_path: Annotated[
+        str | None,
+        Field(
+            description="Source PDF. Required for 'fill', 'read' and 'validate'; "
+            "unused for 'create'."
+        ),
+    ] = None,
+    fields: Annotated[
+        list[dict] | None,
+        Field(
+            description="Field definitions for 'create'. Each: {name, type:'text', "
+            "x, y, width, height (points), default_value?}."
+        ),
+    ] = None,
+    values: Annotated[
+        dict | None,
+        Field(
+            description="Map of field name to value. Required for 'fill' and "
+            "'validate'."
+        ),
+    ] = None,
 ) -> str:
-    """Manage PDF form fields.
+    """Create, fill, read or validate PDF form fields.
 
-    Operations:
-    - create: Create a new PDF with form fields (requires output_path and fields).
-    - fill: Create a new PDF with pre-filled form fields, preserving the original
-      document as a visual base via overlay (requires input_path, output_path, values).
-    - read: Read form structure from a PDF by extracting text entities (requires input_path).
-    - validate: Validate field values against required rules (requires input_path and values).
+    Returns JSON per operation: create→{status, fields_created}; fill→{status,
+    fields_filled}; read→{path, fields, page_count}; validate→{valid, fields}.
+    'create'/'fill' write output_path (overwriting); 'read'/'validate' are
+    read-only computations.
+
+    Honest limitations: 'fill' lays the values into a new overlay at computed
+    positions rather than mapping them onto the original AcroForm widgets;
+    'read' returns the page's text runs (not declared AcroForm field objects);
+    'validate' currently enforces only a non-empty (required) rule per value. For
+    page-structure edits use manipulate_pdf; to read prose use extract_text.
     """
-    if operation not in _VALID_OPERATIONS:
-        return json.dumps({
-            "error": f"Unknown operation: '{operation}'. "
-            f"Valid operations: {', '.join(sorted(_VALID_OPERATIONS))}.",
-            "code": "INVALID_OPERATION",
-        })
-
     try:
         if operation == "create":
             return _op_create(output_path=output_path, fields=fields)
