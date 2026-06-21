@@ -1,7 +1,7 @@
 """MCP tool: create_pdf — start a stateful PDF creation session."""
 
 import json
-from typing import Annotated, Literal
+from typing import Annotated, Literal, Optional
 
 from mcp.types import ToolAnnotations
 from pydantic import Field
@@ -24,7 +24,7 @@ def create_pdf(
         Field(description="Document title; stored in the PDF metadata on save."),
     ],
     author: Annotated[
-        str | None,
+        Optional[str],
         Field(description="Document author; stored in the PDF metadata on save."),
     ] = None,
     page_size: Annotated[

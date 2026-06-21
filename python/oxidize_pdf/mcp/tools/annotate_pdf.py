@@ -3,7 +3,7 @@
 import json
 import tempfile
 from pathlib import Path
-from typing import Annotated, Literal
+from typing import Annotated, Literal, Optional
 
 from mcp.types import ToolAnnotations
 from pydantic import Field
@@ -52,7 +52,7 @@ def annotate_pdf(
         ),
     ],
     contents: Annotated[
-        str | None,
+        Optional[str],
         Field(description="Note text for a 'text' annotation. Ignored for 'highlight'."),
     ] = None,
     width: Annotated[

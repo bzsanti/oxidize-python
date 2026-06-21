@@ -1,7 +1,7 @@
 """MCP tool: save_pdf — finalize a PDF creation session and save to file."""
 
 import json
-from typing import Annotated
+from typing import Annotated, Optional
 
 from mcp.types import ToolAnnotations
 from pydantic import Field
@@ -31,14 +31,14 @@ def save_pdf(
         ),
     ],
     user_password: Annotated[
-        str | None,
+        Optional[str],
         Field(
             description="If set together with owner_password, the saved PDF is "
             "encrypted; this is the password required to open it."
         ),
     ] = None,
     owner_password: Annotated[
-        str | None,
+        Optional[str],
         Field(
             description="Owner/permissions password. Encryption is applied only "
             "when both user_password and owner_password are provided."

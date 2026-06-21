@@ -1,7 +1,7 @@
 """MCP tool: convert_pdf — convert PDF to markdown, chunks, or RAG format."""
 
 import json
-from typing import Annotated, Literal
+from typing import Annotated, Literal, Optional
 
 from mcp.types import ToolAnnotations
 from pydantic import Field
@@ -31,7 +31,7 @@ def convert_pdf(
         ),
     ],
     password: Annotated[
-        str | None,
+        Optional[str],
         Field(description="User password to unlock an encrypted PDF before conversion."),
     ] = None,
     max_tokens: Annotated[

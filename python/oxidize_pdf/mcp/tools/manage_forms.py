@@ -1,7 +1,7 @@
 """MCP tool: manage_forms — create, fill, read, and validate PDF forms."""
 
 import json
-from typing import Annotated, Literal
+from typing import Annotated, Literal, Optional
 
 from mcp.types import ToolAnnotations
 from pydantic import Field
@@ -28,28 +28,28 @@ def manage_forms(
         ),
     ],
     output_path: Annotated[
-        str | None,
+        Optional[str],
         Field(
             description="Destination .pdf path (overwritten if present). Required "
             "for 'create' and 'fill'; unused for 'read'/'validate'."
         ),
     ] = None,
     input_path: Annotated[
-        str | None,
+        Optional[str],
         Field(
             description="Source PDF. Required for 'fill', 'read' and 'validate'; "
             "unused for 'create'."
         ),
     ] = None,
     fields: Annotated[
-        list[dict] | None,
+        Optional[list[dict]],
         Field(
             description="Field definitions for 'create'. Each: {name, type:'text', "
             "x, y, width, height (points), default_value?}."
         ),
     ] = None,
     values: Annotated[
-        dict | None,
+        Optional[dict],
         Field(
             description="Map of field name to value. Required for 'fill' and "
             "'validate'."

@@ -1,7 +1,7 @@
 """MCP tool: add_pdf_content — add content to a PDF creation session."""
 
 import json
-from typing import Annotated, Literal
+from typing import Annotated, Literal, Optional
 
 from mcp.types import ToolAnnotations
 from pydantic import Field
@@ -31,25 +31,25 @@ def add_pdf_content(
         ),
     ],
     content: Annotated[
-        str | None,
+        Optional[str],
         Field(description="Text to draw. Required when content_type='text'."),
     ] = None,
     x: Annotated[
-        float | None,
+        Optional[float],
         Field(
             description="Horizontal position in PDF points from the left edge. "
             "Required when content_type='text'."
         ),
     ] = None,
     y: Annotated[
-        float | None,
+        Optional[float],
         Field(
             description="Vertical position in PDF points from the bottom edge "
             "(origin is bottom-left). Required when content_type='text'."
         ),
     ] = None,
     font: Annotated[
-        str | None,
+        Optional[str],
         Field(
             description="Font name (e.g. 'Helvetica', 'Courier', 'Times-Roman'). "
             "Defaults to Helvetica when omitted."

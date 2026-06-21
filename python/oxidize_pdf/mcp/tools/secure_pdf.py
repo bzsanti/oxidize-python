@@ -1,7 +1,7 @@
 """MCP tool: secure_pdf — encrypt, check permissions, and verify signatures."""
 
 import json
-from typing import Annotated, Literal
+from typing import Annotated, Literal, Optional
 
 from mcp.types import ToolAnnotations
 from pydantic import Field
@@ -28,26 +28,26 @@ def secure_pdf(
         ),
     ],
     input_path: Annotated[
-        str | None,
+        Optional[str],
         Field(description="Source PDF. Required for all three operations."),
     ] = None,
     output_path: Annotated[
-        str | None,
+        Optional[str],
         Field(
             description="Destination .pdf for the encrypted copy (overwritten if "
             "present). Required for 'encrypt'; unused otherwise."
         ),
     ] = None,
     user_password: Annotated[
-        str | None,
+        Optional[str],
         Field(description="Open password for the encrypted copy. Required for 'encrypt'."),
     ] = None,
     owner_password: Annotated[
-        str | None,
+        Optional[str],
         Field(description="Owner/permissions password. Required for 'encrypt'."),
     ] = None,
     password: Annotated[
-        str | None,
+        Optional[str],
         Field(
             description="Password used to unlock the file when checking "
             "'permissions' on an encrypted PDF. Unused by other operations."

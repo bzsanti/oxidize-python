@@ -1,7 +1,7 @@
 """MCP tool: read_pdf — read PDF metadata and structure."""
 
 import json
-from typing import Annotated
+from typing import Annotated, Optional
 
 from mcp.types import ToolAnnotations
 from pydantic import Field
@@ -23,7 +23,7 @@ def read_pdf(
         Field(description="Path to the PDF file, relative to the configured workspace."),
     ],
     password: Annotated[
-        str | None,
+        Optional[str],
         Field(
             description="User password to unlock an encrypted PDF. Omit for "
             "unencrypted files; if omitted on an encrypted file the tool reports "

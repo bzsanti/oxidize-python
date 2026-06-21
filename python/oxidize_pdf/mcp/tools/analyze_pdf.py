@@ -1,7 +1,7 @@
 """MCP tool: analyze_pdf — validate, detect corruption, check compliance, compare PDFs."""
 
 import json
-from typing import Annotated, Literal
+from typing import Annotated, Literal, Optional
 
 from mcp.types import ToolAnnotations
 from pydantic import Field
@@ -32,7 +32,7 @@ def analyze_pdf(
         ),
     ] = "validate",
     compare_path: Annotated[
-        str | None,
+        Optional[str],
         Field(
             description="Second PDF to diff against. Required when check='compare', "
             "ignored otherwise."

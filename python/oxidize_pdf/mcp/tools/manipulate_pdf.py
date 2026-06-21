@@ -1,7 +1,7 @@
 """MCP tool: manipulate_pdf — split, merge, rotate, extract_pages, reverse, overlay."""
 
 import json
-from typing import Annotated, Literal
+from typing import Annotated, Literal, Optional
 
 from mcp.types import ToolAnnotations
 from pydantic import Field
@@ -28,36 +28,36 @@ def manipulate_pdf(
         ),
     ],
     input_path: Annotated[
-        str | None,
+        Optional[str],
         Field(
             description="Source PDF. Required for every operation except 'merge' "
             "(which uses input_paths)."
         ),
     ] = None,
     input_paths: Annotated[
-        list[str] | None,
+        Optional[list[str]],
         Field(description="Ordered list of PDFs to combine. Required for 'merge'."),
     ] = None,
     output_path: Annotated[
-        str | None,
+        Optional[str],
         Field(
             description="Output location, overwritten if it exists. For 'split' "
             "this is an existing directory; for all other operations a .pdf file."
         ),
     ] = None,
     degrees: Annotated[
-        int | None,
+        Optional[int],
         Field(description="Clockwise rotation in degrees (e.g. 90, 180, 270). Required for 'rotate'."),
     ] = None,
     page_indices: Annotated[
-        list[int] | None,
+        Optional[list[int]],
         Field(
             description="0-based page indices to keep, in order. Required for "
             "'extract_pages'."
         ),
     ] = None,
     overlay_path: Annotated[
-        str | None,
+        Optional[str],
         Field(description="PDF stamped on top of input_path. Required for 'overlay'."),
     ] = None,
 ) -> str:

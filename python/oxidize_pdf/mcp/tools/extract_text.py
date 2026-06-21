@@ -1,7 +1,7 @@
 """MCP tool: extract_text — extract text content from PDF pages."""
 
 import json
-from typing import Annotated
+from typing import Annotated, Optional
 
 from mcp.types import ToolAnnotations
 from pydantic import Field
@@ -23,14 +23,14 @@ def extract_text(
         Field(description="Path to the PDF file, relative to the configured workspace."),
     ],
     page: Annotated[
-        int | None,
+        Optional[int],
         Field(
             description="0-based page index to extract. Omit to extract every "
             "page joined by newlines. Out-of-range indices return an error."
         ),
     ] = None,
     password: Annotated[
-        str | None,
+        Optional[str],
         Field(description="User password to unlock an encrypted PDF before extraction."),
     ] = None,
 ) -> str:
