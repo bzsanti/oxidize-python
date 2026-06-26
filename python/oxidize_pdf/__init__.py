@@ -139,6 +139,9 @@ from oxidize_pdf._oxidize_pdf import (
     LabColor,
     # GFX-019: Page-level colour-space resources (oxidize-pdf 2.11.0)
     PageColorSpace,
+    # Issue #358: CID-keyed positioned glyph runs (oxidize-pdf 3.0.0)
+    CidMapping,
+    CidShowElement,
 )
 
 # Annotations (Tier 6)
@@ -669,6 +672,9 @@ __all__ = [
     "LabColor",
     # GFX-019: Page-level colour-space resources (oxidize-pdf 2.11.0)
     "PageColorSpace",
+    # Issue #358: CID-keyed positioned glyph runs (oxidize-pdf 3.0.0)
+    "CidMapping",
+    "CidShowElement",
     # Annotations
     "Annotation",
     "AnnotationType",

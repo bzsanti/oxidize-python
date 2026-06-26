@@ -3,15 +3,15 @@ use pyo3::prelude::*;
 
 use oxidize_pdf::advanced_tables::AdvancedTableExt;
 use oxidize_pdf::charts::ChartExt;
-use oxidize_pdf::graphics::ShadingDefinition;
+use oxidize_pdf::graphics::{CidShowElement, ShadingDefinition};
 use oxidize_pdf::PageLists;
 use oxidize_pdf::PageTables;
 
 use crate::annotations::PyAnnotation;
 use crate::errors::to_py_err;
 use crate::graphics::{
-    PyBlendMode, PyCalibratedColor, PyClippingPath, PyLabColor, PyLineCap, PyLineDashPattern,
-    PyLineJoin, PyPageColorSpace,
+    PyBlendMode, PyCalibratedColor, PyCidShowElement, PyClippingPath, PyLabColor, PyLineCap,
+    PyLineDashPattern, PyLineJoin, PyPageColorSpace,
 };
 use crate::graphics_advanced::{PyAxialShading, PyRadialShading};
 use crate::image::PyImage;
@@ -176,12 +176,31 @@ impl PyPage {
 
     /// Write text at the given position.
     fn text_at(&mut self, x: f64, y: f64, text: &str) -> PyResult<()> {
-        self.inner
-            .text()
-            .at(x, y)
-            .write(text)
-            .map_err(to_py_err)?;
+        self.inner.text().at(x, y).write(text).map_err(to_py_err)?;
         Ok(())
+    }
+
+    /// Select a custom font (by the name it was registered under on the
+    /// :class:`Document`) as the active font for subsequent drawing, at
+    /// ``size`` points. Required before :meth:`show_cid_array` to activate a
+    /// CID-keyed font registered via :meth:`Document.add_cid_keyed_font`
+    /// (issue #358).
+    fn set_custom_font(&mut self, name: &str, size: f64) {
+        self.inner.graphics().set_custom_font(name, size);
+    }
+
+    /// Draw a positioned glyph run over the active CID-keyed font (issue #358).
+    ///
+    /// ``elements`` is a list of :class:`CidShowElement`; the run is emitted as
+    /// a single ``TJ`` array starting at ``(x, y)``, coalescing adjacent glyphs
+    /// and applying each element's advance ``adjust`` and per-glyph
+    /// ``x_offset``. The active font must first be selected with
+    /// :meth:`set_custom_font` and registered via
+    /// :meth:`Document.add_cid_keyed_font`; the ``cid`` values are codes in that
+    /// font (glyph ids under Identity).
+    fn show_cid_array(&mut self, elements: Vec<PyCidShowElement>, x: f64, y: f64) {
+        let els: Vec<CidShowElement> = elements.iter().map(|e| e.inner).collect();
+        self.inner.graphics().show_cid_array(&els, x, y);
     }
 
     // ── Graphics operations ────────────────────────────────────────────
@@ -197,19 +216,27 @@ impl PyPage {
     }
 
     fn set_fill_color_calibrated(&mut self, color: &PyCalibratedColor) {
-        self.inner.graphics().set_fill_color_calibrated(color.inner.clone());
+        self.inner
+            .graphics()
+            .set_fill_color_calibrated(color.inner.clone());
     }
 
     fn set_stroke_color_calibrated(&mut self, color: &PyCalibratedColor) {
-        self.inner.graphics().set_stroke_color_calibrated(color.inner.clone());
+        self.inner
+            .graphics()
+            .set_stroke_color_calibrated(color.inner.clone());
     }
 
     fn set_fill_color_lab(&mut self, color: &PyLabColor) {
-        self.inner.graphics().set_fill_color_lab(color.inner.clone());
+        self.inner
+            .graphics()
+            .set_fill_color_lab(color.inner.clone());
     }
 
     fn set_stroke_color_lab(&mut self, color: &PyLabColor) {
-        self.inner.graphics().set_stroke_color_lab(color.inner.clone());
+        self.inner
+            .graphics()
+            .set_stroke_color_lab(color.inner.clone());
     }
 
     // ── Page-level colour-space resources (GFX-019) ────────────────────────
@@ -574,14 +601,7 @@ impl PyPage {
     }
 
     /// Draw a previously registered image at the given position and size.
-    fn draw_image(
-        &mut self,
-        name: &str,
-        x: f64,
-        y: f64,
-        width: f64,
-        height: f64,
-    ) -> PyResult<()> {
+    fn draw_image(&mut self, name: &str, x: f64, y: f64, width: f64, height: f64) -> PyResult<()> {
         self.inner
             .draw_image(name, x, y, width, height)
             .map_err(to_py_err)
@@ -651,7 +671,9 @@ impl PyPage {
         x: f64,
         y: f64,
     ) -> PyResult<f64> {
-        self.inner.add_advanced_table(&table.inner, x, y).map_err(to_py_err)
+        self.inner
+            .add_advanced_table(&table.inner, x, y)
+            .map_err(to_py_err)
     }
 
     /// Add an advanced table with automatic positioning.
@@ -659,7 +681,9 @@ impl PyPage {
         &mut self,
         table: &crate::advanced_tables::PyAdvancedTable,
     ) -> PyResult<f64> {
-        self.inner.add_advanced_table_auto(&table.inner).map_err(to_py_err)
+        self.inner
+            .add_advanced_table_auto(&table.inner)
+            .map_err(to_py_err)
     }
 
     // ── Text flow (aligned / wrapped text) ──────────────────────────────

@@ -66,6 +66,28 @@ class TestConvertToChunks:
         chunk = out["chunks"][0]
         assert "text" in chunk
 
+    async def test_rag_ignores_max_tokens(self, mcp_client, sample_pdf_with_text):
+        """The ``rag`` format uses heading-aware semantic chunking with a fixed
+        internal budget: ``max_tokens`` does not apply (it drives only the
+        fixed-window ``chunks`` format). Pin that contract so the parameter
+        description stays truthful — two very different ``max_tokens`` values
+        must produce byte-identical rag output."""
+
+        async def rag_with(max_tokens: int) -> list:
+            result = await mcp_client.call_tool(
+                "convert_pdf",
+                {
+                    "path": str(sample_pdf_with_text),
+                    "format": "rag",
+                    "max_tokens": max_tokens,
+                },
+            )
+            return json.loads(result.content[0].text)["chunks"]
+
+        small = await rag_with(16)
+        large = await rag_with(4096)
+        assert small == large, "rag output must be independent of max_tokens"
+
 
 class TestConvertPdfFormatValidation:
     """C-6/R-8: convert_pdf validates format parameter."""

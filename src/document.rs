@@ -6,6 +6,7 @@ use oxidize_pdf::writer::WriterConfig;
 use crate::actions::{PyGoToAction, PyNamedDestinations, PyUriAction};
 use crate::errors::to_py_err;
 use crate::forms::{PyCheckBox, PyComboBox, PyListBox, PyRadioButton, PyTextField};
+use crate::graphics::PyCidMapping;
 use crate::outlines::PyOutlineTree;
 use crate::page::PyPage;
 use crate::page_labels::PyPageLabelTree;
@@ -165,7 +166,10 @@ impl PyDocument {
 
     /// Set the document outline (bookmarks).
     fn set_outline(&mut self, outline: &mut PyOutlineTree) {
-        let tree = std::mem::replace(&mut outline.inner, oxidize_pdf::structure::OutlineTree::new());
+        let tree = std::mem::replace(
+            &mut outline.inner,
+            oxidize_pdf::structure::OutlineTree::new(),
+        );
         self.inner.set_outline(tree);
     }
 
@@ -184,8 +188,7 @@ impl PyDocument {
         let dt = chrono::DateTime::parse_from_rfc3339(iso_date).map_err(|e| {
             pyo3::exceptions::PyValueError::new_err(format!("Invalid date format: {e}"))
         })?;
-        self.inner
-            .set_creation_date(dt.with_timezone(&chrono::Utc));
+        self.inner.set_creation_date(dt.with_timezone(&chrono::Utc));
         Ok(())
     }
 
@@ -207,11 +210,7 @@ impl PyDocument {
     }
 
     /// Add a text field to the document.
-    fn add_text_field(
-        &mut self,
-        field: &PyTextField,
-        rect: &PyRectangle,
-    ) -> PyResult<()> {
+    fn add_text_field(&mut self, field: &PyTextField, rect: &PyRectangle) -> PyResult<()> {
         let widget = Widget::new(rect.inner);
         self.inner
             .enable_forms()
@@ -221,11 +220,7 @@ impl PyDocument {
     }
 
     /// Add a checkbox to the document.
-    fn add_checkbox(
-        &mut self,
-        field: &PyCheckBox,
-        rect: &PyRectangle,
-    ) -> PyResult<()> {
+    fn add_checkbox(&mut self, field: &PyCheckBox, rect: &PyRectangle) -> PyResult<()> {
         let widget = Widget::new(rect.inner);
         self.inner
             .enable_forms()
@@ -235,11 +230,7 @@ impl PyDocument {
     }
 
     /// Add a combo box to the document.
-    fn add_combo_box(
-        &mut self,
-        field: &PyComboBox,
-        rect: &PyRectangle,
-    ) -> PyResult<()> {
+    fn add_combo_box(&mut self, field: &PyComboBox, rect: &PyRectangle) -> PyResult<()> {
         let widget = Widget::new(rect.inner);
         self.inner
             .enable_forms()
@@ -249,11 +240,7 @@ impl PyDocument {
     }
 
     /// Add a list box to the document.
-    fn add_list_box(
-        &mut self,
-        field: &PyListBox,
-        rect: &PyRectangle,
-    ) -> PyResult<()> {
+    fn add_list_box(&mut self, field: &PyListBox, rect: &PyRectangle) -> PyResult<()> {
         let widget = Widget::new(rect.inner);
         self.inner
             .enable_forms()
@@ -263,11 +250,7 @@ impl PyDocument {
     }
 
     /// Add a radio button group to the document.
-    fn add_radio_button(
-        &mut self,
-        field: &PyRadioButton,
-        rect: &PyRectangle,
-    ) -> PyResult<()> {
+    fn add_radio_button(&mut self, field: &PyRadioButton, rect: &PyRectangle) -> PyResult<()> {
         let widget = Widget::new(rect.inner);
         self.inner
             .enable_forms()
@@ -334,6 +317,31 @@ impl PyDocument {
             .map_err(to_py_err)
     }
 
+    /// Register a CID-keyed font for positioned-glyph-run drawing (issue #358).
+    ///
+    /// Unlike :meth:`add_font_from_bytes` (Unicode-keyed: content-stream codes
+    /// are Unicode code points), a CID-keyed font interprets the 2-byte codes
+    /// drawn via :meth:`Page.show_cid_array` as the CIDs in ``mapping``. With
+    /// ``CIDToGIDMap = Identity`` (CID == GID) this lets a caller draw a
+    /// pre-shaped glyph run directly by glyph id, expressing ligatures and
+    /// per-glyph positioning the Unicode-keyed path cannot. The font is
+    /// subsetted to the used GIDs and emitted as a Type0/CIDFontType2 with a
+    /// ``ToUnicode`` CMap so the run stays extractable. Only TrueType/SFNT
+    /// (``CIDFontType2``) fonts are supported; an OpenType/CFF font raises.
+    ///
+    /// Select it for drawing with :meth:`Page.set_custom_font` before calling
+    /// :meth:`Page.show_cid_array`.
+    fn add_cid_keyed_font(
+        &mut self,
+        name: &str,
+        data: &[u8],
+        mapping: &PyCidMapping,
+    ) -> PyResult<()> {
+        self.inner
+            .add_cid_keyed_font(name, data.to_vec(), mapping.inner.clone())
+            .map_err(to_py_err)
+    }
+
     /// Measure the rendered width of ``text`` in ``font`` at ``size`` points,
     /// scoped to this Document's embedded fonts.
     ///
@@ -359,9 +367,7 @@ impl PyDocument {
     fn measure_char(&self, ch: &str, font: &PyFont, size: f64) -> PyResult<f64> {
         let mut chars = ch.chars();
         let c = chars.next().ok_or_else(|| {
-            pyo3::exceptions::PyValueError::new_err(
-                "Expected a single character, got empty string",
-            )
+            pyo3::exceptions::PyValueError::new_err("Expected a single character, got empty string")
         })?;
         if chars.next().is_some() {
             return Err(pyo3::exceptions::PyValueError::new_err(format!(
@@ -448,8 +454,7 @@ impl PyDocument {
     // ── Font Encoding (F48) ──────────────────────────────────────────────
 
     fn set_default_font_encoding(&mut self, encoding: &PyFontEncoding) {
-        self.inner
-            .set_default_font_encoding(Some(encoding.inner));
+        self.inner.set_default_font_encoding(Some(encoding.inner));
     }
 
     // ── XMP Metadata (F78) ───────────────────────────────────────────────
