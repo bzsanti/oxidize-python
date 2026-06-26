@@ -38,7 +38,8 @@ def convert_pdf(
         int,
         Field(
             description="Target maximum tokens per chunk. Applies to "
-            "format='chunks' and 'rag' only; ignored for 'markdown'."
+            "format='chunks' only; ignored for 'markdown' and 'rag' (rag uses "
+            "heading-aware semantic chunking with a fixed internal budget)."
         ),
     ] = 256,
     overlap: Annotated[

@@ -2,11 +2,17 @@ use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 use pyo3::types::{PyBool, PyDict, PyList};
 
-use oxidize_pdf::graphics::calibrated_color::{CalGrayColorSpace, CalRgbColorSpace, CalibratedColor};
+use std::collections::HashMap;
+
+use oxidize_pdf::fonts::CidMapping;
+use oxidize_pdf::graphics::calibrated_color::{
+    CalGrayColorSpace, CalRgbColorSpace, CalibratedColor,
+};
 use oxidize_pdf::graphics::lab_color::LabColor;
 use oxidize_pdf::graphics::state::{BlendMode, LineDashPattern};
 use oxidize_pdf::graphics::{
-    ClippingPath, DeviceColorSpace, LineCap, LineJoin, PageColorSpace, ParameterisedFamily,
+    CidShowElement, ClippingPath, DeviceColorSpace, LineCap, LineJoin, PageColorSpace,
+    ParameterisedFamily,
 };
 use oxidize_pdf::objects::{Dictionary, Object};
 
@@ -227,29 +233,41 @@ pub struct PyCalGrayColorSpace {
 impl PyCalGrayColorSpace {
     #[new]
     fn new() -> Self {
-        Self { inner: CalGrayColorSpace::new() }
+        Self {
+            inner: CalGrayColorSpace::new(),
+        }
     }
 
     #[staticmethod]
     fn d50() -> Self {
-        Self { inner: CalGrayColorSpace::d50() }
+        Self {
+            inner: CalGrayColorSpace::d50(),
+        }
     }
 
     #[staticmethod]
     fn d65() -> Self {
-        Self { inner: CalGrayColorSpace::d65() }
+        Self {
+            inner: CalGrayColorSpace::d65(),
+        }
     }
 
     fn with_gamma(self_: PyRef<'_, Self>, gamma: f64) -> Self {
-        Self { inner: self_.inner.clone().with_gamma(gamma) }
+        Self {
+            inner: self_.inner.clone().with_gamma(gamma),
+        }
     }
 
     fn with_white_point(self_: PyRef<'_, Self>, white_point: [f64; 3]) -> Self {
-        Self { inner: self_.inner.clone().with_white_point(white_point) }
+        Self {
+            inner: self_.inner.clone().with_white_point(white_point),
+        }
     }
 
     fn with_black_point(self_: PyRef<'_, Self>, black_point: [f64; 3]) -> Self {
-        Self { inner: self_.inner.clone().with_black_point(black_point) }
+        Self {
+            inner: self_.inner.clone().with_black_point(black_point),
+        }
     }
 
     #[getter]
@@ -279,39 +297,57 @@ pub struct PyCalRgbColorSpace {
 impl PyCalRgbColorSpace {
     #[new]
     fn new() -> Self {
-        Self { inner: CalRgbColorSpace::new() }
+        Self {
+            inner: CalRgbColorSpace::new(),
+        }
     }
 
     #[staticmethod]
     fn srgb() -> Self {
-        Self { inner: CalRgbColorSpace::srgb() }
+        Self {
+            inner: CalRgbColorSpace::srgb(),
+        }
     }
 
     #[staticmethod]
     fn adobe_rgb() -> Self {
-        Self { inner: CalRgbColorSpace::adobe_rgb() }
+        Self {
+            inner: CalRgbColorSpace::adobe_rgb(),
+        }
     }
 
     #[staticmethod]
     fn d65() -> Self {
-        Self { inner: CalRgbColorSpace::d65() }
+        Self {
+            inner: CalRgbColorSpace::d65(),
+        }
     }
 
     fn with_gamma(self_: PyRef<'_, Self>, gamma: [f64; 3]) -> Self {
-        Self { inner: self_.inner.clone().with_gamma(gamma) }
+        Self {
+            inner: self_.inner.clone().with_gamma(gamma),
+        }
     }
 
     fn with_white_point(self_: PyRef<'_, Self>, white_point: [f64; 3]) -> Self {
-        Self { inner: self_.inner.clone().with_white_point(white_point) }
+        Self {
+            inner: self_.inner.clone().with_white_point(white_point),
+        }
     }
 
     fn with_matrix(self_: PyRef<'_, Self>, matrix: [f64; 9]) -> Self {
-        Self { inner: self_.inner.clone().with_matrix(matrix) }
+        Self {
+            inner: self_.inner.clone().with_matrix(matrix),
+        }
     }
 
     #[getter]
     fn gamma(&self) -> (f64, f64, f64) {
-        (self.inner.gamma[0], self.inner.gamma[1], self.inner.gamma[2])
+        (
+            self.inner.gamma[0],
+            self.inner.gamma[1],
+            self.inner.gamma[2],
+        )
     }
 
     fn __repr__(&self) -> String {
@@ -331,12 +367,16 @@ pub struct PyCalibratedColor {
 impl PyCalibratedColor {
     #[staticmethod]
     fn cal_gray(value: f64, cs: &PyCalGrayColorSpace) -> Self {
-        Self { inner: CalibratedColor::cal_gray(value, cs.inner.clone()) }
+        Self {
+            inner: CalibratedColor::cal_gray(value, cs.inner.clone()),
+        }
     }
 
     #[staticmethod]
     fn cal_rgb(rgb: [f64; 3], cs: &PyCalRgbColorSpace) -> Self {
-        Self { inner: CalibratedColor::cal_rgb(rgb, cs.inner.clone()) }
+        Self {
+            inner: CalibratedColor::cal_rgb(rgb, cs.inner.clone()),
+        }
     }
 
     fn values(&self) -> Vec<f64> {
@@ -360,22 +400,30 @@ pub struct PyLabColor {
 impl PyLabColor {
     #[new]
     fn new(l: f64, a: f64, b: f64, cs: &PyLabColorSpace) -> Self {
-        Self { inner: LabColor::new(l, a, b, cs.inner.clone()) }
+        Self {
+            inner: LabColor::new(l, a, b, cs.inner.clone()),
+        }
     }
 
     #[staticmethod]
     fn white() -> Self {
-        Self { inner: LabColor::white() }
+        Self {
+            inner: LabColor::white(),
+        }
     }
 
     #[staticmethod]
     fn black() -> Self {
-        Self { inner: LabColor::black() }
+        Self {
+            inner: LabColor::black(),
+        }
     }
 
     #[staticmethod]
     fn gray() -> Self {
-        Self { inner: LabColor::gray() }
+        Self {
+            inner: LabColor::gray(),
+        }
     }
 
     #[getter]
@@ -402,7 +450,10 @@ impl PyLabColor {
     }
 
     fn __repr__(&self) -> String {
-        format!("LabColor(l={}, a={}, b={})", self.inner.l, self.inner.a, self.inner.b)
+        format!(
+            "LabColor(l={}, a={}, b={})",
+            self.inner.l, self.inner.a, self.inner.b
+        )
     }
 }
 
@@ -607,6 +658,145 @@ impl PyPageColorSpace {
     }
 }
 
+// ── CidMapping (issue #358: CID-keyed positioned glyph runs) ────────────────
+
+/// Mapping that drives a CID-keyed (CID == GID under Identity-H) Type0 font.
+///
+/// A pre-shaped glyph run (e.g. from a HarfBuzz-style shaper) is drawn by glyph
+/// id. ``cid_to_gid`` says which GID each CID renders (for subsetting);
+/// ``cid_to_unicode`` / ``cid_to_unicode_str`` keep the run extractable via the
+/// emitted ``ToUnicode`` CMap, the latter letting one CID (e.g. an ``fi``
+/// ligature glyph) decompose to several characters. ``max_cid`` sizes the
+/// ``CIDToGIDMap``; when omitted from the constructor it is derived as the
+/// largest CID present across every map.
+#[pyclass(name = "CidMapping", from_py_object)]
+#[derive(Clone)]
+pub struct PyCidMapping {
+    pub inner: CidMapping,
+}
+
+#[pymethods]
+impl PyCidMapping {
+    #[new]
+    #[pyo3(signature = (
+        cid_to_gid = None,
+        cid_to_unicode = None,
+        cid_to_unicode_str = None,
+        max_cid = None,
+    ))]
+    fn new(
+        cid_to_gid: Option<HashMap<u16, u16>>,
+        cid_to_unicode: Option<HashMap<u16, u32>>,
+        cid_to_unicode_str: Option<HashMap<u16, String>>,
+        max_cid: Option<u16>,
+    ) -> Self {
+        let mut inner = CidMapping::new();
+        if let Some(m) = cid_to_gid {
+            inner.cid_to_gid = m;
+        }
+        if let Some(m) = cid_to_unicode {
+            inner.cid_to_unicode = m;
+        }
+        if let Some(m) = cid_to_unicode_str {
+            inner.cid_to_unicode_str = m;
+        }
+        inner.max_cid = max_cid.unwrap_or_else(|| {
+            inner
+                .cid_to_gid
+                .keys()
+                .chain(inner.cid_to_unicode.keys())
+                .chain(inner.cid_to_unicode_str.keys())
+                .copied()
+                .max()
+                .unwrap_or(0)
+        });
+        Self { inner }
+    }
+
+    #[getter]
+    fn cid_to_gid(&self) -> HashMap<u16, u16> {
+        self.inner.cid_to_gid.clone()
+    }
+
+    #[getter]
+    fn cid_to_unicode(&self) -> HashMap<u16, u32> {
+        self.inner.cid_to_unicode.clone()
+    }
+
+    #[getter]
+    fn cid_to_unicode_str(&self) -> HashMap<u16, String> {
+        self.inner.cid_to_unicode_str.clone()
+    }
+
+    #[getter]
+    fn max_cid(&self) -> u16 {
+        self.inner.max_cid
+    }
+
+    fn __repr__(&self) -> String {
+        format!(
+            "CidMapping(glyphs={}, max_cid={})",
+            self.inner.cid_to_gid.len(),
+            self.inner.max_cid
+        )
+    }
+}
+
+// ── CidShowElement (one positioned glyph in a CID-keyed run) ─────────────────
+
+/// One glyph in a positioned run drawn by :meth:`Page.show_cid_array`.
+///
+/// ``cid`` is the 2-byte code (glyph id under Identity) in the active CID-keyed
+/// font. ``adjust`` is the post-glyph advance kern in thousandths of a
+/// text-space unit (PDF ``TJ`` convention: positive moves the next glyph left).
+/// ``x_offset`` displaces this glyph from its pen position *without* consuming
+/// advance — for GPOS mark attachment / diacritics — and defaults to ``0.0``;
+/// set it via :meth:`with_x_offset`.
+#[pyclass(name = "CidShowElement", from_py_object)]
+#[derive(Clone)]
+pub struct PyCidShowElement {
+    pub inner: CidShowElement,
+}
+
+#[pymethods]
+impl PyCidShowElement {
+    #[new]
+    fn new(cid: u16, adjust: f32) -> Self {
+        Self {
+            inner: CidShowElement::new(cid, adjust),
+        }
+    }
+
+    /// Return a copy of this element with the given per-glyph horizontal offset.
+    fn with_x_offset(&self, x_offset: f32) -> Self {
+        Self {
+            inner: self.inner.with_x_offset(x_offset),
+        }
+    }
+
+    #[getter]
+    fn cid(&self) -> u16 {
+        self.inner.cid
+    }
+
+    #[getter]
+    fn adjust(&self) -> f32 {
+        self.inner.adjust
+    }
+
+    #[getter]
+    fn x_offset(&self) -> f32 {
+        self.inner.x_offset
+    }
+
+    fn __repr__(&self) -> String {
+        format!(
+            "CidShowElement(cid={}, adjust={}, x_offset={})",
+            self.inner.cid, self.inner.adjust, self.inner.x_offset
+        )
+    }
+}
+
 // ── Registration ──────────────────────────────────────────────────────────
 
 pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
@@ -620,5 +810,7 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyCalibratedColor>()?;
     m.add_class::<PyLabColor>()?;
     m.add_class::<PyPageColorSpace>()?;
+    m.add_class::<PyCidMapping>()?;
+    m.add_class::<PyCidShowElement>()?;
     Ok(())
 }
