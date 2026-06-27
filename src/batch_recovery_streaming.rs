@@ -378,15 +378,25 @@ fn batch_split_pdfs(
     let options = BatchOptions::default().with_parallelism(parallelism);
     let mut processor = BatchProcessor::new(options);
     for file in files {
+        let input_path = PathBuf::from(&file);
+        // Upstream substitutes `{n}` (1-based chunk index) — `%d` is NOT a
+        // placeholder and was emitted literally, collapsing every chunk onto
+        // one filename. Write beside the input (not the process CWD) so the
+        // output is discoverable; `JobResult.output_files` is empty upstream.
+        let stem = input_path
+            .file_stem()
+            .and_then(|s| s.to_str())
+            .unwrap_or("output");
+        let file_name = format!("{stem}_page_{{n}}.pdf");
+        let output_pattern = match input_path.parent() {
+            Some(dir) if !dir.as_os_str().is_empty() => {
+                dir.join(&file_name).to_string_lossy().into_owned()
+            }
+            _ => file_name,
+        };
         processor.add_job(BatchJob::Split {
-            input: PathBuf::from(&file),
-            output_pattern: format!(
-                "{}_page_%d.pdf",
-                PathBuf::from(&file)
-                    .file_stem()
-                    .and_then(|s| s.to_str())
-                    .unwrap_or("output")
-            ),
+            input: input_path,
+            output_pattern,
             pages_per_file,
         });
     }

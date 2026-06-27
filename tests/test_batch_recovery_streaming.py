@@ -185,6 +185,54 @@ class TestBatchStandaloneFunctions:
             os.unlink(pdf_path)
 
 
+class TestBatchSplitOutput:
+    """Regression for the %d-placeholder + CWD-leak bug (issue #118).
+
+    ``batch_split_pdfs`` used the pattern ``"{stem}_page_%d.pdf"``: ``%d`` is
+    not an upstream placeholder (upstream substitutes ``{}``/``{n}``/``{page}``),
+    so the page number was never substituted — every chunk collided on one
+    literal filename — and the relative path wrote to the process CWD instead
+    of beside the input. (``JobResult.output_files`` is empty upstream, so the
+    output is asserted on the filesystem.)
+    """
+
+    def test_split_writes_numbered_files_beside_input(self, tmp_dir):
+        src = tmp_dir / "doc.pdf"
+        doc = op.Document()
+        for i in range(3):
+            page = op.Page.a4()
+            page.set_font(op.Font.HELVETICA, 12.0)
+            page.text_at(50.0, 750.0, f"Page {i + 1}")
+            doc.add_page(page)
+        doc.save(str(src))
+
+        summary = op.batch_split_pdfs([str(src)], 1, 1)  # 1 page/file -> 3 outputs
+        assert summary.total_jobs == 1
+        assert summary.results[0].status == "success"
+
+        # one output file per chunk, beside the input, with the number substituted
+        produced = sorted(p.name for p in tmp_dir.glob("doc_page_*.pdf"))
+        assert produced == ["doc_page_1.pdf", "doc_page_2.pdf", "doc_page_3.pdf"]
+
+        # the broken literal-"%d" filename must not exist beside the input
+        assert list(tmp_dir.glob("*%d*")) == []
+
+    def test_split_does_not_leak_to_cwd(self, tmp_dir):
+        src = tmp_dir / "leakcheck.pdf"
+        doc = op.Document()
+        for i in range(2):
+            page = op.Page.a4()
+            page.set_font(op.Font.HELVETICA, 12.0)
+            page.text_at(50.0, 750.0, f"Page {i + 1}")
+            doc.add_page(page)
+        doc.save(str(src))
+
+        before = set(os.listdir("."))
+        op.batch_split_pdfs([str(src)], 1, 1)
+        leaked = sorted(f for f in set(os.listdir(".")) - before if f.startswith("leakcheck"))
+        assert leaked == []
+
+
 # ── F63: Recovery Full ────────────────────────────────────────────────────
 
 
