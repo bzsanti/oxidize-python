@@ -184,6 +184,9 @@ class TestEncryptionRoundTrip:
     SECRET = "Secret content RT-117"
 
     def _make_encrypted(self, path, user="user-rt", owner="owner-rt"):
+        """Write a fresh single-page encrypted PDF (with ``SECRET`` as content)
+        to ``path`` and return it. Rebuilt per call so each test gets an
+        independent file under its own ``tmp_dir``."""
         from oxidize_pdf import Document, Font, Page
 
         doc = Document()
@@ -228,6 +231,9 @@ class TestEncryptionRoundTrip:
             reader.extract_text()
 
     def test_wrong_password_rejected(self, tmp_dir):
+        """``unlock`` signals a wrong password by raising ``PdfEncryptionError``
+        — it does not return a bool. This pins that contract: if upstream ever
+        switched to a bool return, this test would (correctly) fail."""
         from oxidize_pdf import PdfEncryptionError, PdfReader
 
         path = self._make_encrypted(tmp_dir / "rt_wrong.pdf")
