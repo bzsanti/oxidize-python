@@ -9,6 +9,7 @@ use crate::ai_pipeline::{
     PyDocumentChunk, PyDocumentSource, PyElement, PyExtractionProfile, PyHybridChunkConfig,
     PyRagChunk,
 };
+#[cfg(feature = "unstable-spi")]
 use crate::experimental_spi::PyAnalysisPipeline;
 use crate::errors;
 use crate::text_extraction::{PyExtractionOptions, PyPlainTextConfig, PyPlainTextResult, PyTextFragment};
@@ -688,6 +689,7 @@ impl PyPdfReader {
     ///
     /// **Stability:** behind the unstable SPI; exempt from semver until
     /// upstream promotes it.
+    #[cfg(feature = "unstable-spi")]
     fn rag_chunks_with_pipeline(
         &mut self,
         py: Python<'_>,
