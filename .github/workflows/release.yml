@@ -14,8 +14,51 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
+  version-check:
+    name: Verify version coherence
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Assert tag == pyproject == Cargo
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          python - <<'PY'
+          import os, sys, tomllib
+
+          tag = os.environ["TAG"].removeprefix("v")
+          with open("Cargo.toml", "rb") as f:
+              cargo = tomllib.load(f)["package"]["version"]
+          with open("pyproject.toml", "rb") as f:
+              proj = tomllib.load(f)["project"]["version"]
+
+          print(f"tag={tag} Cargo.toml={cargo} pyproject.toml={proj}")
+          mismatch = {
+              name: ver
+              for name, ver in {"Cargo.toml": cargo, "pyproject.toml": proj}.items()
+              if ver != tag
+          }
+          if mismatch:
+              print(f"ERROR: version mismatch vs tag '{tag}': {mismatch}", file=sys.stderr)
+              sys.exit(1)
+          print("Versions coherent.")
+          PY
+
+  # Full test matrix on the tagged commit. Gates the entire release so a tag
+  # with red tests never publishes to PyPI.
+  test:
+    name: Test gate
+    needs: version-check
+    uses: ./.github/workflows/test.yml
+
   build-wheels:
     name: Build wheels (${{ matrix.target }} on ${{ matrix.os }})
+    needs: [version-check, test]
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -72,6 +115,7 @@ jobs:
 
   build-sdist:
     name: Build source distribution
+    needs: [version-check, test]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
