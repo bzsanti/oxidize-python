@@ -9,12 +9,14 @@ mod charts;
 mod content_parser;
 mod document;
 mod errors;
+#[cfg(feature = "unstable-spi")]
 mod experimental_spi;
 mod forms;
 mod graphics;
 mod graphics_advanced;
 mod graphics_extraction;
 mod image;
+mod json_util;
 mod layout;
 mod list;
 mod operations;
@@ -72,6 +74,7 @@ fn _oxidize_pdf(m: &Bound<'_, PyModule>) -> PyResult<()> {
     semantic::register(m)?;
     graphics_extraction::register(m)?;
     layout::register(m)?;
+    #[cfg(feature = "unstable-spi")]
     experimental_spi::register(m)?;
 
     Ok(())

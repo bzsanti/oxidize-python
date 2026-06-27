@@ -607,6 +607,10 @@ impl PyElement {
     /// Open class label assigned by a custom
     /// :class:`oxidize_pdf.experimental.ElementClassifier` before chunking.
     /// ``None`` when no classifier ran or the classifier returned ``None``.
+    ///
+    /// Only available with the `unstable-spi` feature — the upstream
+    /// `class_label` field is gated by it.
+    #[cfg(feature = "unstable-spi")]
     #[getter]
     fn class_label(&self) -> Option<String> {
         self.inner.metadata().class_label.clone()
@@ -1032,7 +1036,7 @@ impl PyRagChunk {
     /// Returns an empty dict when no enricher ran.
     #[getter]
     fn extra<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, pyo3::types::PyDict>> {
-        crate::experimental_spi::extra_map_to_py_dict(py, &self.inner.metadata.extra)
+        crate::json_util::extra_map_to_py_dict(py, &self.inner.metadata.extra)
     }
 
     fn __repr__(&self) -> String {

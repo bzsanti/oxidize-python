@@ -105,3 +105,9 @@ jobs:
 
       - name: Verify wheel exists
         run: ls -la target/wheels/*.whl
+
+      # Graceful-degradation guard (#116): the bridge must still build when the
+      # semver-exempt upstream SPI is dropped, so an upstream SPI break degrades
+      # to "experimental module absent" rather than blocking the whole release.
+      - name: Build check without unstable-spi
+        run: cargo check --no-default-features

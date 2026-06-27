@@ -13,7 +13,16 @@ crate-type = ["cdylib"]
 
 [dependencies]
 pyo3 = { version = "0.28", features = ["extension-module", "abi3-py310"] }
-oxidize-pdf = { version = "=3.0.1", default-features = false, features = ["compression", "signatures", "semantic", "language-detection", "unstable-spi"] }
+oxidize-pdf = { version = "=3.0.1", default-features = false, features = ["compression", "signatures", "semantic", "language-detection"] }
 serde_json = "1"
 tempfile = "3"
 chrono = "0.4"
+
+[features]
+# On by default so normal builds expose the experimental SPI unchanged. The
+# upstream SPI is exempt from semver while experimental; gating the bridge's
+# own SPI surface behind this feature means an upstream break degrades to
+# `oxidize_pdf.experimental` being absent (build with --no-default-features
+# plus the others) instead of the whole bridge failing to compile.
+default = ["unstable-spi"]
+unstable-spi = ["oxidize-pdf/unstable-spi"]
