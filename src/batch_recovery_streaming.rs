@@ -383,15 +383,28 @@ fn batch_split_pdfs(
         // placeholder and was emitted literally, collapsing every chunk onto
         // one filename. Write beside the input (not the process CWD) so the
         // output is discoverable; `JobResult.output_files` is empty upstream.
+        // Reject non-UTF-8 paths loudly rather than degrading silently
+        // (`to_string_lossy` would inject U+FFFD and yield an unusable pattern,
+        // surfacing only as an opaque job failure).
         let stem = input_path
             .file_stem()
             .and_then(|s| s.to_str())
-            .unwrap_or("output");
+            .ok_or_else(|| {
+                pyo3::exceptions::PyValueError::new_err(format!(
+                    "input path has no valid UTF-8 file stem: {file:?}"
+                ))
+            })?;
         let file_name = format!("{stem}_page_{{n}}.pdf");
         let output_pattern = match input_path.parent() {
-            Some(dir) if !dir.as_os_str().is_empty() => {
-                dir.join(&file_name).to_string_lossy().into_owned()
-            }
+            Some(dir) if !dir.as_os_str().is_empty() => dir
+                .join(&file_name)
+                .to_str()
+                .ok_or_else(|| {
+                    pyo3::exceptions::PyValueError::new_err(format!(
+                        "input path contains non-UTF-8 characters: {file:?}"
+                    ))
+                })?
+                .to_owned(),
             _ => file_name,
         };
         processor.add_job(BatchJob::Split {

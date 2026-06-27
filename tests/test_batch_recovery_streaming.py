@@ -196,15 +196,19 @@ class TestBatchSplitOutput:
     output is asserted on the filesystem.)
     """
 
-    def test_split_writes_numbered_files_beside_input(self, tmp_dir):
-        src = tmp_dir / "doc.pdf"
+    @staticmethod
+    def _make_pdf(path, pages):
         doc = op.Document()
-        for i in range(3):
+        for i in range(pages):
             page = op.Page.a4()
             page.set_font(op.Font.HELVETICA, 12.0)
             page.text_at(50.0, 750.0, f"Page {i + 1}")
             doc.add_page(page)
-        doc.save(str(src))
+        doc.save(str(path))
+        return path
+
+    def test_split_writes_numbered_files_beside_input(self, tmp_dir):
+        src = self._make_pdf(tmp_dir / "doc.pdf", 3)
 
         summary = op.batch_split_pdfs([str(src)], 1, 1)  # 1 page/file -> 3 outputs
         assert summary.total_jobs == 1
@@ -217,19 +221,58 @@ class TestBatchSplitOutput:
         # the broken literal-"%d" filename must not exist beside the input
         assert list(tmp_dir.glob("*%d*")) == []
 
-    def test_split_does_not_leak_to_cwd(self, tmp_dir):
-        src = tmp_dir / "leakcheck.pdf"
-        doc = op.Document()
-        for i in range(2):
-            page = op.Page.a4()
-            page.set_font(op.Font.HELVETICA, 12.0)
-            page.text_at(50.0, 750.0, f"Page {i + 1}")
-            doc.add_page(page)
-        doc.save(str(src))
+    def test_pages_per_file_greater_than_one_chunks_sequentially(self, tmp_dir):
+        # 5 pages, 2 per chunk -> 3 chunks numbered 1..3 (not by page range)
+        src = self._make_pdf(tmp_dir / "report.pdf", 5)
 
-        before = set(os.listdir("."))
+        summary = op.batch_split_pdfs([str(src)], 2, 1)
+        assert summary.results[0].status == "success"
+
+        produced = sorted(p.name for p in tmp_dir.glob("report_page_*.pdf"))
+        assert produced == [
+            "report_page_1.pdf",
+            "report_page_2.pdf",
+            "report_page_3.pdf",
+        ]
+
+    def test_each_input_writes_beside_its_own_parent(self, tmp_dir):
+        dir_a = tmp_dir / "a"
+        dir_b = tmp_dir / "b"
+        dir_a.mkdir()
+        dir_b.mkdir()
+        src_a = self._make_pdf(dir_a / "doc.pdf", 2)
+        src_b = self._make_pdf(dir_b / "doc.pdf", 2)
+
+        summary = op.batch_split_pdfs([str(src_a), str(src_b)], 1, 2)
+        assert summary.total_jobs == 2
+        assert all(r.status == "success" for r in summary.results)
+
+        # each input's chunks land beside that input, not beside the first one
+        assert sorted(p.name for p in dir_a.glob("doc_page_*.pdf")) == [
+            "doc_page_1.pdf",
+            "doc_page_2.pdf",
+        ]
+        assert sorted(p.name for p in dir_b.glob("doc_page_*.pdf")) == [
+            "doc_page_1.pdf",
+            "doc_page_2.pdf",
+        ]
+        # the top-level tmp_dir must not have collected any output
+        assert list(tmp_dir.glob("doc_page_*.pdf")) == []
+
+    def test_nonexistent_input_reports_failed_status(self, tmp_dir):
+        missing = tmp_dir / "does_not_exist.pdf"
+        summary = op.batch_split_pdfs([str(missing)], 1, 1)
+        assert summary.total_jobs == 1
+        assert summary.results[0].status == "failed"
+
+    def test_split_does_not_leak_to_cwd(self, tmp_dir):
+        import glob
+
+        src = self._make_pdf(tmp_dir / "leakcheck.pdf", 2)
+
+        before = set(glob.glob("leakcheck*"))
         op.batch_split_pdfs([str(src)], 1, 1)
-        leaked = sorted(f for f in set(os.listdir(".")) - before if f.startswith("leakcheck"))
+        leaked = sorted(set(glob.glob("leakcheck*")) - before)
         assert leaked == []
 
 
