@@ -331,6 +331,7 @@ claude mcp add oxidize-pdf -- uvx --from "oxidize-pdf[mcp]" oxidize-mcp
 ## Known limitations
 
 - **Encryption write support**: `Document.encrypt()` configures encryption parameters but the underlying Rust library does not yet serialize the encryption dictionary to the PDF output. Reading encrypted PDFs works correctly.
+- **Image extraction returns raw embedded streams**: `extract_images_from_pdf` extracts each embedded image as-is (e.g. a `DCTDecode` JPEG is written byte-for-byte). Image *preprocessing* — auto rotation-correction, contrast enhancement, denoise, upscaling, force-grayscale — is not available, because the build excludes the upstream `external-images` feature (and its `image`-crate dependency). This keeps extraction faithful and lossless; it does not silently return empty or stub results.
 - **CPython only**: PyPy and GraalPy are not supported.
 
 ## License

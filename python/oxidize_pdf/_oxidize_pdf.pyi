@@ -737,6 +737,43 @@ class Permissions:
 
 # ── Operations ─────────────────────────────────────────────────────────────────
 
+class ExtractImagesOptions:
+    """Options for :func:`extract_images_from_pdf`.
+
+    Note:
+        Image preprocessing (auto rotation-correction, contrast, denoise,
+        upscaling, force-grayscale) is unavailable: this build excludes the
+        upstream ``external-images`` feature. Extracted images are the raw
+        embedded streams (e.g. a ``DCTDecode`` JPEG is returned byte-for-byte),
+        so extraction is faithful and lossless, not silently degraded.
+    """
+
+    def __init__(
+        self,
+        output_dir: str,
+        extract_inline: Optional[bool] = None,
+        min_size: Optional[int] = None,
+    ) -> None: ...
+
+def extract_images_from_pdf(
+    input: str, options: ExtractImagesOptions
+) -> list[dict[str, Any]]:
+    """Extract embedded images from ``input`` into ``options.output_dir``.
+
+    Args:
+        input: Path to the input PDF file.
+        options: Extraction options (output directory, inline flag, min size).
+
+    Returns:
+        One dict per extracted image with keys ``page_number``,
+        ``image_index``, ``file_path``, ``width`` and ``height``. Each image is
+        written as its raw embedded stream (lossless; no preprocessing).
+
+    Raises:
+        PdfError: If the input file cannot be read or extraction fails.
+    """
+    ...
+
 def split_pdf(input_path: str, output_dir: str) -> list[str]:
     """Split a PDF into individual single-page files.
 
