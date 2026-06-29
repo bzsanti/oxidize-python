@@ -72,6 +72,62 @@ class TestExtractTextSinglePage:
         assert "error" not in out
 
 
+class _FakeReader:
+    """Stand-in PdfReader whose heavy ops fail if invoked, to prove the gate
+    runs first."""
+
+    is_encrypted = False
+
+    def __init__(self, page_count):
+        self._page_count = page_count
+
+    @property
+    def page_count(self):
+        return self._page_count
+
+    def extract_text(self):
+        raise AssertionError("extract_text must not run once the page cap is exceeded")
+
+    def extract_text_from_page(self, index):
+        raise AssertionError("extract_text_from_page must not run once the cap is exceeded")
+
+
+def _fake_pdfreader(page_count):
+    class _FakePdfReader:
+        @staticmethod
+        def open(path):
+            return _FakeReader(page_count)
+
+    return _FakePdfReader
+
+
+class TestExtractTextPageCountCap:
+    """#115 Capa B: extract_text rejects documents over the page-count cap."""
+
+    pytestmark = pytest.mark.asyncio
+
+    async def test_rejects_real_pdf_over_cap(self, mcp_client, sample_pdf, monkeypatch):
+        monkeypatch.setenv("OXIDIZE_MAX_PAGES", "0")
+        result = await mcp_client.call_tool(
+            "extract_text", {"path": str(sample_pdf)}
+        )
+        out = json.loads(result.content[0].text)
+        assert out["code"] == "RESOURCE_LIMIT"
+        assert "page" in out["error"].lower()
+
+    async def test_extraction_never_called_when_over_cap(
+        self, mcp_client, sample_pdf, monkeypatch
+    ):
+        monkeypatch.setenv("OXIDIZE_MAX_PAGES", "5")
+        monkeypatch.setattr("oxidize_pdf.PdfReader", _fake_pdfreader(999))
+        # _FakeReader.extract_text raises AssertionError; reaching it fails the test.
+        result = await mcp_client.call_tool(
+            "extract_text", {"path": str(sample_pdf)}
+        )
+        out = json.loads(result.content[0].text)
+        assert out["code"] == "RESOURCE_LIMIT"
+
+
 class TestExtractTextSecurity:
     """F-018: extract_text enforces path security."""
 
@@ -91,3 +147,31 @@ class TestExtractTextSecurity:
         )
         out = json.loads(result.content[0].text)
         assert out.get("code") == "SECURITY_ERROR"
+
+
+class TestExtractTextOutputCap:
+    """#115 Capa B: extract_text bounds the serialized response size."""
+
+    pytestmark = pytest.mark.asyncio
+
+    async def test_rejects_when_output_exceeds_cap(
+        self, mcp_client, sample_pdf_with_text, monkeypatch
+    ):
+        monkeypatch.setenv("OXIDIZE_MAX_OUTPUT_BYTES", "10")
+        result = await mcp_client.call_tool(
+            "extract_text", {"path": str(sample_pdf_with_text)}
+        )
+        out = json.loads(result.content[0].text)
+        assert out["code"] == "RESOURCE_LIMIT"
+        assert "output" in out["error"].lower() or "size" in out["error"].lower()
+
+    async def test_passes_when_output_within_cap(
+        self, mcp_client, sample_pdf_with_text, monkeypatch
+    ):
+        monkeypatch.setenv("OXIDIZE_MAX_OUTPUT_BYTES", str(10 * 1024 * 1024))
+        result = await mcp_client.call_tool(
+            "extract_text", {"path": str(sample_pdf_with_text)}
+        )
+        out = json.loads(result.content[0].text)
+        assert "text" in out
+        assert "error" not in out

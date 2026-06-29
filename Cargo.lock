@@ -663,9 +663,9 @@ checksum = "9f7c3e4beb33f85d45ae3e3a1792185706c8e16d043238c593331cc7cd313b50"
 
 [[package]]
 name = "oxidize-pdf"
-version = "3.0.1"
+version = "3.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "033167f4c1e0dba0b0420ceda5be48a065fe19820c817747d07db341119311d5"
+checksum = "c1e600f150a3c5fc4eefb5a535351fac6c8b41e2cd2fc75c262b4d20b196448d"
 dependencies = [
  "aes",
  "bitflags",
@@ -707,7 +707,7 @@ dependencies = [
 
 [[package]]
 name = "oxidize-python"
-version = "0.13.0"
+version = "0.14.0"
 dependencies = [
  "chrono",
  "oxidize-pdf",

@@ -65,6 +65,56 @@ Add to your `claude_desktop_config.json`:
 }
 ```
 
+### GitHub Copilot (VS Code) integration
+
+Copilot's agent mode speaks MCP. Add `.vscode/mcp.json` to your workspace:
+
+```json
+{
+  "servers": {
+    "oxidize-pdf": {
+      "command": "oxidize-mcp",
+      "env": {
+        "OXIDIZE_WORKSPACE": "/path/to/your/pdfs"
+      }
+    }
+  }
+}
+```
+
+Open the Chat view, switch to **Agent** mode, and the 12 PDF tools appear in
+the tool picker. (The same block also works under the `mcp.servers` key in your
+user `settings.json` if you prefer a global install.)
+
+### OpenAI Agents SDK integration
+
+The [OpenAI Agents SDK](https://openai.github.io/openai-agents-python/mcp/)
+spawns the server over stdio and exposes its tools to an agent:
+
+```python
+from agents import Agent, Runner
+from agents.mcp import MCPServerStdio
+
+async with MCPServerStdio(
+    params={"command": "oxidize-mcp", "env": {"OXIDIZE_WORKSPACE": "/path/to/your/pdfs"}},
+    cache_tools_list=True,
+) as server:
+    agent = Agent(
+        name="PDF assistant",
+        instructions="Use the oxidize-pdf tools to inspect and manipulate PDFs.",
+        mcp_servers=[server],
+    )
+    result = await Runner.run(agent, "How many pages does report.pdf have?")
+    print(result.final_output)
+```
+
+A runnable version is in [`examples/openai_agents_quickstart.py`](examples/openai_agents_quickstart.py).
+
+> Both integrations run the server **locally over stdio**, so its tools operate
+> on PDFs in the configured workspace directory. Remote/hosted use (e.g. the
+> OpenAI Responses API hosted MCP tool) needs an HTTP transport and is not yet
+> exposed.
+
 ### Available tools
 
 | Tool | What it does |
@@ -89,6 +139,24 @@ The server also exposes **resources** (session data, capabilities, version info)
 ```bash
 OXIDIZE_WORKSPACE=/path/to/pdfs oxidize-mcp
 ```
+
+The server is configured entirely through environment variables:
+
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `OXIDIZE_WORKSPACE` | `~/Documents/oxidize-mcp` | Sandbox root; all paths must resolve inside it. |
+| `OXIDIZE_ALLOWED_PATHS` | _(none)_ | Comma-separated extra directories allowed outside the workspace. |
+| `OXIDIZE_MAX_FILE_SIZE_MB` | `100` | Reject input PDFs larger than this on disk. |
+| `OXIDIZE_MAX_PAGES` | `10000` | Reject documents with more pages than this before any extraction work. |
+| `OXIDIZE_MAX_OUTPUT_BYTES` | `10485760` | Cap the serialized size of a tool's JSON response (10 MB). |
+| `OXIDIZE_MAX_SESSIONS` | `10` | Maximum concurrent stateful PDF-creation sessions. |
+| `OXIDIZE_MAX_SESSION_BYTES` | `10485760` | Cap the content a single session may accumulate (10 MB). |
+| `OXIDIZE_SESSION_TIMEOUT` | `3600` | Session expiry, in seconds. |
+
+Resource caps (`OXIDIZE_MAX_*`) protect the server from a large or malicious
+PDF: oversized documents are rejected up front and tool responses are bounded
+rather than serialized unbounded. Exceeding a cap returns an error with code
+`RESOURCE_LIMIT`.
 
 Or start programmatically:
 

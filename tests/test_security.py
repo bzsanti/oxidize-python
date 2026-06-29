@@ -165,3 +165,96 @@ class TestPdfReaderEncryption:
         # Should not raise — unlock on unencrypted is a no-op
         reader.unlock("anything")
         assert reader.page_count == 1
+
+
+# ── Encryption round-trip (issue #117) ────────────────────────────────────────
+
+
+class TestEncryptionRoundTrip:
+    """Verify the encryption guarantee end-to-end: an encrypted PDF, once
+    serialized and reopened, actually protects its content.
+
+    Without these tests the encryption could be a no-op and every other
+    security test would still pass — they only check the in-memory
+    ``is_encrypted`` flag and that *some* output is produced, never that the
+    content is unreadable without the password (premortem 2026-06-27,
+    scenario 4 / issue #117).
+    """
+
+    SECRET = "Secret content RT-117"
+
+    def _make_encrypted(self, path, user="user-rt", owner="owner-rt"):
+        """Write a fresh single-page encrypted PDF (with ``SECRET`` as content)
+        to ``path`` and return it. Rebuilt per call so each test gets an
+        independent file under its own ``tmp_dir``."""
+        from oxidize_pdf import Document, Font, Page
+
+        doc = Document()
+        page = Page.a4()
+        page.set_font(Font.HELVETICA, 12.0)
+        page.text_at(100.0, 700.0, self.SECRET)
+        doc.add_page(page)
+        doc.encrypt(user, owner)
+        doc.save(str(path))
+        return path
+
+    def test_plaintext_absent_from_encrypted_bytes(self):
+        """The secret must not appear in clear in the bytes, and an /Encrypt
+        dictionary must be present."""
+        from oxidize_pdf import Document, Font, Page
+
+        doc = Document()
+        page = Page.a4()
+        page.set_font(Font.HELVETICA, 12.0)
+        page.text_at(100.0, 700.0, self.SECRET)
+        doc.add_page(page)
+        doc.encrypt("user-rt", "owner-rt")
+        data = doc.save_to_bytes()
+
+        assert b"/Encrypt" in data
+        assert self.SECRET.encode() not in data
+
+    def test_reopened_pdf_flagged_encrypted(self, tmp_dir):
+        from oxidize_pdf import PdfReader
+
+        path = self._make_encrypted(tmp_dir / "rt_flag.pdf")
+        reader = PdfReader.open(str(path))
+        assert reader.is_encrypted is True
+
+    def test_content_unreadable_without_password(self, tmp_dir):
+        """Reading a locked PDF must fail, not silently return the secret."""
+        from oxidize_pdf import PdfEncryptionError, PdfReader
+
+        path = self._make_encrypted(tmp_dir / "rt_locked.pdf")
+        reader = PdfReader.open(str(path))
+        with pytest.raises(PdfEncryptionError):
+            reader.extract_text()
+
+    def test_wrong_password_rejected(self, tmp_dir):
+        """``unlock`` signals a wrong password by raising ``PdfEncryptionError``
+        — it does not return a bool. This pins that contract: if upstream ever
+        switched to a bool return, this test would (correctly) fail."""
+        from oxidize_pdf import PdfEncryptionError, PdfReader
+
+        path = self._make_encrypted(tmp_dir / "rt_wrong.pdf")
+        reader = PdfReader.open(str(path))
+        with pytest.raises(PdfEncryptionError):
+            reader.unlock("definitely-wrong")
+
+    def test_user_password_recovers_content(self, tmp_dir):
+        from oxidize_pdf import PdfReader
+
+        path = self._make_encrypted(tmp_dir / "rt_user.pdf")
+        reader = PdfReader.open(str(path))
+        reader.unlock("user-rt")
+        text = "\n".join(reader.extract_text())
+        assert self.SECRET in text
+
+    def test_owner_password_recovers_content(self, tmp_dir):
+        from oxidize_pdf import PdfReader
+
+        path = self._make_encrypted(tmp_dir / "rt_owner.pdf")
+        reader = PdfReader.open(str(path))
+        reader.unlock("owner-rt")
+        text = "\n".join(reader.extract_text())
+        assert self.SECRET in text

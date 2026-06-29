@@ -33,7 +33,11 @@ def extract_entities(
     locating a label on the page). If you only need the reading text without
     coordinates, use extract_text; for Markdown or RAG chunks use convert_pdf.
     """
-    from oxidize_pdf.mcp.tools.base import setup_pdf_path
+    from oxidize_pdf.mcp.tools.base import (
+        apply_output_cap,
+        enforce_page_limit,
+        setup_pdf_path,
+    )
 
     resolved, err = setup_pdf_path(path)
     if err:
@@ -44,6 +48,10 @@ def extract_entities(
 
         reader = PdfReader.open(str(resolved))
         page_count = reader.page_count
+
+        # #115 Capa B: reject oversized documents before extracting chunks.
+        if limit_err := enforce_page_limit(page_count):
+            return limit_err
 
         entities: list[dict] = []
         for page_idx in range(page_count):
@@ -58,11 +66,11 @@ def extract_entities(
                     "font_name": chunk.font_name,
                 })
 
-        return json.dumps({
+        return apply_output_cap(json.dumps({
             "path": path,
             "entities": entities,
             "entity_count": len(entities),
             "page_count": page_count,
-        })
+        }))
     except Exception as e:
         return json.dumps({"error": str(e), "code": "PDF_ERROR"})

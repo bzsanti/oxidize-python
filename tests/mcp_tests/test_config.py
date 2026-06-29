@@ -70,6 +70,69 @@ def test_config_raises_on_invalid_max_sessions(monkeypatch):
         McpConfig()
 
 
+def test_config_max_pages_default():
+    from oxidize_pdf.mcp.config import McpConfig
+
+    assert McpConfig().max_pages == 10_000
+
+
+def test_config_max_pages_from_env(monkeypatch):
+    monkeypatch.setenv("OXIDIZE_MAX_PAGES", "50")
+    from oxidize_pdf.mcp.config import McpConfig
+
+    assert McpConfig().max_pages == 50
+
+
+def test_config_max_output_bytes_default():
+    from oxidize_pdf.mcp.config import McpConfig
+
+    assert McpConfig().max_output_bytes == 10 * 1024 * 1024
+
+
+def test_config_max_output_bytes_from_env(monkeypatch):
+    monkeypatch.setenv("OXIDIZE_MAX_OUTPUT_BYTES", "1024")
+    from oxidize_pdf.mcp.config import McpConfig
+
+    assert McpConfig().max_output_bytes == 1024
+
+
+def test_config_raises_on_invalid_max_pages(monkeypatch):
+    monkeypatch.setenv("OXIDIZE_MAX_PAGES", "not_a_number")
+    from oxidize_pdf.mcp.config import McpConfig
+
+    with pytest.raises(ValueError):
+        McpConfig()
+
+
+def test_config_raises_on_invalid_max_output_bytes(monkeypatch):
+    monkeypatch.setenv("OXIDIZE_MAX_OUTPUT_BYTES", "not_a_number")
+    from oxidize_pdf.mcp.config import McpConfig
+
+    with pytest.raises(ValueError):
+        McpConfig()
+
+
+def test_config_max_session_bytes_default():
+    from oxidize_pdf.mcp.config import McpConfig
+
+    assert McpConfig().max_session_bytes == 10 * 1024 * 1024
+
+
+def test_config_max_session_bytes_from_env(monkeypatch):
+    monkeypatch.setenv("OXIDIZE_MAX_SESSION_BYTES", "2048")
+    from oxidize_pdf.mcp.config import McpConfig
+
+    assert McpConfig().max_session_bytes == 2048
+
+
+def test_config_raises_on_invalid_max_session_bytes(monkeypatch):
+    monkeypatch.setenv("OXIDIZE_MAX_SESSION_BYTES", "not_a_number")
+    from oxidize_pdf.mcp.config import McpConfig
+
+    with pytest.raises(ValueError):
+        McpConfig()
+
+
 def test_config_workspace_default_is_safe_for_ci(monkeypatch):
     """Config creation must not raise even when the default workspace doesn't exist."""
     monkeypatch.delenv("OXIDIZE_WORKSPACE", raising=False)

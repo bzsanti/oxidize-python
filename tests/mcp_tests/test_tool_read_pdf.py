@@ -133,3 +133,39 @@ class TestReadPdfSecurity:
         result = await mcp_client.call_tool("read_pdf", {"path": client_path})
         out = json.loads(result.content[0].text)
         assert out["path"] == client_path
+
+
+class TestReadPdfPageCountCap:
+    """#115 Capa B: read_pdf rejects documents over the page-count cap."""
+
+    pytestmark = pytest.mark.asyncio
+
+    async def test_rejects_real_pdf_over_cap(self, mcp_client, sample_pdf, monkeypatch):
+        monkeypatch.setenv("OXIDIZE_MAX_PAGES", "0")
+        result = await mcp_client.call_tool("read_pdf", {"path": str(sample_pdf)})
+        out = json.loads(result.content[0].text)
+        assert out["code"] == "RESOURCE_LIMIT"
+        assert "page" in out["error"].lower()
+
+
+class TestReadPdfOutputCap:
+    """#115 Capa B: read_pdf bounds the serialized response size."""
+
+    pytestmark = pytest.mark.asyncio
+
+    async def test_rejects_when_output_exceeds_cap(
+        self, mcp_client, sample_pdf, monkeypatch
+    ):
+        monkeypatch.setenv("OXIDIZE_MAX_OUTPUT_BYTES", "10")
+        result = await mcp_client.call_tool("read_pdf", {"path": str(sample_pdf)})
+        out = json.loads(result.content[0].text)
+        assert out["code"] == "RESOURCE_LIMIT"
+
+    async def test_passes_when_output_within_cap(
+        self, mcp_client, sample_pdf, monkeypatch
+    ):
+        monkeypatch.setenv("OXIDIZE_MAX_OUTPUT_BYTES", str(10 * 1024 * 1024))
+        result = await mcp_client.call_tool("read_pdf", {"path": str(sample_pdf)})
+        out = json.loads(result.content[0].text)
+        assert out["page_count"] == 1
+        assert "error" not in out

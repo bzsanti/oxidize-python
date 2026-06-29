@@ -117,3 +117,81 @@ class TestCheckFileSize:
         with patch.object(type(f), "stat", side_effect=OSError("permission denied")):
             with pytest.raises(SecurityError, match="Cannot stat"):
                 check_file_size(f, max_bytes=1024 * 1024)
+
+
+class TestCheckPageCount:
+    """#115 Capa B: page-count cap rejects oversized documents before heavy work."""
+
+    def test_raises_when_count_exceeds_max(self):
+        from oxidize_pdf.mcp.security import SecurityError, check_page_count
+
+        with pytest.raises(SecurityError, match="(?i)page"):
+            check_page_count(101, 100)
+
+    def test_passes_when_count_equals_max(self):
+        from oxidize_pdf.mcp.security import check_page_count
+
+        check_page_count(100, 100)
+
+    def test_passes_when_count_below_max(self):
+        from oxidize_pdf.mcp.security import check_page_count
+
+        check_page_count(1, 10000)
+
+    def test_error_message_names_count_and_limit(self):
+        from oxidize_pdf.mcp.security import SecurityError, check_page_count
+
+        with pytest.raises(SecurityError) as exc:
+            check_page_count(999, 5)
+        msg = str(exc.value)
+        assert "999" in msg and "5" in msg
+
+
+class TestCheckOutputSize:
+    """#115 Capa B: output-size cap bounds the serialized JSON response."""
+
+    def test_raises_when_payload_bytes_exceed_max(self):
+        from oxidize_pdf.mcp.security import SecurityError, check_output_size
+
+        with pytest.raises(SecurityError, match="(?i)output|size"):
+            check_output_size("x" * 1001, max_bytes=1000)
+
+    def test_passes_when_payload_bytes_equal_max(self):
+        from oxidize_pdf.mcp.security import check_output_size
+
+        check_output_size("x" * 1000, max_bytes=1000)
+
+    def test_measures_utf8_bytes_not_character_count(self):
+        # "é" is 2 bytes in UTF-8; 501 chars -> 1002 bytes > 1000.
+        from oxidize_pdf.mcp.security import SecurityError, check_output_size
+
+        with pytest.raises(SecurityError):
+            check_output_size("é" * 501, max_bytes=1000)
+
+    def test_passes_empty_payload(self):
+        from oxidize_pdf.mcp.security import check_output_size
+
+        check_output_size("", max_bytes=1)
+
+
+class TestCheckSessionContentSize:
+    """#115 Capa A: per-session accumulated-content cap."""
+
+    def test_raises_when_total_exceeds_max(self):
+        from oxidize_pdf.mcp.security import SecurityError, check_session_content_size
+
+        with pytest.raises(SecurityError, match="(?i)session"):
+            check_session_content_size(101, 100)
+
+    def test_passes_when_total_equals_max(self):
+        from oxidize_pdf.mcp.security import check_session_content_size
+
+        check_session_content_size(100, 100)
+
+    def test_error_message_names_total_and_limit(self):
+        from oxidize_pdf.mcp.security import SecurityError, check_session_content_size
+
+        with pytest.raises(SecurityError) as exc:
+            check_session_content_size(500, 20)
+        msg = str(exc.value)
+        assert "500" in msg and "20" in msg
