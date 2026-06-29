@@ -584,9 +584,10 @@ impl PyPdfReader {
 
     /// Export document in contextual format (for LLM prompts).
     #[allow(deprecated, clippy::wrong_self_convention)]
-    fn to_contextual(&mut self) -> PyResult<String> {
+    fn to_contextual(&mut self, py: Python<'_>) -> PyResult<String> {
         self.ensure_document();
-        with_document!(self, doc => doc.to_contextual().map_err(pdf_err_to_py))
+        py.detach(|| with_document_mut!(self, doc => doc.to_contextual()))
+            .map_err(pdf_err_to_py)
     }
 
     /// Chunk document text for RAG pipeline (deprecated — prefer rag_chunks).
@@ -616,6 +617,7 @@ impl PyPdfReader {
     #[pyo3(signature = (page_index, chunk_size = 512, overlap = 50))]
     fn chunk_page(
         &mut self,
+        py: Python<'_>,
         page_index: u32,
         chunk_size: usize,
         overlap: usize,
@@ -635,9 +637,9 @@ impl PyPdfReader {
             )));
         }
         self.ensure_document();
-        let extracted = with_document!(self, doc =>
-            doc.extract_text_from_page(page_index).map_err(parse_err_to_py)
-        )?;
+        let extracted = py
+            .detach(|| with_document_mut!(self, doc => doc.extract_text_from_page(page_index)))
+            .map_err(parse_err_to_py)?;
         let chunker = DocumentChunker::new(chunk_size, overlap);
         let mut chunks = chunker.chunk_text(&extracted.text).map_err(pdf_err_to_py)?;
         // Stamp the source page on every chunk. The core's `chunk_text`
@@ -653,10 +655,11 @@ impl PyPdfReader {
     }
 
     /// Partition document into semantic elements.
-    fn partition(&mut self) -> PyResult<Vec<PyElement>> {
+    fn partition(&mut self, py: Python<'_>) -> PyResult<Vec<PyElement>> {
         self.ensure_document();
-        let elements =
-            with_document!(self, doc => doc.partition().map_err(parse_err_to_py))?;
+        let elements = py
+            .detach(|| with_document_mut!(self, doc => doc.partition()))
+            .map_err(parse_err_to_py)?;
         Ok(elements.into_iter().map(|e| PyElement { inner: e }).collect())
     }
 
@@ -672,12 +675,14 @@ impl PyPdfReader {
     /// Get RAG chunks with an extraction profile.
     fn rag_chunks_with_profile(
         &mut self,
+        py: Python<'_>,
         profile: &PyExtractionProfile,
     ) -> PyResult<Vec<PyRagChunk>> {
         self.ensure_document();
-        let chunks = with_document!(self, doc =>
-            doc.rag_chunks_with_profile(profile.inner.clone()).map_err(parse_err_to_py)
-        )?;
+        let profile = profile.inner.clone();
+        let chunks = py
+            .detach(|| with_document_mut!(self, doc => doc.rag_chunks_with_profile(profile)))
+            .map_err(parse_err_to_py)?;
         Ok(chunks.into_iter().map(|c| PyRagChunk { inner: c }).collect())
     }
 
@@ -691,12 +696,14 @@ impl PyPdfReader {
     /// downstream.
     fn rag_chunks_with_source(
         &mut self,
+        py: Python<'_>,
         source: &PyDocumentSource,
     ) -> PyResult<Vec<PyRagChunk>> {
         self.ensure_document();
-        let chunks = with_document!(self, doc =>
-            doc.rag_chunks_with_source(source.inner.clone()).map_err(parse_err_to_py)
-        )?;
+        let source = source.inner.clone();
+        let chunks = py
+            .detach(|| with_document_mut!(self, doc => doc.rag_chunks_with_source(source)))
+            .map_err(parse_err_to_py)?;
         Ok(chunks.into_iter().map(|c| PyRagChunk { inner: c }).collect())
     }
 
@@ -707,16 +714,20 @@ impl PyPdfReader {
     /// shorter context window).
     fn rag_chunks_with_source_and_config(
         &mut self,
+        py: Python<'_>,
         source: &PyDocumentSource,
         config: &PyHybridChunkConfig,
     ) -> PyResult<Vec<PyRagChunk>> {
         self.ensure_document();
-        let chunks = with_document!(self, doc =>
-            doc.rag_chunks_with_source_and_config(
-                source.inner.clone(),
-                config.inner.clone(),
-            ).map_err(parse_err_to_py)
-        )?;
+        let source = source.inner.clone();
+        let config = config.inner.clone();
+        let chunks = py
+            .detach(|| {
+                with_document_mut!(self, doc =>
+                    doc.rag_chunks_with_source_and_config(source, config)
+                )
+            })
+            .map_err(parse_err_to_py)?;
         Ok(chunks.into_iter().map(|c| PyRagChunk { inner: c }).collect())
     }
 
@@ -756,11 +767,16 @@ impl PyPdfReader {
     ///
     /// See also: :meth:`extract_fragments_with_options` for the same
     /// extraction with positional fragments instead of concatenated text.
-    fn extract_text_with_options(&mut self, options: &PyExtractionOptions) -> PyResult<Vec<String>> {
+    fn extract_text_with_options(
+        &mut self,
+        py: Python<'_>,
+        options: &PyExtractionOptions,
+    ) -> PyResult<Vec<String>> {
         self.ensure_document();
-        let texts = with_document!(self, doc =>
-            doc.extract_text_with_options(options.inner.clone()).map_err(parse_err_to_py)
-        )?;
+        let options = options.inner.clone();
+        let texts = py
+            .detach(|| with_document_mut!(self, doc => doc.extract_text_with_options(options)))
+            .map_err(parse_err_to_py)?;
         Ok(texts.into_iter().map(|t| t.text).collect())
     }
 
@@ -779,12 +795,14 @@ impl PyPdfReader {
     /// New in oxidize-python 0.6.0 (oxidize-pdf 2.10.0, issue #269).
     fn extract_fragments_with_options(
         &mut self,
+        py: Python<'_>,
         options: &PyExtractionOptions,
     ) -> PyResult<Vec<Vec<PyTextFragment>>> {
         self.ensure_document();
-        let pages = with_document!(self, doc =>
-            doc.extract_text_with_options(options.inner.clone()).map_err(parse_err_to_py)
-        )?;
+        let options = options.inner.clone();
+        let pages = py
+            .detach(|| with_document_mut!(self, doc => doc.extract_text_with_options(options)))
+            .map_err(parse_err_to_py)?;
         Ok(pages
             .into_iter()
             .map(|page| {
@@ -803,14 +821,19 @@ impl PyPdfReader {
     /// New in oxidize-python 0.6.0 (oxidize-pdf 2.10.0, issue #269).
     fn extract_fragments_from_page(
         &mut self,
+        py: Python<'_>,
         page_index: u32,
         options: &PyExtractionOptions,
     ) -> PyResult<Vec<PyTextFragment>> {
         self.ensure_document();
-        let extracted = with_document!(self, doc =>
-            doc.extract_text_from_page_with_options(page_index, options.inner.clone())
-                .map_err(parse_err_to_py)
-        )?;
+        let options = options.inner.clone();
+        let extracted = py
+            .detach(|| {
+                with_document_mut!(self, doc =>
+                    doc.extract_text_from_page_with_options(page_index, options)
+                )
+            })
+            .map_err(parse_err_to_py)?;
         Ok(extracted
             .fragments
             .into_iter()
@@ -824,6 +847,7 @@ impl PyPdfReader {
     #[pyo3(signature = (page_index, config = None))]
     fn extract_plain_text(
         &mut self,
+        py: Python<'_>,
         page_index: u32,
         config: Option<&PyPlainTextConfig>,
     ) -> PyResult<PyPlainTextResult> {
@@ -833,9 +857,9 @@ impl PyPdfReader {
         } else {
             oxidize_pdf::text::PlainTextExtractor::new()
         };
-        let result = with_document!(self, doc =>
-            extractor.extract(doc, page_index).map_err(parse_err_to_py)
-        )?;
+        let result = py
+            .detach(|| with_document_mut!(self, doc => extractor.extract(doc, page_index)))
+            .map_err(parse_err_to_py)?;
         Ok(PyPlainTextResult { inner: result })
     }
 
@@ -845,6 +869,7 @@ impl PyPdfReader {
     #[pyo3(signature = (page_index, config = None))]
     fn extract_plain_text_lines(
         &mut self,
+        py: Python<'_>,
         page_index: u32,
         config: Option<&PyPlainTextConfig>,
     ) -> PyResult<Vec<String>> {
@@ -854,9 +879,8 @@ impl PyPdfReader {
         } else {
             oxidize_pdf::text::PlainTextExtractor::new()
         };
-        with_document!(self, doc =>
-            extractor.extract_lines(doc, page_index).map_err(parse_err_to_py)
-        )
+        py.detach(|| with_document_mut!(self, doc => extractor.extract_lines(doc, page_index)))
+            .map_err(parse_err_to_py)
     }
 
     /// Return the decoded content streams of the page at ``index``.
@@ -869,12 +893,17 @@ impl PyPdfReader {
     ///
     /// Pages without a ``/Contents`` entry return an empty list. An out
     /// of range ``index`` raises ``PdfError``.
-    fn get_page_content_streams(&mut self, index: u32) -> PyResult<Vec<Vec<u8>>> {
+    fn get_page_content_streams(&mut self, py: Python<'_>, index: u32) -> PyResult<Vec<Vec<u8>>> {
         self.ensure_document();
-        with_document!(self, doc => {
-            let page = doc.get_page(index).map_err(parse_err_to_py)?;
-            doc.get_page_content_streams(&page).map_err(parse_err_to_py)
+        // Both calls return the same ParseError, so the closure returns the raw
+        // Result and the original error type is preserved by mapping outside.
+        py.detach(|| {
+            with_document_mut!(self, doc => {
+                let page = doc.get_page(index)?;
+                doc.get_page_content_streams(&page)
+            })
         })
+        .map_err(parse_err_to_py)
     }
 
     /// Return the structured ``/Resources`` view of the page at ``index``.
