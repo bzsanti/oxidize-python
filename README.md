@@ -65,6 +65,56 @@ Add to your `claude_desktop_config.json`:
 }
 ```
 
+### GitHub Copilot (VS Code) integration
+
+Copilot's agent mode speaks MCP. Add `.vscode/mcp.json` to your workspace:
+
+```json
+{
+  "servers": {
+    "oxidize-pdf": {
+      "command": "oxidize-mcp",
+      "env": {
+        "OXIDIZE_WORKSPACE": "/path/to/your/pdfs"
+      }
+    }
+  }
+}
+```
+
+Open the Chat view, switch to **Agent** mode, and the 12 PDF tools appear in
+the tool picker. (The same block also works under the `mcp.servers` key in your
+user `settings.json` if you prefer a global install.)
+
+### OpenAI Agents SDK integration
+
+The [OpenAI Agents SDK](https://openai.github.io/openai-agents-python/mcp/)
+spawns the server over stdio and exposes its tools to an agent:
+
+```python
+from agents import Agent, Runner
+from agents.mcp import MCPServerStdio
+
+async with MCPServerStdio(
+    params={"command": "oxidize-mcp", "env": {"OXIDIZE_WORKSPACE": "/path/to/your/pdfs"}},
+    cache_tools_list=True,
+) as server:
+    agent = Agent(
+        name="PDF assistant",
+        instructions="Use the oxidize-pdf tools to inspect and manipulate PDFs.",
+        mcp_servers=[server],
+    )
+    result = await Runner.run(agent, "How many pages does report.pdf have?")
+    print(result.final_output)
+```
+
+A runnable version is in [`examples/openai_agents_quickstart.py`](examples/openai_agents_quickstart.py).
+
+> Both integrations run the server **locally over stdio**, so its tools operate
+> on PDFs in the configured workspace directory. Remote/hosted use (e.g. the
+> OpenAI Responses API hosted MCP tool) needs an HTTP transport and is not yet
+> exposed.
+
 ### Available tools
 
 | Tool | What it does |
