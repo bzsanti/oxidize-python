@@ -82,3 +82,18 @@ def test_detect_corruption_releases_gil(large_pdf):
     from oxidize_pdf import detect_pdf_corruption
 
     _assert_parallel_speedup(lambda: detect_pdf_corruption(large_pdf))
+
+
+def test_extract_text_releases_gil(large_pdf):
+    """Reader method: extract_text over all pages must release the GIL.
+
+    Requires oxidize-pdf core >= 3.0.4, where PdfDocument is Send and the
+    binding can wrap the extraction in Python::detach. Each task opens its own
+    reader because PdfReader is unsendable (one per worker thread).
+    """
+    from oxidize_pdf import PdfReader
+
+    def op():
+        PdfReader.open(large_pdf).extract_text()
+
+    _assert_parallel_speedup(op)

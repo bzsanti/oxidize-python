@@ -244,6 +244,23 @@ macro_rules! with_document {
     };
 }
 
+/// Like [`with_document!`] but takes a mutable borrow of the document.
+///
+/// #115 Capa C: a mutable borrow is `Send` (the document is `Send` since
+/// oxidize-pdf 3.0.4), whereas a shared `&PdfDocument` is not (its interior
+/// `RefCell`s make it `!Sync`). The heavy reader methods therefore dispatch
+/// through this variant so their bodies can run inside `Python::detach`, which
+/// requires an `Ungil` (i.e. `Send`) closure.
+macro_rules! with_document_mut {
+    ($self:expr, $doc:ident => $body:expr) => {
+        match &mut $self.state {
+            ReaderState::FileDocument($doc) => $body,
+            ReaderState::CursorDocument($doc) => $body,
+            _ => unreachable!("promote() guarantees Document state"),
+        }
+    };
+}
+
 // ── PdfReader ─────────────────────────────────────────────────────────────────
 
 /// High-level PDF reader for parsing existing PDF files or byte buffers.
@@ -429,24 +446,30 @@ impl PyPdfReader {
     }
 
     /// Return the parsed page at the given 0-based index.
-    fn get_page(&mut self, index: u32) -> PyResult<PyParsedPage> {
+    fn get_page(&mut self, py: Python<'_>, index: u32) -> PyResult<PyParsedPage> {
         self.ensure_document();
-        let page = with_document!(self, doc => doc.get_page(index).map_err(parse_err_to_py))?;
+        // #115 Capa C: release the GIL during the parse.
+        let page = py
+            .detach(|| with_document_mut!(self, doc => doc.get_page(index)))
+            .map_err(parse_err_to_py)?;
         Ok(PyParsedPage { inner: page })
     }
 
     /// Extract text from a single page (0-based index).
-    fn extract_text_from_page(&mut self, index: u32) -> PyResult<String> {
+    fn extract_text_from_page(&mut self, py: Python<'_>, index: u32) -> PyResult<String> {
         self.ensure_document();
-        let extracted =
-            with_document!(self, doc => doc.extract_text_from_page(index).map_err(parse_err_to_py))?;
+        let extracted = py
+            .detach(|| with_document_mut!(self, doc => doc.extract_text_from_page(index)))
+            .map_err(parse_err_to_py)?;
         Ok(extracted.text)
     }
 
     /// Extract text from all pages, returning a list of strings.
-    fn extract_text(&mut self) -> PyResult<Vec<String>> {
+    fn extract_text(&mut self, py: Python<'_>) -> PyResult<Vec<String>> {
         self.ensure_document();
-        let texts = with_document!(self, doc => doc.extract_text().map_err(parse_err_to_py))?;
+        let texts = py
+            .detach(|| with_document_mut!(self, doc => doc.extract_text()))
+            .map_err(parse_err_to_py)?;
         Ok(texts.into_iter().map(|t| t.text).collect())
     }
 
@@ -454,22 +477,29 @@ impl PyPdfReader {
     ///
     /// Returns a list of ``TextChunk`` objects, each with ``text``, ``x``,
     /// ``y``, ``font_size``, and ``font_name`` attributes.
-    fn extract_text_chunks(&mut self, index: u32) -> PyResult<Vec<PyTextChunk>> {
+    fn extract_text_chunks(&mut self, py: Python<'_>, index: u32) -> PyResult<Vec<PyTextChunk>> {
         self.ensure_document();
 
-        // Get the parsed page and its content streams.
-        let page = with_document!(self, doc => doc.get_page(index).map_err(parse_err_to_py))?;
-        let streams =
-            with_document!(self, doc => doc.get_page_content_streams(&page).map_err(parse_err_to_py))?;
-
-        let mut streamer =
-            oxidize_pdf::TextStreamer::new(oxidize_pdf::TextStreamOptions::default());
-
-        let mut chunks = Vec::new();
-        for stream_data in &streams {
-            let mut page_chunks = streamer.process_chunk(stream_data).map_err(pdf_err_to_py)?;
-            chunks.append(&mut page_chunks);
-        }
+        // #115 Capa C: get the page, its content streams, and run the text
+        // streamer without holding the GIL. Errors are unified to String inside
+        // the closure (PyErr is not Ungil and cannot cross the detach boundary).
+        let chunks = py
+            .detach(|| {
+                let page = with_document_mut!(self, doc => doc.get_page(index))
+                    .map_err(|e| e.to_string())?;
+                let streams = with_document_mut!(self, doc => doc.get_page_content_streams(&page))
+                    .map_err(|e| e.to_string())?;
+                let mut streamer =
+                    oxidize_pdf::TextStreamer::new(oxidize_pdf::TextStreamOptions::default());
+                let mut chunks = Vec::new();
+                for stream_data in &streams {
+                    let mut page_chunks =
+                        streamer.process_chunk(stream_data).map_err(|e| e.to_string())?;
+                    chunks.append(&mut page_chunks);
+                }
+                Ok::<_, String>(chunks)
+            })
+            .map_err(pyo3::exceptions::PyValueError::new_err)?;
 
         Ok(chunks
             .into_iter()
@@ -484,9 +514,11 @@ impl PyPdfReader {
     }
 
     /// Get document metadata (title, author, subject, etc.).
-    fn metadata(&mut self) -> PyResult<PyDocumentMetadata> {
+    fn metadata(&mut self, py: Python<'_>) -> PyResult<PyDocumentMetadata> {
         self.ensure_document();
-        let meta = with_document!(self, doc => doc.metadata().map_err(parse_err_to_py))?;
+        let meta = py
+            .detach(|| with_document_mut!(self, doc => doc.metadata()))
+            .map_err(parse_err_to_py)?;
         Ok(PyDocumentMetadata {
             title: meta.title,
             author: meta.author,
@@ -544,9 +576,10 @@ impl PyPdfReader {
 
     /// Export document as Markdown.
     #[allow(deprecated, clippy::wrong_self_convention)]
-    fn to_markdown(&mut self) -> PyResult<String> {
+    fn to_markdown(&mut self, py: Python<'_>) -> PyResult<String> {
         self.ensure_document();
-        with_document!(self, doc => doc.to_markdown().map_err(pdf_err_to_py))
+        py.detach(|| with_document_mut!(self, doc => doc.to_markdown()))
+            .map_err(pdf_err_to_py)
     }
 
     /// Export document in contextual format (for LLM prompts).
@@ -558,10 +591,16 @@ impl PyPdfReader {
 
     /// Chunk document text for RAG pipeline (deprecated — prefer rag_chunks).
     #[allow(deprecated)]
-    fn chunk(&mut self, chunk_size: usize, overlap: usize) -> PyResult<Vec<PyDocumentChunk>> {
+    fn chunk(
+        &mut self,
+        py: Python<'_>,
+        chunk_size: usize,
+        overlap: usize,
+    ) -> PyResult<Vec<PyDocumentChunk>> {
         self.ensure_document();
-        let chunks =
-            with_document!(self, doc => doc.chunk_with(chunk_size, overlap).map_err(pdf_err_to_py))?;
+        let chunks = py
+            .detach(|| with_document_mut!(self, doc => doc.chunk_with(chunk_size, overlap)))
+            .map_err(pdf_err_to_py)?;
         Ok(chunks.into_iter().map(|c| PyDocumentChunk { inner: c }).collect())
     }
 
@@ -622,10 +661,11 @@ impl PyPdfReader {
     }
 
     /// Get RAG-ready chunks with default configuration.
-    fn rag_chunks(&mut self) -> PyResult<Vec<PyRagChunk>> {
+    fn rag_chunks(&mut self, py: Python<'_>) -> PyResult<Vec<PyRagChunk>> {
         self.ensure_document();
-        let chunks =
-            with_document!(self, doc => doc.rag_chunks().map_err(parse_err_to_py))?;
+        let chunks = py
+            .detach(|| with_document_mut!(self, doc => doc.rag_chunks()))
+            .map_err(parse_err_to_py)?;
         Ok(chunks.into_iter().map(|c| PyRagChunk { inner: c }).collect())
     }
 
@@ -1489,3 +1529,4 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(verify_pdf_signatures, m)?)?;
     Ok(())
 }
+
