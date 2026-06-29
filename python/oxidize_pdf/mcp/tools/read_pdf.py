@@ -76,6 +76,12 @@ def read_pdf(
 
         meta = reader.metadata()
 
+        # #115 Capa B: reject oversized documents before building the response.
+        from oxidize_pdf.mcp.tools.base import apply_output_cap, enforce_page_limit
+
+        if limit_err := enforce_page_limit(meta.page_count):
+            return limit_err
+
         result = {
             "path": path,
             "page_count": meta.page_count,
@@ -99,7 +105,7 @@ def read_pdf(
                 })
             result["pages"] = pages
 
-        return json.dumps(result)
+        return apply_output_cap(json.dumps(result))
 
     except Exception as e:
         return json.dumps({"error": str(e), "code": "PDF_ERROR"})

@@ -31,9 +31,15 @@ fn op_err_to_py(err: OperationError) -> PyErr {
 // ── split_pdf ─────────────────────────────────────────────────────────────────
 
 #[pyfunction]
-fn split_pdf(input_path: &str, output_dir: &str) -> PyResult<Vec<String>> {
-    let pattern = format!("{}/page_{{}}.pdf", output_dir);
-    let result = operations::split_into_pages(input_path, &pattern).map_err(op_err_to_py)?;
+fn split_pdf(py: Python<'_>, input_path: String, output_dir: String) -> PyResult<Vec<String>> {
+    // #115 Capa C: split without holding the GIL. Paths are owned Strings, so
+    // nothing GIL-bound is captured by the closure.
+    let result = py
+        .detach(move || {
+            let pattern = format!("{}/page_{{}}.pdf", output_dir);
+            operations::split_into_pages(&input_path, &pattern)
+        })
+        .map_err(op_err_to_py)?;
     Ok(result
         .into_iter()
         .map(|p| p.to_string_lossy().into_owned())
@@ -43,14 +49,18 @@ fn split_pdf(input_path: &str, output_dir: &str) -> PyResult<Vec<String>> {
 // ── merge_pdfs ────────────────────────────────────────────────────────────────
 
 #[pyfunction]
-fn merge_pdfs(input_paths: Vec<String>, output_path: &str) -> PyResult<()> {
+fn merge_pdfs(py: Python<'_>, input_paths: Vec<String>, output_path: String) -> PyResult<()> {
     if input_paths.is_empty() {
         return Err(pyo3::exceptions::PyValueError::new_err(
             "At least one input file is required",
         ));
     }
-    let inputs: Vec<MergeInput> = input_paths.iter().map(MergeInput::new).collect();
-    operations::merge_pdfs(inputs, output_path, MergeOptions::default()).map_err(op_err_to_py)
+    // #115 Capa C: merge without holding the GIL. All inputs are owned values.
+    py.detach(move || {
+        let inputs: Vec<MergeInput> = input_paths.iter().map(MergeInput::new).collect();
+        operations::merge_pdfs(inputs, &output_path, MergeOptions::default())
+    })
+    .map_err(op_err_to_py)
 }
 
 // ── rotate_pdf ────────────────────────────────────────────────────────────────

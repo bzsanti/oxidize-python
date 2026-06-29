@@ -84,3 +84,54 @@ class TestAddNewPage:
         )
         resp = json.loads(result.content[0].text)
         assert "error" in resp
+
+
+class TestAddContentSessionByteCap:
+    """#115 Capa A: a session cannot accumulate unbounded content."""
+
+    pytestmark = pytest.mark.asyncio
+
+    async def _new_session(self, mcp_client):
+        create = await mcp_client.call_tool("create_pdf", {"title": "Doc"})
+        return json.loads(create.content[0].text)["session_id"]
+
+    async def _add_text(self, mcp_client, sid, text):
+        result = await mcp_client.call_tool(
+            "add_pdf_content",
+            {
+                "session_id": sid,
+                "content_type": "text",
+                "content": text,
+                "x": 10.0,
+                "y": 10.0,
+            },
+        )
+        return json.loads(result.content[0].text)
+
+    async def test_text_accumulation_rejected_when_over_cap(
+        self, mcp_client, monkeypatch
+    ):
+        monkeypatch.setenv("OXIDIZE_MAX_SESSION_BYTES", "20")
+        sid = await self._new_session(mcp_client)
+        assert (await self._add_text(mcp_client, sid, "a" * 10))["status"] == "ok"
+        # total now 10; next 10 reaches the cap exactly (20) and is allowed.
+        assert (await self._add_text(mcp_client, sid, "a" * 10))["status"] == "ok"
+        over = await self._add_text(mcp_client, sid, "a")
+        assert over["code"] == "RESOURCE_LIMIT"
+        assert "session" in over["error"].lower()
+
+    async def test_single_oversized_text_rejected(self, mcp_client, monkeypatch):
+        monkeypatch.setenv("OXIDIZE_MAX_SESSION_BYTES", "16")
+        sid = await self._new_session(mcp_client)
+        over = await self._add_text(mcp_client, sid, "a" * 17)
+        assert over["code"] == "RESOURCE_LIMIT"
+
+    async def test_new_page_spam_bounded(self, mcp_client, monkeypatch):
+        # Cap below one page's nominal structural cost -> first new_page rejected.
+        monkeypatch.setenv("OXIDIZE_MAX_SESSION_BYTES", "1")
+        sid = await self._new_session(mcp_client)
+        result = await mcp_client.call_tool(
+            "add_pdf_content", {"session_id": sid, "content_type": "new_page"}
+        )
+        resp = json.loads(result.content[0].text)
+        assert resp["code"] == "RESOURCE_LIMIT"

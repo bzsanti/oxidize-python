@@ -60,6 +60,7 @@ def create_pdf(
             "page_dimensions": dims,
             "status": "active",
             "pages": [[]],
+            "content_bytes": 0,
         })
     except Exception as e:
         return json.dumps({"error": str(e), "code": "SESSION_ERROR"})

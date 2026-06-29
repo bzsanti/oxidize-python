@@ -8,6 +8,11 @@ from pydantic import Field
 
 from oxidize_pdf.mcp.server import mcp
 
+# #115 Capa A: nominal in-memory cost charged per appended page, so that
+# new_page spam is bounded by the per-session content cap even though an empty
+# page carries no text bytes.
+_PAGE_COST_BYTES = 256
+
 
 @mcp.tool(
     annotations=ToolAnnotations(
@@ -65,7 +70,7 @@ def add_pdf_content(
     session from create_pdf — to add notes/highlights to an existing PDF file
     use annotate_pdf instead.
     """
-    from oxidize_pdf.mcp.tools.base import get_session_store
+    from oxidize_pdf.mcp.tools.base import enforce_session_byte_limit, get_session_store
 
     store = get_session_store()
     session = store.get(session_id)
@@ -83,6 +88,7 @@ def add_pdf_content(
         })
 
     pages = session["pages"]
+    current_bytes = session.get("content_bytes", 0)
 
     if content_type == "text":
         if content is None or x is None or y is None:
@@ -90,6 +96,10 @@ def add_pdf_content(
                 "error": "content, x, and y are required for text content.",
                 "code": "MISSING_PARAM",
             })
+        # #115 Capa A: bound per-session memory before appending.
+        projected = current_bytes + len(content.encode("utf-8"))
+        if limit_err := enforce_session_byte_limit(projected):
+            return limit_err
         pages[-1].append({
             "type": "text",
             "content": content,
@@ -98,6 +108,7 @@ def add_pdf_content(
             "font": font,
             "font_size": font_size,
         })
+        session["content_bytes"] = projected
         return json.dumps({
             "status": "ok",
             "session_id": session_id,
@@ -105,7 +116,11 @@ def add_pdf_content(
         })
 
     # content_type == "new_page" (the Literal type guarantees no other value)
+    projected = current_bytes + _PAGE_COST_BYTES
+    if limit_err := enforce_session_byte_limit(projected):
+        return limit_err
     pages.append([])
+    session["content_bytes"] = projected
     return json.dumps({
         "status": "ok",
         "session_id": session_id,

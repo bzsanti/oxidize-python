@@ -2,7 +2,14 @@
 
 from pathlib import Path
 
-__all__ = ["SecurityError", "validate_path", "check_file_size"]
+__all__ = [
+    "SecurityError",
+    "validate_path",
+    "check_file_size",
+    "check_page_count",
+    "check_output_size",
+    "check_session_content_size",
+]
 
 
 class SecurityError(ValueError):
@@ -62,6 +69,43 @@ def check_file_size(path: Path, max_bytes: int) -> None:
     if size > max_bytes:
         raise SecurityError(
             f"File too large: {size} bytes (max {max_bytes} bytes)"
+        )
+
+
+def check_page_count(count: int, max_pages: int) -> None:
+    """Raise SecurityError if the document's page count exceeds the limit.
+
+    Checked before any heavy per-page work so an oversized or malicious
+    document is rejected cheaply.
+    """
+    if count > max_pages:
+        raise SecurityError(
+            f"Page count {count} exceeds limit {max_pages}"
+        )
+
+
+def check_output_size(payload: str, max_bytes: int) -> None:
+    """Raise SecurityError if the serialized output exceeds the byte limit.
+
+    Measures the UTF-8 encoded size, not the character count, so multibyte
+    text is bounded by the real response size.
+    """
+    size = len(payload.encode("utf-8"))
+    if size > max_bytes:
+        raise SecurityError(
+            f"Output too large: {size} bytes (max {max_bytes} bytes)"
+        )
+
+
+def check_session_content_size(total_bytes: int, max_bytes: int) -> None:
+    """Raise SecurityError if a session's accumulated content exceeds the limit.
+
+    Bounds the in-memory growth of a stateful PDF-creation session so a client
+    cannot exhaust server memory by appending content without limit.
+    """
+    if total_bytes > max_bytes:
+        raise SecurityError(
+            f"Session content size {total_bytes} bytes exceeds limit {max_bytes} bytes"
         )
 
 

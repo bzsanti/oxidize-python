@@ -727,8 +727,11 @@ fn quick_recover(path: &str) -> PyResult<Vec<u8>> {
 
 /// Detect corruption in a PDF file.
 #[pyfunction]
-fn detect_pdf_corruption(path: &str) -> PyResult<PyCorruptionReport> {
-    let report = detect_corruption(path).map_err(to_py_err)?;
+fn detect_pdf_corruption(py: Python<'_>, path: String) -> PyResult<PyCorruptionReport> {
+    // #115 Capa C: scan for corruption without holding the GIL.
+    let report = py
+        .detach(move || detect_corruption(&path))
+        .map_err(to_py_err)?;
     Ok(PyCorruptionReport { inner: report })
 }
 

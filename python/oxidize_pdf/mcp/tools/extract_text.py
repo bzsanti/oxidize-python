@@ -41,7 +41,11 @@ def extract_text(
     structure or chunking for LLM/RAG pipelines use convert_pdf; if you need
     each text run with its on-page coordinates and font use extract_entities.
     """
-    from oxidize_pdf.mcp.tools.base import setup_pdf_path
+    from oxidize_pdf.mcp.tools.base import (
+        apply_output_cap,
+        enforce_page_limit,
+        setup_pdf_path,
+    )
 
     resolved, err = setup_pdf_path(path)
     if err:
@@ -64,6 +68,10 @@ def extract_text(
 
         page_count = reader.page_count
 
+        # #115 Capa B: reject oversized documents before any extraction work.
+        if limit_err := enforce_page_limit(page_count):
+            return limit_err
+
         if page is not None:
             if page < 0 or page >= page_count:
                 return json.dumps({
@@ -71,11 +79,13 @@ def extract_text(
                     "code": "INVALID_PAGE",
                 })
             text = reader.extract_text_from_page(page)
-            return json.dumps({"text": text, "page": page, "page_count": page_count})
+            return apply_output_cap(
+                json.dumps({"text": text, "page": page, "page_count": page_count})
+            )
 
         text_parts = reader.extract_text()
         full_text = "\n".join(text_parts) if isinstance(text_parts, list) else str(text_parts)
-        return json.dumps({"text": full_text, "page_count": page_count})
+        return apply_output_cap(json.dumps({"text": full_text, "page_count": page_count}))
 
     except Exception as e:
         return json.dumps({"error": str(e), "code": "PDF_ERROR"})

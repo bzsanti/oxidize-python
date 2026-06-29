@@ -19,6 +19,19 @@ class McpConfig:
     max_sessions: int = field(
         default_factory=lambda: int(os.environ.get("OXIDIZE_MAX_SESSIONS", "10"))
     )
+    max_pages: int = field(
+        default_factory=lambda: int(os.environ.get("OXIDIZE_MAX_PAGES", "10000"))
+    )
+    max_output_bytes: int = field(
+        default_factory=lambda: int(
+            os.environ.get("OXIDIZE_MAX_OUTPUT_BYTES", str(10 * 1024 * 1024))
+        )
+    )
+    max_session_bytes: int = field(
+        default_factory=lambda: int(
+            os.environ.get("OXIDIZE_MAX_SESSION_BYTES", str(10 * 1024 * 1024))
+        )
+    )
     allowed_paths: list[Path] = field(default_factory=lambda: _get_allowed_paths())
 
 
