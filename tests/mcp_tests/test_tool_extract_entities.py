@@ -66,3 +66,81 @@ class TestExtractEntities:
         )
         out = json.loads(result.content[0].text)
         assert out.get("code") == "SECURITY_ERROR"
+
+
+class _FakeEntitiesReader:
+    is_encrypted = False
+
+    def __init__(self, page_count):
+        self._page_count = page_count
+
+    @property
+    def page_count(self):
+        return self._page_count
+
+    def extract_text_chunks(self, index):
+        raise AssertionError("extract_text_chunks must not run once the cap is exceeded")
+
+
+def _fake_pdfreader(page_count):
+    class _FakePdfReader:
+        @staticmethod
+        def open(path):
+            return _FakeEntitiesReader(page_count)
+
+    return _FakePdfReader
+
+
+class TestExtractEntitiesPageCountCap:
+    """#115 Capa B: extract_entities rejects documents over the page-count cap."""
+
+    pytestmark = pytest.mark.asyncio
+
+    async def test_rejects_real_pdf_over_cap(
+        self, mcp_client, sample_pdf_with_text, monkeypatch
+    ):
+        monkeypatch.setenv("OXIDIZE_MAX_PAGES", "0")
+        result = await mcp_client.call_tool(
+            "extract_entities", {"path": str(sample_pdf_with_text)}
+        )
+        out = json.loads(result.content[0].text)
+        assert out["code"] == "RESOURCE_LIMIT"
+        assert "page" in out["error"].lower()
+
+    async def test_extraction_never_called_when_over_cap(
+        self, mcp_client, sample_pdf, monkeypatch
+    ):
+        monkeypatch.setenv("OXIDIZE_MAX_PAGES", "5")
+        monkeypatch.setattr("oxidize_pdf.PdfReader", _fake_pdfreader(999))
+        result = await mcp_client.call_tool(
+            "extract_entities", {"path": str(sample_pdf)}
+        )
+        out = json.loads(result.content[0].text)
+        assert out["code"] == "RESOURCE_LIMIT"
+
+
+class TestExtractEntitiesOutputCap:
+    """#115 Capa B: extract_entities bounds the serialized response size."""
+
+    pytestmark = pytest.mark.asyncio
+
+    async def test_rejects_when_output_exceeds_cap(
+        self, mcp_client, sample_pdf_with_text, monkeypatch
+    ):
+        monkeypatch.setenv("OXIDIZE_MAX_OUTPUT_BYTES", "10")
+        result = await mcp_client.call_tool(
+            "extract_entities", {"path": str(sample_pdf_with_text)}
+        )
+        out = json.loads(result.content[0].text)
+        assert out["code"] == "RESOURCE_LIMIT"
+
+    async def test_passes_when_output_within_cap(
+        self, mcp_client, sample_pdf_with_text, monkeypatch
+    ):
+        monkeypatch.setenv("OXIDIZE_MAX_OUTPUT_BYTES", str(10 * 1024 * 1024))
+        result = await mcp_client.call_tool(
+            "extract_entities", {"path": str(sample_pdf_with_text)}
+        )
+        out = json.loads(result.content[0].text)
+        assert "entities" in out
+        assert "error" not in out

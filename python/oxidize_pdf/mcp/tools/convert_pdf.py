@@ -59,7 +59,11 @@ def convert_pdf(
     Use this when you need structure or chunking. If you just want the raw
     reading text use extract_text; for per-run coordinates use extract_entities.
     """
-    from oxidize_pdf.mcp.tools.base import setup_pdf_path
+    from oxidize_pdf.mcp.tools.base import (
+        apply_output_cap,
+        enforce_page_limit,
+        setup_pdf_path,
+    )
 
     resolved, err = setup_pdf_path(path)
     if err:
@@ -80,9 +84,13 @@ def convert_pdf(
                     "code": "ENCRYPTED",
                 })
 
+        # #115 Capa B: reject oversized documents before conversion work.
+        if limit_err := enforce_page_limit(reader.page_count):
+            return limit_err
+
         if format == "markdown":
             content = reader.to_markdown()
-            return json.dumps({"content": content, "format": "markdown"})
+            return apply_output_cap(json.dumps({"content": content, "format": "markdown"}))
 
         if format == "chunks":
             doc_chunks = reader.chunk(max_tokens, overlap)
@@ -96,7 +104,7 @@ def convert_pdf(
                 }
                 for c in doc_chunks
             ]
-            return json.dumps({"chunks": chunks, "format": "chunks"})
+            return apply_output_cap(json.dumps({"chunks": chunks, "format": "chunks"}))
 
         # format == "rag" (the Literal type guarantees no other value reaches here)
         rag_chunks = reader.rag_chunks()
@@ -110,7 +118,7 @@ def convert_pdf(
             }
             for c in rag_chunks
         ]
-        return json.dumps({"chunks": chunks, "format": "rag"})
+        return apply_output_cap(json.dumps({"chunks": chunks, "format": "rag"}))
 
     except Exception as e:
         return json.dumps({"error": str(e), "code": "PDF_ERROR"})

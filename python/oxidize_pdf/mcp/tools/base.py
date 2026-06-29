@@ -31,7 +31,7 @@ def get_session_store() -> SessionStore:
         cfg = get_config()
         _session_store = SessionStore(
             max_age_seconds=cfg.max_session_age_seconds,
-            max_sessions=100,
+            max_sessions=cfg.max_sessions,
         )
     return _session_store
 
@@ -47,6 +47,74 @@ def get_config() -> McpConfig:
 
         _config = McpConfig()
     return _config
+
+
+def enforce_page_limit(
+    page_count: int,
+    *,
+    cfg: McpConfig | None = None,
+) -> str | None:
+    """Gate heavy per-page work on the configured page-count cap.
+
+    Call after the page count is known (cheap) and before any extraction or
+    rendering. Returns an error JSON string when the cap is exceeded, or None
+    when the document is within the limit.
+    """
+    from oxidize_pdf.mcp.security import SecurityError, check_page_count
+
+    if cfg is None:
+        cfg = get_config()
+
+    try:
+        check_page_count(page_count, cfg.max_pages)
+        return None
+    except SecurityError as exc:
+        return json.dumps({"error": str(exc), "code": "RESOURCE_LIMIT"})
+
+
+def apply_output_cap(
+    result_json: str,
+    *,
+    cfg: McpConfig | None = None,
+) -> str:
+    """Bound the serialized tool response to the configured output-size cap.
+
+    Returns the response unchanged when within the limit, or an error JSON
+    string with code RESOURCE_LIMIT when it exceeds the cap.
+    """
+    from oxidize_pdf.mcp.security import SecurityError, check_output_size
+
+    if cfg is None:
+        cfg = get_config()
+
+    try:
+        check_output_size(result_json, cfg.max_output_bytes)
+        return result_json
+    except SecurityError as exc:
+        return json.dumps({"error": str(exc), "code": "RESOURCE_LIMIT"})
+
+
+def enforce_session_byte_limit(
+    projected_bytes: int,
+    *,
+    cfg: McpConfig | None = None,
+) -> str | None:
+    """Gate session growth on the configured per-session content-size cap.
+
+    Call with the session's accumulated content size after the pending add.
+    Returns an error JSON string when the cap would be exceeded, or None when
+    the session is still within the limit.
+    """
+    from oxidize_pdf.mcp.security import SecurityError, check_session_content_size
+
+    if cfg is None:
+        cfg = get_config()
+
+    try:
+        check_session_content_size(projected_bytes, cfg.max_session_bytes)
+        return None
+    except SecurityError as exc:
+        return json.dumps({"error": str(exc), "code": "RESOURCE_LIMIT"})
 
 
 def setup_pdf_path(

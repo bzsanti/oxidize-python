@@ -510,7 +510,12 @@ impl PyLazyDocument {
 
 #[pyfunction]
 fn validate_pdf<'py>(path: &str, py: Python<'py>) -> PyResult<Bound<'py, PyDict>> {
-    let result = oxidize_pdf::recovery::validate_pdf(path).map_err(to_py_err)?;
+    // #115 Capa C: release the GIL during the heavy validation pass. The path is
+    // copied to an owned String first so nothing GIL-bound is captured.
+    let path = path.to_owned();
+    let result = py
+        .detach(move || oxidize_pdf::recovery::validate_pdf(&path))
+        .map_err(to_py_err)?;
     let dict = PyDict::new(py);
     dict.set_item("is_valid", result.is_valid)?;
     dict.set_item("error_count", result.errors.len())?;
@@ -654,14 +659,21 @@ impl PyPdfAValidator {
     }
 
     /// Validate PDF data (bytes) against the configured PDF/A level.
-    fn validate_bytes(&self, data: &[u8]) -> PyResult<PyPdfAValidationResult> {
-        let cursor = std::io::Cursor::new(data.to_vec());
-        let mut reader = oxidize_pdf::PdfReader::new(cursor).map_err(|e| {
-            pyo3::exceptions::PyValueError::new_err(format!("Failed to parse PDF: {e}"))
-        })?;
-        let result = self.inner.validate(&mut reader).map_err(|e| {
-            pyo3::exceptions::PyValueError::new_err(format!("Validation failed: {e}"))
-        })?;
+    fn validate_bytes(&self, py: Python<'_>, data: &[u8]) -> PyResult<PyPdfAValidationResult> {
+        // #115 Capa C: parse + validate without holding the GIL. Bytes and the
+        // validator config are moved in as owned, GIL-independent values.
+        let data = data.to_vec();
+        let inner = self.inner.clone();
+        let result = py
+            .detach(move || {
+                let cursor = std::io::Cursor::new(data);
+                let mut reader = oxidize_pdf::PdfReader::new(cursor)
+                    .map_err(|e| format!("Failed to parse PDF: {e}"))?;
+                inner
+                    .validate(&mut reader)
+                    .map_err(|e| format!("Validation failed: {e}"))
+            })
+            .map_err(pyo3::exceptions::PyValueError::new_err)?;
         Ok(PyPdfAValidationResult {
             is_valid: result.is_valid(),
             errors: result.errors().iter().map(|e| e.to_string()).collect(),
@@ -693,7 +705,14 @@ impl PyPdfAValidator {
 
 #[pyfunction]
 fn compare_pdfs<'py>(generated: &[u8], reference: &[u8], py: Python<'py>) -> PyResult<Bound<'py, PyDict>> {
-    let result = oxidize_pdf::verification::comparators::compare_pdfs(generated, reference)
+    // #115 Capa C: release the GIL during the comparison. Both buffers are
+    // copied to owned Vecs so nothing GIL-bound crosses the closure boundary.
+    let generated = generated.to_vec();
+    let reference = reference.to_vec();
+    let result = py
+        .detach(move || {
+            oxidize_pdf::verification::comparators::compare_pdfs(&generated, &reference)
+        })
         .map_err(to_py_err)?;
     let dict = PyDict::new(py);
     dict.set_item("structurally_equivalent", result.structurally_equivalent)?;

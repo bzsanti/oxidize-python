@@ -90,6 +90,24 @@ The server also exposes **resources** (session data, capabilities, version info)
 OXIDIZE_WORKSPACE=/path/to/pdfs oxidize-mcp
 ```
 
+The server is configured entirely through environment variables:
+
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `OXIDIZE_WORKSPACE` | `~/Documents/oxidize-mcp` | Sandbox root; all paths must resolve inside it. |
+| `OXIDIZE_ALLOWED_PATHS` | _(none)_ | Comma-separated extra directories allowed outside the workspace. |
+| `OXIDIZE_MAX_FILE_SIZE_MB` | `100` | Reject input PDFs larger than this on disk. |
+| `OXIDIZE_MAX_PAGES` | `10000` | Reject documents with more pages than this before any extraction work. |
+| `OXIDIZE_MAX_OUTPUT_BYTES` | `10485760` | Cap the serialized size of a tool's JSON response (10 MB). |
+| `OXIDIZE_MAX_SESSIONS` | `10` | Maximum concurrent stateful PDF-creation sessions. |
+| `OXIDIZE_MAX_SESSION_BYTES` | `10485760` | Cap the content a single session may accumulate (10 MB). |
+| `OXIDIZE_SESSION_TIMEOUT` | `3600` | Session expiry, in seconds. |
+
+Resource caps (`OXIDIZE_MAX_*`) protect the server from a large or malicious
+PDF: oversized documents are rejected up front and tool responses are bounded
+rather than serialized unbounded. Exceeding a cap returns an error with code
+`RESOURCE_LIMIT`.
+
 Or start programmatically:
 
 ```python
