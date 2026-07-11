@@ -364,6 +364,9 @@ from oxidize_pdf._oxidize_pdf import (
     ReadingOrderStrategy,
     PartitionConfig,
     MergePolicy,
+    # Upstream 4.0.0 — contextual retrieval (#376)
+    ContextFormat,
+    ContextMode,
     HybridChunkConfig,
     SemanticChunkConfig,
     Element,
@@ -842,6 +845,8 @@ __all__ = [
     "ReadingOrderStrategy",
     "PartitionConfig",
     "MergePolicy",
+    "ContextFormat",
+    "ContextMode",
     "HybridChunkConfig",
     "SemanticChunkConfig",
     "Element",

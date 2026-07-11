@@ -10,8 +10,8 @@ use oxidize_pdf::ai::{
     MarkdownExporter, MarkdownOptions, TokenEfficientExporter,
 };
 use oxidize_pdf::pipeline::{
-    ContentTypeFlags, DocumentSource, ElementBBox, ExtractionProfile, HybridChunkConfig,
-    MergePolicy, PageRegion, PartitionConfig, RagChunk, ReadingOrderStrategy,
+    ContentTypeFlags, ContextFormat, ContextMode, DocumentSource, ElementBBox, ExtractionProfile,
+    HybridChunkConfig, MergePolicy, PageRegion, PartitionConfig, RagChunk, ReadingOrderStrategy,
     SemanticChunkConfig,
 };
 
@@ -488,6 +488,102 @@ impl PyMergePolicy {
     }
 }
 
+// ── ContextFormat / ContextMode (#376) ─────────────────────────────────────
+
+/// Rendering format for the contextual-retrieval prefix prepended to a chunk's
+/// embedding text under :meth:`ContextMode.contextual`.
+///
+/// New in oxidize-python 0.15.0 (oxidize-pdf 4.0.0, issue #376).
+#[pyclass(name = "ContextFormat", eq, eq_int, from_py_object)]
+#[derive(Clone, Copy, PartialEq)]
+pub enum PyContextFormat {
+    /// Labelled key/value lines (e.g. ``Document: …``).
+    Labeled,
+    /// Flowing prose sentence.
+    Prose,
+}
+
+impl PyContextFormat {
+    fn to_core(self) -> ContextFormat {
+        match self {
+            PyContextFormat::Labeled => ContextFormat::Labeled,
+            PyContextFormat::Prose => ContextFormat::Prose,
+        }
+    }
+
+    fn from_core(f: ContextFormat) -> Option<Self> {
+        match f {
+            ContextFormat::Labeled => Some(PyContextFormat::Labeled),
+            ContextFormat::Prose => Some(PyContextFormat::Prose),
+            _ => None,
+        }
+    }
+}
+
+/// How much document/section context to fold into a chunk's embedding text
+/// (``full_text``). The display ``text`` is never affected.
+///
+/// Construct via the :meth:`none`, :meth:`heading`, or :meth:`contextual`
+/// static methods. The default on :class:`HybridChunkConfig` is
+/// :meth:`heading`, which is byte-identical to prior output.
+///
+/// New in oxidize-python 0.15.0 (oxidize-pdf 4.0.0, issue #376).
+#[pyclass(name = "ContextMode", frozen, from_py_object)]
+#[derive(Clone, Copy)]
+pub struct PyContextMode {
+    pub inner: ContextMode,
+}
+
+#[pymethods]
+impl PyContextMode {
+    /// No context: ``full_text`` equals the display ``text``.
+    #[staticmethod]
+    fn none() -> Self {
+        Self { inner: ContextMode::None }
+    }
+
+    /// Heading breadcrumb only (default). Byte-identical to prior output.
+    #[staticmethod]
+    fn heading() -> Self {
+        Self { inner: ContextMode::Heading }
+    }
+
+    /// Prepend a deterministic document + section snippet (title/author or
+    /// filename, heading breadcrumb, optional page span) to ``full_text``.
+    #[staticmethod]
+    fn contextual(format: &PyContextFormat) -> Self {
+        Self { inner: ContextMode::Contextual(format.to_core()) }
+    }
+
+    /// The contextual format, or ``None`` for the non-contextual modes.
+    #[getter]
+    fn format(&self) -> Option<PyContextFormat> {
+        match self.inner {
+            ContextMode::Contextual(f) => PyContextFormat::from_core(f),
+            _ => None,
+        }
+    }
+
+    fn __eq__(&self, other: &Self) -> bool {
+        self.inner == other.inner
+    }
+
+    fn __repr__(&self) -> String {
+        self.describe()
+    }
+}
+
+impl PyContextMode {
+    /// Rust-visible repr, callable from other bridge modules.
+    pub(crate) fn describe(&self) -> String {
+        match self.inner {
+            ContextMode::None => "ContextMode.none()".to_string(),
+            ContextMode::Heading => "ContextMode.heading()".to_string(),
+            ContextMode::Contextual(f) => format!("ContextMode.contextual({f:?})"),
+        }
+    }
+}
+
 // ── PyHybridChunkConfig ────────────────────────────────────────────────────
 
 /// Configuration for hybrid chunking.
@@ -500,12 +596,17 @@ pub struct PyHybridChunkConfig {
 #[pymethods]
 impl PyHybridChunkConfig {
     #[new]
-    #[pyo3(signature = (max_tokens = 512, overlap_tokens = 50))]
-    fn new(max_tokens: usize, overlap_tokens: usize) -> Self {
+    #[pyo3(signature = (max_tokens = 512, overlap_tokens = 50, context_mode = None))]
+    fn new(
+        max_tokens: usize,
+        overlap_tokens: usize,
+        context_mode: Option<PyContextMode>,
+    ) -> Self {
         Self {
             inner: HybridChunkConfig {
                 max_tokens,
                 overlap_tokens,
+                context_mode: context_mode.map(|m| m.inner).unwrap_or_default(),
                 ..HybridChunkConfig::default()
             },
         }
@@ -521,10 +622,19 @@ impl PyHybridChunkConfig {
         self.inner.overlap_tokens
     }
 
+    /// The contextual-retrieval mode applied to each chunk's ``full_text``.
+    /// New in oxidize-python 0.15.0 (oxidize-pdf 4.0.0, issue #376).
+    #[getter]
+    fn context_mode(&self) -> PyContextMode {
+        PyContextMode { inner: self.inner.context_mode }
+    }
+
     fn __repr__(&self) -> String {
         format!(
-            "HybridChunkConfig(max_tokens={}, overlap_tokens={})",
-            self.inner.max_tokens, self.inner.overlap_tokens,
+            "HybridChunkConfig(max_tokens={}, overlap_tokens={}, context_mode={})",
+            self.inner.max_tokens,
+            self.inner.overlap_tokens,
+            PyContextMode { inner: self.inner.context_mode }.__repr__(),
         )
     }
 }
@@ -1064,6 +1174,8 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyReadingOrderStrategy>()?;
     m.add_class::<PyPartitionConfig>()?;
     m.add_class::<PyMergePolicy>()?;
+    m.add_class::<PyContextFormat>()?;
+    m.add_class::<PyContextMode>()?;
     m.add_class::<PyHybridChunkConfig>()?;
     m.add_class::<PySemanticChunkConfig>()?;
     m.add_class::<PyElement>()?;
