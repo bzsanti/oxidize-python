@@ -12,7 +12,9 @@ use crate::ai_pipeline::{
 #[cfg(feature = "unstable-spi")]
 use crate::experimental_spi::PyAnalysisPipeline;
 use crate::errors;
-use crate::text_extraction::{PyExtractionOptions, PyPlainTextConfig, PyPlainTextResult, PyTextFragment};
+use crate::text_extraction::{
+    PyExtractedText, PyExtractionOptions, PyPlainTextConfig, PyPlainTextResult, PyTextFragment,
+};
 
 /// Convert a parser `ParseError` into the appropriate Python exception.
 ///
@@ -839,6 +841,33 @@ impl PyPdfReader {
             .into_iter()
             .map(|f| PyTextFragment { inner: f })
             .collect())
+    }
+
+    /// Extract text from a single page, returning the full extraction result.
+    ///
+    /// Unlike :meth:`extract_text_from_page` (which yields only the concatenated
+    /// string), this returns an :class:`ExtractedText` carrying ``text``,
+    /// positional ``fragments`` (when ``options.preserve_layout`` is set), and
+    /// the ``truncated`` flag set when ``options.max_extracted_bytes`` capped the
+    /// run.
+    ///
+    /// New in oxidize-python 0.15.0 (oxidize-pdf 4.0.0, issue #382).
+    fn extract_page_text(
+        &mut self,
+        py: Python<'_>,
+        page_index: u32,
+        options: &PyExtractionOptions,
+    ) -> PyResult<PyExtractedText> {
+        self.ensure_document();
+        let options = options.inner.clone();
+        let extracted = py
+            .detach(|| {
+                with_document_mut!(self, doc =>
+                    doc.extract_text_from_page_with_options(page_index, options)
+                )
+            })
+            .map_err(parse_err_to_py)?;
+        Ok(PyExtractedText { inner: extracted })
     }
 
     /// Extract plain text from a single page using PlainTextExtractor.
