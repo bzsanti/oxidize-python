@@ -364,9 +364,15 @@ from oxidize_pdf._oxidize_pdf import (
     ReadingOrderStrategy,
     PartitionConfig,
     MergePolicy,
+    # Upstream 4.0.0 — contextual retrieval (#376)
+    ContextFormat,
+    ContextMode,
     HybridChunkConfig,
     SemanticChunkConfig,
     Element,
+    # Upstream 4.0.0 — rich table structure (#375)
+    RichCell,
+    TableStructure,
     RagChunk,
     # Upstream 2.16.0 — enriched chunk metadata + source stamping
     ElementBBox,
@@ -842,8 +848,12 @@ __all__ = [
     "ReadingOrderStrategy",
     "PartitionConfig",
     "MergePolicy",
+    "ContextFormat",
+    "ContextMode",
     "HybridChunkConfig",
     "SemanticChunkConfig",
+    "RichCell",
+    "TableStructure",
     "Element",
     "RagChunk",
     "ElementBBox",

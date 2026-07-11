@@ -10,9 +10,9 @@ use oxidize_pdf::ai::{
     MarkdownExporter, MarkdownOptions, TokenEfficientExporter,
 };
 use oxidize_pdf::pipeline::{
-    ContentTypeFlags, DocumentSource, ElementBBox, ExtractionProfile, HybridChunkConfig,
-    MergePolicy, PageRegion, PartitionConfig, RagChunk, ReadingOrderStrategy,
-    SemanticChunkConfig,
+    ContentTypeFlags, ContextFormat, ContextMode, DocumentSource, Element, ElementBBox,
+    ExtractionProfile, HybridChunkConfig, MergePolicy, PageRegion, PartitionConfig, RagChunk,
+    ReadingOrderStrategy, RichCell, SemanticChunkConfig, TableStructure,
 };
 
 use crate::errors::to_py_err;
@@ -488,6 +488,102 @@ impl PyMergePolicy {
     }
 }
 
+// ── ContextFormat / ContextMode (#376) ─────────────────────────────────────
+
+/// Rendering format for the contextual-retrieval prefix prepended to a chunk's
+/// embedding text under :meth:`ContextMode.contextual`.
+///
+/// New in oxidize-python 0.15.0 (oxidize-pdf 4.0.0, issue #376).
+#[pyclass(name = "ContextFormat", eq, eq_int, from_py_object)]
+#[derive(Clone, Copy, PartialEq)]
+pub enum PyContextFormat {
+    /// Labelled key/value lines (e.g. ``Document: …``).
+    Labeled,
+    /// Flowing prose sentence.
+    Prose,
+}
+
+impl PyContextFormat {
+    fn to_core(self) -> ContextFormat {
+        match self {
+            PyContextFormat::Labeled => ContextFormat::Labeled,
+            PyContextFormat::Prose => ContextFormat::Prose,
+        }
+    }
+
+    fn from_core(f: ContextFormat) -> Option<Self> {
+        match f {
+            ContextFormat::Labeled => Some(PyContextFormat::Labeled),
+            ContextFormat::Prose => Some(PyContextFormat::Prose),
+            _ => None,
+        }
+    }
+}
+
+/// How much document/section context to fold into a chunk's embedding text
+/// (``full_text``). The display ``text`` is never affected.
+///
+/// Construct via the :meth:`none`, :meth:`heading`, or :meth:`contextual`
+/// static methods. The default on :class:`HybridChunkConfig` is
+/// :meth:`heading`, which is byte-identical to prior output.
+///
+/// New in oxidize-python 0.15.0 (oxidize-pdf 4.0.0, issue #376).
+#[pyclass(name = "ContextMode", frozen, from_py_object)]
+#[derive(Clone, Copy)]
+pub struct PyContextMode {
+    pub inner: ContextMode,
+}
+
+#[pymethods]
+impl PyContextMode {
+    /// No context: ``full_text`` equals the display ``text``.
+    #[staticmethod]
+    fn none() -> Self {
+        Self { inner: ContextMode::None }
+    }
+
+    /// Heading breadcrumb only (default). Byte-identical to prior output.
+    #[staticmethod]
+    fn heading() -> Self {
+        Self { inner: ContextMode::Heading }
+    }
+
+    /// Prepend a deterministic document + section snippet (title/author or
+    /// filename, heading breadcrumb, optional page span) to ``full_text``.
+    #[staticmethod]
+    fn contextual(format: &PyContextFormat) -> Self {
+        Self { inner: ContextMode::Contextual(format.to_core()) }
+    }
+
+    /// The contextual format, or ``None`` for the non-contextual modes.
+    #[getter]
+    fn format(&self) -> Option<PyContextFormat> {
+        match self.inner {
+            ContextMode::Contextual(f) => PyContextFormat::from_core(f),
+            _ => None,
+        }
+    }
+
+    fn __eq__(&self, other: &Self) -> bool {
+        self.inner == other.inner
+    }
+
+    fn __repr__(&self) -> String {
+        self.describe()
+    }
+}
+
+impl PyContextMode {
+    /// Rust-visible repr, callable from other bridge modules.
+    pub(crate) fn describe(&self) -> String {
+        match self.inner {
+            ContextMode::None => "ContextMode.none()".to_string(),
+            ContextMode::Heading => "ContextMode.heading()".to_string(),
+            ContextMode::Contextual(f) => format!("ContextMode.contextual({f:?})"),
+        }
+    }
+}
+
 // ── PyHybridChunkConfig ────────────────────────────────────────────────────
 
 /// Configuration for hybrid chunking.
@@ -500,12 +596,17 @@ pub struct PyHybridChunkConfig {
 #[pymethods]
 impl PyHybridChunkConfig {
     #[new]
-    #[pyo3(signature = (max_tokens = 512, overlap_tokens = 50))]
-    fn new(max_tokens: usize, overlap_tokens: usize) -> Self {
+    #[pyo3(signature = (max_tokens = 512, overlap_tokens = 50, context_mode = None))]
+    fn new(
+        max_tokens: usize,
+        overlap_tokens: usize,
+        context_mode: Option<PyContextMode>,
+    ) -> Self {
         Self {
             inner: HybridChunkConfig {
                 max_tokens,
                 overlap_tokens,
+                context_mode: context_mode.map(|m| m.inner).unwrap_or_default(),
                 ..HybridChunkConfig::default()
             },
         }
@@ -521,10 +622,19 @@ impl PyHybridChunkConfig {
         self.inner.overlap_tokens
     }
 
+    /// The contextual-retrieval mode applied to each chunk's ``full_text``.
+    /// New in oxidize-python 0.15.0 (oxidize-pdf 4.0.0, issue #376).
+    #[getter]
+    fn context_mode(&self) -> PyContextMode {
+        PyContextMode { inner: self.inner.context_mode }
+    }
+
     fn __repr__(&self) -> String {
         format!(
-            "HybridChunkConfig(max_tokens={}, overlap_tokens={})",
-            self.inner.max_tokens, self.inner.overlap_tokens,
+            "HybridChunkConfig(max_tokens={}, overlap_tokens={}, context_mode={})",
+            self.inner.max_tokens,
+            self.inner.overlap_tokens,
+            PyContextMode { inner: self.inner.context_mode }.__repr__(),
         )
     }
 }
@@ -568,6 +678,118 @@ impl PySemanticChunkConfig {
     }
 }
 
+// ── RichCell / TableStructure (#375) ───────────────────────────────────────
+
+/// One cell of a rich table, including its span and header flag.
+///
+/// New in oxidize-python 0.15.0 (oxidize-pdf 4.0.0, issue #375).
+#[pyclass(name = "RichCell", frozen)]
+pub struct PyRichCell {
+    pub inner: RichCell,
+}
+
+#[pymethods]
+impl PyRichCell {
+    /// 0-based row index of the cell's top-left anchor.
+    #[getter]
+    fn row(&self) -> usize {
+        self.inner.row
+    }
+
+    /// 0-based column index of the cell's top-left anchor.
+    #[getter]
+    fn col(&self) -> usize {
+        self.inner.col
+    }
+
+    /// Number of rows the cell spans (``>= 1``).
+    #[getter]
+    fn row_span(&self) -> usize {
+        self.inner.row_span
+    }
+
+    /// Number of columns the cell spans (``>= 1``).
+    #[getter]
+    fn col_span(&self) -> usize {
+        self.inner.col_span
+    }
+
+    /// Cell text.
+    #[getter]
+    fn text(&self) -> &str {
+        &self.inner.text
+    }
+
+    /// Whether the cell belongs to a header row.
+    #[getter]
+    fn is_header(&self) -> bool {
+        self.inner.is_header
+    }
+
+    fn __repr__(&self) -> String {
+        format!(
+            "RichCell(row={}, col={}, row_span={}, col_span={}, is_header={}, text={:?})",
+            self.inner.row,
+            self.inner.col,
+            self.inner.row_span,
+            self.inner.col_span,
+            self.inner.is_header,
+            self.inner.text,
+        )
+    }
+}
+
+/// Rich table structure: merged cells and header rows, present only when a hard
+/// signal (drawn grid / structure tags) revealed it.
+///
+/// New in oxidize-python 0.15.0 (oxidize-pdf 4.0.0, issue #375).
+#[pyclass(name = "TableStructure", frozen)]
+pub struct PyTableStructure {
+    pub inner: TableStructure,
+}
+
+#[pymethods]
+impl PyTableStructure {
+    /// All cells, each carrying its position, span, and header flag. Interior
+    /// positions of a merged cell are omitted (only the anchor is present).
+    #[getter]
+    fn cells(&self) -> Vec<PyRichCell> {
+        self.inner
+            .cells
+            .iter()
+            .map(|c| PyRichCell { inner: c.clone() })
+            .collect()
+    }
+
+    /// Number of rows in the base grid.
+    #[getter]
+    fn num_rows(&self) -> usize {
+        self.inner.num_rows
+    }
+
+    /// Number of columns in the base grid.
+    #[getter]
+    fn num_cols(&self) -> usize {
+        self.inner.num_cols
+    }
+
+    /// Number of leading header rows (0 = none, 1 = single, >1 = multi-level).
+    #[getter]
+    fn header_rows(&self) -> usize {
+        self.inner.header_rows
+    }
+
+    fn __repr__(&self) -> String {
+        format!(
+            "TableStructure(num_rows={}, num_cols={}, header_rows={}, cells={})",
+            self.inner.num_rows,
+            self.inner.num_cols,
+            self.inner.header_rows,
+            self.inner.cells.len(),
+        )
+    }
+}
+
 // ── PyElement ──────────────────────────────────────────────────────────────
 
 /// A typed document element extracted from a PDF page.
@@ -602,6 +824,23 @@ impl PyElement {
     #[getter]
     fn page(&self) -> u32 {
         self.inner.page()
+    }
+
+    /// Rich table structure (merged cells + header rows) for table elements
+    /// where a hard signal — a drawn grid or PDF structure tags — revealed it.
+    /// ``None`` for non-table elements and for borderless/un-tagged tables that
+    /// only carry the flat row view.
+    ///
+    /// New in oxidize-python 0.15.0 (oxidize-pdf 4.0.0, issue #375).
+    #[getter]
+    fn table_structure(&self) -> Option<PyTableStructure> {
+        match &self.inner {
+            Element::Table(t) => t
+                .structure
+                .clone()
+                .map(|inner| PyTableStructure { inner }),
+            _ => None,
+        }
     }
 
     /// Open class label assigned by a custom
@@ -1064,8 +1303,12 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyReadingOrderStrategy>()?;
     m.add_class::<PyPartitionConfig>()?;
     m.add_class::<PyMergePolicy>()?;
+    m.add_class::<PyContextFormat>()?;
+    m.add_class::<PyContextMode>()?;
     m.add_class::<PyHybridChunkConfig>()?;
     m.add_class::<PySemanticChunkConfig>()?;
+    m.add_class::<PyRichCell>()?;
+    m.add_class::<PyTableStructure>()?;
     m.add_class::<PyElement>()?;
     m.add_class::<PyRagChunk>()?;
     m.add_class::<PyElementBBox>()?;

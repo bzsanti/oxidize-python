@@ -5,7 +5,7 @@
 
 use pyo3::prelude::*;
 
-use oxidize_pdf::text::extraction::SpaceDecision;
+use oxidize_pdf::text::extraction::{ExtractedText, SpaceDecision};
 use oxidize_pdf::text::{
     ColumnContent, ColumnLayout, ColumnOptions, ExtractionOptions, LineBreakMode, MatchType,
     PlainTextConfig, PlainTextResult, TextFragment, TextMatch, TextValidationResult,
@@ -39,6 +39,7 @@ impl PyExtractionOptions {
         tj_space_threshold = 0.2,
         reconstruct_paragraphs = false,
         include_artifacts = false,
+        max_extracted_bytes = None,
     ))]
     #[allow(clippy::too_many_arguments)]
     fn new(
@@ -53,6 +54,7 @@ impl PyExtractionOptions {
         tj_space_threshold: f64,
         reconstruct_paragraphs: bool,
         include_artifacts: bool,
+        max_extracted_bytes: Option<usize>,
     ) -> Self {
         Self {
             inner: ExtractionOptions {
@@ -67,6 +69,8 @@ impl PyExtractionOptions {
                 tj_space_threshold,
                 reconstruct_paragraphs,
                 include_artifacts,
+                max_extracted_bytes,
+                ..Default::default()
             },
         }
     }
@@ -144,12 +148,26 @@ impl PyExtractionOptions {
         self.inner.include_artifacts
     }
 
+    /// Cap on decoded-text bytes accumulated during a single page run, across
+    /// the show-text arms, TJ spacing, Form XObject recursion, and
+    /// ``/ActualText`` overrides. ``None`` (default) is unbounded and
+    /// byte-identical to prior behaviour; a set value stops extraction before
+    /// the run that would overshoot (never splitting a UTF-8 char) and marks
+    /// :attr:`ExtractedText.truncated`. Bounds worst-case memory against an
+    /// adversarially inflated content stream.
+    ///
+    /// New in oxidize-pdf 4.0.0 (issue #382).
+    #[getter]
+    fn max_extracted_bytes(&self) -> Option<usize> {
+        self.inner.max_extracted_bytes
+    }
+
     fn __repr__(&self) -> String {
         format!(
             "ExtractionOptions(preserve_layout={}, space_threshold={}, newline_threshold={}, \
              sort_by_position={}, detect_columns={}, column_threshold={}, \
              merge_hyphenated={}, track_space_decisions={}, tj_space_threshold={}, \
-             reconstruct_paragraphs={}, include_artifacts={})",
+             reconstruct_paragraphs={}, include_artifacts={}, max_extracted_bytes={:?})",
             self.inner.preserve_layout,
             self.inner.space_threshold,
             self.inner.newline_threshold,
@@ -161,6 +179,7 @@ impl PyExtractionOptions {
             self.inner.tj_space_threshold,
             self.inner.reconstruct_paragraphs,
             self.inner.include_artifacts,
+            self.inner.max_extracted_bytes,
         )
     }
 }
@@ -854,12 +873,61 @@ impl PyTextFragment {
     }
 }
 
+// ── ExtractedText (#382) ──────────────────────────────────────────────────
+
+/// Result of a bounded page extraction: the concatenated text, the positional
+/// fragments, and whether extraction hit the ``max_extracted_bytes`` cap.
+///
+/// New in oxidize-python 0.15.0 (oxidize-pdf 4.0.0, issue #382).
+#[pyclass(name = "ExtractedText", frozen)]
+pub struct PyExtractedText {
+    pub inner: ExtractedText,
+}
+
+#[pymethods]
+impl PyExtractedText {
+    /// Concatenated extracted text for the page.
+    #[getter]
+    fn text(&self) -> &str {
+        &self.inner.text
+    }
+
+    /// Whether extraction stopped early because the decoded-text accumulation
+    /// reached ``ExtractionOptions.max_extracted_bytes``. Always ``False`` when
+    /// the cap was ``None`` (unbounded).
+    #[getter]
+    fn truncated(&self) -> bool {
+        self.inner.truncated
+    }
+
+    /// Positional text fragments. Populated when the extraction options
+    /// requested layout preservation; empty otherwise.
+    #[getter]
+    fn fragments(&self) -> Vec<PyTextFragment> {
+        self.inner
+            .fragments
+            .iter()
+            .map(|f| PyTextFragment { inner: f.clone() })
+            .collect()
+    }
+
+    fn __repr__(&self) -> String {
+        format!(
+            "ExtractedText(chars={}, fragments={}, truncated={})",
+            self.inner.text.chars().count(),
+            self.inner.fragments.len(),
+            self.inner.truncated,
+        )
+    }
+}
+
 // ── Registration ──────────────────────────────────────────────────────────
 
 pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     // F71
     m.add_class::<PyExtractionOptions>()?;
     m.add_class::<PyTextFragment>()?;
+    m.add_class::<PyExtractedText>()?;
     m.add_class::<PySpaceDecision>()?;
     // F72
     m.add_class::<PyLineBreakMode>()?;
