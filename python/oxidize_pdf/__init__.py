@@ -370,6 +370,9 @@ from oxidize_pdf._oxidize_pdf import (
     HybridChunkConfig,
     SemanticChunkConfig,
     Element,
+    # Upstream 4.0.0 — rich table structure (#375)
+    RichCell,
+    TableStructure,
     RagChunk,
     # Upstream 2.16.0 — enriched chunk metadata + source stamping
     ElementBBox,
@@ -849,6 +852,8 @@ __all__ = [
     "ContextMode",
     "HybridChunkConfig",
     "SemanticChunkConfig",
+    "RichCell",
+    "TableStructure",
     "Element",
     "RagChunk",
     "ElementBBox",
