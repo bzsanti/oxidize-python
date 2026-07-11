@@ -20,10 +20,10 @@ use pyo3::types::PyList;
 
 use oxidize_pdf::pipeline::{
     AnalysisPipeline, ChunkGroup, ChunkMetadata, ChunkingStrategy, ClassLabel, ClassifyContext,
-    Element, ElementClassifier, EnrichContext, HybridChunkConfig, MetadataEnricher,
+    ContextMode, Element, ElementClassifier, EnrichContext, HybridChunkConfig, MetadataEnricher,
 };
 
-use crate::ai_pipeline::{PyDocumentSource, PyElement};
+use crate::ai_pipeline::{PyContextMode, PyDocumentSource, PyElement};
 use crate::json_util::{extra_map_to_py_dict, py_dict_to_extra_map};
 
 // ── PyChunkGroup ───────────────────────────────────────────────────────────
@@ -377,6 +377,8 @@ pub struct PyAnalysisPipeline {
     pub(crate) enrichers: Vec<Py<PyAny>>,
     /// Optional source-document metadata to stamp on every chunk.
     pub(crate) source: Option<PyDocumentSource>,
+    /// Contextual-retrieval mode applied to each chunk's `full_text`.
+    pub(crate) context_mode: ContextMode,
 }
 
 #[pymethods]
@@ -389,6 +391,7 @@ impl PyAnalysisPipeline {
             classifier: None,
             enrichers: Vec::new(),
             source: None,
+            context_mode: ContextMode::default(),
         }
     }
 
@@ -441,14 +444,26 @@ impl PyAnalysisPipeline {
         next
     }
 
+    /// Set the contextual-retrieval mode applied to each chunk's ``full_text``
+    /// (same field as :attr:`HybridChunkConfig.context_mode`). Defaults to
+    /// :meth:`ContextMode.heading`, byte-identical to prior output.
+    ///
+    /// New in oxidize-python 0.15.0 (oxidize-pdf 4.0.0, issue #376).
+    fn with_context_mode(&self, py: Python, context_mode: PyContextMode) -> Self {
+        let mut next = self.shallow_clone(py);
+        next.context_mode = context_mode.inner;
+        next
+    }
+
     fn __repr__(&self) -> String {
         format!(
-            "AnalysisPipeline(custom_chunking={}, custom_classifier={}, enrichers={}, source={}, max_tokens={})",
+            "AnalysisPipeline(custom_chunking={}, custom_classifier={}, enrichers={}, source={}, max_tokens={}, context_mode={})",
             self.chunking.is_some(),
             self.classifier.is_some(),
             self.enrichers.len(),
             self.source.is_some(),
             self.max_tokens,
+            PyContextMode { inner: self.context_mode }.describe(),
         )
     }
 }
@@ -462,6 +477,7 @@ impl PyAnalysisPipeline {
             classifier: self.classifier.as_ref().map(|c| c.clone_ref(py)),
             enrichers: self.enrichers.iter().map(|e| e.clone_ref(py)).collect(),
             source: self.source.clone(),
+            context_mode: self.context_mode,
         }
     }
 
@@ -497,6 +513,7 @@ impl PyAnalysisPipeline {
         if let Some(source) = self.source.as_ref() {
             pipeline = pipeline.with_source(source.inner.clone());
         }
+        pipeline = pipeline.with_context_mode(self.context_mode);
         (pipeline, err)
     }
 }

@@ -207,6 +207,15 @@ fn overlay_pdf(
 
 // ── Feature 8: Extract Images ────────────────────────────────────────────────
 
+/// Options for :func:`extract_images_from_pdf`.
+///
+/// Constructor: ``ExtractImagesOptions(output_dir, extract_inline=None, min_size=None)``.
+///
+/// Note: image *preprocessing* (auto rotation-correction, contrast, denoise,
+/// upscaling, force-grayscale) is intentionally unavailable — this build
+/// excludes the upstream ``external-images`` feature. Extracted images are the
+/// raw embedded streams (e.g. a ``DCTDecode`` JPEG is returned byte-for-byte),
+/// so extraction is faithful and lossless rather than silently degraded.
 #[pyclass(name = "ExtractImagesOptions", from_py_object)]
 #[derive(Clone)]
 pub struct PyExtractImagesOptions {
@@ -239,6 +248,12 @@ impl PyExtractImagesOptions {
     }
 }
 
+/// Extract embedded images from ``input`` into ``options.output_dir``.
+///
+/// Returns one ``dict`` per extracted image with keys ``page_number``,
+/// ``image_index``, ``file_path``, ``width`` and ``height``. Each image is
+/// written as its raw embedded stream (lossless; no preprocessing) — see
+/// :class:`ExtractImagesOptions`.
 #[pyfunction]
 fn extract_images_from_pdf<'py>(
     input: &str,
