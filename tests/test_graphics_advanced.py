@@ -209,6 +209,13 @@ class TestGouraudVertex:
         v = ox.GouraudVertex(flag, 1.0, 2.0, ox.Color.gray(0.5))
         assert v.flag == flag
 
+    @pytest.mark.parametrize("bad_flag", [-1, 256, 1000])
+    def test_flag_out_of_u8_range_raises_overflow(self, bad_flag):
+        # PyO3 types the parameter as u8: out-of-range ints must raise
+        # OverflowError, never wrap around silently.
+        with pytest.raises(OverflowError):
+            ox.GouraudVertex(bad_flag, 1.0, 2.0, ox.Color.gray(0.5))
+
     def test_repr_contains_flag_and_coordinates(self):
         r = repr(ox.GouraudVertex(2, 7.0, 9.0, ox.Color.red()))
         assert "object at" not in r
@@ -249,7 +256,16 @@ class TestFreeFormGouraudShading:
         assert mesh.bits_per_coordinate == 16
 
     def test_valid_mesh_validates_ok(self):
-        _rgb_mesh().validate()  # Should not raise
+        mesh = _rgb_mesh()
+        mesh.validate()
+        # validate() must not mutate the object it checked.
+        assert mesh.vertex_count == 3
+        assert mesh.bits_per_coordinate == 16
+
+    def test_validate_rejects_empty_vertices(self):
+        mesh = ox.FreeFormGouraudShading("M", "DeviceRGB", _RGB_MESH_DECODE, [])
+        with pytest.raises(ox.PdfError, match="at least one vertex"):
+            mesh.validate()
 
     def test_validate_rejects_invalid_bits_per_coordinate(self):
         bad = _rgb_mesh().with_bits(5, 8, 8)
@@ -332,7 +348,11 @@ class TestConicShading:
         assert c.matrix is None  # builder does not mutate the original
 
     def test_valid_conic_validates_ok(self):
-        _conic().validate()  # Should not raise
+        c = _conic()
+        c.validate()
+        # validate() must not mutate the object it checked.
+        assert c.name == "Cone1"
+        assert c.matrix is None
 
     def test_validate_rejects_empty_color_stops(self):
         c = ox.ConicShading(
