@@ -240,9 +240,8 @@ class TestFreeFormGouraudShading:
         assert _rgb_mesh().vertex_count == 3
 
     def test_repr_contains_name_and_vertex_count(self):
-        r = repr(_rgb_mesh("MeshR"))
-        assert "MeshR" in r
-        assert "3" in r
+        # Exact format: Rust's {:?} renders the name with double quotes.
+        assert repr(_rgb_mesh("MeshR")) == 'FreeFormGouraudShading(name="MeshR", vertices=3)'
 
     def test_with_bits_overrides_defaults(self):
         m2 = _rgb_mesh().with_bits(8, 4, 4)
@@ -338,8 +337,8 @@ class TestConicShading:
         assert c.domain == [0.0, 100.0, 0.0, 100.0]
         assert c.matrix is None
 
-    def test_repr_contains_name(self):
-        assert "Cone1" in repr(_conic())
+    def test_repr_contains_name_and_stop_count(self):
+        assert repr(_conic()) == 'ConicShading(name="Cone1", stops=2)'
 
     def test_with_matrix_sets_matrix(self):
         c = _conic()

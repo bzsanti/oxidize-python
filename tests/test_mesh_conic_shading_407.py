@@ -1,5 +1,8 @@
 """Advanced shading surface (oxidize-pdf 4.1.0, issue #407).
 
+The bridge pins oxidize-pdf 4.2.0; the shading surface itself shipped in
+4.1.0 and is unchanged since.
+
 ``Page.add_mesh_shading`` registers a Type 4 free-form Gouraud triangle mesh
 (emitted as an uncompressed stream: shading dictionary + packed vertex bytes)
 and ``Page.add_conic_shading`` registers an exact conic gradient as a Type 1
@@ -100,6 +103,16 @@ class TestAddMeshShading:
         page.add_mesh_shading("Mesh1", _sample_rgb_mesh())
         assert b"/Mesh1" in _saved(page)
 
+    def test_resource_key_is_the_name_argument_not_shading_name(self):
+        # The `name` argument governs the /Resources/Shading key; the
+        # shading's internal `name` is descriptive metadata and must not
+        # leak into the emitted PDF.
+        page = Page.a4()
+        page.add_mesh_shading("ResourceKey", _sample_rgb_mesh("InternalMeshName"))
+        raw = _saved(page)
+        assert b"/ResourceKey" in raw
+        assert b"InternalMeshName" not in raw
+
     def test_invalid_resource_name_raises(self):
         page = Page.a4()
         with pytest.raises(PdfError):
@@ -129,6 +142,13 @@ class TestAddConicShading:
         page = Page.a4()
         page.add_conic_shading("Cone1", _conic())
         assert b"/Domain" in _saved(page)
+
+    def test_resource_key_is_the_name_argument_not_shading_name(self):
+        page = Page.a4()
+        page.add_conic_shading("ResourceKey", _conic("InternalConicName"))
+        raw = _saved(page)
+        assert b"/ResourceKey" in raw
+        assert b"InternalConicName" not in raw
 
     def test_with_matrix_writes_matrix_key(self):
         page = Page.a4()
