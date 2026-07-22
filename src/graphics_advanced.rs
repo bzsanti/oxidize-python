@@ -14,6 +14,9 @@ use oxidize_pdf::graphics::{
     // Shadings (F65)
     AxialShading,
     ColorStop,
+    ConicShading,
+    FreeFormGouraudShading,
+    GouraudVertex,
     Point as ShadingPointInner,
     RadialShading,
     ShadingDefinition,
@@ -482,6 +485,193 @@ impl PyRadialShading {
     fn __repr__(&self) -> String {
         format!(
             "RadialShading(name={:?}, stops={})",
+            self.inner.name,
+            self.inner.color_stops.len()
+        )
+    }
+}
+
+// ── GouraudVertex (Type 4 mesh, core 4.1.0 #407) ──────────────────────────
+
+/// One vertex of a free-form Gouraud triangle mesh. `flag` is the edge flag
+/// (0 starts a new triangle; 1/2 share an edge with the previous one); range
+/// enforcement happens in `FreeFormGouraudShading::validate`, mirroring core.
+#[pyclass(name = "GouraudVertex", from_py_object)]
+#[derive(Clone)]
+pub struct PyGouraudVertex {
+    pub inner: GouraudVertex,
+}
+
+#[pymethods]
+impl PyGouraudVertex {
+    #[new]
+    fn new(flag: u8, x: f64, y: f64, color: &PyColor) -> Self {
+        Self { inner: GouraudVertex { flag, x, y, color: color.inner } }
+    }
+
+    #[getter]
+    fn flag(&self) -> u8 {
+        self.inner.flag
+    }
+
+    #[getter]
+    fn x(&self) -> f64 {
+        self.inner.x
+    }
+
+    #[getter]
+    fn y(&self) -> f64 {
+        self.inner.y
+    }
+
+    #[getter]
+    fn color(&self) -> PyColor {
+        PyColor { inner: self.inner.color }
+    }
+
+    fn __repr__(&self) -> String {
+        format!(
+            "GouraudVertex(flag={}, x={}, y={})",
+            self.inner.flag, self.inner.x, self.inner.y
+        )
+    }
+}
+
+// ── FreeFormGouraudShading ────────────────────────────────────────────────
+
+#[pyclass(name = "FreeFormGouraudShading", from_py_object)]
+#[derive(Clone)]
+pub struct PyFreeFormGouraudShading {
+    pub inner: FreeFormGouraudShading,
+}
+
+#[pymethods]
+impl PyFreeFormGouraudShading {
+    #[new]
+    fn new(
+        name: &str,
+        color_space: &str,
+        decode: Vec<f64>,
+        vertices: Vec<PyRef<PyGouraudVertex>>,
+    ) -> Self {
+        let verts = vertices.iter().map(|v| v.inner.clone()).collect();
+        Self {
+            inner: FreeFormGouraudShading::new(
+                name.to_string(),
+                color_space.to_string(),
+                decode,
+                verts,
+            ),
+        }
+    }
+
+    fn with_bits(
+        &self,
+        bits_per_coordinate: u8,
+        bits_per_component: u8,
+        bits_per_flag: u8,
+    ) -> Self {
+        Self {
+            inner: self.inner.clone().with_bits(
+                bits_per_coordinate,
+                bits_per_component,
+                bits_per_flag,
+            ),
+        }
+    }
+
+    #[getter]
+    fn name(&self) -> &str {
+        &self.inner.name
+    }
+
+    #[getter]
+    fn color_space(&self) -> &str {
+        &self.inner.color_space
+    }
+
+    #[getter]
+    fn bits_per_coordinate(&self) -> u8 {
+        self.inner.bits_per_coordinate
+    }
+
+    #[getter]
+    fn bits_per_component(&self) -> u8 {
+        self.inner.bits_per_component
+    }
+
+    #[getter]
+    fn bits_per_flag(&self) -> u8 {
+        self.inner.bits_per_flag
+    }
+
+    #[getter]
+    fn vertex_count(&self) -> usize {
+        self.inner.vertices.len()
+    }
+
+    fn validate(&self) -> PyResult<()> {
+        self.inner.validate().map_err(to_py_err)
+    }
+
+    fn __repr__(&self) -> String {
+        format!(
+            "FreeFormGouraudShading(name={:?}, vertices={})",
+            self.inner.name,
+            self.inner.vertices.len()
+        )
+    }
+}
+
+// ── ConicShading ──────────────────────────────────────────────────────────
+
+#[pyclass(name = "ConicShading", from_py_object)]
+#[derive(Clone)]
+pub struct PyConicShading {
+    pub inner: ConicShading,
+}
+
+#[pymethods]
+impl PyConicShading {
+    #[new]
+    fn new(
+        name: &str,
+        center: &PyShadingPoint,
+        domain: [f64; 4],
+        color_stops: Vec<PyRef<PyColorStop>>,
+    ) -> Self {
+        let stops = color_stops.iter().map(|s| s.inner.clone()).collect();
+        Self {
+            inner: ConicShading::new(name.to_string(), center.inner, domain, stops),
+        }
+    }
+
+    fn with_matrix(&self, matrix: [f64; 6]) -> Self {
+        Self { inner: self.inner.clone().with_matrix(matrix) }
+    }
+
+    #[getter]
+    fn name(&self) -> &str {
+        &self.inner.name
+    }
+
+    #[getter]
+    fn domain(&self) -> [f64; 4] {
+        self.inner.domain
+    }
+
+    #[getter]
+    fn matrix(&self) -> Option<[f64; 6]> {
+        self.inner.matrix
+    }
+
+    fn validate(&self) -> PyResult<()> {
+        self.inner.validate().map_err(to_py_err)
+    }
+
+    fn __repr__(&self) -> String {
+        format!(
+            "ConicShading(name={:?}, stops={})",
             self.inner.name,
             self.inner.color_stops.len()
         )
@@ -1448,6 +1638,9 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyColorStop>()?;
     m.add_class::<PyAxialShading>()?;
     m.add_class::<PyRadialShading>()?;
+    m.add_class::<PyGouraudVertex>()?;
+    m.add_class::<PyFreeFormGouraudShading>()?;
+    m.add_class::<PyConicShading>()?;
     m.add_class::<PyShadingManager>()?;
     // Patterns (F66)
     m.add_class::<PyPatternMatrix>()?;

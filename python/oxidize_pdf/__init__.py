@@ -389,6 +389,9 @@ from oxidize_pdf._oxidize_pdf import (
     ColorStop,
     AxialShading,
     RadialShading,
+    GouraudVertex,
+    FreeFormGouraudShading,
+    ConicShading,
     ShadingManager,
     # F66: Patterns
     PaintType,
@@ -867,6 +870,9 @@ __all__ = [
     "ColorStop",
     "AxialShading",
     "RadialShading",
+    "GouraudVertex",
+    "FreeFormGouraudShading",
+    "ConicShading",
     "ShadingManager",
     # F66: Patterns
     "PaintType",

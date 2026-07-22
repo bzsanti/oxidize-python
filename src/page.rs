@@ -13,7 +13,9 @@ use crate::graphics::{
     PyBlendMode, PyCalibratedColor, PyCidShowElement, PyClippingPath, PyLabColor, PyLineCap,
     PyLineDashPattern, PyLineJoin, PyPageColorSpace,
 };
-use crate::graphics_advanced::{PyAxialShading, PyRadialShading};
+use crate::graphics_advanced::{
+    PyAxialShading, PyConicShading, PyFreeFormGouraudShading, PyRadialShading,
+};
 use crate::image::PyImage;
 use crate::list::{PyBulletStyle, PyOrderedList, PyOrderedListStyle, PyUnorderedList};
 use crate::table::{PyTable, PyTableStyle};
@@ -466,6 +468,31 @@ impl PyPage {
             ));
         };
         self.inner.add_shading(name, def).map_err(to_py_err)
+    }
+
+    /// Register a Type 4 free-form Gouraud mesh shading under
+    /// ``/Resources/Shading/<name>`` (core 4.1.0, #407).
+    ///
+    /// Validates both the resource name and the mesh (bit widths, ``Decode``
+    /// length/ordering, edge flags, colour-space/vertex-colour coherence);
+    /// raises :class:`PdfError` on either failure. Paint with
+    /// :meth:`paint_shading`.
+    fn add_mesh_shading(&mut self, name: &str, shading: &PyFreeFormGouraudShading) -> PyResult<()> {
+        self.inner
+            .add_mesh_shading(name, shading.inner.clone())
+            .map_err(to_py_err)
+    }
+
+    /// Register an exact conic (angular) gradient as a Type 1 function-based
+    /// shading under ``/Resources/Shading/<name>`` (core 4.1.0, #407).
+    ///
+    /// Validates the resource name and the shading (non-empty ascending
+    /// stops spanning [0, 1], well-formed domain); raises :class:`PdfError`
+    /// on either failure. Paint with :meth:`paint_shading`.
+    fn add_conic_shading(&mut self, name: &str, shading: &PyConicShading) -> PyResult<()> {
+        self.inner
+            .add_conic_shading(name, shading.inner.clone())
+            .map_err(to_py_err)
     }
 
     /// Paint the named shading into the current clip region (``/name sh``).
