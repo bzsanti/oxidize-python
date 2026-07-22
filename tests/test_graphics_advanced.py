@@ -171,6 +171,226 @@ class TestShadingManager:
         assert m.shading_count() == 0
 
 
+# ── F65: Advanced shadings (Type 4 mesh + conic, core 4.1.0 #407) ────────────
+
+
+def _rgb_mesh_vertices():
+    """Three vertices (flags 0/1/1) mirroring core's ``sample_rgb_mesh``."""
+    return [
+        ox.GouraudVertex(0, 10.0, 20.0, ox.Color.rgb(1.0, 0.0, 0.0)),
+        ox.GouraudVertex(1, 30.0, 40.0, ox.Color.rgb(0.0, 1.0, 0.0)),
+        ox.GouraudVertex(1, 50.0, 60.0, ox.Color.rgb(0.0, 0.0, 1.0)),
+    ]
+
+
+_RGB_MESH_DECODE = [0.0, 100.0, 0.0, 100.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0]
+
+
+def _rgb_mesh(name: str = "M") -> "ox.FreeFormGouraudShading":
+    return ox.FreeFormGouraudShading(
+        name, "DeviceRGB", _RGB_MESH_DECODE, _rgb_mesh_vertices()
+    )
+
+
+class TestGouraudVertex:
+    def test_creation_stores_fields(self):
+        v = ox.GouraudVertex(0, 10.0, 20.0, ox.Color.rgb(1.0, 0.0, 0.0))
+        assert v.flag == 0
+        assert v.x == 10.0
+        assert v.y == 20.0
+        assert v.color.r == 1.0
+        assert v.color.g == 0.0
+        assert v.color.b == 0.0
+
+    @pytest.mark.parametrize("flag", [0, 1, 2])
+    def test_all_flag_values_accepted_at_construction(self, flag):
+        # Range enforcement happens in FreeFormGouraudShading.validate(),
+        # not at vertex construction.
+        v = ox.GouraudVertex(flag, 1.0, 2.0, ox.Color.gray(0.5))
+        assert v.flag == flag
+
+    @pytest.mark.parametrize("bad_flag", [-1, 256, 1000])
+    def test_flag_out_of_u8_range_raises_overflow(self, bad_flag):
+        # PyO3 types the parameter as u8: out-of-range ints must raise
+        # OverflowError, never wrap around silently.
+        with pytest.raises(OverflowError):
+            ox.GouraudVertex(bad_flag, 1.0, 2.0, ox.Color.gray(0.5))
+
+    def test_repr_contains_flag_and_coordinates(self):
+        r = repr(ox.GouraudVertex(2, 7.0, 9.0, ox.Color.red()))
+        assert "object at" not in r
+        assert "2" in r
+        assert "7" in r
+        assert "9" in r
+
+
+class TestFreeFormGouraudShading:
+    def test_creation_defaults_to_16_8_8_bits(self):
+        mesh = _rgb_mesh()
+        assert mesh.bits_per_coordinate == 16
+        assert mesh.bits_per_component == 8
+        assert mesh.bits_per_flag == 8
+
+    def test_creation_stores_name_and_color_space(self):
+        mesh = _rgb_mesh("Mesh1")
+        assert mesh.name == "Mesh1"
+        assert mesh.color_space == "DeviceRGB"
+
+    def test_creation_stores_vertex_count(self):
+        assert _rgb_mesh().vertex_count == 3
+
+    def test_repr_contains_name_and_vertex_count(self):
+        # Exact format: Rust's {:?} renders the name with double quotes.
+        assert repr(_rgb_mesh("MeshR")) == 'FreeFormGouraudShading(name="MeshR", vertices=3)'
+
+    def test_with_bits_overrides_defaults(self):
+        m2 = _rgb_mesh().with_bits(8, 4, 4)
+        assert m2.bits_per_coordinate == 8
+        assert m2.bits_per_component == 4
+        assert m2.bits_per_flag == 4
+
+    def test_with_bits_does_not_mutate_original(self):
+        mesh = _rgb_mesh()
+        mesh.with_bits(8, 4, 4)
+        assert mesh.bits_per_coordinate == 16
+
+    def test_valid_mesh_validates_ok(self):
+        mesh = _rgb_mesh()
+        mesh.validate()
+        # validate() must not mutate the object it checked.
+        assert mesh.vertex_count == 3
+        assert mesh.bits_per_coordinate == 16
+
+    def test_validate_rejects_empty_vertices(self):
+        mesh = ox.FreeFormGouraudShading("M", "DeviceRGB", _RGB_MESH_DECODE, [])
+        with pytest.raises(ox.PdfError, match="at least one vertex"):
+            mesh.validate()
+
+    def test_validate_rejects_invalid_bits_per_coordinate(self):
+        bad = _rgb_mesh().with_bits(5, 8, 8)
+        with pytest.raises(ox.PdfError, match="BitsPerCoordinate"):
+            bad.validate()
+
+    def test_validate_rejects_flag_greater_than_two(self):
+        mesh = ox.FreeFormGouraudShading(
+            "M",
+            "DeviceRGB",
+            _RGB_MESH_DECODE,
+            [
+                ox.GouraudVertex(0, 10.0, 20.0, ox.Color.red()),
+                ox.GouraudVertex(3, 30.0, 40.0, ox.Color.blue()),
+            ],
+        )
+        with pytest.raises(ox.PdfError, match="edge flag"):
+            mesh.validate()
+
+    def test_validate_rejects_wrong_decode_length(self):
+        mesh = ox.FreeFormGouraudShading(
+            "M", "DeviceRGB", [0.0, 100.0, 0.0, 100.0], _rgb_mesh_vertices()
+        )
+        with pytest.raises(ox.PdfError, match="Decode"):
+            mesh.validate()
+
+    def test_validate_rejects_non_ascending_decode_pair(self):
+        decode = [100.0, 0.0, 0.0, 100.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0]
+        mesh = ox.FreeFormGouraudShading(
+            "M", "DeviceRGB", decode, _rgb_mesh_vertices()
+        )
+        with pytest.raises(ox.PdfError, match="non-decreasing"):
+            mesh.validate()
+
+    def test_validate_rejects_devicegray_mesh_with_rgb_vertex(self):
+        decode = [0.0, 100.0, 0.0, 100.0, 0.0, 1.0]
+        mesh = ox.FreeFormGouraudShading(
+            "M",
+            "DeviceGray",
+            decode,
+            [ox.GouraudVertex(0, 10.0, 20.0, ox.Color.rgb(1.0, 0.0, 0.0))],
+        )
+        with pytest.raises(ox.PdfError, match="DeviceGray"):
+            mesh.validate()
+
+    def test_validate_rejects_first_vertex_flag_nonzero(self):
+        mesh = ox.FreeFormGouraudShading(
+            "M",
+            "DeviceRGB",
+            _RGB_MESH_DECODE,
+            [ox.GouraudVertex(1, 10.0, 20.0, ox.Color.red())],
+        )
+        with pytest.raises(ox.PdfError, match="flag 0"):
+            mesh.validate()
+
+
+def _conic(name: str = "Cone1") -> "ox.ConicShading":
+    return ox.ConicShading(
+        name,
+        ox.ShadingPoint(50.0, 50.0),
+        [0.0, 100.0, 0.0, 100.0],
+        [ox.ColorStop(0.0, ox.Color.red()), ox.ColorStop(1.0, ox.Color.blue())],
+    )
+
+
+class TestConicShading:
+    def test_creation_stores_name_domain_and_no_matrix(self):
+        c = _conic()
+        assert c.name == "Cone1"
+        assert c.domain == [0.0, 100.0, 0.0, 100.0]
+        assert c.matrix is None
+
+    def test_repr_contains_name_and_stop_count(self):
+        assert repr(_conic()) == 'ConicShading(name="Cone1", stops=2)'
+
+    def test_with_matrix_sets_matrix(self):
+        c = _conic()
+        c2 = c.with_matrix([1.0, 0.0, 0.0, 1.0, 10.0, 10.0])
+        assert c2.matrix == [1.0, 0.0, 0.0, 1.0, 10.0, 10.0]
+        assert c.matrix is None  # builder does not mutate the original
+
+    def test_valid_conic_validates_ok(self):
+        c = _conic()
+        c.validate()
+        # validate() must not mutate the object it checked.
+        assert c.name == "Cone1"
+        assert c.matrix is None
+
+    def test_validate_rejects_empty_color_stops(self):
+        c = ox.ConicShading(
+            "C", ox.ShadingPoint(50.0, 50.0), [0.0, 100.0, 0.0, 100.0], []
+        )
+        with pytest.raises(ox.PdfError, match="color stop"):
+            c.validate()
+
+    def test_validate_rejects_invalid_domain(self):
+        c = ox.ConicShading(
+            "C",
+            ox.ShadingPoint(50.0, 50.0),
+            [100.0, 0.0, 0.0, 100.0],
+            [ox.ColorStop(0.0, ox.Color.red()), ox.ColorStop(1.0, ox.Color.blue())],
+        )
+        with pytest.raises(ox.PdfError, match="domain"):
+            c.validate()
+
+    def test_validate_rejects_non_ascending_stops(self):
+        c = ox.ConicShading(
+            "C",
+            ox.ShadingPoint(50.0, 50.0),
+            [0.0, 100.0, 0.0, 100.0],
+            [ox.ColorStop(0.5, ox.Color.red()), ox.ColorStop(0.5, ox.Color.blue())],
+        )
+        with pytest.raises(ox.PdfError, match="ascending"):
+            c.validate()
+
+    def test_validate_rejects_stops_not_spanning_0_to_1(self):
+        c = ox.ConicShading(
+            "C",
+            ox.ShadingPoint(50.0, 50.0),
+            [0.0, 100.0, 0.0, 100.0],
+            [ox.ColorStop(0.2, ox.Color.red()), ox.ColorStop(0.8, ox.Color.blue())],
+        )
+        with pytest.raises(ox.PdfError, match="span"):
+            c.validate()
+
+
 # ── F66: Patterns ────────────────────────────────────────────────────────────
 
 
