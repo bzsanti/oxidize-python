@@ -475,6 +475,51 @@ impl PyPdfReader {
         Ok(texts.into_iter().map(|t| t.text).collect())
     }
 
+    /// Extract text from a single page in visual reading order.
+    ///
+    /// This opt-in flat-text path reorders separated blocks top-to-bottom and
+    /// left-to-right. It is intended for multi-column documents whose content
+    /// stream order differs from their visual reading order.
+    ///
+    /// New in oxidize-pdf 4.3.0 (issue #448).
+    fn extract_text_from_page_with_reading_order(
+        &mut self,
+        py: Python<'_>,
+        index: u32,
+    ) -> PyResult<String> {
+        self.ensure_document();
+        let extracted = py
+            .detach(|| {
+                with_document_mut!(self, doc => {
+                    let mut extractor = oxidize_pdf::text::TextExtractor::new()
+                        .with_reading_order(true);
+                    extractor.extract_from_page(doc, index)
+                })
+            })
+            .map_err(parse_err_to_py)?;
+        Ok(extracted.text)
+    }
+
+    /// Extract text from all pages in visual reading order.
+    ///
+    /// This is the document-wide counterpart of
+    /// ``extract_text_from_page_with_reading_order``.
+    ///
+    /// New in oxidize-pdf 4.3.0 (issue #448).
+    fn extract_text_with_reading_order(&mut self, py: Python<'_>) -> PyResult<Vec<String>> {
+        self.ensure_document();
+        let texts = py
+            .detach(|| {
+                with_document_mut!(self, doc => {
+                    let mut extractor = oxidize_pdf::text::TextExtractor::new()
+                        .with_reading_order(true);
+                    extractor.extract_from_document(doc)
+                })
+            })
+            .map_err(parse_err_to_py)?;
+        Ok(texts.into_iter().map(|t| t.text).collect())
+    }
+
     /// Extract text chunks with positional information from a page.
     ///
     /// Returns a list of ``TextChunk`` objects, each with ``text``, ``x``,
@@ -1587,4 +1632,3 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(verify_pdf_signatures, m)?)?;
     Ok(())
 }
-
