@@ -2,16 +2,22 @@ use std::fs::File;
 use std::io::Cursor;
 
 use pyo3::prelude::*;
+use pyo3::types::PyBytes;
 
 use oxidize_pdf::ai::DocumentChunker;
+use oxidize_pdf::fonts::{
+    DecodedGlyph, EmbeddedFontFormat, FontSubtype, ResolvedFontResource, Type3Font, Type3Glyph,
+    WritingMode,
+};
 
 use crate::ai_pipeline::{
     PyDocumentChunk, PyDocumentSource, PyElement, PyExtractionProfile, PyHybridChunkConfig,
     PyRagChunk,
 };
+use crate::content_parser::PyContentOperation;
+use crate::errors;
 #[cfg(feature = "unstable-spi")]
 use crate::experimental_spi::PyAnalysisPipeline;
-use crate::errors;
 use crate::text_extraction::{
     PyExtractedText, PyExtractionOptions, PyPlainTextConfig, PyPlainTextResult, PyTextFragment,
 };
@@ -1002,10 +1008,308 @@ impl PyPdfReader {
         })
     }
 
+    /// Resolve a page font into renderer-ready data.
+    ///
+    /// ``resource_name`` is the key from ``PageResources.fonts`` without the
+    /// leading slash (for example ``"F1"``).
+    fn resolve_font(
+        &mut self,
+        py: Python<'_>,
+        page_index: u32,
+        resource_name: &str,
+    ) -> PyResult<PyResolvedFontResource> {
+        self.ensure_document();
+        let resource_name = resource_name.trim_start_matches('/').to_owned();
+        let resolved = py
+            .detach(|| {
+                with_document_mut!(self, doc => ResolvedFontResource::from_page(
+                    doc,
+                    page_index,
+                    &resource_name,
+                ))
+            })
+            .map_err(parse_err_to_py)?;
+        Ok(PyResolvedFontResource { inner: resolved })
+    }
+
     fn __repr__(&mut self) -> PyResult<String> {
         self.ensure_document();
         let count = with_document!(self, doc => doc.page_count().map_err(parse_err_to_py))?;
         Ok(format!("PdfReader(pages={count})"))
+    }
+}
+
+fn font_subtype_name(value: FontSubtype) -> &'static str {
+    match value {
+        FontSubtype::Type1 => "Type1",
+        FontSubtype::TrueType => "TrueType",
+        FontSubtype::CidFontType0 => "CIDFontType0",
+        FontSubtype::CidFontType2 => "CIDFontType2",
+        FontSubtype::Type3 => "Type3",
+    }
+}
+
+fn writing_mode_name(value: WritingMode) -> &'static str {
+    match value {
+        WritingMode::Horizontal => "horizontal",
+        WritingMode::Vertical => "vertical",
+    }
+}
+
+fn embedded_font_format_name(value: EmbeddedFontFormat) -> &'static str {
+    match value {
+        EmbeddedFontFormat::Type1 => "Type1",
+        EmbeddedFontFormat::TrueType => "TrueType",
+        EmbeddedFontFormat::Type1C => "Type1C",
+        EmbeddedFontFormat::CidFontType0C => "CIDFontType0C",
+        EmbeddedFontFormat::OpenType => "OpenType",
+    }
+}
+
+/// One renderer-ready glyph decoded from a PDF text string.
+#[pyclass(name = "DecodedGlyph", frozen)]
+pub struct PyDecodedGlyph {
+    inner: DecodedGlyph,
+}
+
+#[pymethods]
+impl PyDecodedGlyph {
+    #[getter]
+    fn source_code<'py>(&self, py: Python<'py>) -> Bound<'py, PyBytes> {
+        PyBytes::new(py, &self.inner.source_code)
+    }
+
+    #[getter]
+    fn cid(&self) -> Option<u32> {
+        self.inner.cid
+    }
+
+    #[getter]
+    fn gid(&self) -> Option<u16> {
+        self.inner.gid
+    }
+
+    #[getter]
+    fn unicode(&self) -> Option<String> {
+        self.inner.unicode.clone()
+    }
+
+    #[getter]
+    fn advance(&self) -> f64 {
+        self.inner.advance
+    }
+
+    fn __repr__(&self) -> String {
+        format!(
+            "DecodedGlyph(cid={:?}, gid={:?}, unicode={:?}, advance={})",
+            self.inner.cid, self.inner.gid, self.inner.unicode, self.inner.advance,
+        )
+    }
+}
+
+/// Decoded embedded font program attached to a resolved font resource.
+#[pyclass(name = "ResolvedEmbeddedFont", frozen)]
+pub struct PyResolvedEmbeddedFont {
+    format: String,
+    data: Vec<u8>,
+}
+
+#[pymethods]
+impl PyResolvedEmbeddedFont {
+    #[getter]
+    fn format(&self) -> &str {
+        &self.format
+    }
+
+    #[getter]
+    fn data<'py>(&self, py: Python<'py>) -> Bound<'py, PyBytes> {
+        PyBytes::new(py, &self.data)
+    }
+
+    fn __repr__(&self) -> String {
+        format!(
+            "ResolvedEmbeddedFont(format={:?}, bytes={})",
+            self.format,
+            self.data.len(),
+        )
+    }
+}
+
+/// One resolved Type 3 CharProc glyph.
+#[pyclass(name = "Type3Glyph", frozen)]
+pub struct PyType3Glyph {
+    inner: Type3Glyph,
+}
+
+#[pymethods]
+impl PyType3Glyph {
+    #[getter]
+    fn code(&self) -> u8 {
+        self.inner.code
+    }
+
+    #[getter]
+    fn name(&self) -> &str {
+        &self.inner.name
+    }
+
+    #[getter]
+    fn width(&self) -> f64 {
+        self.inner.width
+    }
+
+    #[getter]
+    fn procedure_width(&self) -> (f64, f64) {
+        self.inner.procedure_width
+    }
+
+    #[getter]
+    fn bbox(&self) -> Option<(f64, f64, f64, f64)> {
+        self.inner.bbox.map(|v| (v[0], v[1], v[2], v[3]))
+    }
+
+    #[getter]
+    fn operations(&self) -> Vec<PyContentOperation> {
+        self.inner
+            .operations
+            .iter()
+            .cloned()
+            .map(|inner| PyContentOperation { inner })
+            .collect()
+    }
+
+    fn __repr__(&self) -> String {
+        format!(
+            "Type3Glyph(code={}, name={:?}, operations={})",
+            self.inner.code,
+            self.inner.name,
+            self.inner.operations.len(),
+        )
+    }
+}
+
+/// A fully resolved Type 3 font suitable for a downstream renderer.
+#[pyclass(name = "Type3Font", frozen)]
+pub struct PyType3Font {
+    inner: Type3Font,
+}
+
+#[pymethods]
+impl PyType3Font {
+    #[getter]
+    fn name(&self) -> Option<String> {
+        self.inner.name.clone()
+    }
+
+    #[getter]
+    fn font_matrix(&self) -> (f64, f64, f64, f64, f64, f64) {
+        let v = self.inner.font_matrix;
+        (v[0], v[1], v[2], v[3], v[4], v[5])
+    }
+
+    #[getter]
+    fn font_bbox(&self) -> (f64, f64, f64, f64) {
+        let v = self.inner.font_bbox;
+        (v[0], v[1], v[2], v[3])
+    }
+
+    #[getter]
+    fn glyphs(&self) -> Vec<PyType3Glyph> {
+        self.inner
+            .glyphs()
+            .cloned()
+            .map(|inner| PyType3Glyph { inner })
+            .collect()
+    }
+
+    fn glyph(&self, code: u8) -> Option<PyType3Glyph> {
+        self.inner
+            .glyph(code)
+            .cloned()
+            .map(|inner| PyType3Glyph { inner })
+    }
+
+    fn __repr__(&self) -> String {
+        format!(
+            "Type3Font(name={:?}, glyphs={})",
+            self.inner.name,
+            self.inner.glyphs().count(),
+        )
+    }
+}
+
+/// A parser font resource resolved for rendering and text decoding.
+#[pyclass(name = "ResolvedFontResource", frozen)]
+pub struct PyResolvedFontResource {
+    inner: ResolvedFontResource,
+}
+
+#[pymethods]
+impl PyResolvedFontResource {
+    #[getter]
+    fn resource_name(&self) -> &str {
+        &self.inner.resource_name
+    }
+
+    #[getter]
+    fn base_font(&self) -> Option<String> {
+        self.inner.base_font.clone()
+    }
+
+    #[getter]
+    fn subtype(&self) -> &'static str {
+        font_subtype_name(self.inner.subtype)
+    }
+
+    #[getter]
+    fn encoding(&self) -> Option<String> {
+        self.inner.encoding.clone()
+    }
+
+    #[getter]
+    fn writing_mode(&self) -> &'static str {
+        writing_mode_name(self.inner.writing_mode)
+    }
+
+    #[getter]
+    fn differences(&self) -> std::collections::BTreeMap<u8, String> {
+        self.inner.differences.clone()
+    }
+
+    #[getter]
+    fn embedded_font(&self) -> Option<PyResolvedEmbeddedFont> {
+        self.inner
+            .embedded_font
+            .as_ref()
+            .map(|font| PyResolvedEmbeddedFont {
+                format: embedded_font_format_name(font.format).to_owned(),
+                data: font.data.clone(),
+            })
+    }
+
+    #[getter]
+    fn type3(&self) -> Option<PyType3Font> {
+        self.inner.type3.clone().map(|inner| PyType3Font { inner })
+    }
+
+    fn decode_glyphs(&self, data: &[u8]) -> PyResult<Vec<PyDecodedGlyph>> {
+        self.inner
+            .decode_glyphs(data)
+            .map(|glyphs| {
+                glyphs
+                    .into_iter()
+                    .map(|inner| PyDecodedGlyph { inner })
+                    .collect()
+            })
+            .map_err(parse_err_to_py)
+    }
+
+    fn __repr__(&self) -> String {
+        format!(
+            "ResolvedFontResource(resource_name={:?}, subtype={:?})",
+            self.inner.resource_name,
+            font_subtype_name(self.inner.subtype),
+        )
     }
 }
 
@@ -1629,6 +1933,11 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyImageResource>()?;
     m.add_class::<PyFormXObjectResource>()?;
     m.add_class::<PyPageResources>()?;
+    m.add_class::<PyDecodedGlyph>()?;
+    m.add_class::<PyResolvedEmbeddedFont>()?;
+    m.add_class::<PyType3Glyph>()?;
+    m.add_class::<PyType3Font>()?;
+    m.add_class::<PyResolvedFontResource>()?;
     m.add_function(wrap_pyfunction!(verify_pdf_signatures, m)?)?;
     Ok(())
 }
