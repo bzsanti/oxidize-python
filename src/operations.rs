@@ -1,11 +1,14 @@
 use pyo3::prelude::*;
-use pyo3::types::PyDict;
+use pyo3::types::{PyBytes, PyDict};
 
+use oxidize_pdf::graphics::ImageFormat;
 use oxidize_pdf::operations::{
-    self, ContentAnalysis, ExtractImagesOptions, MergeInput, MergeOptions, OperationError,
+    self, ContentAnalysis, ExtractImagesOptions, ExtractedImageData, ImageExtractionError,
+    ImageExtractionLimits, ImageExtractor, MergeInput, MergeOptions, OperationError,
     OverlayOptions, OverlayPosition, PageContentAnalyzer, PageRange, PageType, RotateOptions,
     RotationAngle, SplitMode, SplitOptions,
 };
+use oxidize_pdf::parser::PdfReader;
 
 use crate::errors;
 
@@ -25,6 +28,15 @@ fn op_err_to_py(err: OperationError) -> PyErr {
             errors::PdfError::new_err(format!("Invalid rotation angle: {deg}"))
         }
         _ => errors::PdfError::new_err(err.to_string()),
+    }
+}
+
+fn image_extraction_err_to_py(err: ImageExtractionError) -> PyErr {
+    match err {
+        ImageExtractionError::Operation(err) => op_err_to_py(err),
+        ImageExtractionError::LimitExceeded { .. } => {
+            pyo3::exceptions::PyValueError::new_err(err.to_string())
+        }
     }
 }
 
@@ -273,6 +285,139 @@ fn extract_images_from_pdf<'py>(
         py_results.push(dict);
     }
     Ok(py_results)
+}
+
+/// Resource bounds for in-memory image extraction.
+#[pyclass(name = "ImageExtractionLimits", frozen, from_py_object)]
+#[derive(Clone)]
+pub struct PyImageExtractionLimits {
+    inner: ImageExtractionLimits,
+}
+
+#[pymethods]
+impl PyImageExtractionLimits {
+    #[new]
+    #[pyo3(signature = (
+        max_images=None,
+        max_encoded_bytes_per_image=None,
+        max_total_encoded_bytes=None,
+        max_decoded_pixels_per_image=None,
+    ))]
+    fn new(
+        max_images: Option<usize>,
+        max_encoded_bytes_per_image: Option<usize>,
+        max_total_encoded_bytes: Option<usize>,
+        max_decoded_pixels_per_image: Option<u64>,
+    ) -> Self {
+        let defaults = ImageExtractionLimits::default();
+        Self {
+            inner: ImageExtractionLimits {
+                max_images: max_images.unwrap_or(defaults.max_images),
+                max_encoded_bytes_per_image: max_encoded_bytes_per_image
+                    .unwrap_or(defaults.max_encoded_bytes_per_image),
+                max_total_encoded_bytes: max_total_encoded_bytes
+                    .unwrap_or(defaults.max_total_encoded_bytes),
+                max_decoded_pixels_per_image: max_decoded_pixels_per_image
+                    .unwrap_or(defaults.max_decoded_pixels_per_image),
+            },
+        }
+    }
+
+    #[getter]
+    fn max_images(&self) -> usize {
+        self.inner.max_images
+    }
+
+    #[getter]
+    fn max_encoded_bytes_per_image(&self) -> usize {
+        self.inner.max_encoded_bytes_per_image
+    }
+
+    #[getter]
+    fn max_total_encoded_bytes(&self) -> usize {
+        self.inner.max_total_encoded_bytes
+    }
+
+    #[getter]
+    fn max_decoded_pixels_per_image(&self) -> u64 {
+        self.inner.max_decoded_pixels_per_image
+    }
+}
+
+/// One image extracted as encoded bytes without writing to disk.
+#[pyclass(name = "ExtractedImageData", frozen)]
+pub struct PyExtractedImageData {
+    inner: ExtractedImageData,
+}
+
+#[pymethods]
+impl PyExtractedImageData {
+    #[getter]
+    fn page_number(&self) -> usize {
+        self.inner.page_number
+    }
+
+    #[getter]
+    fn image_index(&self) -> usize {
+        self.inner.image_index
+    }
+
+    #[getter]
+    fn width(&self) -> u32 {
+        self.inner.width
+    }
+
+    #[getter]
+    fn height(&self) -> u32 {
+        self.inner.height
+    }
+
+    #[getter]
+    fn format(&self) -> &'static str {
+        match self.inner.format {
+            ImageFormat::Jpeg => "jpeg",
+            ImageFormat::Png => "png",
+            ImageFormat::Tiff => "tiff",
+            ImageFormat::Raw => "raw",
+        }
+    }
+
+    #[getter]
+    fn data<'py>(&self, py: Python<'py>) -> Bound<'py, PyBytes> {
+        PyBytes::new(py, &self.inner.data)
+    }
+}
+
+/// Extract embedded images into memory under explicit resource limits.
+#[pyfunction]
+#[pyo3(signature = (input, limits=None, page_number=None))]
+fn extract_images_in_memory(
+    py: Python<'_>,
+    input: String,
+    limits: Option<&PyImageExtractionLimits>,
+    page_number: Option<usize>,
+) -> PyResult<Vec<PyExtractedImageData>> {
+    let limits = limits.map(|value| value.inner).unwrap_or_default();
+    let images = py.detach(move || {
+        let document = PdfReader::open_document(input).map_err(|error| {
+            ImageExtractionError::Operation(OperationError::ProcessingError(error.to_string()))
+        })?;
+        let options = ExtractImagesOptions {
+            min_size: None,
+            ..ExtractImagesOptions::default()
+        };
+        let mut extractor = ImageExtractor::new(document, options);
+        match page_number {
+            Some(page_number) => extractor.extract_from_page_in_memory(page_number, limits),
+            None => extractor.extract_all_in_memory(limits),
+        }
+    });
+    images.map_err(image_extraction_err_to_py).map(|images| {
+        images
+            .into_iter()
+            .map(|inner| PyExtractedImageData { inner })
+            .collect()
+    })
 }
 
 // ── Feature 10: Save-to-bytes variants ───────────────────────────────────────
@@ -898,6 +1043,9 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     // Feature 8
     m.add_class::<PyExtractImagesOptions>()?;
     m.add_function(wrap_pyfunction!(extract_images_from_pdf, m)?)?;
+    m.add_class::<PyImageExtractionLimits>()?;
+    m.add_class::<PyExtractedImageData>()?;
+    m.add_function(wrap_pyfunction!(extract_images_in_memory, m)?)?;
     // Feature 10
     m.add_function(wrap_pyfunction!(merge_pdfs_to_bytes, m)?)?;
     m.add_function(wrap_pyfunction!(rotate_pdf_to_bytes, m)?)?;

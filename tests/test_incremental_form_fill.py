@@ -42,6 +42,11 @@ def _base_form_pdf(field_name="name_field", *extra_fields):
     return doc.save_to_bytes()
 
 
+def _pdf_hex_string(value: str) -> bytes:
+    """Encode text as the PDF hex-string representation used by core 4.6+."""
+    return b"<" + value.encode("utf-8").hex().upper().encode("ascii") + b">"
+
+
 class TestFillSingleField:
     def test_original_bytes_preserved_verbatim(self):
         base = _base_form_pdf()
@@ -57,19 +62,19 @@ class TestFillSingleField:
 
         appended = filled[len(base):]
         # The rewritten field object carries /V set to the supplied value.
-        # write_dict emits `/V (value)` (name, space, literal string), so the
-        # exact pairing proves recovery rather than the value merely appearing
+        # Core 4.6+ emits `/V <hex>` (name, space, hex string), so the exact
+        # pairing proves recovery rather than the value merely appearing
         # inside a synthesized /AP appearance stream.
-        assert b"/V (Ada Lovelace)" in appended
+        assert b"/V " + _pdf_hex_string("Ada Lovelace") in appended
 
-    def test_value_with_pdf_special_chars_is_escaped(self):
+    def test_value_with_pdf_special_chars_is_encoded_safely(self):
         base = _base_form_pdf()
         # Parentheses and backslash are reserved in a PDF literal string and
         # must be escaped, or the /V value would corrupt the object syntax.
         filled = IncrementalFormFiller(base).fill("name_field", r"O'Brien (Jr.) \test")
 
         appended = filled[len(base):]
-        assert br"/V (O'Brien \(Jr.\) \\test)" in appended
+        assert b"/V " + _pdf_hex_string(r"O'Brien (Jr.) \test") in appended
 
     def test_incremental_revision_has_its_own_xref(self):
         base = _base_form_pdf()
@@ -89,8 +94,8 @@ class TestFillMany:
 
         assert filled[: len(base)] == base
         appended = filled[len(base):]
-        assert b"/V (Grace Hopper)" in appended
-        assert b"/V (Margaret Hamilton)" in appended
+        assert b"/V " + _pdf_hex_string("Grace Hopper") in appended
+        assert b"/V " + _pdf_hex_string("Margaret Hamilton") in appended
 
     def test_fill_many_single_appended_revision(self):
         base = _base_form_pdf("first", "second")
@@ -109,8 +114,8 @@ class TestFillMany:
         )
 
         appended = filled[len(base):]
-        assert b"/V (Last)" in appended
-        assert b"/V (First)" not in appended
+        assert b"/V " + _pdf_hex_string("Last") in appended
+        assert b"/V " + _pdf_hex_string("First") not in appended
 
     def test_fill_many_empty_list_still_emits_incremental_update(self):
         base = _base_form_pdf()
