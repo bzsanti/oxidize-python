@@ -26,6 +26,9 @@ pip install "oxidize-pdf[mcp]"     # + MCP server for AI agents
 **Platforms:** Linux (x86_64, aarch64) | macOS (x86_64, Apple Silicon) | Windows (x86_64)
 **Requires:** Python 3.10+
 
+Version 0.19.0 pins Rust core 5.1.3. See the [upstream integration review](docs/UPSTREAM-5.1.3.md)
+for new extraction options, compatibility details and pending integrations.
+
 ## Why oxidize-pdf?
 
 | | oxidize-pdf | Pure-Python libs | C/Java wrappers |

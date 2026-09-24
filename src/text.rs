@@ -374,8 +374,8 @@ pub fn py_measure_char(ch: &str, font: &PyFont, size: f64) -> PyResult<f64> {
 
 // ── TextRenderingMode ─────────────────────────────────────────────────────
 
-#[pyclass(name = "TextRenderingMode", frozen, from_py_object)]
-#[derive(Clone)]
+#[pyclass(name = "TextRenderingMode", frozen, from_py_object, eq)]
+#[derive(Clone, PartialEq)]
 pub struct PyTextRenderingMode {
     pub inner: oxidize_pdf::text::TextRenderingMode,
 }
