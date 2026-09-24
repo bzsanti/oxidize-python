@@ -181,6 +181,18 @@ class TestMergeOptions:
         with pytest.raises(ValueError):
             merge_pdfs_with_options([], str(out), MergeOptions())
 
+    @pytest.mark.parametrize("flag", ["preserve_bookmarks", "preserve_forms"])
+    def test_merge_rejects_unsupported_preservation(self, tmp_dir, flag):
+        from oxidize_pdf import MergeOptions, PdfError, merge_pdfs_with_options
+
+        source = _make_pdf(tmp_dir, page_count=1, name="source.pdf")
+        out = tmp_dir / "preserved.pdf"
+        with pytest.raises(PdfError, match="cannot preserve bookmarks or forms"):
+            merge_pdfs_with_options(
+                [str(source)], str(out), MergeOptions(**{flag: True}),
+            )
+        assert not out.exists()
+
 
 # ── Feature 51: RotationAngle + RotateOptions ─────────────────────────────────
 

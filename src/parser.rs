@@ -826,9 +826,11 @@ impl PyPdfReader {
         options: &PyExtractionOptions,
     ) -> PyResult<Vec<String>> {
         self.ensure_document();
-        let options = options.inner.clone();
+        let options = options.clone();
         let texts = py
-            .detach(|| with_document_mut!(self, doc => doc.extract_text_with_options(options)))
+            .detach(
+                || with_document_mut!(self, doc => options.extractor().extract_from_document(doc)),
+            )
             .map_err(parse_err_to_py)?;
         Ok(texts.into_iter().map(|t| t.text).collect())
     }
@@ -852,9 +854,11 @@ impl PyPdfReader {
         options: &PyExtractionOptions,
     ) -> PyResult<Vec<Vec<PyTextFragment>>> {
         self.ensure_document();
-        let options = options.inner.clone();
+        let options = options.clone();
         let pages = py
-            .detach(|| with_document_mut!(self, doc => doc.extract_text_with_options(options)))
+            .detach(
+                || with_document_mut!(self, doc => options.extractor().extract_from_document(doc)),
+            )
             .map_err(parse_err_to_py)?;
         Ok(pages
             .into_iter()
@@ -879,11 +883,11 @@ impl PyPdfReader {
         options: &PyExtractionOptions,
     ) -> PyResult<Vec<PyTextFragment>> {
         self.ensure_document();
-        let options = options.inner.clone();
+        let options = options.clone();
         let extracted = py
             .detach(|| {
                 with_document_mut!(self, doc =>
-                    doc.extract_text_from_page_with_options(page_index, options)
+                    options.extractor().extract_from_page(doc, page_index)
                 )
             })
             .map_err(parse_err_to_py)?;
@@ -910,11 +914,11 @@ impl PyPdfReader {
         options: &PyExtractionOptions,
     ) -> PyResult<PyExtractedText> {
         self.ensure_document();
-        let options = options.inner.clone();
+        let options = options.clone();
         let extracted = py
             .detach(|| {
                 with_document_mut!(self, doc =>
-                    doc.extract_text_from_page_with_options(page_index, options)
+                    options.extractor().extract_from_page(doc, page_index)
                 )
             })
             .map_err(parse_err_to_py)?;

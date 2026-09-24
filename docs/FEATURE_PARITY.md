@@ -1,8 +1,12 @@
 # Feature Parity — oxidize-python
 
-Bridge version: 0.5.0
-Core dependency: =2.6.0
-Last updated: 2026-05-05
+Bridge version: 0.19.0
+Core dependency: =5.1.3
+Last upstream review: 2026-09-24
+
+The original feature inventory below is not a complete inventory of core 5.x.
+See the [5.1.3 integration review](UPSTREAM-5.1.3.md) for newly integrated
+extraction APIs and prioritized gaps in preservation, editing and signing.
 
 Reference: [API Surface definition](lifecycle/API_SURFACE.md)
 
