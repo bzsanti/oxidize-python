@@ -12,7 +12,7 @@ use oxidize_pdf::text::{
     TextValidator,
 };
 
-use crate::text::PyFont;
+use crate::text::{PyFont, PyTextRenderingMode};
 use crate::types::PyColor;
 
 // ── ExtractionOptions (F71) ───────────────────────────────────────────────
@@ -22,6 +22,16 @@ use crate::types::PyColor;
 #[derive(Clone)]
 pub struct PyExtractionOptions {
     pub inner: ExtractionOptions,
+    pub include_link_annotations: bool,
+    pub include_unreliable_figure_text: bool,
+}
+
+impl PyExtractionOptions {
+    pub fn extractor(&self) -> oxidize_pdf::text::TextExtractor {
+        oxidize_pdf::text::TextExtractor::with_options(self.inner.clone())
+            .with_link_annotation_extraction(self.include_link_annotations)
+            .with_unreliable_figure_text(self.include_unreliable_figure_text)
+    }
 }
 
 #[pymethods]
@@ -40,6 +50,9 @@ impl PyExtractionOptions {
         reconstruct_paragraphs = false,
         include_artifacts = false,
         max_extracted_bytes = None,
+        *,
+        include_link_annotations = false,
+        include_unreliable_figure_text = false,
     ))]
     #[allow(clippy::too_many_arguments)]
     fn new(
@@ -55,6 +68,8 @@ impl PyExtractionOptions {
         reconstruct_paragraphs: bool,
         include_artifacts: bool,
         max_extracted_bytes: Option<usize>,
+        include_link_annotations: bool,
+        include_unreliable_figure_text: bool,
     ) -> Self {
         Self {
             inner: ExtractionOptions {
@@ -72,7 +87,23 @@ impl PyExtractionOptions {
                 max_extracted_bytes,
                 ..Default::default()
             },
+            include_link_annotations,
+            include_unreliable_figure_text,
         }
+    }
+
+    /// Append URI targets from Link annotations in annotation order, without
+    /// following them. Targets count toward max_extracted_bytes. Default false.
+    #[getter]
+    fn include_link_annotations(&self) -> bool {
+        self.include_link_annotations
+    }
+
+    /// Retain fallback text in Figure scopes using font Differences without
+    /// ToUnicode. Such text may be incorrect; default false.
+    #[getter]
+    fn include_unreliable_figure_text(&self) -> bool {
+        self.include_unreliable_figure_text
     }
 
     #[getter]
@@ -167,7 +198,8 @@ impl PyExtractionOptions {
             "ExtractionOptions(preserve_layout={}, space_threshold={}, newline_threshold={}, \
              sort_by_position={}, detect_columns={}, column_threshold={}, \
              merge_hyphenated={}, track_space_decisions={}, tj_space_threshold={}, \
-             reconstruct_paragraphs={}, include_artifacts={}, max_extracted_bytes={:?})",
+             reconstruct_paragraphs={}, include_artifacts={}, max_extracted_bytes={:?}, \
+             include_link_annotations={}, include_unreliable_figure_text={})",
             self.inner.preserve_layout,
             self.inner.space_threshold,
             self.inner.newline_threshold,
@@ -180,6 +212,8 @@ impl PyExtractionOptions {
             self.inner.reconstruct_paragraphs,
             self.inner.include_artifacts,
             self.inner.max_extracted_bytes,
+            self.include_link_annotations,
+            self.include_unreliable_figure_text,
         )
     }
 }
@@ -741,6 +775,15 @@ pub struct PyTextFragment {
 
 #[pymethods]
 impl PyTextFragment {
+    /// PDF rendering mode active when this fragment was extracted.
+    /// Invisible OCR text is retained and reports TextRenderingMode.INVISIBLE.
+    #[getter]
+    fn render_mode(&self) -> PyTextRenderingMode {
+        PyTextRenderingMode {
+            inner: self.inner.render_mode,
+        }
+    }
+
     /// Text content of the fragment.
     #[getter]
     fn text(&self) -> &str {
@@ -849,7 +892,7 @@ impl PyTextFragment {
     }
 
     /// Structural equality across content, position, geometry, font
-    /// metadata, colour, and marked-content identity.
+    /// metadata, colour, rendering mode, and marked-content identity.
     ///
     /// `space_decisions` is intentionally excluded: it is opt-in
     /// instrumentation, not part of fragment identity. Comparing two
@@ -868,6 +911,7 @@ impl PyTextFragment {
             && a.is_bold == b.is_bold
             && a.is_italic == b.is_italic
             && a.color == b.color
+            && a.render_mode == b.render_mode
             && a.mcid == b.mcid
             && a.struct_tag == b.struct_tag
     }

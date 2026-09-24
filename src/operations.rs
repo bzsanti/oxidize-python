@@ -666,7 +666,9 @@ fn split_pdf_with_mode(
 
 // ── Feature 50: MergeOptions + merge_pdfs_with_options ───────────────────────
 
-/// Options for PDF merging.
+/// Options for reconstructive PDF merging.
+/// Bookmarks and forms cannot be preserved by this engine. Explicitly setting
+/// either preservation flag to true causes merging to raise PdfError.
 #[pyclass(name = "MergeOptions", from_py_object)]
 #[derive(Clone)]
 pub struct PyMergeOptions {
@@ -676,7 +678,7 @@ pub struct PyMergeOptions {
 #[pymethods]
 impl PyMergeOptions {
     #[new]
-    #[pyo3(signature = (preserve_bookmarks=true, preserve_forms=false, optimize=false))]
+    #[pyo3(signature = (preserve_bookmarks=false, preserve_forms=false, optimize=false))]
     fn new(preserve_bookmarks: bool, preserve_forms: bool, optimize: bool) -> Self {
         let inner = MergeOptions {
             page_ranges: None,

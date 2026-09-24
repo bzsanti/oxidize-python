@@ -76,6 +76,7 @@ jobs:
         run: |
           source .venv/bin/activate
           mypy python/oxidize_pdf/
+          mypy --strict --disallow-any-expr tests/typing/extraction.py
 
   build-check:
     name: Release build check
