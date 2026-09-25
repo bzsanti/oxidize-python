@@ -1,9 +1,9 @@
 """MCP tool: read_pdf — read PDF metadata and structure."""
 
 import json
-from typing import Annotated, Optional
+from typing import Annotated, Any, Optional
 
-from mcp.types import ToolAnnotations
+from mcp_types import ToolAnnotations
 from pydantic import Field
 
 from oxidize_pdf.mcp.server import mcp
@@ -12,9 +12,9 @@ from oxidize_pdf.mcp.server import mcp
 @mcp.tool(
     annotations=ToolAnnotations(
         title="Read PDF metadata",
-        readOnlyHint=True,
-        idempotentHint=True,
-        openWorldHint=False,
+        read_only_hint=True,
+        idempotent_hint=True,
+        open_world_hint=False,
     )
 )
 def read_pdf(
@@ -79,10 +79,10 @@ def read_pdf(
         # #115 Capa B: reject oversized documents before building the response.
         from oxidize_pdf.mcp.tools.base import apply_output_cap, enforce_page_limit
 
-        if limit_err := enforce_page_limit(meta.page_count):
+        if limit_err := enforce_page_limit(reader.page_count):
             return limit_err
 
-        result = {
+        result: dict[str, Any] = {
             "path": path,
             "page_count": meta.page_count,
             "is_encrypted": is_encrypted,
@@ -95,7 +95,7 @@ def read_pdf(
 
         if include_page_details:
             pages = []
-            for i in range(meta.page_count):
+            for i in range(reader.page_count):
                 page = reader.get_page(i)
                 pages.append({
                     "index": i,

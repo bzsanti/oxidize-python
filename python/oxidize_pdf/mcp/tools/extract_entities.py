@@ -3,7 +3,7 @@
 import json
 from typing import Annotated
 
-from mcp.types import ToolAnnotations
+from mcp_types import ToolAnnotations
 from pydantic import Field
 
 from oxidize_pdf.mcp.server import mcp
@@ -12,9 +12,9 @@ from oxidize_pdf.mcp.server import mcp
 @mcp.tool(
     annotations=ToolAnnotations(
         title="Extract positioned text runs",
-        readOnlyHint=True,
-        idempotentHint=True,
-        openWorldHint=False,
+        read_only_hint=True,
+        idempotent_hint=True,
+        open_world_hint=False,
     )
 )
 def extract_entities(

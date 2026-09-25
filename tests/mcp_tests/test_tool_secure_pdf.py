@@ -63,3 +63,36 @@ class TestSecurePdfVerifySignatures:
         )
         resp = json.loads(result.content[0].text)
         assert "signatures" in resp
+
+
+@pytest.mark.asyncio
+async def test_encrypt_text_without_font_name(mcp_client, sample_pdf, mcp_workspace, monkeypatch):
+    """Extraction permits a missing font name; encryption still preserves text."""
+    from types import SimpleNamespace
+    import oxidize_pdf
+
+    real_reader = oxidize_pdf.PdfReader
+
+    class ReaderWithoutFont:
+        page_count = 1
+
+        def metadata(self):
+            return SimpleNamespace(title="Missing font", author=None)
+
+        def get_page(self, index):
+            return SimpleNamespace(width=595.28, height=841.89)
+
+        @staticmethod
+        def extract_text_chunks(index):
+            return [SimpleNamespace(font_name=None, font_size=12.0, x=50.0, y=700.0, text="Unnamed font")]
+
+    monkeypatch.setattr(oxidize_pdf, "PdfReader", SimpleNamespace(open=lambda path: ReaderWithoutFont()))
+    out = mcp_workspace / "unnamed-font.pdf"
+    result = await mcp_client.call_tool("secure_pdf", {
+        "operation": "encrypt", "input_path": str(sample_pdf), "output_path": str(out),
+        "user_password": "user", "owner_password": "owner",
+    })
+    assert json.loads(result.content[0].text).get("status") == "ok"
+    saved = real_reader.open(str(out))
+    saved.unlock("user")
+    assert "Unnamed font" in "\n".join(saved.extract_text())

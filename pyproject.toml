@@ -4,7 +4,7 @@ build-backend = "maturin"
 
 [project]
 name = "oxidize-pdf"
-version = "0.19.0"
+version = "0.20.0"
 description = "Python bindings for oxidize-pdf — generate, parse, split, merge, and manipulate PDF files"
 requires-python = ">=3.10"
 readme = "README.md"
@@ -45,8 +45,10 @@ dev = [
     "mypy>=1.0",
 ]
 mcp = [
-    "fastmcp>=2.0",
-    "pydantic>=2.0",
+    "fastmcp>=4.0.9,<5",
+    "mcp>=2.2.0,<3",
+    "mcp-types>=2.2.0,<3",
+    "pydantic>=2.12.5,<3",
 ]
 # Note: MCP tests (tests/mcp_tests/) require both extras:
 #   pip install -e ".[dev,mcp]"
@@ -60,9 +62,11 @@ module-name = "oxidize_pdf._oxidize_pdf"
 features = ["pyo3/extension-module"]
 python-packages = ["oxidize_pdf"]
 
-[tool.mypy]
-exclude = ["oxidize_pdf/mcp/"]
-
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 asyncio_mode = "auto"
+filterwarnings = [
+    "error::DeprecationWarning:oxidize_pdf.mcp.*",
+    "error::DeprecationWarning:fastmcp.*",
+    "error::DeprecationWarning:mcp.*",
+]
