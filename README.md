@@ -49,7 +49,9 @@ Give your AI agent full PDF capabilities in one line:
 oxidize-mcp
 ```
 
-The built-in [Model Context Protocol](https://modelcontextprotocol.io/) server exposes **12 tools**, **6 resources**, and **5 prompts** — compatible with Claude, GPT, and any MCP client.
+The built-in [Model Context Protocol](https://modelcontextprotocol.io/) server exposes **12 tools**, **5 static resources plus a session resource template**, and **5 prompts** over stdio. Install `oxidize-pdf[mcp]` to include its dependencies; the base library keeps MCP optional.
+
+Version 0.20 uses FastMCP 4 and MCP Python SDK 2, with support for both modern and legacy stdio clients. See the [migration guide](docs/MCP-V2-MIGRATION.md) for versions and installation routes.
 
 ### Claude Desktop integration
 
@@ -114,9 +116,10 @@ async with MCPServerStdio(
 A runnable version is in [`examples/openai_agents_quickstart.py`](examples/openai_agents_quickstart.py).
 
 > Both integrations run the server **locally over stdio**, so its tools operate
-> on PDFs in the configured workspace directory. Remote/hosted use (e.g. the
-> OpenAI Responses API hosted MCP tool) needs an HTTP transport and is not yet
-> exposed.
+> on PDFs in the configured workspace directory. This package does not expose
+> a hosted HTTP endpoint. ChatGPT web needs a remote connection; developer-mode
+> testing can also use [Secure MCP Tunnel](https://developers.openai.com/plugins/deploy/connect-chatgpt)
+> with a local stdio server. No ChatGPT plugin is published by this migration.
 
 ### Available tools
 

@@ -38,7 +38,7 @@ class TestAllResourcesRegistered:
 
     async def test_session_resource_template_registered(self, mcp_client):
         templates = await mcp_client.list_resource_templates()
-        template_uris = {str(t.uriTemplate) for t in templates}
+        template_uris = {str(t.uri_template) for t in templates}
         assert any("session" in u for u in template_uris)
 
 

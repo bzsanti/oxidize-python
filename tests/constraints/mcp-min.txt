@@ -1,0 +1,5 @@
+# Tested minimum direct MCP dependencies; the library distributes ranges.
+fastmcp==4.0.9
+mcp==2.2.0
+mcp-types==2.2.0
+pydantic==2.12.5

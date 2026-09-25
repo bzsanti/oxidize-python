@@ -93,7 +93,7 @@ async def test_description_is_substantive(mcp_client, name):
 @pytest.mark.parametrize("name", sorted(ALL_TOOLS))
 async def test_every_parameter_has_a_description(mcp_client, name):
     tools = await _tools_by_name(mcp_client)
-    props = (tools[name].inputSchema or {}).get("properties", {})
+    props = (tools[name].input_schema or {}).get("properties", {})
     assert props, f"{name}: no parameters in schema"
     for pname, pschema in props.items():
         desc = (pschema.get("description") or "").strip()
@@ -110,27 +110,27 @@ async def test_tool_declares_annotations(mcp_client, name):
     ann = tools[name].annotations
     assert ann is not None, f"{name}: no annotations declared"
     assert ann.title, f"{name}: annotation title missing"
-    assert isinstance(ann.readOnlyHint, bool), f"{name}: readOnlyHint not set"
+    assert isinstance(ann.read_only_hint, bool), f"{name}: readOnlyHint not set"
     # All tools operate on the local filesystem/session, never the open world.
-    assert ann.openWorldHint is False, f"{name}: openWorldHint should be False"
+    assert ann.open_world_hint is False, f"{name}: openWorldHint should be False"
 
 
 @pytest.mark.parametrize("name", sorted(READ_ONLY_TOOLS))
 async def test_read_only_tools_marked_read_only(mcp_client, name):
     tools = await _tools_by_name(mcp_client)
-    assert tools[name].annotations.readOnlyHint is True
+    assert tools[name].annotations.read_only_hint is True
 
 
 @pytest.mark.parametrize("name", sorted(WRITE_TOOLS))
 async def test_write_tools_not_marked_read_only(mcp_client, name):
     tools = await _tools_by_name(mcp_client)
-    assert tools[name].annotations.readOnlyHint is False
+    assert tools[name].annotations.read_only_hint is False
 
 
 @pytest.mark.parametrize("name,param", sorted(ENUM_PARAMS.items()))
 async def test_mode_parameters_are_typed_enums(mcp_client, name, param):
     tools = await _tools_by_name(mcp_client)
-    props = (tools[name].inputSchema or {}).get("properties", {})
+    props = (tools[name].input_schema or {}).get("properties", {})
     assert param in props, f"{name}.{param}: parameter missing"
     assert props[param].get("enum"), f"{name}.{param}: should be a Literal/enum"
 

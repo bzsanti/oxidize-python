@@ -6,7 +6,7 @@ from fastmcp import FastMCP
 
 MCP_SERVER_VERSION = "1.0.0"
 
-mcp = FastMCP(name="oxidize-pdf")
+mcp = FastMCP(name="oxidize-pdf", version=MCP_SERVER_VERSION)
 
 # Tool and prompt modules must be imported after mcp is defined, because their
 # decorators (@mcp.tool(), @mcp.prompt()) reference the mcp instance at import time.
@@ -44,7 +44,7 @@ def get_capabilities() -> str:
         "resources": [
             "oxidize://fonts", "oxidize://page-sizes",
             "oxidize://capabilities", "oxidize://version",
-            "oxidize://workspace", "oxidize://session/{id}",
+            "oxidize://workspace", "oxidize://session/{session_id}",
         ],
         "version": MCP_SERVER_VERSION,
         "features": ["stateless-tools", "stateful-sessions", "pdf-analysis", "pdf-creation"],
@@ -101,8 +101,11 @@ def get_session(session_id: str) -> str:
 
 def run() -> None:
     """Entry point for the oxidize-mcp command."""
-    mcp.run()
+    mcp.run(transport="stdio")
 
 
 if __name__ == "__main__":
-    run()
+    # Tool decorators import the canonical module, not the __main__ instance.
+    from oxidize_pdf.mcp.server import run as run_server
+
+    run_server()

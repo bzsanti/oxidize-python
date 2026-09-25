@@ -3,7 +3,7 @@
 import json
 from typing import Annotated, Literal, Optional
 
-from mcp.types import ToolAnnotations
+from mcp_types import ToolAnnotations
 from pydantic import Field
 
 from oxidize_pdf.mcp.server import mcp
@@ -12,10 +12,10 @@ from oxidize_pdf.mcp.server import mcp
 @mcp.tool(
     annotations=ToolAnnotations(
         title="Encrypt / inspect PDF security",
-        readOnlyHint=False,
-        destructiveHint=True,
-        idempotentHint=False,
-        openWorldHint=False,
+        read_only_hint=False,
+        destructive_hint=True,
+        idempotent_hint=False,
+        open_world_hint=False,
     )
 )
 def secure_pdf(
@@ -121,7 +121,7 @@ def _op_encrypt(
 
         chunks = reader.extract_text_chunks(i)
         for chunk in chunks:
-            font = getattr(Font, chunk.font_name.upper().replace("-", "_"), Font.HELVETICA)
+            font = getattr(Font, (chunk.font_name or "Helvetica").upper().replace("-", "_"), Font.HELVETICA)
             page.set_font(font, chunk.font_size)
             page.text_at(chunk.x, chunk.y, chunk.text)
 

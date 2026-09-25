@@ -3,7 +3,7 @@
 import json
 from typing import Annotated, Literal, Optional
 
-from mcp.types import ToolAnnotations
+from mcp_types import ToolAnnotations
 from pydantic import Field
 
 from oxidize_pdf.mcp.server import mcp
@@ -12,10 +12,10 @@ from oxidize_pdf.mcp.server import mcp
 @mcp.tool(
     annotations=ToolAnnotations(
         title="Manage PDF form fields",
-        readOnlyHint=False,
-        destructiveHint=True,
-        idempotentHint=False,
-        openWorldHint=False,
+        read_only_hint=False,
+        destructive_hint=True,
+        idempotent_hint=False,
+        open_world_hint=False,
     )
 )
 def manage_forms(
