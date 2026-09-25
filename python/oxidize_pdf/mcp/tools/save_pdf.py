@@ -1,21 +1,24 @@
 """MCP tool: save_pdf — finalize a PDF creation session and save to file."""
 
 import json
-from typing import Annotated, Optional
+from typing import TYPE_CHECKING, Annotated, Optional
 
-from mcp.types import ToolAnnotations
+from mcp_types import ToolAnnotations
 from pydantic import Field
 
 from oxidize_pdf.mcp.server import mcp
+
+if TYPE_CHECKING:
+    from oxidize_pdf import Document
 
 
 @mcp.tool(
     annotations=ToolAnnotations(
         title="Save and close a PDF session",
-        readOnlyHint=False,
-        destructiveHint=True,
-        idempotentHint=False,
-        openWorldHint=False,
+        read_only_hint=False,
+        destructive_hint=True,
+        idempotent_hint=False,
+        open_world_hint=False,
     )
 )
 def save_pdf(

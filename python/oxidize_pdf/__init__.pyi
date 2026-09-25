@@ -51,3 +51,31 @@ from oxidize_pdf._oxidize_pdf import (
 )
 
 __all__: list[str]
+
+from oxidize_pdf._oxidize_pdf import (
+    DocumentMetadata as DocumentMetadata,
+    TextChunk as TextChunk,
+    DocumentChunk as DocumentChunk,
+    RagChunk as RagChunk,
+    CorruptionReport as CorruptionReport,
+    PdfAValidationResult as PdfAValidationResult,
+    ValidationResult as ValidationResult,
+    OverlayPosition as OverlayPosition,
+    OverlayOptions as OverlayOptions,
+    Annotation as Annotation,
+    TextAnnotation as TextAnnotation,
+    HighlightAnnotation as HighlightAnnotation,
+    CorruptionType as CorruptionType,
+    PdfALevel as PdfALevel,
+    PdfAValidator as PdfAValidator,
+    ValidationRule as ValidationRule,
+    FieldValue as FieldValue,
+    FieldValidator as FieldValidator,
+    FormValidationSystem as FormValidationSystem,
+    reverse_pdf_pages as reverse_pdf_pages,
+    overlay_pdf as overlay_pdf,
+    validate_pdf as validate_pdf,
+    detect_pdf_corruption as detect_pdf_corruption,
+    verify_pdf_signatures as verify_pdf_signatures,
+    compare_pdfs as compare_pdfs,
+)

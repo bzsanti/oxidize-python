@@ -3,7 +3,7 @@
 import json
 from typing import Annotated, Literal, Optional
 
-from mcp.types import ToolAnnotations
+from mcp_types import ToolAnnotations
 from pydantic import Field
 
 from oxidize_pdf.mcp.server import mcp
@@ -12,9 +12,9 @@ from oxidize_pdf.mcp.server import mcp
 @mcp.tool(
     annotations=ToolAnnotations(
         title="Convert PDF to text representation",
-        readOnlyHint=True,
-        idempotentHint=True,
-        openWorldHint=False,
+        read_only_hint=True,
+        idempotent_hint=True,
+        open_world_hint=False,
     )
 )
 def convert_pdf(

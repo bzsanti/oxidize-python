@@ -17,7 +17,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        python-version: ["3.10", "3.11", "3.12", "3.13"]
+        python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
 
     steps:
       - uses: actions/checkout@v4
@@ -39,25 +39,25 @@ jobs:
         if: runner.os != 'Windows'
         run: |
           source .venv/bin/activate
-          pip install maturin pytest pytest-asyncio mypy pydantic fastmcp
+          pip install maturin
 
       - name: Install dependencies (Windows)
         if: runner.os == 'Windows'
         run: |
           .venv\Scripts\activate
-          pip install maturin pytest pytest-asyncio mypy pydantic fastmcp
+          pip install maturin
 
       - name: Build (debug, Unix)
         if: runner.os != 'Windows'
         run: |
           source .venv/bin/activate
-          maturin develop
+          maturin develop --locked --extras dev,mcp
 
       - name: Build (debug, Windows)
         if: runner.os == 'Windows'
         run: |
           .venv\Scripts\activate
-          maturin develop
+          maturin develop --locked --extras dev,mcp
 
       - name: Run tests (Unix)
         if: runner.os != 'Windows'
@@ -76,7 +76,7 @@ jobs:
         run: |
           source .venv/bin/activate
           mypy python/oxidize_pdf/
-          mypy --strict --disallow-any-expr tests/typing/extraction.py
+          mypy --strict --disallow-any-expr tests/typing/extraction.py tests/typing/mcp_contract.py
 
   build-check:
     name: Release build check
@@ -107,8 +107,41 @@ jobs:
       - name: Verify wheel exists
         run: ls -la target/wheels/*.whl
 
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mcp-test-wheel
+          path: target/wheels/*.whl
+
       # Graceful-degradation guard (#116): the bridge must still build when the
       # semver-exempt upstream SPI is dropped, so an upstream SPI break degrades
       # to "experimental module absent" rather than blocking the whole release.
       - name: Build check without unstable-spi
         run: cargo check --no-default-features
+
+  mcp-distribution:
+    name: MCP wheel (${{ matrix.python-version }}, ${{ matrix.dependencies }})
+    needs: build-check
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.14"]
+        dependencies: [minimum, latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: mcp-test-wheel
+          path: wheel
+      - name: Clean installation and real SDK v1/v2 interoperability
+        env:
+          DEPENDENCIES: ${{ matrix.dependencies }}
+        run: |
+          if [ "$DEPENDENCIES" = minimum ]; then
+            python scripts/check_mcp_install.py wheel/*.whl --constraints tests/constraints/mcp-min.txt
+          else
+            python scripts/check_mcp_install.py wheel/*.whl
+          fi

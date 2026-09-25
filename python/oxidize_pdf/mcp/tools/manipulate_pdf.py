@@ -3,7 +3,7 @@
 import json
 from typing import Annotated, Literal, Optional
 
-from mcp.types import ToolAnnotations
+from mcp_types import ToolAnnotations
 from pydantic import Field
 
 from oxidize_pdf.mcp.server import mcp
@@ -12,10 +12,10 @@ from oxidize_pdf.mcp.server import mcp
 @mcp.tool(
     annotations=ToolAnnotations(
         title="Restructure PDF pages",
-        readOnlyHint=False,
-        destructiveHint=True,
-        idempotentHint=False,
-        openWorldHint=False,
+        read_only_hint=False,
+        destructive_hint=True,
+        idempotent_hint=False,
+        open_world_hint=False,
     )
 )
 def manipulate_pdf(
@@ -144,6 +144,7 @@ def _op_split(*, input_path: str | None, output_path: str | None) -> str:
     if err:
         return err
 
+    assert input_resolved is not None and output_resolved is not None
     from oxidize_pdf import split_pdf
 
     split_pdf(input_resolved, output_resolved)
@@ -170,6 +171,7 @@ def _op_merge(*, input_paths: list[str] | None, output_path: str | None) -> str:
     if err:
         return err
 
+    assert output_resolved is not None
     from oxidize_pdf import merge_pdfs
 
     merge_pdfs(resolved_paths, output_resolved)
@@ -195,6 +197,7 @@ def _op_rotate(
             "code": "MISSING_PARAM",
         })
 
+    assert input_resolved is not None and output_resolved is not None
     from oxidize_pdf import rotate_pdf
 
     rotate_pdf(input_resolved, output_resolved, degrees)
@@ -220,6 +223,7 @@ def _op_extract_pages(
             "code": "MISSING_PARAM",
         })
 
+    assert input_resolved is not None and output_resolved is not None
     from oxidize_pdf import extract_pages
 
     extract_pages(input_resolved, output_resolved, page_indices)
@@ -234,6 +238,7 @@ def _op_reverse(*, input_path: str | None, output_path: str | None) -> str:
     if err:
         return err
 
+    assert input_resolved is not None and output_resolved is not None
     from oxidize_pdf import reverse_pdf_pages
 
     reverse_pdf_pages(input_resolved, output_resolved)
@@ -265,6 +270,7 @@ def _op_overlay(
     if err:
         return err
 
+    assert input_resolved is not None and output_resolved is not None
     from oxidize_pdf import OverlayOptions, overlay_pdf
 
     overlay_pdf(input_resolved, str(overlay_resolved), output_resolved, OverlayOptions())
