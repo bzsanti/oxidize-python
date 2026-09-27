@@ -8,6 +8,8 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  CC: "false"
+  CXX: "false"
 
 jobs:
   test:
@@ -102,7 +104,7 @@ jobs:
       - name: Build release wheel
         run: |
           source .venv/bin/activate
-          maturin build --release
+          maturin build --locked --release
 
       - name: Verify wheel exists
         run: ls -la target/wheels/*.whl
@@ -116,7 +118,7 @@ jobs:
       # semver-exempt upstream SPI is dropped, so an upstream SPI break degrades
       # to "experimental module absent" rather than blocking the whole release.
       - name: Build check without unstable-spi
-        run: cargo check --no-default-features
+        run: cargo check --locked --no-default-features
 
   mcp-distribution:
     name: MCP wheel (${{ matrix.python-version }}, ${{ matrix.dependencies }})
@@ -145,3 +147,21 @@ jobs:
           else
             python scripts/check_mcp_install.py wheel/*.whl
           fi
+
+  no-native-dependencies:
+    name: No native cryptography (${{ matrix.target }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [x86_64-unknown-linux-gnu, aarch64-unknown-linux-gnu, x86_64-pc-windows-msvc, x86_64-apple-darwin, aarch64-apple-darwin]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Check dependency policy rejection cases
+        run: python scripts/test_no_native_dependencies.py
+      - name: Inspect binding production dependencies and sources
+        run: python scripts/check_no_native_dependencies.py --package oxidize-python --features= --python-binding --target ${{ matrix.target }}

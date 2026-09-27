@@ -26,8 +26,10 @@ pip install "oxidize-pdf[mcp]"     # + MCP server for AI agents
 **Platforms:** Linux (x86_64, aarch64) | macOS (x86_64, Apple Silicon) | Windows (x86_64)
 **Requires:** Python 3.10+
 
-Version 0.19.0 pins Rust core 5.1.3. See the [upstream integration review](docs/UPSTREAM-5.1.3.md)
-for new extraction options, compatibility details and pending integrations.
+Version 0.20.1 pins Rust core 5.1.5, using the MIT-licensed `oxidize-webpki`
+RustCrypto provider from crates.io for certificate verification. WebPKI retains
+chain, trust, validity, key-usage and CRL validation. See the
+[dependency policy](docs/NO-NATIVE-CRYPTO.md) for supported builds and limits.
 
 ## Why oxidize-pdf?
 
