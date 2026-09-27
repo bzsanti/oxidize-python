@@ -12,6 +12,8 @@ permissions:
 
 env:
   CARGO_TERM_COLOR: always
+  CC: "false"
+  CXX: "false"
 
 jobs:
   version-check:
@@ -104,9 +106,10 @@ jobs:
         uses: PyO3/maturin-action@v1
         with:
           command: build
-          args: --release --out dist --find-interpreter
+          args: --locked --release --out dist --find-interpreter
           target: ${{ matrix.target }}
           manylinux: ${{ matrix.manylinux }}
+          docker-options: -e CC=false -e CXX=false
 
       - name: Upload wheels
         uses: actions/upload-artifact@v4
