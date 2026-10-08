@@ -24,6 +24,8 @@ pub struct PyExtractionOptions {
     pub inner: ExtractionOptions,
     pub include_link_annotations: bool,
     pub include_unreliable_figure_text: bool,
+    #[pyo3(get)]
+    pub normalize_non_breaking_spaces: bool,
 }
 
 impl PyExtractionOptions {
@@ -31,6 +33,7 @@ impl PyExtractionOptions {
         oxidize_pdf::text::TextExtractor::with_options(self.inner.clone())
             .with_link_annotation_extraction(self.include_link_annotations)
             .with_unreliable_figure_text(self.include_unreliable_figure_text)
+            .with_non_breaking_space_normalization(self.normalize_non_breaking_spaces)
     }
 }
 
@@ -53,6 +56,7 @@ impl PyExtractionOptions {
         *,
         include_link_annotations = false,
         include_unreliable_figure_text = false,
+        normalize_non_breaking_spaces = false,
     ))]
     #[allow(clippy::too_many_arguments)]
     fn new(
@@ -70,6 +74,7 @@ impl PyExtractionOptions {
         max_extracted_bytes: Option<usize>,
         include_link_annotations: bool,
         include_unreliable_figure_text: bool,
+        normalize_non_breaking_spaces: bool,
     ) -> Self {
         Self {
             inner: ExtractionOptions {
@@ -89,6 +94,7 @@ impl PyExtractionOptions {
             },
             include_link_annotations,
             include_unreliable_figure_text,
+            normalize_non_breaking_spaces,
         }
     }
 
