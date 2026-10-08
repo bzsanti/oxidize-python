@@ -94,3 +94,16 @@ def test_extract_images_in_memory_and_enforce_limits(tmp_path):
             str(path),
             ImageExtractionLimits(max_encoded_bytes_per_image=len(jpeg) - 1),
         )
+
+
+def test_type3_differences_keeps_explicit_overrides_separate_from_base_encoding():
+    # An override equal to a base glyph is still explicit; a range-only filter
+    # or subtracting the standard encoding would incorrectly discard it.
+    data = _type3_pdf().replace(b"/Differences [16 /a16]", b"/Differences [16 /a16 65 /A]")
+    # Rebuild offsets after changing an object length.
+    import re
+    objects = re.findall(rb"\d+ 0 obj\n(.*?)\nendobj", data, re.S)
+    font = PdfReader.from_bytes(_pdf(objects)).resolve_font(0, "F1")
+    assert font.differences == {16: "a16", 65: "A"}
+    assert font.type3 is not None
+    assert font.type3.glyph(16).name == "a16"

@@ -1,7 +1,5 @@
 # oxidize-pdf 0.20.0 — MCP SDK v2
 
-Candidate release; not yet published.
-
 - Migrate the optional MCP extra to FastMCP 4 and MCP SDK 2. Python >=3.10 and
   core Rust 5.1.3 are retained; the base library has no MCP dependencies.
 - Preserve the 12 tools, resources, prompts and PDF creation sessions, with

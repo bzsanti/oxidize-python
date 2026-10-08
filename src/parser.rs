@@ -453,6 +453,57 @@ impl PyPdfReader {
         with_document!(self, doc => doc.version().map_err(parse_err_to_py))
     }
 
+    /// Effective PDF version, including a catalog Version override.
+    #[getter]
+    fn effective_version(&mut self) -> PyResult<String> {
+        self.ensure_document();
+        with_document!(self, doc => doc.effective_version().map(|v| v.to_string()).map_err(parse_err_to_py))
+    }
+
+    /// Recover page text explicitly. Always inspect the returned diagnostics.
+    #[pyo3(signature = (page_index, *, max_stream_bytes, options=None))]
+    fn extract_page_text_with_recovery(
+        &mut self,
+        py: Python<'_>,
+        page_index: u32,
+        max_stream_bytes: usize,
+        options: Option<&PyExtractionOptions>,
+    ) -> PyResult<crate::upstream::PyRecoveredText> {
+        self.ensure_document();
+        let mut extractor = options
+            .map(PyExtractionOptions::extractor)
+            .unwrap_or_default();
+        let result = py
+            .detach(|| {
+                with_document_mut!(self, doc =>
+                    extractor.extract_from_page_with_recovery(doc, page_index, max_stream_bytes)
+                )
+            })
+            .map_err(parse_err_to_py)?;
+        crate::upstream::PyRecoveredText::from_core(result)
+    }
+
+    /// Recover all pages with a required per-stream decoded-byte limit.
+    #[pyo3(signature = (*, max_stream_bytes, options=None))]
+    fn extract_text_with_recovery(
+        &mut self,
+        py: Python<'_>,
+        max_stream_bytes: usize,
+        options: Option<&PyExtractionOptions>,
+    ) -> PyResult<Vec<crate::upstream::PyRecoveredText>> {
+        self.ensure_document();
+        let results = py.detach(|| with_document_mut!(self, doc => {
+            let mut extractor = options.map(PyExtractionOptions::extractor).unwrap_or_default();
+            (0..doc.page_count()?).map(|index|
+                extractor.extract_from_page_with_recovery(doc, index, max_stream_bytes)
+            ).collect::<oxidize_pdf::parser::ParseResult<Vec<_>>>()
+        })).map_err(parse_err_to_py)?;
+        results
+            .into_iter()
+            .map(crate::upstream::PyRecoveredText::from_core)
+            .collect()
+    }
+
     /// Return the parsed page at the given 0-based index.
     fn get_page(&mut self, py: Python<'_>, index: u32) -> PyResult<PyParsedPage> {
         self.ensure_document();
@@ -1026,14 +1077,20 @@ impl PyPdfReader {
         let resource_name = resource_name.trim_start_matches('/').to_owned();
         let resolved = py
             .detach(|| {
-                with_document_mut!(self, doc => ResolvedFontResource::from_page(
-                    doc,
-                    page_index,
-                    &resource_name,
-                ))
+                with_document_mut!(self, doc => {
+                    let inner = ResolvedFontResource::from_page(doc, page_index, &resource_name)?;
+                    // Core 5.4 Type3 resolution includes the entire base encoding
+                    // in `differences`. Keep the Python property as explicit overrides.
+                    let differences = if inner.subtype == FontSubtype::Type3 {
+                        type3_explicit_differences(doc, page_index, &resource_name)?
+                    } else {
+                        inner.differences.clone()
+                    };
+                    Ok::<_, oxidize_pdf::parser::ParseError>(PyResolvedFontResource { inner, differences })
+                })
             })
             .map_err(parse_err_to_py)?;
-        Ok(PyResolvedFontResource { inner: resolved })
+        Ok(resolved)
     }
 
     fn __repr__(&mut self) -> PyResult<String> {
@@ -1041,6 +1098,52 @@ impl PyPdfReader {
         let count = with_document!(self, doc => doc.page_count().map_err(parse_err_to_py))?;
         Ok(format!("PdfReader(pages={count})"))
     }
+}
+
+/// Read only explicitly declared Type3 encoding overrides; decoding continues
+/// to use the core's complete effective encoding, including base glyph names.
+fn type3_explicit_differences<R: std::io::Read + std::io::Seek>(
+    doc: &oxidize_pdf::parser::PdfDocument<R>,
+    page_index: u32,
+    resource_name: &str,
+) -> oxidize_pdf::parser::ParseResult<std::collections::BTreeMap<u8, String>> {
+    use oxidize_pdf::parser::{ParseError, PdfObject};
+    let invalid = || ParseError::SyntaxError {
+        position: 0,
+        message: "Invalid Type3 encoding resource".into(),
+    };
+    let page = doc.get_page(page_index)?;
+    let resources = doc.get_page_resources(&page)?.ok_or_else(invalid)?;
+    let fonts = doc.resolve(resources.get("Font").ok_or_else(invalid)?)?;
+    let font = doc.resolve(
+        fonts
+            .as_dict()
+            .and_then(|d| d.get(resource_name))
+            .ok_or_else(invalid)?,
+    )?;
+    let mut result = std::collections::BTreeMap::new();
+    if let Some(encoding) = font.as_dict().and_then(|d| d.get("Encoding")) {
+        let encoding = doc.resolve(encoding)?;
+        if let Some(differences) = encoding.as_dict().and_then(|d| d.get("Differences")) {
+            let differences = doc.resolve(differences)?;
+            if let Some(array) = differences.as_array() {
+                let mut code = 0i64;
+                for entry in &array.0 {
+                    match entry {
+                        PdfObject::Integer(value) => code = *value,
+                        PdfObject::Name(name) => {
+                            if let Ok(byte) = u8::try_from(code) {
+                                result.insert(byte, name.0.clone());
+                            }
+                            code = code.saturating_add(1);
+                        }
+                        _ => {}
+                    }
+                }
+            }
+        }
+    }
+    Ok(result)
 }
 
 fn font_subtype_name(value: FontSubtype) -> &'static str {
@@ -1246,6 +1349,7 @@ impl PyType3Font {
 #[pyclass(name = "ResolvedFontResource", frozen)]
 pub struct PyResolvedFontResource {
     inner: ResolvedFontResource,
+    differences: std::collections::BTreeMap<u8, String>,
 }
 
 #[pymethods]
@@ -1277,7 +1381,7 @@ impl PyResolvedFontResource {
 
     #[getter]
     fn differences(&self) -> std::collections::BTreeMap<u8, String> {
-        self.inner.differences.clone()
+        self.differences.clone()
     }
 
     #[getter]

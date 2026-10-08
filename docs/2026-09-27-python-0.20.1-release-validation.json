@@ -1,0 +1,136 @@
+{
+  "conclusion": "success",
+  "headSha": "71792649c1b684afde8ec01e8a3d3e6d25dc1ff5",
+  "jobs": [
+    {
+      "name": "test / No native cryptography (aarch64-unknown-linux-gnu)",
+      "conclusion": "success",
+      "url": "https://github.com/bzsanti/oxidize-python/actions/runs/36316036799/job/108610804291"
+    },
+    {
+      "name": "test / No native cryptography (aarch64-apple-darwin)",
+      "conclusion": "success",
+      "url": "https://github.com/bzsanti/oxidize-python/actions/runs/36316036799/job/108610804325"
+    },
+    {
+      "name": "test / No native cryptography (x86_64-unknown-linux-gnu)",
+      "conclusion": "success",
+      "url": "https://github.com/bzsanti/oxidize-python/actions/runs/36316036799/job/108610804368"
+    },
+    {
+      "name": "test / Test (Python 3.12, windows-latest)",
+      "conclusion": "success",
+      "url": "https://github.com/bzsanti/oxidize-python/actions/runs/36316036799/job/108610804379"
+    },
+    {
+      "name": "test / No native cryptography (x86_64-apple-darwin)",
+      "conclusion": "success",
+      "url": "https://github.com/bzsanti/oxidize-python/actions/runs/36316036799/job/108610804382"
+    },
+    {
+      "name": "test / Test (Python 3.14, macos-latest)",
+      "conclusion": "success",
+      "url": "https://github.com/bzsanti/oxidize-python/actions/runs/36316036799/job/108610804425"
+    },
+    {
+      "name": "test / Test (Python 3.10, ubuntu-latest)",
+      "conclusion": "success",
+      "url": "https://github.com/bzsanti/oxidize-python/actions/runs/36316036799/job/108610804427"
+    },
+    {
+      "name": "test / Test (Python 3.12, macos-latest)",
+      "conclusion": "success",
+      "url": "https://github.com/bzsanti/oxidize-python/actions/runs/36316036799/job/108610804429"
+    },
+    {
+      "name": "test / No native cryptography (x86_64-pc-windows-msvc)",
+      "conclusion": "success",
+      "url": "https://github.com/bzsanti/oxidize-python/actions/runs/36316036799/job/108610804438"
+    },
+    {
+      "name": "test / Test (Python 3.13, windows-latest)",
+      "conclusion": "success",
+      "url": "https://github.com/bzsanti/oxidize-python/actions/runs/36316036799/job/108610804469"
+    },
+    {
+      "name": "test / Test (Python 3.10, macos-latest)",
+      "conclusion": "success",
+      "url": "https://github.com/bzsanti/oxidize-python/actions/runs/36316036799/job/108610804477"
+    },
+    {
+      "name": "test / Test (Python 3.12, ubuntu-latest)",
+      "conclusion": "success",
+      "url": "https://github.com/bzsanti/oxidize-python/actions/runs/36316036799/job/108610804491"
+    },
+    {
+      "name": "test / Test (Python 3.11, windows-latest)",
+      "conclusion": "success",
+      "url": "https://github.com/bzsanti/oxidize-python/actions/runs/36316036799/job/108610804495"
+    },
+    {
+      "name": "test / Test (Python 3.13, macos-latest)",
+      "conclusion": "success",
+      "url": "https://github.com/bzsanti/oxidize-python/actions/runs/36316036799/job/108610804500"
+    },
+    {
+      "name": "test / Test (Python 3.10, windows-latest)",
+      "conclusion": "success",
+      "url": "https://github.com/bzsanti/oxidize-python/actions/runs/36316036799/job/108610804510"
+    },
+    {
+      "name": "test / Test (Python 3.13, ubuntu-latest)",
+      "conclusion": "success",
+      "url": "https://github.com/bzsanti/oxidize-python/actions/runs/36316036799/job/108610804519"
+    },
+    {
+      "name": "test / Test (Python 3.11, ubuntu-latest)",
+      "conclusion": "success",
+      "url": "https://github.com/bzsanti/oxidize-python/actions/runs/36316036799/job/108610804544"
+    },
+    {
+      "name": "test / Test (Python 3.14, ubuntu-latest)",
+      "conclusion": "success",
+      "url": "https://github.com/bzsanti/oxidize-python/actions/runs/36316036799/job/108610804547"
+    },
+    {
+      "name": "test / Test (Python 3.11, macos-latest)",
+      "conclusion": "success",
+      "url": "https://github.com/bzsanti/oxidize-python/actions/runs/36316036799/job/108610804561"
+    },
+    {
+      "name": "test / Test (Python 3.14, windows-latest)",
+      "conclusion": "success",
+      "url": "https://github.com/bzsanti/oxidize-python/actions/runs/36316036799/job/108610804583"
+    },
+    {
+      "name": "test / Release build check",
+      "conclusion": "success",
+      "url": "https://github.com/bzsanti/oxidize-python/actions/runs/36316036799/job/108611649045"
+    },
+    {
+      "name": "test / MCP wheel (3.10, latest)",
+      "conclusion": "success",
+      "url": "https://github.com/bzsanti/oxidize-python/actions/runs/36316036799/job/108612112447"
+    },
+    {
+      "name": "test / MCP wheel (3.10, minimum)",
+      "conclusion": "success",
+      "url": "https://github.com/bzsanti/oxidize-python/actions/runs/36316036799/job/108612112451"
+    },
+    {
+      "name": "test / MCP wheel (3.14, minimum)",
+      "conclusion": "success",
+      "url": "https://github.com/bzsanti/oxidize-python/actions/runs/36316036799/job/108612112499"
+    },
+    {
+      "name": "test / MCP wheel (3.14, latest)",
+      "conclusion": "success",
+      "url": "https://github.com/bzsanti/oxidize-python/actions/runs/36316036799/job/108612112533"
+    }
+  ],
+  "status": "completed",
+  "url": "https://github.com/bzsanti/oxidize-python/actions/runs/36316036799",
+  "release_candidate": "78eddf7c6200b29d965a470ccf54fbbd141e307b",
+  "source_equality": "Only RELEASE-NOTES-v0.20.0.md differs from reviewed/validated 7179264: removes obsolete candidate notice.",
+  "kripteia": "## Calidad de Tests (Kripteia)\n\n=== Kripteia Test Quality Report ===\nOverall Score: 100 | Tests: 3 | Files: 1\n\n--- Files ---\nPath                                                          Tests  Score\n--------------------------------------------------------------------------\ntests/test_certificate_provider_627.py                            3    100\n\n--- Worst Offenders ---\n  test_external_root_is_not_implicitly_trusted (tests/test_certificate_provider_627.py:11) - Score: 100\n  test_external_signed_cms_retains_signer_identity (tests/test_certificate_provider_627.py:22) - Score: 100\n  test_malformed_certificate_does_not_succeed (tests/test_certificate_provider_627.py:31) - Score: 100\n\n\n## Analisis de Seguridad (Kripteia Security)\n\n=== Kripteia Security Analysis ===\n\nNo security issues found.\n"
+}

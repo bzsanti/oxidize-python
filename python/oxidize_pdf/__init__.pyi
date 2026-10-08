@@ -1,6 +1,17 @@
 """Type stubs for oxidize-pdf."""
 
 from oxidize_pdf._oxidize_pdf import (
+    BuildIdentification as BuildIdentification,
+    TextRecoveryDiagnostic as TextRecoveryDiagnostic,
+    RecoveredText as RecoveredText,
+    SignatureSlot as SignatureSlot,
+    create_signature_slot as create_signature_slot,
+    list_signature_slots as list_signature_slots,
+    read_signature_slot as read_signature_slot,
+    remove_signature_slot as remove_signature_slot,
+    draw_signature_slot as draw_signature_slot,
+    complete_signature_slot as complete_signature_slot,
+
     BatchJob as BatchJob,
     BatchOptions as BatchOptions,
     BatchProcessor as BatchProcessor,
