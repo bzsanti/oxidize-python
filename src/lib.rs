@@ -32,6 +32,7 @@ mod text;
 mod text_extraction;
 mod tier8;
 mod types;
+mod upstream;
 mod verification;
 mod viewer_preferences;
 mod xmp_metadata;
@@ -43,6 +44,7 @@ fn _oxidize_pdf(m: &Bound<'_, PyModule>) -> PyResult<()> {
 
     // Register submodules
     errors::register(m)?;
+    upstream::register(m)?;
     types::register(m)?;
     document::register(m)?;
     page::register(m)?;

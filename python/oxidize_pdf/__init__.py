@@ -2,6 +2,20 @@
 
 from oxidize_pdf._oxidize_pdf import __version__
 
+# Upstream 5.4 application APIs
+from oxidize_pdf._oxidize_pdf import (
+    BuildIdentification,
+    TextRecoveryDiagnostic,
+    RecoveredText,
+    SignatureSlot,
+    create_signature_slot,
+    list_signature_slots,
+    read_signature_slot,
+    remove_signature_slot,
+    draw_signature_slot,
+    complete_signature_slot,
+)
+
 # Errors
 from oxidize_pdf._oxidize_pdf import (
     PdfError,
@@ -584,6 +598,17 @@ from oxidize_pdf._oxidize_pdf import (
 )
 
 __all__ = [
+    "BuildIdentification",
+    "TextRecoveryDiagnostic",
+    "RecoveredText",
+    "SignatureSlot",
+    "create_signature_slot",
+    "list_signature_slots",
+    "read_signature_slot",
+    "remove_signature_slot",
+    "draw_signature_slot",
+    "complete_signature_slot",
+
     "__version__",
     # Errors
     "PdfError",

@@ -73,6 +73,16 @@ impl PyDocument {
         self.inner.set_creator(creator);
     }
 
+    /// Enable or omit generated build/edition/feature Info entries.
+    fn set_build_identification(&mut self, policy: crate::upstream::PyBuildIdentification) {
+        self.inner.set_build_identification(policy.into());
+    }
+
+    #[getter]
+    fn build_identification(&self) -> crate::upstream::PyBuildIdentification {
+        self.inner.build_identification().into()
+    }
+
     /// Add a page to the document.
     ///
     /// The page is held by reference, not snapshotted: any draw issued on the
