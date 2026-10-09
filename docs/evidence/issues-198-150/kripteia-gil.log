@@ -1,0 +1,43 @@
+## Calidad de Tests (Kripteia)
+
+=== Kripteia Test Quality Report ===
+Overall Score: 85 | Tests: 7 | Files: 1
+
+--- Files ---
+Path                                                          Tests  Score
+--------------------------------------------------------------------------
+tests/test_gil_concurrency.py                                     7     85
+
+--- Worst Offenders ---
+  test_validate_pdf_releases_gil (tests/test_gil_concurrency.py:93) - Score: 75
+    - Test 'test_validate_pdf_releases_gil' executes production code without asserting on its behaviour
+  test_detect_corruption_releases_gil (tests/test_gil_concurrency.py:99) - Score: 75
+    - Test 'test_detect_corruption_releases_gil' executes production code without asserting on its behaviour
+  test_extract_text_releases_gil (tests/test_gil_concurrency.py:105) - Score: 75
+    - Test 'test_extract_text_releases_gil' executes production code without asserting on its behaviour
+  test_speedup_guard_rejects_real_gil_bound_work (tests/test_gil_concurrency.py:165) - Score: 80
+    - Test 'test_speedup_guard_rejects_real_gil_bound_work' is marked as #[ignore]
+  test_speedup_guard_retries_only_noisy_samples (tests/test_gil_concurrency.py:121) - Score: 90
+    - Test 'test_speedup_guard_retries_only_noisy_samples' has low assert-to-setup ratio (6%): 1 asserts vs 15 setup lines
+
+--- Details ---
+tests/test_gil_concurrency.py:
+  test_validate_pdf_releases_gil (line 93) - Score: 75
+    - Test 'test_validate_pdf_releases_gil' executes production code without asserting on its behaviour
+  test_detect_corruption_releases_gil (line 99) - Score: 75
+    - Test 'test_detect_corruption_releases_gil' executes production code without asserting on its behaviour
+  test_extract_text_releases_gil (line 105) - Score: 75
+    - Test 'test_extract_text_releases_gil' executes production code without asserting on its behaviour
+  test_speedup_guard_retries_only_noisy_samples (line 121) - Score: 90
+    - Test 'test_speedup_guard_retries_only_noisy_samples' has low assert-to-setup ratio (6%): 1 asserts vs 15 setup lines
+  test_speedup_guard_rejects_real_gil_bound_work (line 165) - Score: 80
+    - Test 'test_speedup_guard_rejects_real_gil_bound_work' is marked as #[ignore]
+
+2026-10-09T15:41:42.492882Z  WARN kripteia: telemetry DB unavailable: telemetry DB error: attempt to write a readonly database
+
+## Analisis de Seguridad (Kripteia Security)
+2026-10-09T15:41:42.528969Z  WARN kripteia: telemetry DB unavailable: telemetry DB error: attempt to write a readonly database
+
+=== Kripteia Security Analysis ===
+
+No security issues found.

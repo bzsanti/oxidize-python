@@ -57,6 +57,15 @@ The built-in [Model Context Protocol](https://modelcontextprotocol.io/) server e
 
 Version 0.20 uses FastMCP 4 and MCP Python SDK 2, with support for both modern and legacy stdio clients. See the [migration guide](docs/MCP-V2-MIGRATION.md) for versions and installation routes.
 
+If `tools/list` returns an empty array with an older installation (issue [#198](https://github.com/bzsanti/oxidize-python/issues/198)), upgrade to 0.20.0 or newer. These versions fix tool registration when starting `server.py` directly. On Windows, use the same Python environment for installation and startup:
+
+```powershell
+python -m pip install --upgrade "oxidize-pdf[mcp]"
+python -m oxidize_pdf.mcp.server
+```
+
+For a custom JSON-RPC client, send `initialize`, wait for its response, then send `notifications/initialized` before `tools/list`. Read newline-delimited JSON-RPC from stdout and keep stderr separate; the startup banner is written to stderr.
+
 ### Claude Desktop integration
 
 Add to your `claude_desktop_config.json`:

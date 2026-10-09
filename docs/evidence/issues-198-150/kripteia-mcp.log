@@ -1,0 +1,249 @@
+## Calidad de Tests (Kripteia)
+
+=== Kripteia Test Quality Report ===
+Overall Score: 96 | Tests: 229 | Files: 25
+
+--- Files ---
+Path                                                          Tests  Score
+--------------------------------------------------------------------------
+tests/mcp_tests/test_config.py                                   18     99
+tests/mcp_tests/test_integration.py                              12     96
+tests/mcp_tests/test_models.py                                   11    100
+tests/mcp_tests/test_prompts.py                                  11     98
+tests/mcp_tests/test_protocol_contract.py                         3    100
+tests/mcp_tests/test_resources.py                                 9    100
+tests/mcp_tests/test_sdk_v2.py                                    2    100
+tests/mcp_tests/test_security.py                                 23     92
+tests/mcp_tests/test_server.py                                    2     90
+tests/mcp_tests/test_sessions.py                                 14     91
+tests/mcp_tests/test_stdio.py                                     3    100
+tests/mcp_tests/test_tool_add_content.py                          8     95
+tests/mcp_tests/test_tool_analyze_pdf.py                         12     98
+tests/mcp_tests/test_tool_annotate_pdf.py                         4     90
+tests/mcp_tests/test_tool_convert_pdf.py                         14     97
+tests/mcp_tests/test_tool_create_pdf.py                           4     95
+tests/mcp_tests/test_tool_definition_quality.py                   8     95
+tests/mcp_tests/test_tool_extract_entities.py                     9     98
+tests/mcp_tests/test_tool_extract_text.py                        13     99
+tests/mcp_tests/test_tool_manage_forms.py                         4     95
+tests/mcp_tests/test_tool_manipulate_pdf.py                       9     90
+tests/mcp_tests/test_tool_read_pdf.py                            17    100
+tests/mcp_tests/test_tool_save_pdf.py                             5     92
+tests/mcp_tests/test_tool_secure_pdf.py                           4     90
+tests/mcp_tests/test_tool_setup.py                               10     95
+
+--- Worst Offenders ---
+  TestCheckFileSize::test_passes_within_limit (tests/mcp_tests/test_security.py:94) - Score: 75
+    - Test 'TestCheckFileSize::test_passes_within_limit' executes production code without asserting on its behaviour
+  TestCheckPageCount::test_passes_when_count_equals_max (tests/mcp_tests/test_security.py:131) - Score: 75
+    - Test 'TestCheckPageCount::test_passes_when_count_equals_max' executes production code without asserting on its behaviour
+  TestCheckPageCount::test_passes_when_count_below_max (tests/mcp_tests/test_security.py:136) - Score: 75
+    - Test 'TestCheckPageCount::test_passes_when_count_below_max' executes production code without asserting on its behaviour
+  TestCheckOutputSize::test_passes_when_payload_bytes_equal_max (tests/mcp_tests/test_security.py:159) - Score: 75
+    - Test 'TestCheckOutputSize::test_passes_when_payload_bytes_equal_max' executes production code without asserting on its behaviour
+  TestCheckOutputSize::test_passes_empty_payload (tests/mcp_tests/test_security.py:171) - Score: 75
+    - Test 'TestCheckOutputSize::test_passes_empty_payload' executes production code without asserting on its behaviour
+
+--- Details ---
+tests/mcp_tests/test_config.py:
+  test_config_max_output_bytes_default (line 86) - Score: 90
+    - Test 'test_config_max_output_bytes_default' has identical neighborhood to 'test_config_max_session_bytes_default'
+  test_config_max_session_bytes_default (line 115) - Score: 90
+    - Test 'test_config_max_session_bytes_default' has identical neighborhood to 'test_config_max_output_bytes_default'
+
+tests/mcp_tests/test_integration.py:
+  TestAllToolsRegistered::test_all_12_tools_registered (line 13) - Score: 90
+    - Test 'TestAllToolsRegistered::test_all_12_tools_registered' has low assert-to-setup ratio (11%): 1 asserts vs 8 setup lines
+  TestAllPromptsRegistered::test_all_5_prompts_registered (line 50) - Score: 90
+    - Test 'TestAllPromptsRegistered::test_all_5_prompts_registered' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+  TestFullInvoiceWorkflow::test_create_add_save_workflow (line 65) - Score: 90
+    - Test 'TestFullInvoiceWorkflow::test_create_add_save_workflow' has low assert-to-setup ratio (9%): 3 asserts vs 32 setup lines
+  TestSecurityEdgeCases::test_convert_rejects_unsafe_path (line 162) - Score: 90
+    - Test 'TestSecurityEdgeCases::test_convert_rejects_unsafe_path' has identical neighborhood to 'TestConvertPdfSecurity::test_rejects_unsafe_path'
+  TestSecurityEdgeCases::test_manipulate_rejects_output_outside_workspace (line 169) - Score: 90
+    - Test 'TestSecurityEdgeCases::test_manipulate_rejects_output_outside_workspace' has low assert-to-setup ratio (9%): 1 asserts vs 10 setup lines
+
+tests/mcp_tests/test_prompts.py:
+  TestCompareDocumentsPrompt::test_prompt_content (line 97) - Score: 90
+    - Test 'TestCompareDocumentsPrompt::test_prompt_content' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  TestFillFormPrompt::test_prompt_content (line 116) - Score: 90
+    - Test 'TestFillFormPrompt::test_prompt_content' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+
+tests/mcp_tests/test_security.py:
+  TestValidatePath::test_safe_path_within_workspace (line 7) - Score: 90
+    - Test 'TestValidatePath::test_safe_path_within_workspace' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  TestValidatePath::test_allows_pdf_extension (line 54) - Score: 90
+    - Test 'TestValidatePath::test_allows_pdf_extension' has low assert-to-setup ratio (12%): 1 asserts vs 7 setup lines
+  TestValidatePath::test_legitimate_path_with_dotdot_inside_workspace (line 64) - Score: 90
+    - Test 'TestValidatePath::test_legitimate_path_with_dotdot_inside_workspace' has low assert-to-setup ratio (10%): 1 asserts vs 9 setup lines
+  TestValidatePath::test_allows_extra_allowed_paths (line 76) - Score: 90
+    - Test 'TestValidatePath::test_allows_extra_allowed_paths' has low assert-to-setup ratio (7%): 1 asserts vs 13 setup lines
+  TestCheckFileSize::test_passes_within_limit (line 94) - Score: 75
+    - Test 'TestCheckFileSize::test_passes_within_limit' executes production code without asserting on its behaviour
+  TestCheckPageCount::test_passes_when_count_equals_max (line 131) - Score: 75
+    - Test 'TestCheckPageCount::test_passes_when_count_equals_max' executes production code without asserting on its behaviour
+  TestCheckPageCount::test_passes_when_count_below_max (line 136) - Score: 75
+    - Test 'TestCheckPageCount::test_passes_when_count_below_max' executes production code without asserting on its behaviour
+  TestCheckOutputSize::test_passes_when_payload_bytes_equal_max (line 159) - Score: 75
+    - Test 'TestCheckOutputSize::test_passes_when_payload_bytes_equal_max' executes production code without asserting on its behaviour
+  TestCheckOutputSize::test_passes_empty_payload (line 171) - Score: 75
+    - Test 'TestCheckOutputSize::test_passes_empty_payload' executes production code without asserting on its behaviour
+  TestCheckSessionContentSize::test_passes_when_total_equals_max (line 186) - Score: 75
+    - Test 'TestCheckSessionContentSize::test_passes_when_total_equals_max' executes production code without asserting on its behaviour
+
+tests/mcp_tests/test_server.py:
+  TestToolRegistration::test_all_implemented_tools_registered (line 9) - Score: 90
+    - Test 'TestToolRegistration::test_all_implemented_tools_registered' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+  TestToolRegistration::test_all_tools_have_descriptions (line 20) - Score: 90
+    - Test 'TestToolRegistration::test_all_tools_have_descriptions' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+
+tests/mcp_tests/test_sessions.py:
+  TestSessionStoreCrud::test_get_returns_data (line 15) - Score: 90
+    - Test 'TestSessionStoreCrud::test_get_returns_data' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  TestSessionStoreCrud::test_update_merges_data (line 29) - Score: 90
+    - Test 'TestSessionStoreCrud::test_update_merges_data' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  TestSessionStoreCrud::test_delete_removes_session (line 37) - Score: 90
+    - Test 'TestSessionStoreCrud::test_delete_removes_session' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  TestSessionStoreExpiry::test_session_expires_after_max_age (line 47) - Score: 80
+    - Test 'TestSessionStoreExpiry::test_session_expires_after_max_age' waits with a fixed sleep
+    - Test 'TestSessionStoreExpiry::test_session_expires_after_max_age' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+  TestSessionStoreExpiry::test_count (line 66) - Score: 90
+    - Test 'TestSessionStoreExpiry::test_count' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  TestSessionStoreExpiry::test_purge_returns_count (line 74) - Score: 90
+    - Test 'TestSessionStoreExpiry::test_purge_returns_count' waits with a fixed sleep
+  TestSessionStoreExpiry::test_get_returns_none_for_expired_without_purge (line 85) - Score: 80
+    - Test 'TestSessionStoreExpiry::test_get_returns_none_for_expired_without_purge' waits with a fixed sleep
+    - Test 'TestSessionStoreExpiry::test_get_returns_none_for_expired_without_purge' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+  TestSessionStoreMaxSessions::test_create_succeeds_after_delete_frees_slot (line 107) - Score: 90
+    - Test 'TestSessionStoreMaxSessions::test_create_succeeds_after_delete_frees_slot' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+  TestSessionStoreMaxSessions::test_create_auto_purges_expired_before_checking_limit (line 116) - Score: 90
+    - Test 'TestSessionStoreMaxSessions::test_create_auto_purges_expired_before_checking_limit' waits with a fixed sleep
+  TestSessionStoreMaxSessions::test_no_limit_when_max_sessions_is_zero (line 128) - Score: 90
+    - Test 'TestSessionStoreMaxSessions::test_no_limit_when_max_sessions_is_zero' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+
+tests/mcp_tests/test_tool_add_content.py:
+  TestAddTextContent::test_add_text_content (line 13) - Score: 90
+    - Test 'TestAddTextContent::test_add_text_content' has low assert-to-setup ratio (12%): 2 asserts vs 14 setup lines
+  TestAddNewPage::test_add_text_with_font_and_size (line 54) - Score: 90
+    - Test 'TestAddNewPage::test_add_text_with_font_and_size' has low assert-to-setup ratio (11%): 2 asserts vs 17 setup lines
+  TestAddNewPage::test_missing_session_returns_error (line 80) - Score: 90
+    - Test 'TestAddNewPage::test_missing_session_returns_error' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  TestAddContentSessionByteCap::test_new_page_spam_bounded (line 129) - Score: 90
+    - Test 'TestAddContentSessionByteCap::test_new_page_spam_bounded' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+
+tests/mcp_tests/test_tool_analyze_pdf.py:
+  TestAnalyzePdfCompare::test_compare_returns_difference_count (line 110) - Score: 90
+    - Test 'TestAnalyzePdfCompare::test_compare_returns_difference_count' has low assert-to-setup ratio (18%): 2 asserts vs 9 setup lines
+  TestAnalyzePdfCompare::test_compare_invalid_compare_path_returns_error (line 134) - Score: 90
+    - Test 'TestAnalyzePdfCompare::test_compare_invalid_compare_path_returns_error' has low assert-to-setup ratio (10%): 1 asserts vs 9 setup lines
+
+tests/mcp_tests/test_tool_annotate_pdf.py:
+  TestAnnotateText::test_annotate_add_text (line 13) - Score: 90
+    - Test 'TestAnnotateText::test_annotate_add_text' has low assert-to-setup ratio (18%): 3 asserts vs 14 setup lines
+  TestAnnotateHighlight::test_annotate_highlight (line 39) - Score: 90
+    - Test 'TestAnnotateHighlight::test_annotate_highlight' has low assert-to-setup ratio (6%): 1 asserts vs 15 setup lines
+  TestAnnotateSecurity::test_annotate_rejects_unsafe_input (line 63) - Score: 90
+    - Test 'TestAnnotateSecurity::test_annotate_rejects_unsafe_input' has low assert-to-setup ratio (8%): 1 asserts vs 12 setup lines
+  TestAnnotateSecurity::test_annotate_invalid_type_returns_error (line 78) - Score: 90
+    - Test 'TestAnnotateSecurity::test_annotate_invalid_type_returns_error' has low assert-to-setup ratio (13%): 2 asserts vs 13 setup lines
+
+tests/mcp_tests/test_tool_convert_pdf.py:
+  TestConvertToChunks::test_rag_ignores_max_tokens (line 69) - Score: 90
+    - Test 'TestConvertToChunks::test_rag_ignores_max_tokens' has low assert-to-setup ratio (5%): 1 asserts vs 19 setup lines
+  TestConvertPdfSecurity::test_rejects_unsafe_path (line 125) - Score: 90
+    - Test 'TestConvertPdfSecurity::test_rejects_unsafe_path' has identical neighborhood to 'TestSecurityEdgeCases::test_convert_rejects_unsafe_path'
+  TestConvertPdfPageCountCap::test_conversion_never_called_when_over_cap (line 187) - Score: 90
+    - Test 'TestConvertPdfPageCountCap::test_conversion_never_called_when_over_cap' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+  TestConvertPdfOutputCap::test_rejects_when_output_exceeds_cap (line 204) - Score: 90
+    - Test 'TestConvertPdfOutputCap::test_rejects_when_output_exceeds_cap' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+
+tests/mcp_tests/test_tool_create_pdf.py:
+  TestCreatePdf::test_create_pdf_with_metadata (line 22) - Score: 90
+    - Test 'TestCreatePdf::test_create_pdf_with_metadata' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  TestCreatePdfSessionPersists::test_session_is_retrievable_via_resource (line 41) - Score: 90
+    - Test 'TestCreatePdfSessionPersists::test_session_is_retrievable_via_resource' has low assert-to-setup ratio (12%): 1 asserts vs 7 setup lines
+
+tests/mcp_tests/test_tool_definition_quality.py:
+  test_all_expected_tools_present (line 80) - Score: 90
+    - Test 'test_all_expected_tools_present' does not call any production code
+  test_tool_declares_annotations (line 108) - Score: 90
+    - Test 'test_tool_declares_annotations' does not call any production code
+  test_read_only_tools_marked_read_only (line 119) - Score: 90
+    - Test 'test_read_only_tools_marked_read_only' does not call any production code
+  test_write_tools_not_marked_read_only (line 125) - Score: 90
+    - Test 'test_write_tools_not_marked_read_only' does not call any production code
+
+tests/mcp_tests/test_tool_extract_entities.py:
+  TestExtractEntitiesPageCountCap::test_extraction_never_called_when_over_cap (line 110) - Score: 90
+    - Test 'TestExtractEntitiesPageCountCap::test_extraction_never_called_when_over_cap' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+  TestExtractEntitiesOutputCap::test_rejects_when_output_exceeds_cap (line 127) - Score: 90
+    - Test 'TestExtractEntitiesOutputCap::test_rejects_when_output_exceeds_cap' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+
+tests/mcp_tests/test_tool_extract_text.py:
+  TestExtractTextPageCountCap::test_extraction_never_called_when_over_cap (line 118) - Score: 90
+    - Test 'TestExtractTextPageCountCap::test_extraction_never_called_when_over_cap' has low assert-to-setup ratio (12%): 1 asserts vs 7 setup lines
+
+tests/mcp_tests/test_tool_manage_forms.py:
+  TestManageFormsCreate::test_create_text_field (line 13) - Score: 90
+    - Test 'TestManageFormsCreate::test_create_text_field' has low assert-to-setup ratio (14%): 3 asserts vs 19 setup lines
+  TestManageFormsValidate::test_validate_form (line 83) - Score: 90
+    - Test 'TestManageFormsValidate::test_validate_form' has low assert-to-setup ratio (10%): 1 asserts vs 9 setup lines
+
+tests/mcp_tests/test_tool_manipulate_pdf.py:
+  TestManipulateSplit::test_split_returns_ok (line 13) - Score: 90
+    - Test 'TestManipulateSplit::test_split_returns_ok' has low assert-to-setup ratio (15%): 2 asserts vs 11 setup lines
+  TestManipulateMerge::test_merge_returns_ok (line 34) - Score: 90
+    - Test 'TestManipulateMerge::test_merge_returns_ok' has low assert-to-setup ratio (17%): 2 asserts vs 10 setup lines
+  TestManipulateMerge::test_merge_missing_input_paths_returns_error (line 50) - Score: 90
+    - Test 'TestManipulateMerge::test_merge_missing_input_paths_returns_error' has low assert-to-setup ratio (10%): 1 asserts vs 9 setup lines
+  TestManipulateRotate::test_rotate_returns_ok (line 70) - Score: 90
+    - Test 'TestManipulateRotate::test_rotate_returns_ok' has low assert-to-setup ratio (8%): 1 asserts vs 11 setup lines
+  TestManipulateExtractPages::test_extract_pages_returns_ok (line 90) - Score: 90
+    - Test 'TestManipulateExtractPages::test_extract_pages_returns_ok' has low assert-to-setup ratio (8%): 1 asserts vs 11 setup lines
+  TestManipulateInvalidOperation::test_invalid_operation_returns_error (line 112) - Score: 90
+    - Test 'TestManipulateInvalidOperation::test_invalid_operation_returns_error' has low assert-to-setup ratio (17%): 2 asserts vs 10 setup lines
+  TestManipulateReverse::test_reverse_returns_ok (line 135) - Score: 90
+    - Test 'TestManipulateReverse::test_reverse_returns_ok' has low assert-to-setup ratio (9%): 1 asserts vs 10 setup lines
+  TestManipulateOverlay::test_overlay_returns_ok (line 156) - Score: 90
+    - Test 'TestManipulateOverlay::test_overlay_returns_ok' has low assert-to-setup ratio (8%): 1 asserts vs 11 setup lines
+  TestManipulateOverlay::test_overlay_missing_overlay_path_returns_error (line 172) - Score: 90
+    - Test 'TestManipulateOverlay::test_overlay_missing_overlay_path_returns_error' has low assert-to-setup ratio (9%): 1 asserts vs 10 setup lines
+
+tests/mcp_tests/test_tool_save_pdf.py:
+  TestSavePdf::test_save_pdf_creates_file (line 13) - Score: 90
+    - Test 'TestSavePdf::test_save_pdf_creates_file' has low assert-to-setup ratio (13%): 3 asserts vs 20 setup lines
+  TestSavePdfCleanup::test_save_cleans_up_session (line 49) - Score: 90
+    - Test 'TestSavePdfCleanup::test_save_cleans_up_session' has low assert-to-setup ratio (9%): 1 asserts vs 10 setup lines
+  TestSavePdfCleanup::test_save_pdf_with_encryption (line 62) - Score: 90
+    - Test 'TestSavePdfCleanup::test_save_pdf_with_encryption' has low assert-to-setup ratio (11%): 2 asserts vs 16 setup lines
+  TestSavePdfCleanup::test_save_missing_session_returns_error (line 83) - Score: 90
+    - Test 'TestSavePdfCleanup::test_save_missing_session_returns_error' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+
+tests/mcp_tests/test_tool_secure_pdf.py:
+  TestSecurePdfEncrypt::test_encrypt_creates_encrypted_pdf (line 13) - Score: 90
+    - Test 'TestSecurePdfEncrypt::test_encrypt_creates_encrypted_pdf' has low assert-to-setup ratio (18%): 3 asserts vs 14 setup lines
+  TestSecurePdfPermissions::test_check_permissions (line 41) - Score: 90
+    - Test 'TestSecurePdfPermissions::test_check_permissions' has low assert-to-setup ratio (10%): 1 asserts vs 9 setup lines
+  TestSecurePdfVerifySignatures::test_verify_signatures (line 59) - Score: 90
+    - Test 'TestSecurePdfVerifySignatures::test_verify_signatures' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  test_encrypt_text_without_font_name (line 69) - Score: 90
+    - Test 'test_encrypt_text_without_font_name' has low assert-to-setup ratio (7%): 2 asserts vs 25 setup lines
+
+tests/mcp_tests/test_tool_setup.py:
+  TestConfigSingleton::test_get_config_returns_same_instance (line 10) - Score: 80
+    - Test 'TestConfigSingleton::test_get_config_returns_same_instance' has identical neighborhood to 'TestConfigSingleton::test_get_config_reads_env'
+    - Test 'TestConfigSingleton::test_get_config_returns_same_instance' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+  TestConfigSingleton::test_get_config_reads_env (line 19) - Score: 80
+    - Test 'TestConfigSingleton::test_get_config_reads_env' has identical neighborhood to 'TestConfigSingleton::test_get_config_returns_same_instance'
+    - Test 'TestConfigSingleton::test_get_config_reads_env' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  TestSessionStoreSingletonRespectsConfig::test_store_enforces_configured_max_sessions (line 68) - Score: 90
+    - Test 'TestSessionStoreSingletonRespectsConfig::test_store_enforces_configured_max_sessions' has low assert-to-setup ratio (13%): 2 asserts vs 13 setup lines
+
+2026-10-09T15:41:48.600729Z  WARN kripteia: telemetry DB unavailable: telemetry DB error: attempt to write a readonly database
+
+## Analisis de Seguridad (Kripteia Security)
+2026-10-09T15:41:48.664734Z  WARN kripteia: telemetry DB unavailable: telemetry DB error: attempt to write a readonly database
+
+=== Kripteia Security Analysis ===
+
+No security issues found.

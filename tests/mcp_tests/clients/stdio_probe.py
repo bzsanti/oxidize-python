@@ -76,6 +76,11 @@ async def main():
         from pathlib import Path
         command = str(Path(server_python).with_name("oxidize-mcp.exe" if os.name == "nt" else "oxidize-mcp"))
         args = []
+    elif launch == "direct":
+        from importlib.util import find_spec
+        spec = find_spec("oxidize_pdf.mcp.server")
+        assert spec is not None and spec.origin is not None
+        args = [spec.origin]
     elif launch == "launcher":
         command, args = "bash", [os.environ["OXIDIZE_TEST_LAUNCHER"], "serve"]
     elif launch == "registry":
