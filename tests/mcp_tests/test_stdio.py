@@ -8,6 +8,8 @@ import sys
 
 import pytest
 
+from .clients.tool_catalog_contract import assert_tool_catalog
+
 PROBE = Path(__file__).parent / "clients" / "stdio_probe.py"
 
 
@@ -85,12 +87,7 @@ async def test_stdout_is_jsonrpc_and_server_version_is_explicit(tmp_path, launch
                     message = json.loads(line)
                     assert message["jsonrpc"] == "2.0"
                     if message.get("id") == 2:
-                        assert {tool["name"] for tool in message["result"]["tools"]} == {
-                            "read_pdf", "extract_text", "convert_pdf", "analyze_pdf",
-                            "extract_entities", "manipulate_pdf", "annotate_pdf",
-                            "manage_forms", "secure_pdf", "create_pdf",
-                            "add_pdf_content", "save_pdf",
-                        }
+                        assert_tool_catalog(message["result"]["tools"])
                         break
             finally:
                 process.stdin.close()
