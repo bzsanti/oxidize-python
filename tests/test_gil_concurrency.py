@@ -8,6 +8,7 @@ serially. That speedup only exists when the Rust op releases the GIL via
 """
 
 import os
+import sys
 from concurrent.futures import ThreadPoolExecutor
 from time import perf_counter
 
@@ -27,6 +28,9 @@ _WORKERS = 4
 # under half the serial time; 0.7 leaves wide margin for scheduling noise while
 # still failing decisively when the op holds the GIL (ratio ~1.0).
 _MAX_PARALLEL_RATIO = 0.7
+# #150: a single noisy pair on a shared runner is not a regression. Keep the
+# same threshold, but give the operation up to three independent pairs.
+_MAX_ATTEMPTS = 3
 
 
 @pytest.fixture(scope="module")
@@ -63,11 +67,25 @@ def _measure_parallel(op, n, workers):
 
 def _assert_parallel_speedup(op):
     op()  # warm up caches / one-time init outside the measurement
-    serial = _measure_serial(op, _TASKS)
-    parallel = _measure_parallel(op, _TASKS, _WORKERS)
-    assert parallel < serial * _MAX_PARALLEL_RATIO, (
-        f"no GIL-release parallelism: parallel={parallel:.3f}s "
-        f"serial={serial:.3f}s ratio={parallel / serial:.2f} "
+    samples = []
+    for attempt in range(_MAX_ATTEMPTS):
+        # Alternate order so warm caches or a changing runner load do not
+        # systematically favour either serial or parallel execution.
+        if attempt % 2 == 0:
+            serial = _measure_serial(op, _TASKS)
+            parallel = _measure_parallel(op, _TASKS, _WORKERS)
+        else:
+            parallel = _measure_parallel(op, _TASKS, _WORKERS)
+            serial = _measure_serial(op, _TASKS)
+        samples.append((serial, parallel))
+        if parallel < serial * _MAX_PARALLEL_RATIO:
+            return
+    detail = "; ".join(
+        f"parallel={parallel:.3f}s serial={serial:.3f}s ratio={parallel / serial:.2f}"
+        for serial, parallel in samples
+    )
+    pytest.fail(
+        f"no GIL-release parallelism in {_MAX_ATTEMPTS} attempts: {detail} "
         f"(expected < {_MAX_PARALLEL_RATIO})"
     )
 
@@ -97,3 +115,58 @@ def test_extract_text_releases_gil(large_pdf):
         PdfReader.open(large_pdf).extract_text()
 
     _assert_parallel_speedup(op)
+
+
+@pytest.mark.parametrize("ratios", [(0.60,), (0.78, 0.65), (0.90, 0.78, 0.65)])
+def test_speedup_guard_retries_only_noisy_samples(monkeypatch, ratios):
+    """#150's reported 0.78 must get another measurement, not a wider threshold."""
+    remaining = iter(ratios)
+    calls = []
+
+    def serial(op, n):
+        calls.append("serial")
+        return 10.0
+
+    def parallel(op, n, workers):
+        calls.append("parallel")
+        return 10.0 * next(remaining)
+
+    monkeypatch.setattr(sys.modules[__name__], "_measure_serial", serial)
+    monkeypatch.setattr(sys.modules[__name__], "_measure_parallel", parallel)
+    _assert_parallel_speedup(lambda: None)
+    assert calls == ["serial", "parallel", "parallel", "serial", "serial", "parallel"][:2 * len(ratios)]
+
+
+@pytest.mark.parametrize("ratio", [0.70, 0.78, 1.0])
+def test_speedup_guard_rejects_sustained_slowdown(monkeypatch, ratio):
+    monkeypatch.setattr(sys.modules[__name__], "_measure_serial", lambda op, n: 10.0)
+    monkeypatch.setattr(
+        sys.modules[__name__], "_measure_parallel", lambda op, n, workers: 10.0 * ratio,
+    )
+    with pytest.raises(pytest.fail.Exception, match="in 3 attempts") as failure:
+        _assert_parallel_speedup(lambda: None)
+    assert str(failure.value).count(f"ratio={ratio:.2f}") == 3
+    assert "expected < 0.7" in str(failure.value)
+
+
+def test_speedup_guard_propagates_operation_failure():
+    def broken():
+        raise RuntimeError("operation failed")
+
+    with pytest.raises(RuntimeError, match="operation failed"):
+        _assert_parallel_speedup(broken)
+
+
+@pytest.mark.skipif(
+    sys.implementation.name != "cpython"
+    or (hasattr(sys, "_is_gil_enabled") and not sys._is_gil_enabled()),
+    reason="the negative control requires CPython with the GIL enabled",
+)
+def test_speedup_guard_rejects_real_gil_bound_work():
+    """Real negative control: CPython's integer sum loop does not release the GIL.
+
+    It must still fail after all retries; this guards against turning a noise
+    mitigation into an unconditional pass. No mocked timers or PDF operations.
+    """
+    with pytest.raises(pytest.fail.Exception, match="no GIL-release parallelism in 3 attempts"):
+        _assert_parallel_speedup(lambda: sum(range(4_000_000)))

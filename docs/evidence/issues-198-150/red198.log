@@ -1,0 +1,17 @@
+{"jsonrpc": "2.0", "id": 2, "result": {"tools": []}}
+Traceback (most recent call last):
+  File "/tmp/oxidize-python-198-150/mutate198.py", line 26, in <module>
+    asyncio.run(main())
+  File "/usr/lib/python3.12/asyncio/runners.py", line 194, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/asyncio/base_events.py", line 687, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/tmp/oxidize-python-198-150/mutate198.py", line 21, in main
+    assert len(result['result']['tools'])==12, 'Regression detected: direct __main__ instance has no registered tools'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Regression detected: direct __main__ instance has no registered tools
