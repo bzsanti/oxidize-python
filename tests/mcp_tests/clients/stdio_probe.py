@@ -9,6 +9,8 @@ from importlib.metadata import version
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
 
+from tool_catalog_contract import assert_tool_catalog
+
 
 def wire(model):
     return model.model_dump(by_alias=True)
@@ -16,11 +18,7 @@ def wire(model):
 
 async def exercise(client):
     tools = wire(await client.list_tools())["tools"]
-    assert {t["name"] for t in tools} == {
-        "read_pdf", "extract_text", "convert_pdf", "analyze_pdf",
-        "extract_entities", "manipulate_pdf", "annotate_pdf", "manage_forms",
-        "secure_pdf", "create_pdf", "add_pdf_content", "save_pdf",
-    }
+    assert_tool_catalog(tools)
     read = next(t for t in tools if t["name"] == "read_pdf")
     assert read["annotations"]["readOnlyHint"] is True
     assert read["inputSchema"]["required"] == ["path"]
@@ -76,6 +74,14 @@ async def main():
         from pathlib import Path
         command = str(Path(server_python).with_name("oxidize-mcp.exe" if os.name == "nt" else "oxidize-mcp"))
         args = []
+    elif launch == "direct":
+        import subprocess
+        result = subprocess.run(
+            [server_python, "-c", "from importlib.util import find_spec; "
+             "print(find_spec('oxidize_pdf.mcp.server').origin)"],
+            check=True, capture_output=True, text=True, timeout=15,
+        )
+        args = [result.stdout.strip()]
     elif launch == "launcher":
         command, args = "bash", [os.environ["OXIDIZE_TEST_LAUNCHER"], "serve"]
     elif launch == "registry":

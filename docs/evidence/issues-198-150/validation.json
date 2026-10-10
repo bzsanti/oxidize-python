@@ -1,0 +1,29 @@
+{
+  "base": "8f077333fb02372fcf250ed815f50b69c044a834",
+  "python": "3.12.3",
+  "platform": "Linux",
+  "oxidize_pdf": "0.21.0",
+  "fastmcp": "4.0.11",
+  "suite": {
+    "passed": 2559,
+    "skipped": 1,
+    "seconds": 55.94
+  },
+  "stdio_focused": {
+    "passed": 7,
+    "skipped": 1
+  },
+  "gil_focused": {
+    "passed": 11
+  },
+  "source_sha256": {
+    "README.md": "bfd4f03695cd6a0cada7eee91ac829cd4b450343a43b159b5d461d88ebddce36",
+    "tests/mcp_tests/test_stdio.py": "6e50ea1e4dadfcb429da680329ff0d81bcade2dc09ddee95b8c6c1324a7e3197",
+    "tests/mcp_tests/clients/stdio_probe.py": "29af643f138ccee2a2ead6d9b819e260d2a23b75000b6bfbeb611982f06c68ec",
+    "tests/test_gil_concurrency.py": "667034e73a80d19b1f9ba5987913353321ff15ee75beb0cbafe3cd03ca34e653"
+  },
+  "post_test_changes": "Whitespace and import ordering only; behavioral sources unchanged.",
+  "ci": "Pending PR checks; no fresh Windows validation claimed.",
+  "issue198": "CLOSED; fixed since 0.20.0; checked 2026-10-09T15:41:34Z",
+  "issue150": "OPEN pending integration"
+}

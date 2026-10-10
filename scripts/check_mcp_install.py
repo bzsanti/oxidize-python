@@ -58,7 +58,7 @@ assert "Base package works" in "\\n".join(PdfReader.open("base.pdf").extract_tex
         run([server, "-c", 'from importlib.metadata import version; assert version("mcp").split(".")[0] == "2"; print({n: version(n) for n in ["oxidize-pdf", "fastmcp", "mcp", "mcp-types"]})'], root, env)
         workspace = root / "workspace"
         workspace.mkdir()
-        for launch in ["module", "entrypoint"]:
+        for launch in ["module", "entrypoint", "direct"]:
             run([server, PROBE, server, launch, workspace], root, env)
         legacy = create_env(root, "legacy")
         run([legacy, "-m", "pip", "install", "mcp==1.26.0"], root, env)

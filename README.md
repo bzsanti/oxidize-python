@@ -26,7 +26,7 @@ pip install "oxidize-pdf[mcp]"     # + MCP server for AI agents
 **Platforms:** Linux (x86_64, aarch64) | macOS (x86_64, Apple Silicon) | Windows (x86_64)
 **Requires:** Python 3.10+
 
-Version 0.21.0 pins Rust core **5.4.1**, using the MIT-licensed `oxidize-webpki`
+Version 0.21.1 pins Rust core **5.4.1**, using the MIT-licensed `oxidize-webpki`
 RustCrypto provider for certificate verification. See the
 [dependency policy](docs/NO-NATIVE-CRYPTO.md) for supported builds and limits.
 New APIs include explicit text recovery, non-breaking-space normalization,
@@ -56,6 +56,15 @@ oxidize-mcp
 The built-in [Model Context Protocol](https://modelcontextprotocol.io/) server exposes **12 tools**, **5 static resources plus a session resource template**, and **5 prompts** over stdio. Install `oxidize-pdf[mcp]` to include its dependencies; the base library keeps MCP optional.
 
 Version 0.20 uses FastMCP 4 and MCP Python SDK 2, with support for both modern and legacy stdio clients. See the [migration guide](docs/MCP-V2-MIGRATION.md) for versions and installation routes.
+
+If `tools/list` returns an empty array with an older installation (issue [#198](https://github.com/bzsanti/oxidize-python/issues/198)), upgrade to 0.20.0 or newer. These versions fix tool registration when starting `server.py` directly. On Windows, use the same Python environment for installation and startup:
+
+```powershell
+python -m pip install --upgrade "oxidize-pdf[mcp]"
+python -m oxidize_pdf.mcp.server
+```
+
+For a custom JSON-RPC client, send `initialize`, wait for its response, then send `notifications/initialized` before `tools/list`. Read newline-delimited JSON-RPC from stdout and keep stderr separate; the startup banner is written to stderr.
 
 ### Claude Desktop integration
 

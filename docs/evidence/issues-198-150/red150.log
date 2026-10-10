@@ -1,0 +1,88 @@
+.FF                                                                      [100%]
+=================================== FAILURES ===================================
+____________ test_speedup_guard_retries_only_noisy_samples[ratios1] ____________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7e92b8dd64e0>
+ratios = (0.78, 0.65)
+
+    @pytest.mark.parametrize("ratios", [(0.60,), (0.78, 0.65), (0.90, 0.78, 0.65)])
+    def test_speedup_guard_retries_only_noisy_samples(monkeypatch, ratios):
+        """#150's reported 0.78 must get another measurement, not a wider threshold."""
+        remaining = iter(ratios)
+        calls = []
+    
+        def serial(op, n):
+            calls.append("serial")
+            return 10.0
+    
+        def parallel(op, n, workers):
+            calls.append("parallel")
+            return 10.0 * next(remaining)
+    
+        monkeypatch.setattr(sys.modules[__name__], "_measure_serial", serial)
+        monkeypatch.setattr(sys.modules[__name__], "_measure_parallel", parallel)
+>       _assert_parallel_speedup(lambda: None)
+
+/tmp/oxidize-python-198-150/test_red150.py:119: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+op = <function test_speedup_guard_retries_only_noisy_samples.<locals>.<lambda> at 0x7e92b8fea200>
+
+    def _assert_parallel_speedup(op):
+        op()  # warm up caches / one-time init outside the measurement
+        serial = _measure_serial(op, _TASKS)
+        parallel = _measure_parallel(op, _TASKS, _WORKERS)
+>       assert parallel < serial * _MAX_PARALLEL_RATIO, (
+            f"no GIL-release parallelism: parallel={parallel:.3f}s "
+            f"serial={serial:.3f}s ratio={parallel / serial:.2f} "
+            f"(expected < {_MAX_PARALLEL_RATIO})"
+        )
+E       AssertionError: no GIL-release parallelism: parallel=7.800s serial=10.000s ratio=0.78 (expected < 0.7)
+E       assert 7.800000000000001 < (10.0 * 0.7)
+
+/tmp/oxidize-python-198-150/test_red150.py:69: AssertionError
+____________ test_speedup_guard_retries_only_noisy_samples[ratios2] ____________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7e92b8dd5280>
+ratios = (0.9, 0.78, 0.65)
+
+    @pytest.mark.parametrize("ratios", [(0.60,), (0.78, 0.65), (0.90, 0.78, 0.65)])
+    def test_speedup_guard_retries_only_noisy_samples(monkeypatch, ratios):
+        """#150's reported 0.78 must get another measurement, not a wider threshold."""
+        remaining = iter(ratios)
+        calls = []
+    
+        def serial(op, n):
+            calls.append("serial")
+            return 10.0
+    
+        def parallel(op, n, workers):
+            calls.append("parallel")
+            return 10.0 * next(remaining)
+    
+        monkeypatch.setattr(sys.modules[__name__], "_measure_serial", serial)
+        monkeypatch.setattr(sys.modules[__name__], "_measure_parallel", parallel)
+>       _assert_parallel_speedup(lambda: None)
+
+/tmp/oxidize-python-198-150/test_red150.py:119: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+op = <function test_speedup_guard_retries_only_noisy_samples.<locals>.<lambda> at 0x7e92b8deb7e0>
+
+    def _assert_parallel_speedup(op):
+        op()  # warm up caches / one-time init outside the measurement
+        serial = _measure_serial(op, _TASKS)
+        parallel = _measure_parallel(op, _TASKS, _WORKERS)
+>       assert parallel < serial * _MAX_PARALLEL_RATIO, (
+            f"no GIL-release parallelism: parallel={parallel:.3f}s "
+            f"serial={serial:.3f}s ratio={parallel / serial:.2f} "
+            f"(expected < {_MAX_PARALLEL_RATIO})"
+        )
+E       AssertionError: no GIL-release parallelism: parallel=9.000s serial=10.000s ratio=0.90 (expected < 0.7)
+E       assert 9.0 < (10.0 * 0.7)
+
+/tmp/oxidize-python-198-150/test_red150.py:69: AssertionError
+=========================== short test summary info ============================
+FAILED ../../../../../../tmp/oxidize-python-198-150/test_red150.py::test_speedup_guard_retries_only_noisy_samples[ratios1]
+FAILED ../../../../../../tmp/oxidize-python-198-150/test_red150.py::test_speedup_guard_retries_only_noisy_samples[ratios2]
+2 failed, 1 passed, 8 deselected in 0.04s
