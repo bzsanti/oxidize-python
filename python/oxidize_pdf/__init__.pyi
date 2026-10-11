@@ -90,3 +90,27 @@ from oxidize_pdf._oxidize_pdf import (
     verify_pdf_signatures as verify_pdf_signatures,
     compare_pdfs as compare_pdfs,
 )
+
+from oxidize_pdf._oxidize_pdf import (
+    DocumentStructure as DocumentStructure,
+    StructureDisposition as StructureDisposition,
+    ExistingDocumentEngine as ExistingDocumentEngine,
+    InputSemanticRole as InputSemanticRole,
+    ExistingDocumentPolicy as ExistingDocumentPolicy,
+    ExistingDocumentMergeInput as ExistingDocumentMergeInput,
+    PageMutationReport as PageMutationReport,
+    StructureSemanticReport as StructureSemanticReport,
+    InputSemanticReport as InputSemanticReport,
+    ExistingDocumentExecutionPlan as ExistingDocumentExecutionPlan,
+    SemanticPreservationReport as SemanticPreservationReport,
+    PageRange as PageRange,
+    PageMutation as PageMutation,
+    plan_merge_existing_pdfs as plan_merge_existing_pdfs,
+    merge_existing_pdfs as merge_existing_pdfs,
+    plan_extract_existing_pdf_pages as plan_extract_existing_pdf_pages,
+    extract_existing_pdf_pages as extract_existing_pdf_pages,
+    plan_split_existing_pdf as plan_split_existing_pdf,
+    split_existing_pdf as split_existing_pdf,
+    plan_pdf_page_mutations as plan_pdf_page_mutations,
+    mutate_pdf_pages_lossless as mutate_pdf_pages_lossless,
+)

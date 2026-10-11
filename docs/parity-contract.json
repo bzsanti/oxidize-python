@@ -1,0 +1,113 @@
+{
+  "core": "5.4.2",
+  "scope": "existing-document preservation and page mutations; remaining Rust API pending audit",
+  "callables": {
+    "ExistingDocumentPolicy.preserve_base": [
+      "page_labels_first_input_wins"
+    ],
+    "ExistingDocumentPolicy.reconstruct": [
+      "metadata_from_first"
+    ],
+    "ExistingDocumentMergeInput": [
+      "path",
+      "pages"
+    ],
+    "plan_merge_existing_pdfs": [
+      "inputs",
+      "policy"
+    ],
+    "merge_existing_pdfs": [
+      "inputs",
+      "output",
+      "policy"
+    ],
+    "plan_extract_existing_pdf_pages": [
+      "input",
+      "pages",
+      "policy"
+    ],
+    "extract_existing_pdf_pages": [
+      "input",
+      "pages",
+      "output",
+      "policy"
+    ],
+    "plan_split_existing_pdf": [
+      "input",
+      "ranges",
+      "policy"
+    ],
+    "split_existing_pdf": [
+      "input",
+      "ranges",
+      "outputs",
+      "policy"
+    ],
+    "PageMutation.move_page": [
+      "from_index",
+      "to_index"
+    ],
+    "PageMutation.rotate": [
+      "page",
+      "degrees"
+    ],
+    "PageMutation.delete": [
+      "page"
+    ],
+    "PageMutation.duplicate": [
+      "page",
+      "at"
+    ],
+    "PageMutation.insert": [
+      "source",
+      "page",
+      "at"
+    ],
+    "plan_pdf_page_mutations": [
+      "input",
+      "operations"
+    ],
+    "mutate_pdf_pages_lossless": [
+      "input",
+      "output",
+      "operations"
+    ]
+  },
+  "properties": {
+    "SemanticPreservationReport": [
+      "engine",
+      "inputs",
+      "plan"
+    ],
+    "ExistingDocumentExecutionPlan": [
+      "page_count",
+      "incremental"
+    ],
+    "InputSemanticReport": [
+      "path",
+      "role",
+      "structures",
+      "selected_pages"
+    ],
+    "StructureSemanticReport": [
+      "structure",
+      "disposition"
+    ],
+    "PageMutationReport": [
+      "replaced_objects",
+      "added_objects",
+      "unreachable_objects",
+      "page_count"
+    ]
+  },
+  "required_tests": [
+    "test_extract_preserves_prefix_and_full_plan",
+    "test_merge_selection_and_secondary_labels_policy",
+    "test_reconstruct_policy_is_explicit_and_reported",
+    "test_split_reports_and_outputs",
+    "test_failure_does_not_publish_or_replace_input",
+    "test_mutation_batch_preserves_source_and_executes_all_operations",
+    "test_invalid_mutation_preserves_existing_destination",
+    "test_base_page_labels_remapping_is_rejected_like_core"
+  ]
+}

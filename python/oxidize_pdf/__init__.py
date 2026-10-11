@@ -1067,3 +1067,28 @@ __all__ = [
     "RichText",
     "FlowLayout",
 ]
+
+# Explicit preservation policies and complete dry-run reports.
+from oxidize_pdf._oxidize_pdf import (
+    DocumentStructure,
+    StructureDisposition,
+    ExistingDocumentEngine,
+    InputSemanticRole,
+    PageMutationReport,
+    StructureSemanticReport,
+    InputSemanticReport,
+    ExistingDocumentExecutionPlan,
+    SemanticPreservationReport,
+    ExistingDocumentPolicy,
+    ExistingDocumentMergeInput,
+    plan_merge_existing_pdfs,
+    merge_existing_pdfs,
+    plan_extract_existing_pdf_pages,
+    extract_existing_pdf_pages,
+    plan_split_existing_pdf,
+    split_existing_pdf,
+)
+__all__ += ['DocumentStructure', 'StructureDisposition', 'ExistingDocumentEngine', 'InputSemanticRole', 'PageMutationReport', 'StructureSemanticReport', 'InputSemanticReport', 'ExistingDocumentExecutionPlan', 'SemanticPreservationReport', 'ExistingDocumentPolicy', 'ExistingDocumentMergeInput', 'plan_merge_existing_pdfs', 'merge_existing_pdfs', 'plan_extract_existing_pdf_pages', 'extract_existing_pdf_pages', 'plan_split_existing_pdf', 'split_existing_pdf']
+
+from oxidize_pdf._oxidize_pdf import PageMutation, plan_pdf_page_mutations, mutate_pdf_pages_lossless
+__all__ += ["PageMutation", "plan_pdf_page_mutations", "mutate_pdf_pages_lossless"]
