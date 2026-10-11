@@ -1,5 +1,8 @@
 <!-- mcp-name: io.github.bzsanti/oxidize-pdf-mcp -->
+
 # oxidize-pdf
+
+> Development update: Rust core pinned to **5.4.2**. See [compatibility and validation](docs/UPSTREAM-5.4.2.md).
 
 <!-- mcp-name: io.github.bzsanti/oxidize-pdf-mcp -->
 
