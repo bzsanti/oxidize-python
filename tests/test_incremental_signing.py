@@ -50,10 +50,15 @@ def test_external_cms_exact_coverage_and_independent_verification(tmp_path):
         assert openssl, 'Linux signing acceptance requires OpenSSL'
         (tmp_path / 'cms.der').write_bytes(embedded)
         (tmp_path / 'content.bin').write_bytes(covered(result, prepared.byte_range))
-        checked = subprocess.run([openssl, 'cms', '-verify', '-binary', '-inform', 'DER', '-in', str(tmp_path / 'cms.der'),
-                                  '-content', str(tmp_path / 'content.bin'), '-noverify', '-out', str(tmp_path / 'verified.bin')], capture_output=True)
+        command = [openssl, 'cms', '-verify', '-binary', '-inform', 'DER', '-in', str(tmp_path / 'cms.der'),
+                   '-content', str(tmp_path / 'content.bin'), '-noverify', '-out', str(tmp_path / 'verified.bin')]
+        checked = subprocess.run(command, capture_output=True)
         assert checked.returncode == 0, checked.stderr.decode()
         assert (tmp_path / 'verified.bin').read_bytes() == prepared.bytes_to_digest
+        tampered = bytearray(prepared.bytes_to_digest)
+        tampered[0] ^= 1
+        (tmp_path / 'content.bin').write_bytes(tampered)
+        assert subprocess.run(command, capture_output=True).returncode != 0
 
 
 def test_invalid_cms_can_be_retried_without_mutating_preparation():

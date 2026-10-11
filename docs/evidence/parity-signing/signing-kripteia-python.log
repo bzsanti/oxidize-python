@@ -1,7 +1,7 @@
 ## Calidad de Tests (Kripteia)
 
 === Kripteia Test Quality Report ===
-Overall Score: 96 | Tests: 2484 | Files: 115
+Overall Score: 96 | Tests: 2485 | Files: 115
 
 --- Files ---
 Path                                                          Tests  Score
@@ -60,7 +60,7 @@ Path                                                          Tests  Score
 ...indings-core-5.4.2/python/tests/test_form_validation.py       19     96
 /tmp/bindings-core-5.4.2/python/tests/test_forms.py              18     95
 /tmp/bindings-core-5.4.2/python/tests/test_forms_deep.py        167     97
-...indings-core-5.4.2/python/tests/test_gil_concurrency.py        7     85
+...indings-core-5.4.2/python/tests/test_gil_concurrency.py        8     86
 ...indings-core-5.4.2/python/tests/test_gradient_render.py       12     93
 /tmp/bindings-core-5.4.2/python/tests/test_graphics.py            9     90
 ...dings-core-5.4.2/python/tests/test_graphics_advanced.py      151     98
@@ -869,16 +869,18 @@ Path                                                          Tests  Score
     - Test 'TestAppearanceState::test_pdf_name_down' does not call any production code
 
 /tmp/bindings-core-5.4.2/python/tests/test_gil_concurrency.py:
-  test_validate_pdf_releases_gil (line 93) - Score: 75
+  test_validate_pdf_releases_gil (line 100) - Score: 75
     - Test 'test_validate_pdf_releases_gil' executes production code without asserting on its behaviour
-  test_detect_corruption_releases_gil (line 99) - Score: 75
+  test_detect_corruption_releases_gil (line 106) - Score: 75
     - Test 'test_detect_corruption_releases_gil' executes production code without asserting on its behaviour
-  test_extract_text_releases_gil (line 105) - Score: 75
+  test_extract_text_releases_gil (line 112) - Score: 75
     - Test 'test_extract_text_releases_gil' executes production code without asserting on its behaviour
-  test_speedup_guard_retries_only_noisy_samples (line 121) - Score: 90
-    - Test 'test_speedup_guard_retries_only_noisy_samples' has low assert-to-setup ratio (6%): 1 asserts vs 15 setup lines
-  test_speedup_guard_rejects_real_gil_bound_work (line 165) - Score: 80
+  test_speedup_guard_retries_only_noisy_samples (line 128) - Score: 90
+    - Test 'test_speedup_guard_retries_only_noisy_samples' has low assert-to-setup ratio (6%): 1 asserts vs 16 setup lines
+  test_speedup_guard_rejects_real_gil_bound_work (line 173) - Score: 80
     - Test 'test_speedup_guard_rejects_real_gil_bound_work' is marked as #[ignore]
+  test_speedup_guard_rejects_wall_only_speedup (line 184) - Score: 90
+    - Test 'test_speedup_guard_rejects_wall_only_speedup' does not call any production code
 
 /tmp/bindings-core-5.4.2/python/tests/test_gradient_render.py:
   test_end_path_emits_n_operator (line 66) - Score: 80

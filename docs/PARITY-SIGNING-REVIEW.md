@@ -58,3 +58,19 @@ permissions and CMS structural checks remain enforced by core.
 - Unresolved findings: none within this increment.
 - Product edits by the read-only review: 0.
 - Pending: platform CI and remaining #244 capabilities.
+
+
+## CI follow-up — #247
+
+The first matrix run exposed a preexisting wall-time-only GIL negative-control
+failure on macOS/Python 3.12 (job 114546635231). A delayed serial sample could make
+pure GIL-bound work look faster in a thread pool. The guard retains <0.7 wall time
+and three alternating retries, and additionally requires process CPU/wall >1.2
+in the parallel phase. Both actual Rust positive cases and the actual GIL-bound
+negative case pass locally (14 tests). Dropping the CPU condition makes all three
+new deterministic wall-only cases fail. This strengthens rather than relaxes the
+acceptance criterion. Final Python Kripteia: score 96, 2485 tests / 115 files.
+
+The OpenSSL check also now rejects deliberately modified signed content, proving
+that its success is not merely container parsing. All 14 signing cases pass after
+that addition. No production source changed in this follow-up.
