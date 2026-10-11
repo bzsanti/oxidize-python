@@ -1,6 +1,7 @@
 """Consumer contract: run mypy --strict --disallow-any-expr on this file."""
 
 from oxidize_pdf import (
+    CarriageReturnHandling,
     ExtractedText,
     ExtractionOptions,
     PdfReader,
@@ -13,6 +14,9 @@ from oxidize_pdf import (
 def extract(reader: PdfReader) -> tuple[list[str], list[list[TextFragment]], ExtractedText]:
     options = ExtractionOptions(
         preserve_layout=True,
+        reorder_columns=True,
+        reading_order=True,
+        carriage_return_handling=CarriageReturnHandling.REPLACE_WITH_SPACE,
         max_extracted_bytes=1000,
         include_link_annotations=True,
         include_unreliable_figure_text=False,

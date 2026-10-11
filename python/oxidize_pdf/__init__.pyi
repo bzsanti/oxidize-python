@@ -24,6 +24,7 @@ from oxidize_pdf._oxidize_pdf import (
     ExtractedImageData as ExtractedImageData,
     ExtractedText as ExtractedText,
     ExtractionOptions as ExtractionOptions,
+    CarriageReturnHandling as CarriageReturnHandling,
     ImageExtractionLimits as ImageExtractionLimits,
     Font as Font,
     JobResult as JobResult,
