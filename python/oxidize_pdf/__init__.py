@@ -1092,3 +1092,18 @@ __all__ += ['DocumentStructure', 'StructureDisposition', 'ExistingDocumentEngine
 
 from oxidize_pdf._oxidize_pdf import PageMutation, plan_pdf_page_mutations, mutate_pdf_pages_lossless
 __all__ += ["PageMutation", "plan_pdf_page_mutations", "mutate_pdf_pages_lossless"]
+
+# Provider-neutral CMS signing.
+from oxidize_pdf._oxidize_pdf import (
+    PdfValue,
+    SignatureTarget,
+    CertificationPermission,
+    FieldLock,
+    SignaturePreparationOptions,
+    SignatureWatermark,
+    SignatureAppearanceLayout,
+    SignatureAppearance,
+    PreparedSignature,
+    prepare_incremental_signature,
+)
+__all__ += ['PdfValue', 'SignatureTarget', 'CertificationPermission', 'FieldLock', 'SignaturePreparationOptions', 'SignatureWatermark', 'SignatureAppearanceLayout', 'SignatureAppearance', 'PreparedSignature', 'prepare_incremental_signature']

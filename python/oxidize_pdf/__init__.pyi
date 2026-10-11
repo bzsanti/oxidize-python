@@ -114,3 +114,16 @@ from oxidize_pdf._oxidize_pdf import (
     plan_pdf_page_mutations as plan_pdf_page_mutations,
     mutate_pdf_pages_lossless as mutate_pdf_pages_lossless,
 )
+
+from oxidize_pdf._oxidize_pdf import (
+    PdfValue as PdfValue,
+    SignatureTarget as SignatureTarget,
+    CertificationPermission as CertificationPermission,
+    FieldLock as FieldLock,
+    SignaturePreparationOptions as SignaturePreparationOptions,
+    SignatureWatermark as SignatureWatermark,
+    SignatureAppearanceLayout as SignatureAppearanceLayout,
+    SignatureAppearance as SignatureAppearance,
+    PreparedSignature as PreparedSignature,
+    prepare_incremental_signature as prepare_incremental_signature,
+)

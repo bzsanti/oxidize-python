@@ -83,6 +83,9 @@ def check_contract(exports: set[str]) -> list[str]:
     tree = ast.parse((REPO_ROOT / "python/oxidize_pdf/_oxidize_pdf.pyi").read_text())
     declarations = {n.name: n for n in tree.body if isinstance(n, (ast.ClassDef, ast.FunctionDef))}
     errors = []
+    pin = re.search(r'^oxidize-pdf\s*=\s*\{\s*version\s*=\s*"=([^"]+)"', (REPO_ROOT / "Cargo.toml").read_text(), re.MULTILINE)
+    if pin is None or pin.group(1) != contract["core"]:
+        errors.append("Core pin changed: reconcile the audited parity contract before upgrading")
     for path, expected in contract["callables"].items():
         parts = path.split(".")
         if parts[0] not in exports:
@@ -94,7 +97,7 @@ def check_contract(exports: set[str]) -> list[str]:
         if not isinstance(member, ast.FunctionDef):
             errors.append(f"Missing callable declaration: {path}")
             continue
-        args = [a.arg for a in member.args.posonlyargs + member.args.args + member.args.kwonlyargs if a.arg != "self"]
+        args = [a.arg for a in member.args.posonlyargs + member.args.args + member.args.kwonlyargs if a.arg != "self" or (len(parts) > 1 and "self" in expected)]
         if args != expected:
             errors.append(f"Option mismatch for {path}: {args} != {expected}")
     for name, properties in contract["properties"].items():
@@ -106,6 +109,11 @@ def check_contract(exports: set[str]) -> list[str]:
     names = {n.name for n in tests.body if isinstance(n, ast.FunctionDef)}
     if not set(contract["required_tests"]) <= names:
         errors.append("Missing audited behavioral tests")
+    for relative, required in contract.get("additional_tests", {}).items():
+        tree = ast.parse((REPO_ROOT / relative).read_text())
+        names = {n.name for n in tree.body if isinstance(n, ast.FunctionDef)}
+        if not set(required) <= names:
+            errors.append(f"Missing audited behavioral tests: {relative}")
     return errors
 
 

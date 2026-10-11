@@ -1,6 +1,6 @@
 {
   "core": "5.4.2",
-  "scope": "existing-document preservation and page mutations; remaining Rust API pending audit",
+  "scope": "existing-document preservation, page mutations and external CMS signing; remaining Rust API pending audit",
   "callables": {
     "ExistingDocumentPolicy.preserve_base": [
       "page_labels_first_input_wins"
@@ -71,6 +71,91 @@
       "input",
       "output",
       "operations"
+    ],
+    "PdfValue.null": [],
+    "PdfValue.boolean": [
+      "value"
+    ],
+    "PdfValue.integer": [
+      "value"
+    ],
+    "PdfValue.real": [
+      "value"
+    ],
+    "PdfValue.string": [
+      "value"
+    ],
+    "PdfValue.name": [
+      "value"
+    ],
+    "PdfValue.array": [
+      "values"
+    ],
+    "PdfValue.dictionary": [
+      "values"
+    ],
+    "PdfValue.stream": [
+      "values",
+      "data"
+    ],
+    "PdfValue.reference": [
+      "number",
+      "generation"
+    ],
+    "SignatureTarget.new_field": [
+      "field_name",
+      "page_index",
+      "rectangle"
+    ],
+    "SignatureTarget.existing_field": [
+      "field_name",
+      "widget_index",
+      "rectangle"
+    ],
+    "FieldLock.all": [],
+    "FieldLock.include": [
+      "fields"
+    ],
+    "FieldLock.exclude": [
+      "fields"
+    ],
+    "SignaturePreparationOptions": [
+      "target",
+      "placeholder_bytes",
+      "filter",
+      "sub_filter",
+      "reason",
+      "location",
+      "contact_info",
+      "signing_time",
+      "certification",
+      "field_lock",
+      "additional_entries"
+    ],
+    "SignatureWatermark": [
+      "width",
+      "height",
+      "rgb",
+      "opacity"
+    ],
+    "SignatureAppearance": [
+      "signer_name",
+      "signing_date",
+      "text",
+      "watermark"
+    ],
+    "SignatureAppearance.layout": [
+      "self",
+      "rectangle"
+    ],
+    "PreparedSignature.finalize": [
+      "self",
+      "cms"
+    ],
+    "prepare_incremental_signature": [
+      "base",
+      "options",
+      "appearance"
     ]
   },
   "properties": {
@@ -98,6 +183,18 @@
       "added_objects",
       "unreachable_objects",
       "page_count"
+    ],
+    "PreparedSignature": [
+      "prepared_pdf",
+      "byte_range",
+      "bytes_to_digest"
+    ],
+    "SignatureAppearanceLayout": [
+      "lines",
+      "font_size",
+      "margin",
+      "first_baseline",
+      "line_height"
     ]
   },
   "required_tests": [
@@ -109,5 +206,16 @@
     "test_mutation_batch_preserves_source_and_executes_all_operations",
     "test_invalid_mutation_preserves_existing_destination",
     "test_base_page_labels_remapping_is_rejected_like_core"
-  ]
+  ],
+  "additional_tests": {
+    "tests/test_incremental_signing.py": [
+      "test_external_cms_exact_coverage_and_independent_verification",
+      "test_invalid_cms_can_be_retried_without_mutating_preparation",
+      "test_existing_slot_appearance_and_full_option_dictionary",
+      "test_invalid_targets_and_reserved_entries_are_rejected",
+      "test_appearance_rejects_invalid_geometry_and_watermark",
+      "test_certification_lock_and_handler_options",
+      "test_widget_selection_is_not_silently_ignored"
+    ]
+  }
 }

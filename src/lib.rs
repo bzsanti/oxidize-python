@@ -28,6 +28,7 @@ mod page_transitions;
 mod parser;
 mod security;
 mod semantic;
+mod signing;
 mod table;
 mod text;
 mod text_extraction;
@@ -76,6 +77,7 @@ fn _oxidize_pdf(m: &Bound<'_, PyModule>) -> PyResult<()> {
     xmp_metadata::register(m)?;
     verification::register(m)?;
     semantic::register(m)?;
+    signing::register(m)?;
     graphics_extraction::register(m)?;
     layout::register(m)?;
     #[cfg(feature = "unstable-spi")]
