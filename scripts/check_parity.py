@@ -8,12 +8,12 @@ internally inconsistent with the Python package's actual public surface.
 Specifically, it asserts:
   - Every symbol group marked `yes` in FEATURE_PARITY.md has at least one
     corresponding symbol exported in python/oxidize_pdf/__init__.py.
-  - No symbol exported in __init__.py is completely absent from the parity table.
+  - Audited callables, options, result properties and behavior test entry points
+    match docs/parity-contract.json. Runtime equivalence is tested by pytest.
 
 This script is intentionally conservative: it does NOT fail if a feature is
-marked `no` or `partial`. It only fails if a `yes` entry has no detectable
-corresponding export, which would indicate either the parity table is wrong
-or the export was accidentally removed.
+marked `no` or `partial`. It fails for missing legacy exports or any broken
+audited contract. It does not establish completeness outside the audited subset.
 
 Symbol group mapping (feature_id_prefix -> expected __init__.py exports):
   DOC  -> Document
@@ -29,6 +29,8 @@ Exit codes:
   1 — inconsistency detected (details printed to stderr)
 """
 
+import ast
+import json
 import re
 import sys
 from pathlib import Path
@@ -62,21 +64,57 @@ def parse_yes_groups(parity_content: str) -> set[str]:
 
 
 def parse_init_exports(init_content: str) -> set[str]:
-    """Return all names exported via __all__ in __init__.py."""
+    """Collect literal __all__ definitions and additions without importing native code."""
     exports: set[str] = set()
-    in_all = False
-    for line in init_content.splitlines():
-        stripped = line.strip()
-        if "__all__" in stripped and "=" in stripped:
-            in_all = True
-        if in_all:
-            # Extract quoted names
-            found = re.findall(r'"([A-Za-z_][A-Za-z0-9_]*)"', stripped)
-            exports.update(found)
-            if "]" in stripped:
-                in_all = False
-                break
+    for node in ast.parse(init_content).body:
+        value = None
+        if isinstance(node, ast.Assign) and any(isinstance(t, ast.Name) and t.id == "__all__" for t in node.targets):
+            value = node.value
+        elif isinstance(node, ast.AugAssign) and isinstance(node.target, ast.Name) and node.target.id == "__all__":
+            value = node.value
+        if isinstance(value, (ast.List, ast.Tuple)):
+            exports.update(n.value for n in value.elts if isinstance(n, ast.Constant) and isinstance(n.value, str))
     return exports
+
+
+def check_contract(exports: set[str]) -> list[str]:
+    """Check the explicitly audited subset; never interpret this as full Rust parity."""
+    contract = json.loads((REPO_ROOT / "docs/parity-contract.json").read_text())
+    tree = ast.parse((REPO_ROOT / "python/oxidize_pdf/_oxidize_pdf.pyi").read_text())
+    declarations = {n.name: n for n in tree.body if isinstance(n, (ast.ClassDef, ast.FunctionDef))}
+    errors = []
+    pin = re.search(r'^oxidize-pdf\s*=\s*\{\s*version\s*=\s*"=([^"]+)"', (REPO_ROOT / "Cargo.toml").read_text(), re.MULTILINE)
+    if pin is None or pin.group(1) != contract["core"]:
+        errors.append("Core pin changed: reconcile the audited parity contract before upgrading")
+    for path, expected in contract["callables"].items():
+        parts = path.split(".")
+        if parts[0] not in exports:
+            errors.append(f"Missing audited export: {parts[0]}")
+        member = declarations.get(parts[0])
+        name = parts[1] if len(parts) > 1 else "__init__"
+        if isinstance(member, ast.ClassDef):
+            member = next((n for n in member.body if isinstance(n, ast.FunctionDef) and n.name == name), None)
+        if not isinstance(member, ast.FunctionDef):
+            errors.append(f"Missing callable declaration: {path}")
+            continue
+        args = [a.arg for a in member.args.posonlyargs + member.args.args + member.args.kwonlyargs if a.arg != "self" or (len(parts) > 1 and "self" in expected)]
+        if args != expected:
+            errors.append(f"Option mismatch for {path}: {args} != {expected}")
+    for name, properties in contract["properties"].items():
+        node = declarations.get(name)
+        actual = {n.name for n in node.body if isinstance(n, ast.FunctionDef)} if isinstance(node, ast.ClassDef) else set()
+        if name not in exports or not set(properties) <= actual:
+            errors.append(f"Missing result contract: {name}")
+    tests = ast.parse((REPO_ROOT / "tests/test_existing_document.py").read_text())
+    names = {n.name for n in tests.body if isinstance(n, ast.FunctionDef)}
+    if not set(contract["required_tests"]) <= names:
+        errors.append("Missing audited behavioral tests")
+    for relative, required in contract.get("additional_tests", {}).items():
+        tree = ast.parse((REPO_ROOT / relative).read_text())
+        names = {n.name for n in tree.body if isinstance(n, ast.FunctionDef)}
+        if not set(required) <= names:
+            errors.append(f"Missing audited behavioral tests: {relative}")
+    return errors
 
 
 def main() -> int:
@@ -94,7 +132,7 @@ def main() -> int:
     yes_groups = parse_yes_groups(parity_content)
     exports = parse_init_exports(init_content)
 
-    errors: list[str] = []
+    errors: list[str] = check_contract(exports)
 
     # Check: every `yes` group has its required symbols in __init__.py
     for prefix in sorted(yes_groups):
@@ -121,7 +159,7 @@ def main() -> int:
         )
         return 1
 
-    print(f"Parity check passed. Checked {len(yes_groups)} feature groups against {len(exports)} exports.")
+    print(f"Partial parity contract passed: audited APIs plus {len(yes_groups)} legacy groups, {len(exports)} exports. Full Rust parity remains pending.")
     return 0
 
 

@@ -3,14 +3,15 @@ run in parallel instead of serializing on a single core.
 
 These tests are behavioral, not smoke: they assert that running the same total
 amount of work across a thread pool is meaningfully faster than running it
-serially. That speedup only exists when the Rust op releases the GIL via
-``Python::allow_threads``. Before that change the wall-clock is ~serial.
+serially, with CPU consumption demonstrating actual multicore execution.
+Wall-time speedup alone can be caused by scheduling noise; both signals are
+required. Rust operations release the GIL with ``Python::detach``.
 """
 
 import os
 import sys
 from concurrent.futures import ThreadPoolExecutor
-from time import perf_counter
+from time import perf_counter, process_time
 
 import pytest
 
@@ -28,6 +29,10 @@ _WORKERS = 4
 # under half the serial time; 0.7 leaves wide margin for scheduling noise while
 # still failing decisively when the op holds the GIL (ratio ~1.0).
 _MAX_PARALLEL_RATIO = 0.7
+# #247: wall speedup alone can reflect a scheduling pause in the serial sample.
+# A GIL-bound CPU loop cannot consume more than one CPU-second per wall-second.
+# Require multicore CPU use as well, with margin for timer resolution/overhead.
+_MIN_CPU_PARALLELISM = 1.2
 # #150: a single noisy pair on a shared runner is not a regression. Keep the
 # same threshold, but give the operation up to three independent pairs.
 _MAX_ATTEMPTS = 3
@@ -60,9 +65,11 @@ def _measure_serial(op, n):
 
 def _measure_parallel(op, n, workers):
     start = perf_counter()
+    cpu_start = process_time()
     with ThreadPoolExecutor(max_workers=workers) as ex:
         list(ex.map(lambda _: op(), range(n)))
-    return perf_counter() - start
+    cpu = process_time() - cpu_start
+    return perf_counter() - start, cpu
 
 
 def _assert_parallel_speedup(op):
@@ -73,20 +80,20 @@ def _assert_parallel_speedup(op):
         # systematically favour either serial or parallel execution.
         if attempt % 2 == 0:
             serial = _measure_serial(op, _TASKS)
-            parallel = _measure_parallel(op, _TASKS, _WORKERS)
+            parallel, cpu = _measure_parallel(op, _TASKS, _WORKERS)
         else:
-            parallel = _measure_parallel(op, _TASKS, _WORKERS)
+            parallel, cpu = _measure_parallel(op, _TASKS, _WORKERS)
             serial = _measure_serial(op, _TASKS)
-        samples.append((serial, parallel))
-        if parallel < serial * _MAX_PARALLEL_RATIO:
+        samples.append((serial, parallel, cpu))
+        if parallel < serial * _MAX_PARALLEL_RATIO and cpu > parallel * _MIN_CPU_PARALLELISM:
             return
     detail = "; ".join(
-        f"parallel={parallel:.3f}s serial={serial:.3f}s ratio={parallel / serial:.2f}"
-        for serial, parallel in samples
+        f"parallel={parallel:.3f}s serial={serial:.3f}s ratio={parallel / serial:.2f} cpu/wall={cpu / parallel:.2f}"
+        for serial, parallel, cpu in samples
     )
     pytest.fail(
         f"no GIL-release parallelism in {_MAX_ATTEMPTS} attempts: {detail} "
-        f"(expected < {_MAX_PARALLEL_RATIO})"
+        f"(expected < {_MAX_PARALLEL_RATIO}; cpu/wall > {_MIN_CPU_PARALLELISM})"
     )
 
 
@@ -129,7 +136,8 @@ def test_speedup_guard_retries_only_noisy_samples(monkeypatch, ratios):
 
     def parallel(op, n, workers):
         calls.append("parallel")
-        return 10.0 * next(remaining)
+        wall = 10.0 * next(remaining)
+        return wall, wall * 2.0
 
     monkeypatch.setattr(sys.modules[__name__], "_measure_serial", serial)
     monkeypatch.setattr(sys.modules[__name__], "_measure_parallel", parallel)
@@ -141,7 +149,7 @@ def test_speedup_guard_retries_only_noisy_samples(monkeypatch, ratios):
 def test_speedup_guard_rejects_sustained_slowdown(monkeypatch, ratio):
     monkeypatch.setattr(sys.modules[__name__], "_measure_serial", lambda op, n: 10.0)
     monkeypatch.setattr(
-        sys.modules[__name__], "_measure_parallel", lambda op, n, workers: 10.0 * ratio,
+        sys.modules[__name__], "_measure_parallel", lambda op, n, workers: (10.0 * ratio, 20.0 * ratio),
     )
     with pytest.raises(pytest.fail.Exception, match="in 3 attempts") as failure:
         _assert_parallel_speedup(lambda: None)
@@ -170,3 +178,12 @@ def test_speedup_guard_rejects_real_gil_bound_work():
     """
     with pytest.raises(pytest.fail.Exception, match="no GIL-release parallelism in 3 attempts"):
         _assert_parallel_speedup(lambda: sum(range(4_000_000)))
+
+
+@pytest.mark.parametrize("cpu_ratio", [0.8, 1.0, 1.2])
+def test_speedup_guard_rejects_wall_only_speedup(monkeypatch, cpu_ratio):
+    """A paused serial sample cannot certify parallelism for a single-core loop."""
+    monkeypatch.setattr(sys.modules[__name__], "_measure_serial", lambda op, n: 10.0)
+    monkeypatch.setattr(sys.modules[__name__], "_measure_parallel", lambda op, n, workers: (6.0, 6.0 * cpu_ratio))
+    with pytest.raises(pytest.fail.Exception, match="cpu/wall"):
+        _assert_parallel_speedup(lambda: None)

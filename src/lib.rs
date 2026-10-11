@@ -9,6 +9,9 @@ mod charts;
 mod content_parser;
 mod document;
 mod errors;
+mod existing_document;
+mod incremental_annotations;
+mod incremental_ink;
 #[cfg(feature = "unstable-spi")]
 mod experimental_spi;
 mod forms;
@@ -27,6 +30,7 @@ mod page_transitions;
 mod parser;
 mod security;
 mod semantic;
+mod signing;
 mod table;
 mod text;
 mod text_extraction;
@@ -44,6 +48,9 @@ fn _oxidize_pdf(m: &Bound<'_, PyModule>) -> PyResult<()> {
 
     // Register submodules
     errors::register(m)?;
+    existing_document::register(m)?;
+    incremental_annotations::register(m)?;
+    incremental_ink::register(m)?;
     upstream::register(m)?;
     types::register(m)?;
     document::register(m)?;
@@ -74,6 +81,7 @@ fn _oxidize_pdf(m: &Bound<'_, PyModule>) -> PyResult<()> {
     xmp_metadata::register(m)?;
     verification::register(m)?;
     semantic::register(m)?;
+    signing::register(m)?;
     graphics_extraction::register(m)?;
     layout::register(m)?;
     #[cfg(feature = "unstable-spi")]

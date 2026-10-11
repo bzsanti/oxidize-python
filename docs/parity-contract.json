@@ -1,0 +1,393 @@
+{
+  "core": "5.4.2",
+  "scope": "existing-document preservation, page mutations and external CMS signing; remaining Rust API pending audit; composed extraction policies; incremental free-text editing; incremental Ink editing",
+  "callables": {
+    "ExistingDocumentPolicy.preserve_base": [
+      "page_labels_first_input_wins"
+    ],
+    "ExistingDocumentPolicy.reconstruct": [
+      "metadata_from_first"
+    ],
+    "ExistingDocumentMergeInput": [
+      "path",
+      "pages"
+    ],
+    "plan_merge_existing_pdfs": [
+      "inputs",
+      "policy"
+    ],
+    "merge_existing_pdfs": [
+      "inputs",
+      "output",
+      "policy"
+    ],
+    "plan_extract_existing_pdf_pages": [
+      "input",
+      "pages",
+      "policy"
+    ],
+    "extract_existing_pdf_pages": [
+      "input",
+      "pages",
+      "output",
+      "policy"
+    ],
+    "plan_split_existing_pdf": [
+      "input",
+      "ranges",
+      "policy"
+    ],
+    "split_existing_pdf": [
+      "input",
+      "ranges",
+      "outputs",
+      "policy"
+    ],
+    "PageMutation.move_page": [
+      "from_index",
+      "to_index"
+    ],
+    "PageMutation.rotate": [
+      "page",
+      "degrees"
+    ],
+    "PageMutation.delete": [
+      "page"
+    ],
+    "PageMutation.duplicate": [
+      "page",
+      "at"
+    ],
+    "PageMutation.insert": [
+      "source",
+      "page",
+      "at"
+    ],
+    "plan_pdf_page_mutations": [
+      "input",
+      "operations"
+    ],
+    "mutate_pdf_pages_lossless": [
+      "input",
+      "output",
+      "operations"
+    ],
+    "PdfValue.null": [],
+    "PdfValue.boolean": [
+      "value"
+    ],
+    "PdfValue.integer": [
+      "value"
+    ],
+    "PdfValue.real": [
+      "value"
+    ],
+    "PdfValue.string": [
+      "value"
+    ],
+    "PdfValue.name": [
+      "value"
+    ],
+    "PdfValue.array": [
+      "values"
+    ],
+    "PdfValue.dictionary": [
+      "values"
+    ],
+    "PdfValue.stream": [
+      "values",
+      "data"
+    ],
+    "PdfValue.reference": [
+      "number",
+      "generation"
+    ],
+    "SignatureTarget.new_field": [
+      "field_name",
+      "page_index",
+      "rectangle"
+    ],
+    "SignatureTarget.existing_field": [
+      "field_name",
+      "widget_index",
+      "rectangle"
+    ],
+    "FieldLock.all": [],
+    "FieldLock.include": [
+      "fields"
+    ],
+    "FieldLock.exclude": [
+      "fields"
+    ],
+    "SignaturePreparationOptions": [
+      "target",
+      "placeholder_bytes",
+      "filter",
+      "sub_filter",
+      "reason",
+      "location",
+      "contact_info",
+      "signing_time",
+      "certification",
+      "field_lock",
+      "additional_entries"
+    ],
+    "SignatureWatermark": [
+      "width",
+      "height",
+      "rgb",
+      "opacity"
+    ],
+    "SignatureAppearance": [
+      "signer_name",
+      "signing_date",
+      "text",
+      "watermark"
+    ],
+    "SignatureAppearance.layout": [
+      "self",
+      "rectangle"
+    ],
+    "PreparedSignature.finalize": [
+      "self",
+      "cms"
+    ],
+    "prepare_incremental_signature": [
+      "base",
+      "options",
+      "appearance"
+    ],
+    "ExtractionOptions": [
+      "preserve_layout",
+      "space_threshold",
+      "newline_threshold",
+      "sort_by_position",
+      "detect_columns",
+      "column_threshold",
+      "merge_hyphenated",
+      "track_space_decisions",
+      "tj_space_threshold",
+      "reconstruct_paragraphs",
+      "include_artifacts",
+      "max_extracted_bytes",
+      "include_link_annotations",
+      "include_unreliable_figure_text",
+      "normalize_non_breaking_spaces",
+      "reorder_columns",
+      "reading_order",
+      "carriage_return_handling"
+    ],
+    "FreeTextId": [
+      "object_number",
+      "generation_number"
+    ],
+    "FreeTextMutation.remove": [
+      "id"
+    ],
+    "FreeTextMutation.add": [
+      "page_index",
+      "rect",
+      "contents",
+      "default_appearance",
+      "alignment"
+    ],
+    "FreeTextMutation.update": [
+      "id",
+      "rect",
+      "contents",
+      "default_appearance",
+      "alignment"
+    ],
+    "IncrementalFreeTextEditor": [
+      "pdf"
+    ],
+    "IncrementalFreeTextEditor.annotations": [
+      "self"
+    ],
+    "IncrementalFreeTextEditor.apply": [
+      "self",
+      "mutations"
+    ],
+    "InkColor.rgb": [
+      "components"
+    ],
+    "InkColor.gray": [
+      "component"
+    ],
+    "InkColor.cmyk": [
+      "components"
+    ],
+    "InkStroke": [
+      "points"
+    ],
+    "InkId": [
+      "object_number",
+      "generation_number"
+    ],
+    "InkMutation.add": [
+      "page_index",
+      "strokes",
+      "color",
+      "width",
+      "opacity"
+    ],
+    "InkMutation.update": [
+      "id",
+      "strokes",
+      "color",
+      "width",
+      "opacity"
+    ],
+    "InkMutation.remove": [
+      "id"
+    ],
+    "IncrementalInkEditor": [
+      "pdf"
+    ],
+    "IncrementalInkEditor.annotations": [
+      "self"
+    ],
+    "IncrementalInkEditor.apply": [
+      "self",
+      "mutations"
+    ]
+  },
+  "properties": {
+    "SemanticPreservationReport": [
+      "engine",
+      "inputs",
+      "plan"
+    ],
+    "ExistingDocumentExecutionPlan": [
+      "page_count",
+      "incremental"
+    ],
+    "InputSemanticReport": [
+      "path",
+      "role",
+      "structures",
+      "selected_pages"
+    ],
+    "StructureSemanticReport": [
+      "structure",
+      "disposition"
+    ],
+    "PageMutationReport": [
+      "replaced_objects",
+      "added_objects",
+      "unreachable_objects",
+      "page_count"
+    ],
+    "PreparedSignature": [
+      "prepared_pdf",
+      "byte_range",
+      "bytes_to_digest"
+    ],
+    "SignatureAppearanceLayout": [
+      "lines",
+      "font_size",
+      "margin",
+      "first_baseline",
+      "line_height"
+    ],
+    "ExtractionOptions": [
+      "preserve_layout",
+      "space_threshold",
+      "newline_threshold",
+      "sort_by_position",
+      "detect_columns",
+      "column_threshold",
+      "merge_hyphenated",
+      "track_space_decisions",
+      "tj_space_threshold",
+      "reconstruct_paragraphs",
+      "include_artifacts",
+      "max_extracted_bytes",
+      "include_link_annotations",
+      "include_unreliable_figure_text",
+      "normalize_non_breaking_spaces",
+      "reorder_columns",
+      "reading_order",
+      "carriage_return_handling"
+    ],
+    "FreeText": [
+      "id",
+      "page_index",
+      "contents",
+      "rect",
+      "default_appearance",
+      "alignment"
+    ],
+    "FreeTextId": [
+      "object_number",
+      "generation_number"
+    ],
+    "FreeTextUpdate": [
+      "pdf_bytes",
+      "annotations"
+    ],
+    "InkColor": [
+      "space",
+      "components"
+    ],
+    "InkStroke": [
+      "points"
+    ],
+    "InkId": [
+      "object_number",
+      "generation_number"
+    ],
+    "Ink": [
+      "id",
+      "page_index",
+      "rect",
+      "strokes",
+      "color",
+      "width",
+      "opacity"
+    ],
+    "InkUpdate": [
+      "pdf_bytes",
+      "annotations"
+    ]
+  },
+  "required_tests": [
+    "test_extract_preserves_prefix_and_full_plan",
+    "test_merge_selection_and_secondary_labels_policy",
+    "test_reconstruct_policy_is_explicit_and_reported",
+    "test_split_reports_and_outputs",
+    "test_failure_does_not_publish_or_replace_input",
+    "test_mutation_batch_preserves_source_and_executes_all_operations",
+    "test_invalid_mutation_preserves_existing_destination",
+    "test_base_page_labels_remapping_is_rejected_like_core"
+  ],
+  "additional_tests": {
+    "tests/test_incremental_signing.py": [
+      "test_external_cms_exact_coverage_and_independent_verification",
+      "test_invalid_cms_can_be_retried_without_mutating_preparation",
+      "test_existing_slot_appearance_and_full_option_dictionary",
+      "test_invalid_targets_and_reserved_entries_are_rejected",
+      "test_appearance_rejects_invalid_geometry_and_watermark",
+      "test_certification_lock_and_handler_options",
+      "test_widget_selection_is_not_silently_ignored"
+    ],
+    "tests/test_extraction_options_parity.py": [
+      "test_carriage_return_policy_reaches_all_extraction_paths",
+      "test_reading_order_composes_with_recovery_and_text_budget",
+      "test_column_reordering_and_policy_defaults"
+    ],
+    "tests/test_incremental_annotations.py": [
+      "test_free_text_full_options_update_and_removal",
+      "test_invalid_annotation_batch_does_not_mutate_editor",
+      "test_annotation_edits_enforce_docmdp_permissions",
+      "test_free_text_invalid_batch_is_atomic"
+    ],
+    "tests/test_incremental_ink.py": [
+      "test_ink_style_geometry_and_original_color_space",
+      "test_ink_update_and_remove_keep_identity_and_single_point_strokes",
+      "test_ink_validation_rejects_invalid_values",
+      "test_ink_invalid_batch_is_atomic_and_retryable",
+      "test_ink_preserves_core_certification_policy"
+    ]
+  }
+}

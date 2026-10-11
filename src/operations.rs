@@ -13,7 +13,7 @@ use oxidize_pdf::parser::PdfReader;
 use crate::errors;
 
 /// Convert an `OperationError` into the appropriate Python exception.
-fn op_err_to_py(err: OperationError) -> PyErr {
+pub(crate) fn op_err_to_py(err: OperationError) -> PyErr {
     match err {
         OperationError::Io(io_err) => errors::PdfIoError::new_err(format!("IO error: {io_err}")),
         OperationError::PdfError(pdf_err) => errors::to_py_err(pdf_err),

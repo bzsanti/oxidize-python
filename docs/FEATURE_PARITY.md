@@ -1,3 +1,32 @@
+# Current parity target — Rust 5.4.2
+
+The bridge target is **all functional capabilities of Rust**, including options,
+results and errors. Pinning the same core version is not proof of API parity.
+Tracking: [#244](https://github.com/bzsanti/oxidize-python/issues/244), coordinated
+by [core #710](https://github.com/bzsanti/oxidizePdf/issues/710).
+
+| Capability | Current status |
+| --- | --- |
+| Existing-document merge/extract/split with explicit preservation policies and complete plans | Integrated in develop via #245; 26 CI checks passed |
+| Atomic lossless page mutations (move/rotate/delete/duplicate/insert) | Integrated in develop via #245; 26 CI checks passed |
+| CMS preparation and completion | Integrated in develop via #246; 26 CI checks passed |
+| Composed extraction policies (CR, reading order, column reordering) | Integrated in develop via #248; 26 CI checks passed |
+| Incremental FreeText editor (read/add/update/remove, all fields) | Integrated via #249; 26 CI checks passed |
+| Incremental Ink editor (read/add/update/remove, all fields) | Implemented and locally validated; CI pending |
+| Incremental notes/highlights | Candidate bindings blocked on upstream DocMDP fix [core #712](https://github.com/bzsanti/oxidizePdf/issues/712); not exported |
+| Other incremental annotation/tagged/OCR editors, security redaction, revision-aware comparison | Missing bindings; required for full parity |
+| Recovery diagnostics, NBSP normalization, signature slots, batch/streaming, experimental SPI | Bindings exist; complete option/result audit pending |
+| Generation, parsing, graphics, forms, layout, AI and remaining public Rust API | Bindings exist in part; complete functional audit pending |
+| Tesseract recognition and optional production features | Full exposure pending |
+
+`docs/parity-contract.json` records the first audited API contract. CI tests each
+callable parameter and result property and runs the named behavioral tests. Its
+scope is explicitly partial. No global coverage percentage is currently valid.
+A Rust limitation remains a Rust limitation: preserving edits that require
+remapping the base document's page labels are rejected by core 5.4.2.
+
+## Historical matrix (not a current completeness claim)
+
 # Feature Parity — oxidize-python
 
 Bridge version: 0.19.0

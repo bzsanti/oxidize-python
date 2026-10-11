@@ -1,0 +1,72 @@
+FF..F...F                                                                [100%]
+=================================== FAILURES ===================================
+_________________ test_extract_preserves_prefix_and_full_plan __________________
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-7/test_extract_preserves_prefix_0')
+
+    def test_extract_preserves_prefix_and_full_plan(tmp_path):
+        source, original = fixture_pdf(tmp_path / 'input.pdf')
+        output = tmp_path / 'output.pdf'
+        policy = pdf.ExistingDocumentPolicy.preserve_base()
+        plan = pdf.plan_extract_existing_pdf_pages(source, [1], policy)
+        assert not output.exists()
+>       assert plan.engine == pdf.ExistingDocumentEngine.PreserveBase
+E       AssertionError: assert ExistingDocumentEngine.Reconstruct == ExistingDocumentEngine.PreserveBase
+E        +  where ExistingDocumentEngine.Reconstruct = <builtins.SemanticPreservationReport object at 0x7d67f5688780>.engine
+E        +  and   ExistingDocumentEngine.PreserveBase = <class 'builtins.ExistingDocumentEngine'>.PreserveBase
+E        +    where <class 'builtins.ExistingDocumentEngine'> = pdf.ExistingDocumentEngine
+
+tests/test_existing_document.py:33: AssertionError
+_______________ test_merge_selection_and_secondary_labels_policy _______________
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-7/test_merge_selection_and_secon0')
+
+    def test_merge_selection_and_secondary_labels_policy(tmp_path):
+        base, original = fixture_pdf(tmp_path / 'base.pdf')
+        secondary, _ = fixture_pdf(tmp_path / 'secondary.pdf', True)
+        inputs = [pdf.ExistingDocumentMergeInput(base),
+                  pdf.ExistingDocumentMergeInput(secondary, pdf.PageRange.single(1))]
+        output = tmp_path / 'merged.pdf'
+>       with pytest.raises(pdf.PdfError):
+E       Failed: DID NOT RAISE PdfError
+
+tests/test_existing_document.py:52: Failed
+________________________ test_split_reports_and_outputs ________________________
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-7/test_split_reports_and_outputs0')
+
+    def test_split_reports_and_outputs(tmp_path):
+        source, original = fixture_pdf(tmp_path / 'input.pdf')
+        outputs = [str(tmp_path / f'part{i}.pdf') for i in range(2)]
+        ranges = [pdf.PageRange.single(1), pdf.PageRange.single(0)]
+        policy = pdf.ExistingDocumentPolicy.preserve_base()
+        plans = pdf.plan_split_existing_pdf(source, ranges, policy)
+        reports = pdf.split_existing_pdf(source, ranges, outputs, policy)
+        for i, report in enumerate(reports):
+            assert report.inputs[0].selected_pages == plans[i].inputs[0].selected_pages == [1-i]
+            assert report.plan.page_count == 1
+>           assert (tmp_path / f'part{i}.pdf').read_bytes().startswith(original)
+E           AssertionError: assert False
+E            +  where False = <built-in method startswith of bytes object at 0x768bac0>(b'%PDF-1.7\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R /Lang (es-ES) >>\nendobj\n2 0 obj\n<< /Type /Pages /Kids [3 0 R 4 ... n \n0000000223 00000 n \n0000000311 00000 n \ntrailer\n<< /Size 6 /Root 1 0 R /Info 5 0 R >>\nstartxref\n363\n%%EOF\n')
+E            +    where <built-in method startswith of bytes object at 0x768bac0> = b'%PDF-1.7\n%\xe2\xe3\xcf\xd3\n2 0 obj\n<<\n/Count 1\n/Kids [4 0 R]\n/Type /Pages\n>>\nendobj\n4 0 obj\n<<\n/Contents ...0000001414 00000 n \n0000001492 00000 n \ntrailer\n<<\n/Info 3 0 R\n/Root 1 0 R\n/Size 7\n>>\nstartxref\n4553\n%%EOF\n'.startswith
+E            +      where b'%PDF-1.7\n%\xe2\xe3\xcf\xd3\n2 0 obj\n<<\n/Count 1\n/Kids [4 0 R]\n/Type /Pages\n>>\nendobj\n4 0 obj\n<<\n/Contents ...0000001414 00000 n \n0000001492 00000 n \ntrailer\n<<\n/Info 3 0 R\n/Root 1 0 R\n/Size 7\n>>\nstartxref\n4553\n%%EOF\n' = read_bytes()
+E            +        where read_bytes = (PosixPath('/tmp/pytest-of-santi/pytest-7/test_split_reports_and_outputs0') / 'part0.pdf').read_bytes
+
+tests/test_existing_document.py:92: AssertionError
+____________ test_base_page_labels_remapping_is_rejected_like_core _____________
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-7/test_base_page_labels_remappin0')
+
+    def test_base_page_labels_remapping_is_rejected_like_core(tmp_path):
+        source, original = fixture_pdf(tmp_path / 'input.pdf', True)
+        output = tmp_path / 'output.pdf'
+>       with pytest.raises(pdf.PdfError, match="PageLabels"):
+E       Failed: DID NOT RAISE PdfError
+
+tests/test_existing_document.py:145: Failed
+=========================== short test summary info ============================
+FAILED tests/test_existing_document.py::test_extract_preserves_prefix_and_full_plan
+FAILED tests/test_existing_document.py::test_merge_selection_and_secondary_labels_policy
+FAILED tests/test_existing_document.py::test_split_reports_and_outputs - Asse...
+FAILED tests/test_existing_document.py::test_base_page_labels_remapping_is_rejected_like_core
+4 failed, 5 passed in 0.16s
