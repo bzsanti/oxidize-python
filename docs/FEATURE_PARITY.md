@@ -10,8 +10,10 @@ by [core #710](https://github.com/bzsanti/oxidizePdf/issues/710).
 | Existing-document merge/extract/split with explicit preservation policies and complete plans | Integrated in develop via #245; 26 CI checks passed |
 | Atomic lossless page mutations (move/rotate/delete/duplicate/insert) | Integrated in develop via #245; 26 CI checks passed |
 | CMS preparation and completion | Integrated in develop via #246; 26 CI checks passed |
-| Composed extraction policies (CR, reading order, column reordering) | Implemented and locally validated; CI pending |
-| Incremental annotation/tagged/OCR editors, security redaction, revision-aware comparison | Missing bindings; required for full parity |
+| Composed extraction policies (CR, reading order, column reordering) | Integrated in develop via #248; 26 CI checks passed |
+| Incremental FreeText editor (read/add/update/remove, all fields) | Implemented and locally validated; CI pending |
+| Incremental notes/highlights | Candidate bindings blocked on upstream DocMDP fix [core #712](https://github.com/bzsanti/oxidizePdf/issues/712); not exported |
+| Other incremental annotation/tagged/OCR editors, security redaction, revision-aware comparison | Missing bindings; required for full parity |
 | Recovery diagnostics, NBSP normalization, signature slots, batch/streaming, experimental SPI | Bindings exist; complete option/result audit pending |
 | Generation, parsing, graphics, forms, layout, AI and remaining public Rust API | Bindings exist in part; complete functional audit pending |
 | Tesseract recognition and optional production features | Full exposure pending |

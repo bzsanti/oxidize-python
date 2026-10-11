@@ -1,0 +1,155 @@
+FFFFFF.                                                                  [100%]
+=================================== FAILURES ===================================
+__________ test_free_text_full_options_update_and_removal[alignment0] __________
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-28/test_free_text_full_options_up0')
+alignment = FreeTextAlignment.Left
+
+    @pytest.mark.parametrize('alignment', [op.FreeTextAlignment.Left, op.FreeTextAlignment.Center, op.FreeTextAlignment.Right])
+    def test_free_text_full_options_update_and_removal(tmp_path, alignment):
+        _, base = fixture_pdf(tmp_path / 'free.pdf')
+        editor = op.IncrementalFreeTextEditor(base)
+        added = editor.apply([op.FreeTextMutation.add(0, [10., 20., 180., 80.], 'Hola', '/Helv 12 Tf 0 g', alignment)])
+>       revision(base, added.pdf_bytes)
+
+tests/test_incremental_annotations.py:26:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+base = b'%PDF-1.7\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R /Lang (es-ES) >>\nendobj\n2 0 obj\n<< /Type /Pages /Kids [3 0 R 4 ... n \n0000000223 00000 n \n0000000311 00000 n \ntrailer\n<< /Size 6 /Root 1 0 R /Info 5 0 R >>\nstartxref\n363\n%%EOF\n'
+result = b'%PDF-1.7\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R /Lang (es-ES) >>\nendobj\n2 0 obj\n<< /Type /Pages /Kids [3 0 R 4 ... n \n0000000223 00000 n \n0000000311 00000 n \ntrailer\n<< /Size 6 /Root 1 0 R /Info 5 0 R >>\nstartxref\n363\n%%EOF\n'
+
+    def revision(base, result):
+        assert isinstance(result, bytes)
+        assert result.startswith(base)
+>       assert result.count(b'%%EOF') == base.count(b'%%EOF') + 1
+E       AssertionError: assert 1 == (1 + 1)
+E        +  where 1 = <built-in method count of bytes object at 0xc35d1e0>(b'%%EOF')
+E        +    where <built-in method count of bytes object at 0xc35d1e0> = b'%PDF-1.7\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R /Lang (es-ES) >>\nendobj\n2 0 obj\n<< /Type /Pages /Kids [3 0 R 4 ... n \n0000000223 00000 n \n0000000311 00000 n \ntrailer\n<< /Size 6 /Root 1 0 R /Info 5 0 R >>\nstartxref\n363\n%%EOF\n'.count
+E        +  and   1 = <built-in method count of bytes object at 0xbf0e2e0>(b'%%EOF')
+E        +    where <built-in method count of bytes object at 0xbf0e2e0> = b'%PDF-1.7\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R /Lang (es-ES) >>\nendobj\n2 0 obj\n<< /Type /Pages /Kids [3 0 R 4 ... n \n0000000223 00000 n \n0000000311 00000 n \ntrailer\n<< /Size 6 /Root 1 0 R /Info 5 0 R >>\nstartxref\n363\n%%EOF\n'.count
+
+tests/test_incremental_annotations.py:13: AssertionError
+__________ test_free_text_full_options_update_and_removal[alignment1] __________
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-28/test_free_text_full_options_up1')
+alignment = FreeTextAlignment.Center
+
+    @pytest.mark.parametrize('alignment', [op.FreeTextAlignment.Left, op.FreeTextAlignment.Center, op.FreeTextAlignment.Right])
+    def test_free_text_full_options_update_and_removal(tmp_path, alignment):
+        _, base = fixture_pdf(tmp_path / 'free.pdf')
+        editor = op.IncrementalFreeTextEditor(base)
+        added = editor.apply([op.FreeTextMutation.add(0, [10., 20., 180., 80.], 'Hola', '/Helv 12 Tf 0 g', alignment)])
+>       revision(base, added.pdf_bytes)
+
+tests/test_incremental_annotations.py:26:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+base = b'%PDF-1.7\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R /Lang (es-ES) >>\nendobj\n2 0 obj\n<< /Type /Pages /Kids [3 0 R 4 ... n \n0000000223 00000 n \n0000000311 00000 n \ntrailer\n<< /Size 6 /Root 1 0 R /Info 5 0 R >>\nstartxref\n363\n%%EOF\n'
+result = b'%PDF-1.7\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R /Lang (es-ES) >>\nendobj\n2 0 obj\n<< /Type /Pages /Kids [3 0 R 4 ... n \n0000000223 00000 n \n0000000311 00000 n \ntrailer\n<< /Size 6 /Root 1 0 R /Info 5 0 R >>\nstartxref\n363\n%%EOF\n'
+
+    def revision(base, result):
+        assert isinstance(result, bytes)
+        assert result.startswith(base)
+>       assert result.count(b'%%EOF') == base.count(b'%%EOF') + 1
+E       AssertionError: assert 1 == (1 + 1)
+E        +  where 1 = <built-in method count of bytes object at 0xc36a1f0>(b'%%EOF')
+E        +    where <built-in method count of bytes object at 0xc36a1f0> = b'%PDF-1.7\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R /Lang (es-ES) >>\nendobj\n2 0 obj\n<< /Type /Pages /Kids [3 0 R 4 ... n \n0000000223 00000 n \n0000000311 00000 n \ntrailer\n<< /Size 6 /Root 1 0 R /Info 5 0 R >>\nstartxref\n363\n%%EOF\n'.count
+E        +  and   1 = <built-in method count of bytes object at 0xc35e630>(b'%%EOF')
+E        +    where <built-in method count of bytes object at 0xc35e630> = b'%PDF-1.7\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R /Lang (es-ES) >>\nendobj\n2 0 obj\n<< /Type /Pages /Kids [3 0 R 4 ... n \n0000000223 00000 n \n0000000311 00000 n \ntrailer\n<< /Size 6 /Root 1 0 R /Info 5 0 R >>\nstartxref\n363\n%%EOF\n'.count
+
+tests/test_incremental_annotations.py:13: AssertionError
+__________ test_free_text_full_options_update_and_removal[alignment2] __________
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-28/test_free_text_full_options_up2')
+alignment = FreeTextAlignment.Right
+
+    @pytest.mark.parametrize('alignment', [op.FreeTextAlignment.Left, op.FreeTextAlignment.Center, op.FreeTextAlignment.Right])
+    def test_free_text_full_options_update_and_removal(tmp_path, alignment):
+        _, base = fixture_pdf(tmp_path / 'free.pdf')
+        editor = op.IncrementalFreeTextEditor(base)
+        added = editor.apply([op.FreeTextMutation.add(0, [10., 20., 180., 80.], 'Hola', '/Helv 12 Tf 0 g', alignment)])
+>       revision(base, added.pdf_bytes)
+
+tests/test_incremental_annotations.py:26:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+base = b'%PDF-1.7\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R /Lang (es-ES) >>\nendobj\n2 0 obj\n<< /Type /Pages /Kids [3 0 R 4 ... n \n0000000223 00000 n \n0000000311 00000 n \ntrailer\n<< /Size 6 /Root 1 0 R /Info 5 0 R >>\nstartxref\n363\n%%EOF\n'
+result = b'%PDF-1.7\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R /Lang (es-ES) >>\nendobj\n2 0 obj\n<< /Type /Pages /Kids [3 0 R 4 ... n \n0000000223 00000 n \n0000000311 00000 n \ntrailer\n<< /Size 6 /Root 1 0 R /Info 5 0 R >>\nstartxref\n363\n%%EOF\n'
+
+    def revision(base, result):
+        assert isinstance(result, bytes)
+        assert result.startswith(base)
+>       assert result.count(b'%%EOF') == base.count(b'%%EOF') + 1
+E       AssertionError: assert 1 == (1 + 1)
+E        +  where 1 = <built-in method count of bytes object at 0xc35d1e0>(b'%%EOF')
+E        +    where <built-in method count of bytes object at 0xc35d1e0> = b'%PDF-1.7\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R /Lang (es-ES) >>\nendobj\n2 0 obj\n<< /Type /Pages /Kids [3 0 R 4 ... n \n0000000223 00000 n \n0000000311 00000 n \ntrailer\n<< /Size 6 /Root 1 0 R /Info 5 0 R >>\nstartxref\n363\n%%EOF\n'.count
+E        +  and   1 = <built-in method count of bytes object at 0xbf0e2e0>(b'%%EOF')
+E        +    where <built-in method count of bytes object at 0xbf0e2e0> = b'%PDF-1.7\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R /Lang (es-ES) >>\nendobj\n2 0 obj\n<< /Type /Pages /Kids [3 0 R 4 ... n \n0000000223 00000 n \n0000000311 00000 n \ntrailer\n<< /Size 6 /Root 1 0 R /Info 5 0 R >>\nstartxref\n363\n%%EOF\n'.count
+
+tests/test_incremental_annotations.py:13: AssertionError
+________ test_invalid_annotation_batch_does_not_mutate_editor[FreeText] ________
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-28/test_invalid_annotation_batch_0')
+kind = 'FreeText'
+
+    @pytest.mark.parametrize('kind', ['FreeText'])
+    def test_invalid_annotation_batch_does_not_mutate_editor(tmp_path, kind):
+        _, base = fixture_pdf(tmp_path / 'invalid.pdf')
+        editor = getattr(op, 'Incremental' + kind + 'Editor')(base)
+        identity = getattr(op, kind + 'Id')(9999, 7)
+>       with pytest.raises(op.PdfError):
+E       Failed: DID NOT RAISE PdfError
+
+tests/test_incremental_annotations.py:50: Failed
+______ test_annotation_edits_enforce_docmdp_permissions[1-False-FreeText] ______
+
+kind = 'FreeText', permission = 1, allowed = False
+
+    @pytest.mark.parametrize('kind', ['FreeText'])
+    @pytest.mark.parametrize('permission,allowed', [(1,False),(2,False),(3,True)])
+    def test_annotation_edits_enforce_docmdp_permissions(kind, permission, allowed):
+        # Synthetic policy variants invalidate the original signature. This checks
+        # permissions, not cryptographic validity (covered separately by CMS tests).
+        base = (Path(__file__).parent / 'fixtures/signatures/docmdp_p2_rsa.pdf').read_bytes()
+        assert b'/P 2' in base
+        base = base.replace(b'/P 2', f'/P {permission}'.encode(), 1)
+        editor = getattr(op, 'Incremental' + kind + 'Editor')(base)
+        assert editor.apply([]).pdf_bytes == base
+        mutation = op.FreeTextMutation.add(0, [10.,20.,180.,80.], 'Policy', '/Helv 12 Tf 0 g', op.FreeTextAlignment.Left)
+        if allowed:
+            assert editor.apply([mutation]).pdf_bytes.startswith(base)
+        else:
+>           with pytest.raises(op.PdfError, match='DocMDP'):
+E           Failed: DID NOT RAISE PdfError
+
+tests/test_incremental_annotations.py:73: Failed
+______ test_annotation_edits_enforce_docmdp_permissions[2-False-FreeText] ______
+
+kind = 'FreeText', permission = 2, allowed = False
+
+    @pytest.mark.parametrize('kind', ['FreeText'])
+    @pytest.mark.parametrize('permission,allowed', [(1,False),(2,False),(3,True)])
+    def test_annotation_edits_enforce_docmdp_permissions(kind, permission, allowed):
+        # Synthetic policy variants invalidate the original signature. This checks
+        # permissions, not cryptographic validity (covered separately by CMS tests).
+        base = (Path(__file__).parent / 'fixtures/signatures/docmdp_p2_rsa.pdf').read_bytes()
+        assert b'/P 2' in base
+        base = base.replace(b'/P 2', f'/P {permission}'.encode(), 1)
+        editor = getattr(op, 'Incremental' + kind + 'Editor')(base)
+        assert editor.apply([]).pdf_bytes == base
+        mutation = op.FreeTextMutation.add(0, [10.,20.,180.,80.], 'Policy', '/Helv 12 Tf 0 g', op.FreeTextAlignment.Left)
+        if allowed:
+            assert editor.apply([mutation]).pdf_bytes.startswith(base)
+        else:
+>           with pytest.raises(op.PdfError, match='DocMDP'):
+E           Failed: DID NOT RAISE PdfError
+
+tests/test_incremental_annotations.py:73: Failed
+=========================== short test summary info ============================
+FAILED tests/test_incremental_annotations.py::test_free_text_full_options_update_and_removal[alignment0]
+FAILED tests/test_incremental_annotations.py::test_free_text_full_options_update_and_removal[alignment1]
+FAILED tests/test_incremental_annotations.py::test_free_text_full_options_update_and_removal[alignment2]
+FAILED tests/test_incremental_annotations.py::test_invalid_annotation_batch_does_not_mutate_editor[FreeText]
+FAILED tests/test_incremental_annotations.py::test_annotation_edits_enforce_docmdp_permissions[1-False-FreeText]
+FAILED tests/test_incremental_annotations.py::test_annotation_edits_enforce_docmdp_permissions[2-False-FreeText]
+6 failed, 1 passed in 0.17s
