@@ -1,5 +1,7 @@
 # oxidize-pdf Ecosystem Lifecycle Strategy
 
+> Policy update (2026-10-11, #242): Python core updates are manual. The daily polling and repository-dispatch PR workflows have been removed and disabled. The automation design and workflow templates below are historical proposals, not the active Python policy. Normal CI, releases, and parity checks remain active.
+
 **Version**: 1.0
 **Date**: 2026-03-14
 **Scope**: oxidize-pdf (Rust core) + oxidize-python + oxidize-pdf-dotnet + oxidize-wasm (planned)

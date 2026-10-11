@@ -1,0 +1,29 @@
+## Calidad de Tests (Kripteia)
+
+=== Kripteia Test Quality Report ===
+Overall Score: 99 | Tests: 9 | Files: 1
+
+--- Files ---
+Path                                                          Tests  Score
+--------------------------------------------------------------------------
+...ndings-core-5.4.2/python/tests/test_text_measurement.py        9     99
+
+--- Worst Offenders ---
+  TestMeasureText::test_measure_text_different_fonts (/tmp/bindings-core-5.4.2/python/tests/test_text_measurement.py:36) - Score: 90
+    - Test 'TestMeasureText::test_measure_text_different_fonts' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  TestMeasureText::test_measure_text_returns_positive (/tmp/bindings-core-5.4.2/python/tests/test_text_measurement.py:9) - Score: 100
+  TestMeasureText::test_measure_text_empty_string (/tmp/bindings-core-5.4.2/python/tests/test_text_measurement.py:16) - Score: 100
+  TestMeasureText::test_measure_text_scales_with_size (/tmp/bindings-core-5.4.2/python/tests/test_text_measurement.py:22) - Score: 100
+  TestMeasureText::test_measure_text_longer_is_wider (/tmp/bindings-core-5.4.2/python/tests/test_text_measurement.py:29) - Score: 100
+
+--- Details ---
+/tmp/bindings-core-5.4.2/python/tests/test_text_measurement.py:
+  TestMeasureText::test_measure_text_different_fonts (line 36) - Score: 90
+    - Test 'TestMeasureText::test_measure_text_different_fonts' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+
+
+## Analisis de Seguridad (Kripteia Security)
+
+=== Kripteia Security Analysis ===
+
+No security issues found.
