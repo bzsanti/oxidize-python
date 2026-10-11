@@ -9,6 +9,7 @@ mod charts;
 mod content_parser;
 mod document;
 mod errors;
+mod existing_document;
 #[cfg(feature = "unstable-spi")]
 mod experimental_spi;
 mod forms;
@@ -44,6 +45,7 @@ fn _oxidize_pdf(m: &Bound<'_, PyModule>) -> PyResult<()> {
 
     // Register submodules
     errors::register(m)?;
+    existing_document::register(m)?;
     upstream::register(m)?;
     types::register(m)?;
     document::register(m)?;

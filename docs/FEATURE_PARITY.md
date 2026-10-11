@@ -1,3 +1,27 @@
+# Current parity target — Rust 5.4.2
+
+The bridge target is **all functional capabilities of Rust**, including options,
+results and errors. Pinning the same core version is not proof of API parity.
+Tracking: [#244](https://github.com/bzsanti/oxidize-python/issues/244), coordinated
+by [core #710](https://github.com/bzsanti/oxidizePdf/issues/710).
+
+| Capability | Current status |
+| --- | --- |
+| Existing-document merge/extract/split with explicit preservation policies and complete plans | Implemented locally; acceptance/CI pending |
+| Atomic lossless page mutations (move/rotate/delete/duplicate/insert) | Implemented locally; acceptance/CI pending |
+| CMS preparation and completion, incremental annotation/tagged/OCR editors, security redaction, revision-aware comparison | Missing bindings; required for full parity |
+| Recovery diagnostics, NBSP normalization, signature slots, batch/streaming, experimental SPI | Bindings exist; complete option/result audit pending |
+| Generation, parsing, graphics, forms, layout, AI and remaining public Rust API | Bindings exist in part; complete functional audit pending |
+| Tesseract recognition and optional production features | Full exposure pending |
+
+`docs/parity-contract.json` records the first audited API contract. CI tests each
+callable parameter and result property and runs the named behavioral tests. Its
+scope is explicitly partial. No global coverage percentage is currently valid.
+A Rust limitation remains a Rust limitation: preserving edits that require
+remapping the base document's page labels are rejected by core 5.4.2.
+
+## Historical matrix (not a current completeness claim)
+
 # Feature Parity — oxidize-python
 
 Bridge version: 0.19.0
