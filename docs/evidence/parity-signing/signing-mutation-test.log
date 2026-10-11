@@ -1,0 +1,12 @@
+F.............                                                           [100%]
+=================================== FAILURES ===================================
+________ test_external_cms_exact_coverage_and_independent_verification _________
+tests/test_incremental_signing.py:30: in test_external_cms_exact_coverage_and_independent_verification
+    assert prepared.bytes_to_digest == covered(prepared.prepared_pdf, prepared.byte_range)
+E   AssertionError: assert b'%PDF-1.7\n%...9300\n%%EOF\n' == b'%PDF-1.7\n%...9300\n%%EOF\n'
+E
+E     At index 6332 diff: b'<' != b' '
+E     Use -v to get more diff
+=========================== short test summary info ============================
+FAILED tests/test_incremental_signing.py::test_external_cms_exact_coverage_and_independent_verification
+1 failed, 13 passed in 0.21s

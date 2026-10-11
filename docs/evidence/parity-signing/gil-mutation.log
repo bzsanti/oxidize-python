@@ -1,0 +1,19 @@
+FFF                                                                      [100%]
+=================================== FAILURES ===================================
+______________ test_speedup_guard_rejects_wall_only_speedup[0.8] _______________
+tests/test_gil_concurrency.py:188: in test_speedup_guard_rejects_wall_only_speedup
+    with pytest.raises(pytest.fail.Exception, match="cpu/wall"):
+E   Failed: DID NOT RAISE Failed
+______________ test_speedup_guard_rejects_wall_only_speedup[1.0] _______________
+tests/test_gil_concurrency.py:188: in test_speedup_guard_rejects_wall_only_speedup
+    with pytest.raises(pytest.fail.Exception, match="cpu/wall"):
+E   Failed: DID NOT RAISE Failed
+______________ test_speedup_guard_rejects_wall_only_speedup[1.2] _______________
+tests/test_gil_concurrency.py:188: in test_speedup_guard_rejects_wall_only_speedup
+    with pytest.raises(pytest.fail.Exception, match="cpu/wall"):
+E   Failed: DID NOT RAISE Failed
+=========================== short test summary info ============================
+FAILED tests/test_gil_concurrency.py::test_speedup_guard_rejects_wall_only_speedup[0.8]
+FAILED tests/test_gil_concurrency.py::test_speedup_guard_rejects_wall_only_speedup[1.0]
+FAILED tests/test_gil_concurrency.py::test_speedup_guard_rejects_wall_only_speedup[1.2]
+3 failed, 11 deselected in 0.08s

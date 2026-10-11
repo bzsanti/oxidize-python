@@ -24,3 +24,8 @@ def test_audited_parity_contract():
     tree = ast.parse((ROOT / "tests/test_existing_document.py").read_text())
     test_names = {n.name for n in tree.body if isinstance(n, ast.FunctionDef)}
     assert set(CONTRACT["required_tests"]) <= test_names
+
+    for relative, required in CONTRACT.get("additional_tests", {}).items():
+        tree = ast.parse((ROOT / relative).read_text())
+        names = {n.name for n in tree.body if isinstance(n, ast.FunctionDef)}
+        assert set(required) <= names

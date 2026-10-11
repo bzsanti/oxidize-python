@@ -43,6 +43,7 @@ dev = [
     "pytest>=7.0",
     "pytest-asyncio>=0.21",
     "mypy>=1.0",
+    "cryptography>=43",
 ]
 mcp = [
     "fastmcp>=4.0.9,<5",
