@@ -449,6 +449,15 @@ from oxidize_pdf._oxidize_pdf import (
 from oxidize_pdf._oxidize_pdf import (
     # F71: ExtractionOptions + TextFragment + SpaceDecision (oxidize-pdf 2.10.0)
     ExtractionOptions,
+    InkColorSpace,
+    InkColor,
+    InkStroke,
+    InkId,
+    Ink,
+    InkMutation,
+    InkUpdate,
+    IncrementalInkEditor,
+
     FreeTextAlignment,
     FreeTextId,
     FreeText,
@@ -954,6 +963,15 @@ __all__ = [
     # Text Extraction Deep (Tier 14 — F71-F74)
     # F71
     "ExtractionOptions",
+    "InkColorSpace",
+    "InkColor",
+    "InkStroke",
+    "InkId",
+    "Ink",
+    "InkMutation",
+    "InkUpdate",
+    "IncrementalInkEditor",
+
     "FreeTextAlignment",
     "FreeTextId",
     "FreeText",

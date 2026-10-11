@@ -11,6 +11,7 @@ mod document;
 mod errors;
 mod existing_document;
 mod incremental_annotations;
+mod incremental_ink;
 #[cfg(feature = "unstable-spi")]
 mod experimental_spi;
 mod forms;
@@ -49,6 +50,7 @@ fn _oxidize_pdf(m: &Bound<'_, PyModule>) -> PyResult<()> {
     errors::register(m)?;
     existing_document::register(m)?;
     incremental_annotations::register(m)?;
+    incremental_ink::register(m)?;
     upstream::register(m)?;
     types::register(m)?;
     document::register(m)?;

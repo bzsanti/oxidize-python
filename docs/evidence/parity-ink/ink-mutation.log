@@ -1,0 +1,243 @@
+FFFFFFF.....F.....                                                       [100%]
+=================================== FAILURES ===================================
+_ test_ink_style_geometry_and_original_color_space[None-color0-space0-components0] _
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-33/test_ink_style_geometry_and_or0')
+color = <builtins.InkColor object at 0x70da9abfa0b0>, space = InkColorSpace.Gray
+components = [0.25], opacity = None
+
+    @pytest.mark.parametrize('color,space,components', [
+        (op.InkColor.gray(0.25), op.InkColorSpace.Gray, [0.25]),
+        (op.InkColor.rgb([1.,0.5,0.]), op.InkColorSpace.Rgb, [1.,0.5,0.]),
+        (op.InkColor.cmyk([0.,0.25,0.5,1.]), op.InkColorSpace.Cmyk, [0.,0.25,0.5,1.]),
+    ])
+    @pytest.mark.parametrize('opacity', [None, 0.25])
+    def test_ink_style_geometry_and_original_color_space(tmp_path, color, space, components, opacity):
+        _, base = fixture_pdf(tmp_path / 'ink.pdf')
+        editor = op.IncrementalInkEditor(base)
+        assert editor.annotations() == []
+        assert editor.apply([]).pdf_bytes == base
+        stroke = op.InkStroke(POINTS)
+        result = editor.apply([op.InkMutation.add(1, [stroke], color, 2., opacity)])
+        assert result.pdf_bytes.startswith(base)
+        assert result.pdf_bytes.count(b'%%EOF') == base.count(b'%%EOF') + 1
+        assert op.PdfReader.from_bytes(result.pdf_bytes).page_count == 2
+        annotation, = result.annotations
+        assert annotation.id.object_number > 0 and annotation.id.generation_number == 0
+        assert annotation.page_index == 1
+>       assert annotation.rect == [9.,19.,81.,61.]
+E       assert [9.5, 19.5, 80.5, 60.5] == [9.0, 19.0, 81.0, 61.0]
+E
+E         At index 0 diff: 9.5 != 9.0
+E         Use -v to get more diff
+
+tests/test_incremental_ink.py:29: AssertionError
+_ test_ink_style_geometry_and_original_color_space[None-color1-space1-components1] _
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-33/test_ink_style_geometry_and_or1')
+color = <builtins.InkColor object at 0x70da9abfa070>, space = InkColorSpace.Rgb
+components = [1.0, 0.5, 0.0], opacity = None
+
+    @pytest.mark.parametrize('color,space,components', [
+        (op.InkColor.gray(0.25), op.InkColorSpace.Gray, [0.25]),
+        (op.InkColor.rgb([1.,0.5,0.]), op.InkColorSpace.Rgb, [1.,0.5,0.]),
+        (op.InkColor.cmyk([0.,0.25,0.5,1.]), op.InkColorSpace.Cmyk, [0.,0.25,0.5,1.]),
+    ])
+    @pytest.mark.parametrize('opacity', [None, 0.25])
+    def test_ink_style_geometry_and_original_color_space(tmp_path, color, space, components, opacity):
+        _, base = fixture_pdf(tmp_path / 'ink.pdf')
+        editor = op.IncrementalInkEditor(base)
+        assert editor.annotations() == []
+        assert editor.apply([]).pdf_bytes == base
+        stroke = op.InkStroke(POINTS)
+        result = editor.apply([op.InkMutation.add(1, [stroke], color, 2., opacity)])
+        assert result.pdf_bytes.startswith(base)
+        assert result.pdf_bytes.count(b'%%EOF') == base.count(b'%%EOF') + 1
+        assert op.PdfReader.from_bytes(result.pdf_bytes).page_count == 2
+        annotation, = result.annotations
+        assert annotation.id.object_number > 0 and annotation.id.generation_number == 0
+        assert annotation.page_index == 1
+>       assert annotation.rect == [9.,19.,81.,61.]
+E       assert [9.5, 19.5, 80.5, 60.5] == [9.0, 19.0, 81.0, 61.0]
+E
+E         At index 0 diff: 9.5 != 9.0
+E         Use -v to get more diff
+
+tests/test_incremental_ink.py:29: AssertionError
+_ test_ink_style_geometry_and_original_color_space[None-color2-space2-components2] _
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-33/test_ink_style_geometry_and_or2')
+color = <builtins.InkColor object at 0x70da9aa340b0>, space = InkColorSpace.Cmyk
+components = [0.0, 0.25, 0.5, 1.0], opacity = None
+
+    @pytest.mark.parametrize('color,space,components', [
+        (op.InkColor.gray(0.25), op.InkColorSpace.Gray, [0.25]),
+        (op.InkColor.rgb([1.,0.5,0.]), op.InkColorSpace.Rgb, [1.,0.5,0.]),
+        (op.InkColor.cmyk([0.,0.25,0.5,1.]), op.InkColorSpace.Cmyk, [0.,0.25,0.5,1.]),
+    ])
+    @pytest.mark.parametrize('opacity', [None, 0.25])
+    def test_ink_style_geometry_and_original_color_space(tmp_path, color, space, components, opacity):
+        _, base = fixture_pdf(tmp_path / 'ink.pdf')
+        editor = op.IncrementalInkEditor(base)
+        assert editor.annotations() == []
+        assert editor.apply([]).pdf_bytes == base
+        stroke = op.InkStroke(POINTS)
+        result = editor.apply([op.InkMutation.add(1, [stroke], color, 2., opacity)])
+        assert result.pdf_bytes.startswith(base)
+        assert result.pdf_bytes.count(b'%%EOF') == base.count(b'%%EOF') + 1
+        assert op.PdfReader.from_bytes(result.pdf_bytes).page_count == 2
+        annotation, = result.annotations
+        assert annotation.id.object_number > 0 and annotation.id.generation_number == 0
+        assert annotation.page_index == 1
+>       assert annotation.rect == [9.,19.,81.,61.]
+E       assert [9.5, 19.5, 80.5, 60.5] == [9.0, 19.0, 81.0, 61.0]
+E
+E         At index 0 diff: 9.5 != 9.0
+E         Use -v to get more diff
+
+tests/test_incremental_ink.py:29: AssertionError
+_ test_ink_style_geometry_and_original_color_space[0.25-color0-space0-components0] _
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-33/test_ink_style_geometry_and_or3')
+color = <builtins.InkColor object at 0x70da9abfa0b0>, space = InkColorSpace.Gray
+components = [0.25], opacity = 0.25
+
+    @pytest.mark.parametrize('color,space,components', [
+        (op.InkColor.gray(0.25), op.InkColorSpace.Gray, [0.25]),
+        (op.InkColor.rgb([1.,0.5,0.]), op.InkColorSpace.Rgb, [1.,0.5,0.]),
+        (op.InkColor.cmyk([0.,0.25,0.5,1.]), op.InkColorSpace.Cmyk, [0.,0.25,0.5,1.]),
+    ])
+    @pytest.mark.parametrize('opacity', [None, 0.25])
+    def test_ink_style_geometry_and_original_color_space(tmp_path, color, space, components, opacity):
+        _, base = fixture_pdf(tmp_path / 'ink.pdf')
+        editor = op.IncrementalInkEditor(base)
+        assert editor.annotations() == []
+        assert editor.apply([]).pdf_bytes == base
+        stroke = op.InkStroke(POINTS)
+        result = editor.apply([op.InkMutation.add(1, [stroke], color, 2., opacity)])
+        assert result.pdf_bytes.startswith(base)
+        assert result.pdf_bytes.count(b'%%EOF') == base.count(b'%%EOF') + 1
+        assert op.PdfReader.from_bytes(result.pdf_bytes).page_count == 2
+        annotation, = result.annotations
+        assert annotation.id.object_number > 0 and annotation.id.generation_number == 0
+        assert annotation.page_index == 1
+>       assert annotation.rect == [9.,19.,81.,61.]
+E       assert [9.5, 19.5, 80.5, 60.5] == [9.0, 19.0, 81.0, 61.0]
+E
+E         At index 0 diff: 9.5 != 9.0
+E         Use -v to get more diff
+
+tests/test_incremental_ink.py:29: AssertionError
+_ test_ink_style_geometry_and_original_color_space[0.25-color1-space1-components1] _
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-33/test_ink_style_geometry_and_or4')
+color = <builtins.InkColor object at 0x70da9abfa070>, space = InkColorSpace.Rgb
+components = [1.0, 0.5, 0.0], opacity = 0.25
+
+    @pytest.mark.parametrize('color,space,components', [
+        (op.InkColor.gray(0.25), op.InkColorSpace.Gray, [0.25]),
+        (op.InkColor.rgb([1.,0.5,0.]), op.InkColorSpace.Rgb, [1.,0.5,0.]),
+        (op.InkColor.cmyk([0.,0.25,0.5,1.]), op.InkColorSpace.Cmyk, [0.,0.25,0.5,1.]),
+    ])
+    @pytest.mark.parametrize('opacity', [None, 0.25])
+    def test_ink_style_geometry_and_original_color_space(tmp_path, color, space, components, opacity):
+        _, base = fixture_pdf(tmp_path / 'ink.pdf')
+        editor = op.IncrementalInkEditor(base)
+        assert editor.annotations() == []
+        assert editor.apply([]).pdf_bytes == base
+        stroke = op.InkStroke(POINTS)
+        result = editor.apply([op.InkMutation.add(1, [stroke], color, 2., opacity)])
+        assert result.pdf_bytes.startswith(base)
+        assert result.pdf_bytes.count(b'%%EOF') == base.count(b'%%EOF') + 1
+        assert op.PdfReader.from_bytes(result.pdf_bytes).page_count == 2
+        annotation, = result.annotations
+        assert annotation.id.object_number > 0 and annotation.id.generation_number == 0
+        assert annotation.page_index == 1
+>       assert annotation.rect == [9.,19.,81.,61.]
+E       assert [9.5, 19.5, 80.5, 60.5] == [9.0, 19.0, 81.0, 61.0]
+E
+E         At index 0 diff: 9.5 != 9.0
+E         Use -v to get more diff
+
+tests/test_incremental_ink.py:29: AssertionError
+_ test_ink_style_geometry_and_original_color_space[0.25-color2-space2-components2] _
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-33/test_ink_style_geometry_and_or5')
+color = <builtins.InkColor object at 0x70da9aa340b0>, space = InkColorSpace.Cmyk
+components = [0.0, 0.25, 0.5, 1.0], opacity = 0.25
+
+    @pytest.mark.parametrize('color,space,components', [
+        (op.InkColor.gray(0.25), op.InkColorSpace.Gray, [0.25]),
+        (op.InkColor.rgb([1.,0.5,0.]), op.InkColorSpace.Rgb, [1.,0.5,0.]),
+        (op.InkColor.cmyk([0.,0.25,0.5,1.]), op.InkColorSpace.Cmyk, [0.,0.25,0.5,1.]),
+    ])
+    @pytest.mark.parametrize('opacity', [None, 0.25])
+    def test_ink_style_geometry_and_original_color_space(tmp_path, color, space, components, opacity):
+        _, base = fixture_pdf(tmp_path / 'ink.pdf')
+        editor = op.IncrementalInkEditor(base)
+        assert editor.annotations() == []
+        assert editor.apply([]).pdf_bytes == base
+        stroke = op.InkStroke(POINTS)
+        result = editor.apply([op.InkMutation.add(1, [stroke], color, 2., opacity)])
+        assert result.pdf_bytes.startswith(base)
+        assert result.pdf_bytes.count(b'%%EOF') == base.count(b'%%EOF') + 1
+        assert op.PdfReader.from_bytes(result.pdf_bytes).page_count == 2
+        annotation, = result.annotations
+        assert annotation.id.object_number > 0 and annotation.id.generation_number == 0
+        assert annotation.page_index == 1
+>       assert annotation.rect == [9.,19.,81.,61.]
+E       assert [9.5, 19.5, 80.5, 60.5] == [9.0, 19.0, 81.0, 61.0]
+E
+E         At index 0 diff: 9.5 != 9.0
+E         Use -v to get more diff
+
+tests/test_incremental_ink.py:29: AssertionError
+______ test_ink_update_and_remove_keep_identity_and_single_point_strokes _______
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-33/test_ink_update_and_remove_kee0')
+
+    def test_ink_update_and_remove_keep_identity_and_single_point_strokes(tmp_path):
+        _, base = fixture_pdf(tmp_path / 'update.pdf')
+        first = op.IncrementalInkEditor(base).apply([op.InkMutation.add(0, [op.InkStroke(POINTS)], op.InkColor.gray(0.), 2.)])
+        identity = first.annotations[0].id
+        points = [(30.,40.)]
+        stroke = op.InkStroke(points)
+        points.append((100.,100.))  # Constructor takes an owned snapshot.
+        update = op.InkMutation.update(identity, [stroke], op.InkColor.cmyk([0.,0.,0.,1.]), 4., 0.5)
+        second = op.IncrementalInkEditor(first.pdf_bytes).apply([update])
+        assert second.pdf_bytes.startswith(first.pdf_bytes)
+        current, = second.annotations
+        assert current.id == identity and current.strokes[0].points == [(30.,40.)]
+>       assert current.width == 4. and current.opacity == 0.5
+E       assert (1.0 == 4.0)
+E        +  where 1.0 = <builtins.Ink object at 0x70da9aac1110>.width
+
+tests/test_incremental_ink.py:51: AssertionError
+____________ test_ink_validation_rejects_invalid_values[<lambda>5] _____________
+
+make = <function <lambda> at 0x70da9aba76a0>
+
+    @pytest.mark.parametrize('make', [
+        lambda: op.InkStroke([]),
+        lambda: op.InkStroke([(float('nan'),0.)]),
+        lambda: op.InkColor.gray(-0.1),
+        lambda: op.InkColor.rgb([1.,2.,0.]),
+        lambda: op.InkColor.cmyk([0.,0.,float('inf'),0.]),
+        lambda: op.InkMutation.add(0, [op.InkStroke(POINTS)], op.InkColor.gray(0.), 0.),
+        lambda: op.InkMutation.add(0, [op.InkStroke(POINTS)], op.InkColor.gray(0.), 1., 2.),
+    ])
+    def test_ink_validation_rejects_invalid_values(make):
+>       with pytest.raises(op.PdfParseError):
+E       Failed: DID NOT RAISE PdfParseError
+
+tests/test_incremental_ink.py:69: Failed
+=========================== short test summary info ============================
+FAILED tests/test_incremental_ink.py::test_ink_style_geometry_and_original_color_space[None-color0-space0-components0]
+FAILED tests/test_incremental_ink.py::test_ink_style_geometry_and_original_color_space[None-color1-space1-components1]
+FAILED tests/test_incremental_ink.py::test_ink_style_geometry_and_original_color_space[None-color2-space2-components2]
+FAILED tests/test_incremental_ink.py::test_ink_style_geometry_and_original_color_space[0.25-color0-space0-components0]
+FAILED tests/test_incremental_ink.py::test_ink_style_geometry_and_original_color_space[0.25-color1-space1-components1]
+FAILED tests/test_incremental_ink.py::test_ink_style_geometry_and_original_color_space[0.25-color2-space2-components2]
+FAILED tests/test_incremental_ink.py::test_ink_update_and_remove_keep_identity_and_single_point_strokes
+FAILED tests/test_incremental_ink.py::test_ink_validation_rejects_invalid_values[<lambda>5]
+8 failed, 10 passed in 0.22s
