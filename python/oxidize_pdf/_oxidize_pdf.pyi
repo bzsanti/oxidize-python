@@ -626,7 +626,18 @@ class TextRenderingMode:
     def __ne__(self, other: object) -> bool: ...
     def __repr__(self) -> str: ...
 
+class CarriageReturnHandling:
+    REMOVE: ClassVar[CarriageReturnHandling]
+    REPLACE_WITH_SPACE: ClassVar[CarriageReturnHandling]
+    NORMALIZE_LINE_ENDING: ClassVar[CarriageReturnHandling]
+
 class ExtractionOptions:
+    @property
+    def reorder_columns(self) -> bool: ...
+    @property
+    def reading_order(self) -> bool: ...
+    @property
+    def carriage_return_handling(self) -> CarriageReturnHandling: ...
     def __init__(
         self,
         preserve_layout: bool = False,
@@ -645,6 +656,9 @@ class ExtractionOptions:
         include_link_annotations: bool = False,
         include_unreliable_figure_text: bool = False,
         normalize_non_breaking_spaces: bool = False,
+        reorder_columns: bool = False,
+        reading_order: bool = False,
+        carriage_return_handling: CarriageReturnHandling = CarriageReturnHandling.REMOVE,
     ) -> None: ...
     @property
     def preserve_layout(self) -> bool: ...

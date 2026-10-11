@@ -17,6 +17,27 @@ use crate::types::PyColor;
 
 // ── ExtractionOptions (F71) ───────────────────────────────────────────────
 
+/// Policy applied to carriage returns decoded from PDF text.
+#[pyclass(name = "CarriageReturnHandling", frozen, eq, eq_int, from_py_object)]
+#[derive(Clone, Copy, PartialEq, Eq)]
+// Match the uppercase policy constants exposed by the existing Python API.
+#[allow(non_camel_case_types, clippy::upper_case_acronyms)]
+pub enum PyCarriageReturnHandling {
+    REMOVE,
+    REPLACE_WITH_SPACE,
+    NORMALIZE_LINE_ENDING,
+}
+impl PyCarriageReturnHandling {
+    fn core(self) -> oxidize_pdf::text::CarriageReturnHandling {
+        use oxidize_pdf::text::CarriageReturnHandling;
+        match self {
+            Self::REMOVE => CarriageReturnHandling::Remove,
+            Self::REPLACE_WITH_SPACE => CarriageReturnHandling::ReplaceWithSpace,
+            Self::NORMALIZE_LINE_ENDING => CarriageReturnHandling::NormalizeLineEnding,
+        }
+    }
+}
+
 /// Advanced text extraction options controlling layout preservation and spacing.
 #[pyclass(name = "ExtractionOptions", frozen, from_py_object)]
 #[derive(Clone)]
@@ -26,6 +47,10 @@ pub struct PyExtractionOptions {
     pub include_unreliable_figure_text: bool,
     #[pyo3(get)]
     pub normalize_non_breaking_spaces: bool,
+    #[pyo3(get)]
+    pub reading_order: bool,
+    #[pyo3(get)]
+    pub carriage_return_handling: PyCarriageReturnHandling,
 }
 
 impl PyExtractionOptions {
@@ -34,6 +59,8 @@ impl PyExtractionOptions {
             .with_link_annotation_extraction(self.include_link_annotations)
             .with_unreliable_figure_text(self.include_unreliable_figure_text)
             .with_non_breaking_space_normalization(self.normalize_non_breaking_spaces)
+            .with_reading_order(self.reading_order)
+            .with_carriage_return_handling(self.carriage_return_handling.core())
     }
 }
 
@@ -57,6 +84,9 @@ impl PyExtractionOptions {
         include_link_annotations = false,
         include_unreliable_figure_text = false,
         normalize_non_breaking_spaces = false,
+        reorder_columns = false,
+        reading_order = false,
+        carriage_return_handling = PyCarriageReturnHandling::REMOVE,
     ))]
     #[allow(clippy::too_many_arguments)]
     fn new(
@@ -75,6 +105,9 @@ impl PyExtractionOptions {
         include_link_annotations: bool,
         include_unreliable_figure_text: bool,
         normalize_non_breaking_spaces: bool,
+        reorder_columns: bool,
+        reading_order: bool,
+        carriage_return_handling: PyCarriageReturnHandling,
     ) -> Self {
         Self {
             inner: ExtractionOptions {
@@ -90,13 +123,18 @@ impl PyExtractionOptions {
                 reconstruct_paragraphs,
                 include_artifacts,
                 max_extracted_bytes,
-                ..Default::default()
+                reorder_columns,
             },
             include_link_annotations,
             include_unreliable_figure_text,
             normalize_non_breaking_spaces,
+            reading_order,
+            carriage_return_handling,
         }
     }
+
+    #[getter]
+    fn reorder_columns(&self) -> bool { self.inner.reorder_columns }
 
     /// Append URI targets from Link annotations in annotation order, without
     /// following them. Targets count toward max_extracted_bytes. Default false.
@@ -976,6 +1014,7 @@ impl PyExtractedText {
 pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     // F71
     m.add_class::<PyExtractionOptions>()?;
+    m.add_class::<PyCarriageReturnHandling>()?;
     m.add_class::<PyTextFragment>()?;
     m.add_class::<PyExtractedText>()?;
     m.add_class::<PySpaceDecision>()?;

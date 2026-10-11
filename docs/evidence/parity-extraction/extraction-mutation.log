@@ -1,0 +1,119 @@
+.FFFFF                                                                   [100%]
+=================================== FAILURES ===================================
+___ test_carriage_return_policy_reaches_all_extraction_paths[policy1-A B\nC] ___
+
+policy = CarriageReturnHandling.REPLACE_WITH_SPACE, expected = 'A B\nC'
+
+    @pytest.mark.parametrize('policy,expected', [
+        (op.CarriageReturnHandling.REMOVE, 'AB\nC'),
+        (op.CarriageReturnHandling.REPLACE_WITH_SPACE, 'A B\nC'),
+        (op.CarriageReturnHandling.NORMALIZE_LINE_ENDING, 'A\rB\nC'),
+    ])
+    def test_carriage_return_policy_reaches_all_extraction_paths(policy, expected):
+        content = b'BT /F1 12 Tf 40 700 Td (A\\015B\\012C) Tj ET'
+        reader = op.PdfReader.from_bytes(pdf(content))
+        opts = op.ExtractionOptions(carriage_return_handling=policy)
+        assert opts.carriage_return_handling == policy
+>       assert reader.extract_text_with_options(opts) == [expected]
+E       AssertionError: assert ['AB\nC'] == ['A B\nC']
+E
+E         At index 0 diff: 'AB\nC' != 'A B\nC'
+E         Use -v to get more diff
+
+tests/test_extraction_options_parity.py:44: AssertionError
+__ test_carriage_return_policy_reaches_all_extraction_paths[policy2-A\rB\nC] ___
+
+policy = CarriageReturnHandling.NORMALIZE_LINE_ENDING, expected = 'A\rB\nC'
+
+    @pytest.mark.parametrize('policy,expected', [
+        (op.CarriageReturnHandling.REMOVE, 'AB\nC'),
+        (op.CarriageReturnHandling.REPLACE_WITH_SPACE, 'A B\nC'),
+        (op.CarriageReturnHandling.NORMALIZE_LINE_ENDING, 'A\rB\nC'),
+    ])
+    def test_carriage_return_policy_reaches_all_extraction_paths(policy, expected):
+        content = b'BT /F1 12 Tf 40 700 Td (A\\015B\\012C) Tj ET'
+        reader = op.PdfReader.from_bytes(pdf(content))
+        opts = op.ExtractionOptions(carriage_return_handling=policy)
+        assert opts.carriage_return_handling == policy
+>       assert reader.extract_text_with_options(opts) == [expected]
+E       AssertionError: assert ['AB\nC'] == ['A\rB\nC']
+E
+E         At index 0 diff: 'AB\nC' != 'A\rB\nC'
+E         Use -v to get more diff
+
+tests/test_extraction_options_parity.py:44: AssertionError
+_______ test_reading_order_composes_with_recovery_and_text_budget[False] _______
+
+damaged = False
+
+    @pytest.mark.parametrize('damaged', [False, True])
+    def test_reading_order_composes_with_recovery_and_text_budget(damaged):
+        reader = op.PdfReader.from_bytes(pdf(TWO_COLUMNS_RIGHT_FIRST, damaged))
+        opts = op.ExtractionOptions(reading_order=True, max_extracted_bytes=1000)
+        assert opts.reading_order
+        expected = 'Left top\nLeft bottom\nRight top\nRight bottom'
+        if damaged:
+            result = reader.extract_page_text_with_recovery(0, max_stream_bytes=4096, options=opts)
+            assert result.text.text == expected
+            assert result.diagnostics
+        else:
+>           assert reader.extract_page_text(0, opts).text == expected
+E           AssertionError: assert 'Right top\nR...\nLeft bottom' == 'Left top\nLe...nRight bottom'
+E
+E             + Right top
+E             + Right bottom
+E               Left top
+E             - Left bottom
+E             ?            -
+E             + Left bottom
+E             - Right top
+E             - Right bottom
+
+tests/test_extraction_options_parity.py:67: AssertionError
+_______ test_reading_order_composes_with_recovery_and_text_budget[True] ________
+
+damaged = True
+
+    @pytest.mark.parametrize('damaged', [False, True])
+    def test_reading_order_composes_with_recovery_and_text_budget(damaged):
+        reader = op.PdfReader.from_bytes(pdf(TWO_COLUMNS_RIGHT_FIRST, damaged))
+        opts = op.ExtractionOptions(reading_order=True, max_extracted_bytes=1000)
+        assert opts.reading_order
+        expected = 'Left top\nLeft bottom\nRight top\nRight bottom'
+        if damaged:
+            result = reader.extract_page_text_with_recovery(0, max_stream_bytes=4096, options=opts)
+>           assert result.text.text == expected
+E           AssertionError: assert 'Right top\nR...\nLeft bottom' == 'Left top\nLe...nRight bottom'
+E
+E             + Right top
+E             + Right bottom
+E               Left top
+E             - Left bottom
+E             ?            -
+E             + Left bottom
+E             - Right top
+E             - Right bottom
+
+tests/test_extraction_options_parity.py:64: AssertionError
+__________________ test_column_reordering_and_policy_defaults __________________
+
+    def test_column_reordering_and_policy_defaults():
+        default = op.ExtractionOptions()
+        assert not default.reorder_columns
+        assert not default.reading_order
+        assert default.carriage_return_handling == op.CarriageReturnHandling.REMOVE
+        content = b'BT /F1 10 Tf 1 0 0 1 50 700 Tm (Left top) Tj 1 0 0 1 350 700 Tm (Right top) Tj 1 0 0 1 50 680 Tm (Left bottom) Tj 1 0 0 1 350 680 Tm (Right bottom) Tj ET'
+        reader = op.PdfReader.from_bytes(pdf(content))
+        opts = op.ExtractionOptions(reorder_columns=True)
+>       assert opts.reorder_columns
+E       assert False
+E        +  where False = ExtractionOptions(preserve_layout=false, space_threshold=0.3, newline_threshold=10, sort_by_position=true, detect_colu...nclude_artifacts=false, max_extracted_bytes=None, include_link_annotations=false, include_unreliable_figure_text=false).reorder_columns
+
+tests/test_extraction_options_parity.py:83: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_extraction_options_parity.py::test_carriage_return_policy_reaches_all_extraction_paths[policy1-A B\nC]
+FAILED tests/test_extraction_options_parity.py::test_carriage_return_policy_reaches_all_extraction_paths[policy2-A\rB\nC]
+FAILED tests/test_extraction_options_parity.py::test_reading_order_composes_with_recovery_and_text_budget[False]
+FAILED tests/test_extraction_options_parity.py::test_reading_order_composes_with_recovery_and_text_budget[True]
+FAILED tests/test_extraction_options_parity.py::test_column_reordering_and_policy_defaults
+5 failed, 1 passed in 0.18s

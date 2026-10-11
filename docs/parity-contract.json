@@ -1,6 +1,6 @@
 {
   "core": "5.4.2",
-  "scope": "existing-document preservation, page mutations and external CMS signing; remaining Rust API pending audit",
+  "scope": "existing-document preservation, page mutations and external CMS signing; remaining Rust API pending audit; composed extraction policies",
   "callables": {
     "ExistingDocumentPolicy.preserve_base": [
       "page_labels_first_input_wins"
@@ -156,6 +156,26 @@
       "base",
       "options",
       "appearance"
+    ],
+    "ExtractionOptions": [
+      "preserve_layout",
+      "space_threshold",
+      "newline_threshold",
+      "sort_by_position",
+      "detect_columns",
+      "column_threshold",
+      "merge_hyphenated",
+      "track_space_decisions",
+      "tj_space_threshold",
+      "reconstruct_paragraphs",
+      "include_artifacts",
+      "max_extracted_bytes",
+      "include_link_annotations",
+      "include_unreliable_figure_text",
+      "normalize_non_breaking_spaces",
+      "reorder_columns",
+      "reading_order",
+      "carriage_return_handling"
     ]
   },
   "properties": {
@@ -195,6 +215,26 @@
       "margin",
       "first_baseline",
       "line_height"
+    ],
+    "ExtractionOptions": [
+      "preserve_layout",
+      "space_threshold",
+      "newline_threshold",
+      "sort_by_position",
+      "detect_columns",
+      "column_threshold",
+      "merge_hyphenated",
+      "track_space_decisions",
+      "tj_space_threshold",
+      "reconstruct_paragraphs",
+      "include_artifacts",
+      "max_extracted_bytes",
+      "include_link_annotations",
+      "include_unreliable_figure_text",
+      "normalize_non_breaking_spaces",
+      "reorder_columns",
+      "reading_order",
+      "carriage_return_handling"
     ]
   },
   "required_tests": [
@@ -216,6 +256,11 @@
       "test_appearance_rejects_invalid_geometry_and_watermark",
       "test_certification_lock_and_handler_options",
       "test_widget_selection_is_not_silently_ignored"
+    ],
+    "tests/test_extraction_options_parity.py": [
+      "test_carriage_return_policy_reaches_all_extraction_paths",
+      "test_reading_order_composes_with_recovery_and_text_budget",
+      "test_column_reordering_and_policy_defaults"
     ]
   }
 }
