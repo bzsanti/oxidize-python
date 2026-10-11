@@ -1,6 +1,6 @@
 {
   "core": "5.4.2",
-  "scope": "existing-document preservation, page mutations and external CMS signing; remaining Rust API pending audit; composed extraction policies; incremental free-text editing",
+  "scope": "existing-document preservation, page mutations and external CMS signing; remaining Rust API pending audit; composed extraction policies; incremental free-text editing; incremental Ink editing",
   "callables": {
     "ExistingDocumentPolicy.preserve_base": [
       "page_labels_first_input_wins"
@@ -207,6 +207,49 @@
     "IncrementalFreeTextEditor.apply": [
       "self",
       "mutations"
+    ],
+    "InkColor.rgb": [
+      "components"
+    ],
+    "InkColor.gray": [
+      "component"
+    ],
+    "InkColor.cmyk": [
+      "components"
+    ],
+    "InkStroke": [
+      "points"
+    ],
+    "InkId": [
+      "object_number",
+      "generation_number"
+    ],
+    "InkMutation.add": [
+      "page_index",
+      "strokes",
+      "color",
+      "width",
+      "opacity"
+    ],
+    "InkMutation.update": [
+      "id",
+      "strokes",
+      "color",
+      "width",
+      "opacity"
+    ],
+    "InkMutation.remove": [
+      "id"
+    ],
+    "IncrementalInkEditor": [
+      "pdf"
+    ],
+    "IncrementalInkEditor.annotations": [
+      "self"
+    ],
+    "IncrementalInkEditor.apply": [
+      "self",
+      "mutations"
     ]
   },
   "properties": {
@@ -282,6 +325,30 @@
     "FreeTextUpdate": [
       "pdf_bytes",
       "annotations"
+    ],
+    "InkColor": [
+      "space",
+      "components"
+    ],
+    "InkStroke": [
+      "points"
+    ],
+    "InkId": [
+      "object_number",
+      "generation_number"
+    ],
+    "Ink": [
+      "id",
+      "page_index",
+      "rect",
+      "strokes",
+      "color",
+      "width",
+      "opacity"
+    ],
+    "InkUpdate": [
+      "pdf_bytes",
+      "annotations"
     ]
   },
   "required_tests": [
@@ -314,6 +381,13 @@
       "test_invalid_annotation_batch_does_not_mutate_editor",
       "test_annotation_edits_enforce_docmdp_permissions",
       "test_free_text_invalid_batch_is_atomic"
+    ],
+    "tests/test_incremental_ink.py": [
+      "test_ink_style_geometry_and_original_color_space",
+      "test_ink_update_and_remove_keep_identity_and_single_point_strokes",
+      "test_ink_validation_rejects_invalid_values",
+      "test_ink_invalid_batch_is_atomic_and_retryable",
+      "test_ink_preserves_core_certification_policy"
     ]
   }
 }
