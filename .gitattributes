@@ -1,1 +1,4 @@
 *.der binary
+
+# Signed PDF fixtures are binary; preserve exact bytes and xref whitespace.
+tests/fixtures/signatures/*.pdf binary

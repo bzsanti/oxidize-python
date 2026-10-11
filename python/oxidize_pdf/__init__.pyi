@@ -24,6 +24,13 @@ from oxidize_pdf._oxidize_pdf import (
     ExtractedImageData as ExtractedImageData,
     ExtractedText as ExtractedText,
     ExtractionOptions as ExtractionOptions,
+    FreeTextAlignment as FreeTextAlignment,
+    FreeTextId as FreeTextId,
+    FreeText as FreeText,
+    FreeTextMutation as FreeTextMutation,
+    FreeTextUpdate as FreeTextUpdate,
+    IncrementalFreeTextEditor as IncrementalFreeTextEditor,
+
     CarriageReturnHandling as CarriageReturnHandling,
     ImageExtractionLimits as ImageExtractionLimits,
     Font as Font,

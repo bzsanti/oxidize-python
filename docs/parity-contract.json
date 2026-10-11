@@ -1,6 +1,6 @@
 {
   "core": "5.4.2",
-  "scope": "existing-document preservation, page mutations and external CMS signing; remaining Rust API pending audit; composed extraction policies",
+  "scope": "existing-document preservation, page mutations and external CMS signing; remaining Rust API pending audit; composed extraction policies; incremental free-text editing",
   "callables": {
     "ExistingDocumentPolicy.preserve_base": [
       "page_labels_first_input_wins"
@@ -176,6 +176,37 @@
       "reorder_columns",
       "reading_order",
       "carriage_return_handling"
+    ],
+    "FreeTextId": [
+      "object_number",
+      "generation_number"
+    ],
+    "FreeTextMutation.remove": [
+      "id"
+    ],
+    "FreeTextMutation.add": [
+      "page_index",
+      "rect",
+      "contents",
+      "default_appearance",
+      "alignment"
+    ],
+    "FreeTextMutation.update": [
+      "id",
+      "rect",
+      "contents",
+      "default_appearance",
+      "alignment"
+    ],
+    "IncrementalFreeTextEditor": [
+      "pdf"
+    ],
+    "IncrementalFreeTextEditor.annotations": [
+      "self"
+    ],
+    "IncrementalFreeTextEditor.apply": [
+      "self",
+      "mutations"
     ]
   },
   "properties": {
@@ -235,6 +266,22 @@
       "reorder_columns",
       "reading_order",
       "carriage_return_handling"
+    ],
+    "FreeText": [
+      "id",
+      "page_index",
+      "contents",
+      "rect",
+      "default_appearance",
+      "alignment"
+    ],
+    "FreeTextId": [
+      "object_number",
+      "generation_number"
+    ],
+    "FreeTextUpdate": [
+      "pdf_bytes",
+      "annotations"
     ]
   },
   "required_tests": [
@@ -261,6 +308,12 @@
       "test_carriage_return_policy_reaches_all_extraction_paths",
       "test_reading_order_composes_with_recovery_and_text_budget",
       "test_column_reordering_and_policy_defaults"
+    ],
+    "tests/test_incremental_annotations.py": [
+      "test_free_text_full_options_update_and_removal",
+      "test_invalid_annotation_batch_does_not_mutate_editor",
+      "test_annotation_edits_enforce_docmdp_permissions",
+      "test_free_text_invalid_batch_is_atomic"
     ]
   }
 }
