@@ -144,3 +144,21 @@ from oxidize_pdf._oxidize_pdf import (
     PreparedSignature as PreparedSignature,
     prepare_incremental_signature as prepare_incremental_signature,
 )
+
+from oxidize_pdf._oxidize_pdf import (
+    ExtractionProfile as ExtractionProfile,
+    ReadingOrderStrategy as ReadingOrderStrategy,
+    PartitionConfig as PartitionConfig,
+    MergePolicy as MergePolicy,
+    ContextFormat as ContextFormat,
+    ContextMode as ContextMode,
+    HybridChunkConfig as HybridChunkConfig,
+    ElementGraph as ElementGraph,
+    Element as Element,
+    ElementBBox as ElementBBox,
+    ContentTypeFlags as ContentTypeFlags,
+    PageRegion as PageRegion,
+    TableStructure as TableStructure,
+    RichCell as RichCell,
+    DocumentSource as DocumentSource,
+)

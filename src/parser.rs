@@ -1,5 +1,6 @@
 use std::fs::File;
 use std::io::Cursor;
+use std::sync::Arc;
 
 use pyo3::prelude::*;
 use pyo3::types::PyBytes;
@@ -12,10 +13,11 @@ use oxidize_pdf::fonts::{
 
 use crate::ai_pipeline::{
     PyDocumentChunk, PyDocumentSource, PyElement, PyExtractionProfile, PyHybridChunkConfig,
-    PyRagChunk,
+    PyPartitionConfig, PyRagChunk,
 };
 use crate::content_parser::PyContentOperation;
 use crate::errors;
+use crate::rag_analysis::{CallbackCounter, PyElementGraph};
 #[cfg(feature = "unstable-spi")]
 use crate::experimental_spi::PyAnalysisPipeline;
 use crate::text_extraction::{
@@ -765,6 +767,124 @@ impl PyPdfReader {
             .detach(|| with_document_mut!(self, doc => doc.partition()))
             .map_err(parse_err_to_py)?;
         Ok(elements.into_iter().map(|e| PyElement { inner: e }).collect())
+    }
+
+    /// Partition using all caller-supplied core classification policies.
+    fn partition_with(
+        &mut self,
+        py: Python<'_>,
+        config: &PyPartitionConfig,
+    ) -> PyResult<Vec<PyElement>> {
+        self.ensure_document();
+        let config = config.inner.clone();
+        let elements = py
+            .detach(|| with_document_mut!(self, doc => doc.partition_with(config)))
+            .map_err(parse_err_to_py)?;
+        Ok(elements
+            .into_iter()
+            .map(|inner| PyElement { inner })
+            .collect())
+    }
+
+    /// Partition with both extraction and classification policies from a profile.
+    fn partition_with_profile(
+        &mut self,
+        py: Python<'_>,
+        profile: &PyExtractionProfile,
+    ) -> PyResult<Vec<PyElement>> {
+        self.ensure_document();
+        let profile = profile.inner.clone();
+        let elements = py
+            .detach(|| with_document_mut!(self, doc => doc.partition_with_profile(profile)))
+            .map_err(parse_err_to_py)?;
+        Ok(elements
+            .into_iter()
+            .map(|inner| PyElement { inner })
+            .collect())
+    }
+
+    /// Return elements and their index-based parent/child and next/prev graph.
+    fn partition_graph(
+        &mut self,
+        py: Python<'_>,
+        config: &PyPartitionConfig,
+    ) -> PyResult<(Vec<PyElement>, PyElementGraph)> {
+        self.ensure_document();
+        let config = config.inner.clone();
+        let (elements, inner) = py
+            .detach(|| with_document_mut!(self, doc => doc.partition_graph(config)))
+            .map_err(parse_err_to_py)?;
+        Ok((
+            elements
+                .into_iter()
+                .map(|inner| PyElement { inner })
+                .collect(),
+            PyElementGraph { inner },
+        ))
+    }
+
+    /// Chunk using the caller's token budget, merge and heading policies.
+    fn rag_chunks_with(
+        &mut self,
+        py: Python<'_>,
+        config: &PyHybridChunkConfig,
+    ) -> PyResult<Vec<PyRagChunk>> {
+        self.ensure_document();
+        let config = config.inner.clone();
+        let chunks = py
+            .detach(|| with_document_mut!(self, doc => doc.rag_chunks_with(config)))
+            .map_err(parse_err_to_py)?;
+        Ok(chunks
+            .into_iter()
+            .map(|inner| PyRagChunk { inner })
+            .collect())
+    }
+
+    /// Use a callable ``counter(text) -> int`` for both budgets and estimates.
+    /// Counts must be nonnegative integers fitting the platform's usize. The
+    /// callback is treated as non-additive; exceptions are propagated unchanged.
+    fn rag_chunks_with_counter(
+        &mut self,
+        py: Python<'_>,
+        config: &PyHybridChunkConfig,
+        counter: Py<PyAny>,
+    ) -> PyResult<Vec<PyRagChunk>> {
+        if !counter.bind(py).is_callable() {
+            return Err(pyo3::exceptions::PyTypeError::new_err(
+                "counter must be callable",
+            ));
+        }
+        self.ensure_document();
+        let config = config.inner.clone();
+        let counter = Arc::new(CallbackCounter::new(counter));
+        let adapter = counter.clone();
+        let result = py.detach(
+            || with_document_mut!(self, doc => doc.rag_chunks_with_counter(config, adapter)),
+        );
+        if let Some(error) = counter.take_error() {
+            return Err(error);
+        }
+        let chunks = result.map_err(parse_err_to_py)?;
+        Ok(chunks
+            .into_iter()
+            .map(|inner| PyRagChunk { inner })
+            .collect())
+    }
+
+    /// Structured document JSON, distinct from EntityMap's entity JSON.
+    #[allow(deprecated, clippy::wrong_self_convention)]
+    fn to_json(&mut self, py: Python<'_>) -> PyResult<String> {
+        self.ensure_document();
+        py.detach(|| with_document_mut!(self, doc => doc.to_json()))
+            .map_err(pdf_err_to_py)
+    }
+
+    /// Markdown rendered from classified document elements.
+    #[allow(clippy::wrong_self_convention)]
+    fn to_element_markdown(&mut self, py: Python<'_>) -> PyResult<String> {
+        self.ensure_document();
+        py.detach(|| with_document_mut!(self, doc => doc.to_element_markdown()))
+            .map_err(parse_err_to_py)
     }
 
     /// Get RAG-ready chunks with default configuration.

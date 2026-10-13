@@ -1,0 +1,28 @@
+--- a/src/parser.rs
++++ b/src/parser.rs
+@@ -778,7 +778,7 @@
+         self.ensure_document();
+         let config = config.inner.clone();
+         let elements = py
+-            .detach(|| with_document_mut!(self, doc => doc.partition_with(config)))
++            .detach(|| with_document_mut!(self, doc => doc.partition_with(Default::default())))
+             .map_err(parse_err_to_py)?;
+         Ok(elements
+             .into_iter()
+@@ -859,7 +859,7 @@
+         let counter = Arc::new(CallbackCounter::new(counter));
+         let adapter = counter.clone();
+         let result = py.detach(
+-            || with_document_mut!(self, doc => doc.rag_chunks_with_counter(config, adapter)),
++            || with_document_mut!(self, doc => doc.rag_chunks_with(config)),
+         );
+         if let Some(error) = counter.take_error() {
+             return Err(error);
+@@ -2115,6 +2115,7 @@
+ ) -> PyResult<Vec<Bound<'py, pyo3::types::PyDict>>> {
+     use pyo3::types::PyDict;
+     use std::io::Cursor;
++use std::sync::Arc;
+ 
+     let cursor = Cursor::new(pdf_bytes.to_vec());
+     let mut reader = oxidize_pdf::PdfReader::new(cursor)

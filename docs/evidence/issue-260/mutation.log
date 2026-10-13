@@ -1,0 +1,82 @@
+/tmp/oxidize-260-mutation-dzi2a2cv/python/oxidize_pdf/__init__.py
+/tmp/oxidize-260-mutation-dzi2a2cv/python/oxidize_pdf/_oxidize_pdf.abi3.so
+FFFFF                                                                    [100%]
+=================================== FAILURES ===================================
+___________ test_partition_config_reaches_table_and_header_detection ___________
+
+    def test_partition_config_reaches_table_and_header_detection():
+        r = reader(TABLE)
+        assert any(e.type_name == 'table' for e in r.partition())
+        ungrouped = r.partition_with(pdf.PartitionConfig().without_tables())
+>       assert ungrouped and all(e.type_name != 'table' for e in ungrouped)
+E       assert ([Element(type="table", page=0)] and False)
+E        +  where False = all(<generator object test_partition_config_reaches_table_and_header_detection.<locals>.<genexpr> at 0x7022d7900e10>)
+
+tests/test_rag_reader_parity.py:48: AssertionError
+_______ test_partition_profile_and_title_threshold_change_classification _______
+
+    def test_partition_profile_and_title_threshold_change_classification():
+        r = reader()
+        assert [e.text for e in r.partition_with_profile(pdf.ExtractionProfile.STANDARD)] == [
+            'Section Alpha', 'First body sentence.', 'Second body sentence.']
+        assert r.partition_with(pdf.PartitionConfig())[0].type_name == 'title'
+>       assert r.partition_with(pdf.PartitionConfig(title_min_font_ratio=10))[0].type_name != 'title'
+E       assert 'title' != 'title'
+E        +  where 'title' = Element(type="title", page=0).type_name
+
+tests/test_rag_reader_parity.py:77: AssertionError
+______________ test_custom_counter_controls_splits_and_estimates _______________
+
+    def test_custom_counter_controls_splits_and_estimates():
+        r = reader(b'BT /F1 10 Tf 50 600 Td (Alpha. Bravo. Charlie.) Tj ET')
+        config = pdf.HybridChunkConfig(max_tokens=10, overlap_tokens=0)
+        assert len(r.rag_chunks_with(config)) == 1
+        calls = []
+        def counter(text):
+            calls.append(text)
+            return len(text)
+        chunks = r.rag_chunks_with_counter(config, counter)
+>       assert [c.text for c in chunks] == ['Alpha.', 'Bravo.', 'Charlie.']
+E       AssertionError: assert ['Alpha. Bravo. Charlie.'] == ['Alpha.', 'B...', 'Charlie.']
+E         
+E         At index 0 diff: 'Alpha. Bravo. Charlie.' != 'Alpha.'
+E         Right contains 2 more items, first extra item: 'Bravo.'
+E         Use -v to get more diff
+
+tests/test_rag_reader_parity.py:109: AssertionError
+_____________ test_nonadditive_counter_measures_whole_joined_text ______________
+
+    def test_nonadditive_counter_measures_whole_joined_text():
+        r = reader(b'BT /F1 10 Tf 50 620 Td (Alpha) Tj ET\nBT /F1 10 Tf 50 520 Td (Bravo) Tj ET')
+        # Deliberately non-additive: the join costs more than either fragment.
+        def counter(text):
+            return 100 if '\n' in text else 1
+        chunks = r.rag_chunks_with_counter(pdf.HybridChunkConfig(max_tokens=2), counter)
+>       assert [c.text for c in chunks] == ['Alpha', 'Bravo']
+E       AssertionError: assert ['Alpha\nBravo'] == ['Alpha', 'Bravo']
+E         
+E         At index 0 diff: 'Alpha\nBravo' != 'Alpha'
+E         Right contains one more item: 'Bravo'
+E         Use -v to get more diff
+
+tests/test_rag_reader_parity.py:122: AssertionError
+__________ test_counter_failure_is_preserved_and_reader_can_be_reused __________
+
+    def test_counter_failure_is_preserved_and_reader_can_be_reused():
+        r = reader()
+        marker = LookupError('counter failed')
+        calls = []
+        def counter(text):
+            calls.append(text)
+            raise marker
+>       with pytest.raises(LookupError) as caught:
+E       Failed: DID NOT RAISE <class 'LookupError'>
+
+tests/test_rag_reader_parity.py:133: Failed
+=========================== short test summary info ============================
+FAILED tests/test_rag_reader_parity.py::test_partition_config_reaches_table_and_header_detection
+FAILED tests/test_rag_reader_parity.py::test_partition_profile_and_title_threshold_change_classification
+FAILED tests/test_rag_reader_parity.py::test_custom_counter_controls_splits_and_estimates
+FAILED tests/test_rag_reader_parity.py::test_nonadditive_counter_measures_whole_joined_text
+FAILED tests/test_rag_reader_parity.py::test_counter_failure_is_preserved_and_reader_can_be_reused
+5 failed, 18 deselected in 0.16s

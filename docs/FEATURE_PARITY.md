@@ -144,3 +144,108 @@ This table covers the **core PDF generation, parsing, and operations surface** t
 
 - **OCR**: the Rust core exposes a Tesseract-backed OCR provider (`oxidize-pdf-core/src/text/ocr/`), but it is **not wrapped in the Python bridge** yet. This is the main user-facing gap for scanned-PDF pipelines.
 - **OPS-001**: `split_pdf` uses a hardcoded `page_{n}.pdf` naming pattern. The core may support custom patterns — check if this should be exposed.
+
+## Incremento activo — #260 (2026-10-13)
+
+Por decisión del usuario, #253 queda pendiente de una publicación del core con
+el arreglo AES (el índice oficial sigue en 5.4.2); no se cambia el pin a Git ni
+se inicia una publicación upstream. Se implementa #260 en el bridge actual.
+
+| Requisito | Estado final | Evidencia de cierre |
+| --- | --- | --- |
+| PartitionConfig aplicable y completo | Demostrado | Los nueve campos llegan al core; tablas, headers y umbral de títulos cambian la clasificación |
+| Grafo de elementos | Demostrado | Relaciones padre/hijo y anterior/siguiente conservadas; índices fuera de rango devuelven excepciones Python |
+| Conteo de tokens propio | Demostrado | Callback controla división y estimaciones, incluso conteos no aditivos; primera excepción preservada y sin resultado parcial |
+| Exportaciones documentales | Demostrado | JSON documental y Markdown con contenido esperado; documentos bloqueados conservan errores |
+| Contrato de distribución | Demostrado localmente | Stubs, consumidor estricto, contrato por miembro, regresión y mutación discriminante |
+
+### Uso del bridge
+
+```python
+from oxidize_pdf import HybridChunkConfig, PartitionConfig, PdfReader
+
+reader = PdfReader.open("documento.pdf")
+elements, graph = reader.partition_graph(PartitionConfig(detect_tables=False))
+chunks = reader.rag_chunks_with_counter(
+    HybridChunkConfig(max_tokens=128),
+    lambda text: len(text.encode("utf-8")),  # presupuesto en bytes en este ejemplo
+)
+json_document = reader.to_json()
+markdown = reader.to_element_markdown()
+```
+
+El contador recibe el texto completo que debe medir y devuelve un entero no
+negativo representable por `usize`; `bool` no es válido. Se trata como no aditivo
+para respetar tokenizadores cuyo conteo cambia al unir textos. Sus excepciones se
+propagan sin sustituirlas; el reader puede reutilizarse tras el error. El callback
+no debe volver a llamar al mismo reader mientras este está prestado por PyO3.
+`overlap_tokens` se conserva como campo del core, pero 5.4.2 lo reserva y no
+implementa solapamiento. Un fragmento indivisible puede exceder el presupuesto y
+se identifica mediante `is_oversized`, conforme al contrato upstream.
+
+### Resumen ejecutivo de revisión
+
+Implementación y revisión local de #260 sobre `f7bfe53` más el diff actual, con
+core publicado 5.4.2 sin cambios de dependencias. Se revisaron los 12 archivos de
+código, tests, tipos y distribución afectados. El adaptador Python/Rust conserva
+la configuración, los índices del grafo y los errores. La revisión no constituye
+publicación ni integración remota.
+
+### Contratos y evidencia
+
+Los PDFs de aceptación se escriben manualmente: sus textos, coordenadas y tablas
+no se generan usando el productor que se está probando. El recorrido ejecutado
+es Python → PyO3 → PdfDocument del core real. Los tests cubren los siete nuevos
+métodos, todos los campos configurables, perfiles no predeterminados, grafo vacío,
+índices inválidos, documentos bloqueados, callbacks inválidos y reentrada.
+
+[RED](evidence/issue-260/red.log): 21 casos fallan en la API inicial ausente.
+[GREEN](evidence/issue-260/focused.log): 23 casos nuevos y seis comprobaciones de
+contrato pasan. En una copia desechable se sustituyeron la configuración por la
+predeterminada y el contador personalizado por el del core: los cinco tests
+seleccionados fallaron por clasificación, presupuesto y excepción incorrectos,
+no por montaje ([mutación](evidence/issue-260/mutation.log)). La copia cargó su
+propia extensión, sin instalarla en el entorno principal.
+
+La revisión manual verificó el límite `usize`, rechazo de booleanos, conservación
+de la primera excepción, ausencia de mutex retenido durante callbacks y descarte
+del resultado tras un error. La iteración nativa es finita aunque el adaptador
+infallible del core devuelva cero después del primer error. Los accesos al grafo
+comprueban límites antes de indexar. La protección de préstamos de PyO3 rechaza
+reentrada al reader, y se verifica que luego puede reutilizarse.
+
+### Hallazgos
+
+No quedan incumplimientos detectados de los criterios de #260. Los otros trece
+hallazgos conservan sus issues: #253 requiere una publicación del core y mantiene
+su consecuencia de seguridad; #265 conserva los huecos de tipado ajenos a RAG.
+La ausencia de solapamiento en 5.4.2 se documenta como limitación upstream; este
+incremento no promete implementar algoritmos adicionales del core.
+
+### Calidad de Tests (Kripteia)
+
+[Análisis Python](evidence/issue-260/kripteia-python.log): 100/100, 13 funciones
+en un archivo (23 casos pytest); ningún infractor señalado. El análisis Rust
+en `src` detecta cero tests Rust: no aporta evidencia conductual. El score se
+complementa con fixtures independientes, RED/GREEN y mutación real.
+
+### Análisis de Seguridad (Kripteia Security)
+
+Los análisis de [Rust](evidence/issue-260/kripteia-rust.log) y Python no detectan
+problemas en el alcance escaneado. Ambos avisan de telemetría no escribible; los
+análisis sí terminan. Se revisaron manualmente las fronteras de callbacks, errores
+e índices. Este resultado no elimina el hallazgo AES #253 del core dependiente.
+
+### Métricas y estado de entrega
+
+- 12 archivos revisados de implementación, tipos, tests y distribución; cero
+  archivos de producto modificados como consecuencia de hallazgos de la revisión.
+- Regresión: [2.362 pruebas de biblioteca](evidence/issue-260/regression.log) y
+  [295 MCP, un skip](evidence/issue-260/mcp.log).
+- [Mypy](evidence/issue-260/typing.log): 24 archivos del paquete y ocho consumidores
+  estrictos; consumidor nuevo también verificado para Python 3.10.
+- Clippy con warnings prohibidos, build sin features predeterminadas y contrato
+  de paridad ejecutados; resultados y hashes en
+  [validation.json](evidence/issue-260/validation.json).
+- Bloqueantes locales de #260: ninguno. Pendiente de integración/publicación;
+  la issue remota permanece abierta. Siguiente acción: revisar e integrar el diff.

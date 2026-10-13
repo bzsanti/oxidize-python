@@ -410,8 +410,76 @@ pub struct PyPartitionConfig {
 #[pymethods]
 impl PyPartitionConfig {
     #[new]
-    fn new() -> Self {
-        Self { inner: PartitionConfig::new() }
+    #[allow(clippy::too_many_arguments)]
+    #[pyo3(signature = (*, detect_tables=true, detect_headers_footers=true, title_min_font_ratio=1.3, header_zone=0.05, footer_zone=0.05, reading_order=None, min_table_confidence=0.5, prefer_ruling_tables=true, detect_spatial_tables=true))]
+    fn new(
+        detect_tables: bool,
+        detect_headers_footers: bool,
+        title_min_font_ratio: f64,
+        header_zone: f64,
+        footer_zone: f64,
+        reading_order: Option<PyReadingOrderStrategy>,
+        min_table_confidence: f64,
+        prefer_ruling_tables: bool,
+        detect_spatial_tables: bool,
+    ) -> Self {
+        Self {
+            inner: PartitionConfig {
+                detect_tables,
+                detect_headers_footers,
+                title_min_font_ratio,
+                header_zone,
+                footer_zone,
+                reading_order: reading_order
+                    .map(|v| v.inner)
+                    .unwrap_or(ReadingOrderStrategy::Simple),
+                min_table_confidence,
+                prefer_ruling_tables,
+                detect_spatial_tables,
+            },
+        }
+    }
+
+    #[getter]
+    fn detect_tables(&self) -> bool {
+        self.inner.detect_tables
+    }
+
+    #[getter]
+    fn detect_headers_footers(&self) -> bool {
+        self.inner.detect_headers_footers
+    }
+
+    #[getter]
+    fn title_min_font_ratio(&self) -> f64 {
+        self.inner.title_min_font_ratio
+    }
+
+    #[getter]
+    fn header_zone(&self) -> f64 {
+        self.inner.header_zone
+    }
+
+    #[getter]
+    fn footer_zone(&self) -> f64 {
+        self.inner.footer_zone
+    }
+
+    #[getter]
+    fn reading_order(&self) -> PyReadingOrderStrategy {
+        PyReadingOrderStrategy {
+            inner: self.inner.reading_order.clone(),
+        }
+    }
+
+    #[getter]
+    fn min_table_confidence(&self) -> f64 {
+        self.inner.min_table_confidence
+    }
+
+    #[getter]
+    fn detect_spatial_tables(&self) -> bool {
+        self.inner.detect_spatial_tables
     }
 
     /// Disable table detection.
@@ -595,19 +663,41 @@ pub struct PyHybridChunkConfig {
 
 #[pymethods]
 impl PyHybridChunkConfig {
+    #[getter]
+    fn merge_adjacent(&self) -> bool {
+        self.inner.merge_adjacent
+    }
+    #[getter]
+    fn propagate_headings(&self) -> bool {
+        self.inner.propagate_headings
+    }
+    #[getter]
+    fn merge_policy(&self) -> PyMergePolicy {
+        PyMergePolicy {
+            inner: self.inner.merge_policy,
+        }
+    }
+
     #[new]
-    #[pyo3(signature = (max_tokens = 512, overlap_tokens = 50, context_mode = None))]
+    #[pyo3(signature = (max_tokens = 512, overlap_tokens = 50, context_mode = None, *, merge_adjacent=true, propagate_headings=true, merge_policy=None))]
     fn new(
         max_tokens: usize,
         overlap_tokens: usize,
         context_mode: Option<PyContextMode>,
+        merge_adjacent: bool,
+        propagate_headings: bool,
+        merge_policy: Option<PyMergePolicy>,
     ) -> Self {
         Self {
             inner: HybridChunkConfig {
                 max_tokens,
                 overlap_tokens,
                 context_mode: context_mode.map(|m| m.inner).unwrap_or_default(),
-                ..HybridChunkConfig::default()
+                merge_adjacent,
+                propagate_headings,
+                merge_policy: merge_policy
+                    .map(|v| v.inner)
+                    .unwrap_or(MergePolicy::AnyInlineContent),
             },
         }
     }
@@ -1111,7 +1201,7 @@ impl PyRagChunk {
         self.inner.heading_context.clone()
     }
 
-    /// Approximate token count (word-count proxy).
+    /// Token count from the active counter (word proxy by default).
     #[getter]
     fn token_estimate(&self) -> usize {
         self.inner.token_estimate

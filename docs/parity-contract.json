@@ -1,6 +1,6 @@
 {
   "core": "5.4.2",
-  "scope": "existing-document preservation, page mutations and external CMS signing; remaining Rust API pending audit; composed extraction policies; incremental free-text editing; incremental Ink editing",
+  "scope": "existing-document preservation, page mutations and external CMS signing; remaining Rust API pending audit; composed extraction policies; incremental free-text editing; incremental Ink editing; configurable partitioning, element graphs, custom token counting and document export",
   "callables": {
     "ExistingDocumentPolicy.preserve_base": [
       "page_labels_first_input_wins"
@@ -250,6 +250,78 @@
     "IncrementalInkEditor.apply": [
       "self",
       "mutations"
+    ],
+    "PartitionConfig": [
+      "detect_tables",
+      "detect_headers_footers",
+      "title_min_font_ratio",
+      "header_zone",
+      "footer_zone",
+      "reading_order",
+      "min_table_confidence",
+      "prefer_ruling_tables",
+      "detect_spatial_tables"
+    ],
+    "HybridChunkConfig": [
+      "max_tokens",
+      "overlap_tokens",
+      "context_mode",
+      "merge_adjacent",
+      "propagate_headings",
+      "merge_policy"
+    ],
+    "PdfReader.partition_with": [
+      "self",
+      "config"
+    ],
+    "PdfReader.partition_with_profile": [
+      "self",
+      "profile"
+    ],
+    "PdfReader.partition_graph": [
+      "self",
+      "config"
+    ],
+    "PdfReader.rag_chunks_with": [
+      "self",
+      "config"
+    ],
+    "PdfReader.rag_chunks_with_counter": [
+      "self",
+      "config",
+      "counter"
+    ],
+    "PdfReader.to_json": [
+      "self"
+    ],
+    "PdfReader.to_element_markdown": [
+      "self"
+    ],
+    "ElementGraph.is_empty": [
+      "self"
+    ],
+    "ElementGraph.top_level_sections": [
+      "self"
+    ],
+    "ElementGraph.parent_of": [
+      "self",
+      "index"
+    ],
+    "ElementGraph.children_of": [
+      "self",
+      "index"
+    ],
+    "ElementGraph.next_of": [
+      "self",
+      "index"
+    ],
+    "ElementGraph.prev_of": [
+      "self",
+      "index"
+    ],
+    "ElementGraph.elements_in_section": [
+      "self",
+      "index"
     ]
   },
   "properties": {
@@ -349,6 +421,57 @@
     "InkUpdate": [
       "pdf_bytes",
       "annotations"
+    ],
+    "PartitionConfig": [
+      "detect_tables",
+      "detect_headers_footers",
+      "title_min_font_ratio",
+      "header_zone",
+      "footer_zone",
+      "reading_order",
+      "min_table_confidence",
+      "prefer_ruling_tables",
+      "detect_spatial_tables"
+    ],
+    "HybridChunkConfig": [
+      "max_tokens",
+      "overlap_tokens",
+      "context_mode",
+      "merge_adjacent",
+      "propagate_headings",
+      "merge_policy"
+    ],
+    "RagChunk": [
+      "chunk_index",
+      "text",
+      "full_text",
+      "token_estimate",
+      "page_numbers",
+      "element_types",
+      "heading_context",
+      "is_oversized",
+      "heading_path",
+      "dominant_font",
+      "dominant_font_size",
+      "is_bold",
+      "is_italic",
+      "min_confidence",
+      "content_types",
+      "char_count",
+      "word_count",
+      "sentence_count",
+      "language",
+      "language_confidence",
+      "language_reliable",
+      "chunk_id",
+      "prev_chunk_id",
+      "next_chunk_id",
+      "page_span",
+      "page_regions",
+      "table_rows",
+      "table_cols",
+      "source",
+      "extra"
     ]
   },
   "required_tests": [
@@ -388,6 +511,21 @@
       "test_ink_validation_rejects_invalid_values",
       "test_ink_invalid_batch_is_atomic_and_retryable",
       "test_ink_preserves_core_certification_policy"
+    ],
+    "tests/test_rag_reader_parity.py": [
+      "test_partition_config_reaches_table_and_header_detection",
+      "test_partition_options_all_fields_and_immutable_builders",
+      "test_partition_profile_and_title_threshold_change_classification",
+      "test_element_graph_preserves_relationships_and_rejects_bad_indices",
+      "test_custom_counter_controls_splits_and_estimates",
+      "test_nonadditive_counter_measures_whole_joined_text",
+      "test_counter_failure_is_preserved_and_reader_can_be_reused",
+      "test_counter_rejects_invalid_counts",
+      "test_hybrid_configuration_retains_all_core_fields",
+      "test_document_exports_contain_document_content",
+      "test_new_reader_paths_reject_locked_documents",
+      "test_nondefault_profile_and_graph_configuration_are_applied",
+      "test_invalid_counter_on_empty_input_and_reentry"
     ]
   }
 }
