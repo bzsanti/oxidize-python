@@ -135,9 +135,7 @@ impl From<sig::SignatureSlot> for PySignatureSlot {
         }
     }
 }
-fn signature_error(e: sig::SignatureError) -> PyErr {
-    PdfError::new_err(e.to_string())
-}
+use crate::signature_errors::to_py_error as signature_error;
 
 /// Create a slot incrementally; rect is (left, bottom, right, top) in PDF points.
 #[pyfunction]

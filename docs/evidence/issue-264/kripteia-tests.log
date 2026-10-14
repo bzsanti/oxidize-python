@@ -1,0 +1,23 @@
+## Calidad de Tests (Kripteia)
+
+=== Kripteia Test Quality Report ===
+Overall Score: 100 | Tests: 7 | Files: 1
+
+--- Files ---
+Path                                                          Tests  Score
+--------------------------------------------------------------------------
+tests/test_signature_errors.py                                    7    100
+
+--- Worst Offenders ---
+  test_preparation_and_slots_preserve_signature_errors (tests/test_signature_errors.py:14) - Score: 100
+  test_cms_error_preserves_base_message_and_pickle (tests/test_signature_errors.py:31) - Score: 100
+  test_byterange_preserves_integer_details_and_legacy_valueerror (tests/test_signature_errors.py:45) - Score: 100
+  test_legacy_runtimeerror_is_preserved (tests/test_signature_errors.py:59) - Score: 100
+  test_aggregate_verification_rejects_invalid_crypto (tests/test_signature_errors.py:68) - Score: 100
+
+
+## Analisis de Seguridad (Kripteia Security)
+
+=== Kripteia Security Analysis ===
+
+No security issues found.

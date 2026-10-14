@@ -3,6 +3,7 @@ import ast
 import inspect
 import importlib
 import json
+import typing
 from pathlib import Path
 import oxidize_pdf as pdf
 
@@ -34,3 +35,17 @@ def test_audited_parity_contract():
         tree = ast.parse((ROOT / relative).read_text())
         names = {n.name for n in tree.body if isinstance(n, ast.FunctionDef)}
         assert set(required) <= names
+
+
+def test_signature_error_contract():
+    schema = CONTRACT['signature_errors']
+    assert set(typing.get_args(pdf.SignatureErrorCode)) == set(schema['codes'])
+    assert {key: value.__name__ for key, value in typing.get_type_hints(pdf.SignatureErrorDetails).items()} == schema['fields']
+    assert pdf.SignatureErrorDetails.__required_keys__ == frozenset()
+    assert typing.get_type_hints(pdf.PdfSignatureError)['code'] == pdf.SignatureErrorCode
+    assert typing.get_type_hints(pdf.PdfSignatureError)['details'] == pdf.SignatureErrorDetails
+    for name, bases in schema['classes'].items():
+        assert name in pdf.__all__
+        cls = getattr(pdf, name)
+        assert [base.__name__ for base in cls.__bases__] == bases
+        assert issubclass(cls, pdf.PdfError)

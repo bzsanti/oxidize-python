@@ -655,7 +655,7 @@ impl PyPdfReader {
         macro_rules! detect_on_reader {
             ($reader:expr) => {{
                 let sigs = oxidize_pdf::signatures::detect_signature_fields($reader)
-                    .map_err(|e| errors::PdfError::new_err(e.to_string()))?;
+                    .map_err(crate::signature_errors::to_py_error)?;
                 let mut results = Vec::new();
                 for sig in sigs {
                     let dict = PyDict::new(py);
@@ -2102,12 +2102,10 @@ fn build_page_resources<R: std::io::Read + std::io::Seek>(
 
 /// Verify digital signatures in a PDF byte buffer.
 ///
-/// Returns a list of dicts, one per signature field, with keys:
-/// ``name``, ``filter``, ``sub_filter``, ``valid`` (bool), ``error`` (str or None).
-///
-/// NOTE: The "signatures" feature is not compiled in by default. When absent the
-/// parse_pkcs7_signature call returns Err immediately, so ``valid`` will be false
-/// and ``error`` will describe why verification was skipped.
+/// Returns name/filter/sub_filter, valid, error, error_code and error_details.
+/// Uses the detailed CMS verifier, including signed attributes and ByteRange
+/// validation. A successful call with false cryptographic flags is NOT valid.
+/// This does not establish certificate trust, revocation or timestamp validity.
 #[pyfunction]
 fn verify_pdf_signatures<'py>(
     pdf_bytes: &[u8],
@@ -2121,7 +2119,7 @@ fn verify_pdf_signatures<'py>(
         .map_err(|e| errors::PdfParseError::new_err(e.to_string()))?;
 
     let sig_fields = oxidize_pdf::signatures::detect_signature_fields(&mut reader)
-        .map_err(|e| errors::PdfError::new_err(e.to_string()))?;
+        .map_err(crate::signature_errors::to_py_error)?;
 
     let mut results = Vec::new();
     for field in sig_fields {
@@ -2130,18 +2128,33 @@ fn verify_pdf_signatures<'py>(
         dict.set_item("filter", &field.filter)?;
         dict.set_item("sub_filter", &field.sub_filter)?;
 
-        match oxidize_pdf::signatures::parse_pkcs7_signature(&field.contents) {
-            Ok(parsed) => {
-                let verify_ok =
-                    oxidize_pdf::signatures::verify_signature(pdf_bytes, &parsed, &field.byte_range)
-                        .is_ok();
-                dict.set_item("valid", verify_ok)?;
-                dict.set_item("error", py.None())?;
-            }
-            Err(e) => {
-                dict.set_item("valid", false)?;
-                dict.set_item("error", e.to_string())?;
-            }
+        let verification = oxidize_pdf::signatures::parse_pkcs7_signature_detailed(&field.contents)
+            .and_then(|parsed| oxidize_pdf::signatures::verify_signature_detailed(
+                pdf_bytes, &parsed, &field.byte_range,
+            ));
+        let failure = match verification {
+            Ok(result) if result.is_valid() => None,
+            Ok(result) if !result.hash_valid => Some(
+                oxidize_pdf::signatures::SignatureError::HashVerificationFailed {
+                    details: "Document digest does not match the signature".into(),
+                },
+            ),
+            Ok(_) => Some(oxidize_pdf::signatures::SignatureError::SignatureVerificationFailed {
+                details: "Cryptographic signature verification returned false".into(),
+            }),
+            Err(error) => Some(error),
+        };
+        dict.set_item("valid", failure.is_none())?;
+        if let Some(error) = failure {
+            let error = crate::signature_errors::to_py_error(error);
+            let value = error.value(py);
+            dict.set_item("error", value.str()?)?;
+            dict.set_item("error_code", value.getattr("code")?)?;
+            dict.set_item("error_details", value.getattr("details")?)?;
+        } else {
+            dict.set_item("error", py.None())?;
+            dict.set_item("error_code", py.None())?;
+            dict.set_item("error_details", py.None())?;
         }
         results.push(dict);
     }

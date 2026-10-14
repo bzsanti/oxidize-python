@@ -170,3 +170,13 @@ from oxidize_pdf._oxidize_pdf import (
 
 from oxidize_pdf._oxidize_pdf import IncrementalParser as IncrementalParser
 from oxidize_pdf.parse_events import ParseEvent as ParseEvent
+
+from oxidize_pdf.signature_errors import (
+    PdfSignatureError as PdfSignatureError,
+    PdfSignatureValueError as PdfSignatureValueError,
+    PdfSignatureRuntimeError as PdfSignatureRuntimeError,
+    SignatureErrorCode as SignatureErrorCode,
+    SignatureErrorDetails as SignatureErrorDetails,
+)
+
+from oxidize_pdf.signature_errors import SignatureVerificationSummary as SignatureVerificationSummary

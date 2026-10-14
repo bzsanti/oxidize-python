@@ -1,0 +1,88 @@
+....FFF                                                                  [100%]
+=================================== FAILURES ===================================
+__________ test_aggregate_verification_rejects_invalid_crypto[False] ___________
+
+signed_attributes = False
+
+    @pytest.mark.parametrize('signed_attributes', [False, True])
+    def test_aggregate_verification_rejects_invalid_crypto(signed_attributes):
+        from datetime import datetime, timedelta, timezone
+        from cryptography import x509
+        from cryptography.hazmat.primitives import hashes, serialization
+        from cryptography.hazmat.primitives.asymmetric import rsa
+        from cryptography.hazmat.primitives.serialization import pkcs7
+        from cryptography.x509.oid import NameOID
+    
+        prepared = pdf.prepare_incremental_signature(document(), pdf.SignaturePreparationOptions(pdf.SignatureTarget.new_field('approval')))
+        key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+        name = x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, 'Error contract test')])
+        now = datetime.now(timezone.utc)
+        cert = (x509.CertificateBuilder().subject_name(name).issuer_name(name).public_key(key.public_key())
+                .serial_number(2).not_valid_before(now - timedelta(minutes=1))
+                .not_valid_after(now + timedelta(days=1)).sign(key, hashes.SHA256()))
+        options = [pkcs7.PKCS7Options.DetachedSignature, pkcs7.PKCS7Options.Binary]
+        if not signed_attributes:
+            options.append(pkcs7.PKCS7Options.NoAttributes)
+        cms = (pkcs7.PKCS7SignatureBuilder().set_data(prepared.bytes_to_digest).add_signer(cert, key, hashes.SHA256())
+               .sign(serialization.Encoding.DER, options))
+        valid = pdf.verify_pdf_signatures(prepared.finalize(cms))[0]
+        assert valid['valid'] is True
+        # Flip a bit in the RSA signature, inside /Contents and outside ByteRange.
+        # Preserve DER structure and signed document bytes.
+        invalid_cms = cms[:-1] + bytes([cms[-1] ^ 1])
+        invalid = pdf.verify_pdf_signatures(prepared.finalize(invalid_cms))[0]
+>       assert invalid['valid'] is False
+E       assert True is False
+
+tests/test_signature_errors.py:94: AssertionError
+___________ test_aggregate_verification_rejects_invalid_crypto[True] ___________
+
+signed_attributes = True
+
+    @pytest.mark.parametrize('signed_attributes', [False, True])
+    def test_aggregate_verification_rejects_invalid_crypto(signed_attributes):
+        from datetime import datetime, timedelta, timezone
+        from cryptography import x509
+        from cryptography.hazmat.primitives import hashes, serialization
+        from cryptography.hazmat.primitives.asymmetric import rsa
+        from cryptography.hazmat.primitives.serialization import pkcs7
+        from cryptography.x509.oid import NameOID
+    
+        prepared = pdf.prepare_incremental_signature(document(), pdf.SignaturePreparationOptions(pdf.SignatureTarget.new_field('approval')))
+        key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+        name = x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, 'Error contract test')])
+        now = datetime.now(timezone.utc)
+        cert = (x509.CertificateBuilder().subject_name(name).issuer_name(name).public_key(key.public_key())
+                .serial_number(2).not_valid_before(now - timedelta(minutes=1))
+                .not_valid_after(now + timedelta(days=1)).sign(key, hashes.SHA256()))
+        options = [pkcs7.PKCS7Options.DetachedSignature, pkcs7.PKCS7Options.Binary]
+        if not signed_attributes:
+            options.append(pkcs7.PKCS7Options.NoAttributes)
+        cms = (pkcs7.PKCS7SignatureBuilder().set_data(prepared.bytes_to_digest).add_signer(cert, key, hashes.SHA256())
+               .sign(serialization.Encoding.DER, options))
+        valid = pdf.verify_pdf_signatures(prepared.finalize(cms))[0]
+        assert valid['valid'] is True
+        # Flip a bit in the RSA signature, inside /Contents and outside ByteRange.
+        # Preserve DER structure and signed document bytes.
+        invalid_cms = cms[:-1] + bytes([cms[-1] ^ 1])
+        invalid = pdf.verify_pdf_signatures(prepared.finalize(invalid_cms))[0]
+>       assert invalid['valid'] is False
+E       assert True is False
+
+tests/test_signature_errors.py:94: AssertionError
+________________ test_aggregate_cms_parse_error_retains_details ________________
+
+    def test_aggregate_cms_parse_error_retains_details():
+        prepared = pdf.prepare_incremental_signature(document(), pdf.SignaturePreparationOptions(pdf.SignatureTarget.new_field('approval')))
+        result = pdf.verify_pdf_signatures(prepared.finalize(bytes([0x30, 3, 2, 1, 1])))[0]
+        assert result['valid'] is False
+>       assert result['error_code'] == 'cms_parsing_failed'
+               ^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'error_code'
+
+tests/test_signature_errors.py:106: KeyError
+=========================== short test summary info ============================
+FAILED tests/test_signature_errors.py::test_aggregate_verification_rejects_invalid_crypto[False]
+FAILED tests/test_signature_errors.py::test_aggregate_verification_rejects_invalid_crypto[True]
+FAILED tests/test_signature_errors.py::test_aggregate_cms_parse_error_retains_details
+3 failed, 4 passed in 0.43s

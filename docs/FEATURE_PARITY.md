@@ -585,3 +585,129 @@ Python síncronos. Sin cambios de rutas/permisos de archivos del ejecutor nativo
   usa BatchOptions; la suite de biblioteca y checks nativos sí se repitieron.
 - Evidencias: `docs/evidence/issue-257/`; hashes de fuentes en validation.json.
   CI remota y aceptación/merge se verifican por separado.
+
+## Incremento #264 — Errores de firma estructurados
+
+Base: #270 fusionada (`940ab7a`); contrato #264 sobre core 5.4.2.
+
+| Requisito | Estado inicial | Bloqueante / evidencia de cierre |
+| --- | --- | --- |
+| Variante y todos los campos nativos | Incumplido: signing/upstream aplanan a string | Conversor exhaustivo y tests de las 14 variantes |
+| PdfError compatible y mensajes legibles | Incumplido en APIs security que usan builtins | Subclases con compatibilidad PdfError + ValueError/RuntimeError |
+| Ramas reales y detalles tipados | Pendiente | Fallos reales de preparación, CMS y ByteRange; tipos y contrato |
+| Paridad/revisión/regresión | Pendiente | Gate negativo de errores, suites y Kripteia |
+
+Alcance: las excepciones SignatureError que cruzan signing, slots, detección y
+security. Los resultados agregados de verify_pdf_signatures se revisan por
+separado: su campo error es un resultado, no una excepción lanzada.
+
+### Resumen ejecutivo
+
+#264 conserva las 14 variantes de SignatureError del core 5.4.2 mediante un
+conversor exhaustivo compartido. `PdfSignatureError` hereda de PdfError;
+`PdfSignatureValueError` y `PdfSignatureRuntimeError` añaden compatibilidad con
+ValueError/RuntimeError según la clasificación previa de security. Los mensajes
+siguen siendo los de Display; `code` es un Literal estable y `details` un
+SignatureErrorDetails con los campos originales, sin parsear mensajes.
+
+La revisión amplió el alcance al consumidor agregado: su uso de `.is_ok()`
+marcaba firmas criptográficamente inválidas como válidas. Se reprodujo antes de
+corregirlo. `verify_pdf_signatures` usa ahora el parser/verificador detallados del
+core (atributos CMS y ByteRange), exige ambos flags válidos y expone `error_code`
+y `error_details`, manteniendo las claves anteriores. Los flags falsos producen
+hash_verification_failed o signature_verification_failed. El resultado tipado es
+SignatureVerificationSummary. Esto verifica integridad criptográfica, **no**
+confianza del certificado, revocación, timestamps ni autorización del firmante.
+
+### Contratos y evidencia
+
+| Contrato/fuente | Evidencia | Estado |
+| --- | --- | --- |
+| #264: 14 variantes y campos | Test nativo preserves_all_signature_variants_and_fields; compara fixtures y claves del contrato JSON | Demostrado |
+| PdfError/mensaje y categorías históricas | Pruebas reales de preparación, slots, CMS, hash y pickle | Demostrado |
+| ByteRange/algoritmo | Offset/length/document_size reales; fixture nativo algoritmo desconocido, u64::MAX y enteros > 2^53 | Demostrado |
+| Error en detección standalone | ByteRange ausente produce missing_field y field=ByteRange | Demostrado |
+| Firma inválida nunca válida por ser Ok | Firma RSA válida y alterada, con/sin atributos; alteración de bytes cubiertos; CMS inválido | Demostrado |
+| Tipos y paridad | Consumidor estricto Python 3.10; Literal/TypedDict, herencia y códigos; controles negativos de código/tipo | Demostrado |
+
+`red.log` recoge cuatro fallos de la API anterior; `bridge-red.log` demuestra que
+los errores anteriores no pertenecían a PdfSignatureError aunque la clase ya
+existía en Python. `aggregate-red.log`: cuatro pases, tres fallos; ambas firmas
+RSA alteradas daban valid=True, y el CMS inválido carecía de error_code. GREEN:
+102 focalizados y cuatro tests nativos (uno recorre las 14 variantes).
+
+La primera ejecución nativa no encontró el paquete al no activar el editable
+venv en el intérprete embebido. Se corrigió PYTHONPATH en el runner para usar el
+paquete real de este checkout; la ejecución final es satisfactoria. No se cuenta
+ese fallo de montaje como evidencia funcional.
+
+### API de errores
+
+| code | details (campos presentes) |
+| --- | --- |
+| missing_field | field: str |
+| invalid_byte_range / invalid_signature_dict / contents_extraction_failed | details: str |
+| acro_form_not_found / no_signature_fields | ninguno |
+| parse_error | message: str |
+| cms_parsing_failed | details: str |
+| unsupported_algorithm | algorithm: str |
+| byte_range_exceeds_document | offset, length, document_size: int (bytes, u64 íntegro) |
+| hash_verification_failed / signature_verification_failed | details: str |
+| certificate_extraction_failed / certificate_validation_failed | details: str |
+
+Los tipos se exportan desde oxidize_pdf y oxidize_pdf.signature_errors. Solo están
+presentes las claves de la variante; el TypedDict las marca opcionales para
+representar esa unión de campos. Cada excepción posee su diccionario; mantiene
+args=(mensaje,) y conserva atributos al serializar con pickle. El código no usa
+pickle sobre entradas PDF; el test solo serializa una excepción creada localmente.
+Errores ajenos a SignatureError (p.ej. conversión Python de argumentos, lectura
+inicial del PDF) conservan sus clases previas.
+
+### Hallazgos
+
+1. **Clasificación y campos descartados**: `src/signing.rs`, `src/upstream.rs`,
+   `src/security.rs` y las llamadas de detección en `src/parser.rs` convertían a
+   mensajes. Corregido con `src/signature_errors.rs:6`, match exhaustivo y clases
+   tipadas. Todos los consumidores que lanzan SignatureError usan ese conversor.
+2. **Resultado criptográfico falso tratado como válido**: `src/parser.rs:2110`,
+   verify_pdf_signatures confundía Ok con flags válidos y descartaba errores de
+   verificación. Corregido con verificador detallado, evaluación de is_valid y
+   preservación de datos. Dos regresiones RED/GREEN y controles de PDF alterado.
+3. **Detección del lector promovido devuelve vacío**: `src/parser.rs:674`, rama
+   FileDocument/CursorDocument preexistente. Un PDF con ByteRange ausente devuelve
+   [] por PdfReader.detect_signatures y missing_field por el standalone. Destino:
+   #244, auditoría pendiente del lifecycle del lector; requiere acceso al lector
+   nativo consumido por PdfDocument. No se oculta ni se interpreta [] como prueba
+   de ausencia de firmas. No bloquea conservar los SignatureError que cruzan la
+   frontera (#264), ni el standalone corregido; no se declara reparado ese método.
+
+### Calidad de Tests (Kripteia)
+
+Python: 100/100, siete funciones y ocho casos en el nuevo fichero; pruebas reales
+sin mocks, claves y valores independientes del mensaje. Rust: 100/100, cuatro
+tests, uno nuevo cubriendo 14 variantes. Aviso de unwrap revisado: está en tests,
+hace fallar con el error y no lo silencia; valores esperados son fixtures ajenos
+al conversor. Runner, gate y módulo de errores no contienen tests detectables;
+sus scores no se interpretan como cobertura. Logs kripteia-*.log.
+
+### Análisis de Seguridad (Kripteia Security)
+
+Scans Rust, tests Python, tipos/excepciones y dos scripts: sin hallazgos. Revisión
+manual detectó y corrigió el fallo de verificación descrito; un scan limpio no lo
+habría descartado. No nuevo unsafe ni dependencias; tamaños u64 se convierten a
+int sin flotantes; excepciones no cambian un fallo a éxito. El runner usa comandos
+sin shell y una ruta local explícita para el intérprete embebido. La limitación de
+detect_signatures tras promoción permanece registrada y fuera de las garantías
+nuevas; no se promete validación completa de confianza ni paridad global.
+
+### Métricas y entrega
+
+- Dieciocho archivos técnicos y este seguimiento revisados. Tres hallazgos:
+  dos resueltos; uno previo derivado a #244 con frontera y consecuencia explícitas.
+- 2.416 tests de biblioteca; 295 MCP, un skip; 102 focalizados; cuatro tests
+  nativos. Clippy con warnings prohibidos, compilación mínima, mypy (26 archivos
+  y consumidor estricto Python 3.10), contrato y negativos aprobados.
+- Tras la regresión se añadieron aserciones de alteración de bytes cubiertos:
+  se repitieron los 102 focalizados y Kripteia Python; producto sin cambios.
+- Sin bloqueantes locales de #264. Evidencias en `docs/evidence/issue-264/` y
+  hashes en validation.json. CI remota, aceptación y merge se verifican aparte.
