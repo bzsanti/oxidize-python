@@ -820,3 +820,20 @@ presupuestos de outlines cubran el parser completo o el árbol de páginas.
   estricto Python 3.10), contrato y controles negativos aprobados.
 - Evidencias en `docs/evidence/issue-261/`; hashes de fuentes en validation.json.
   CI remota, aceptación y merge se comprueban aparte; no se declara paridad global.
+
+### Corrección de integración Windows
+
+CI del commit ec6a8f0 detectó nueve fallos del gate de paridad por UnicodeDecodeError
+(cp1252, byte 0x81 del título Á en UTF-8); los 26 casos de lectura pasaban. Evidencia:
+windows-red.log, run 38627644328, job 116070777411. El gate y sus tests usaban la
+codificación local al leer fuentes. Se corrige scripts/check_parity.py y ambos
+ficheros de tests del contrato para leer/escribir UTF-8 explícitamente, conservando
+el fixture Unicode. No cambian Rust, los stubs ni el comportamiento del lector.
+
+Hallazgo de portabilidad resuelto localmente: 36 focalizados pasan y el gate pasa
+con default cp1252 simulado (cp1252-gate.log). Se revisaron estos cambios y ambos
+análisis Kripteia sobre los tres archivos: sin hallazgos de seguridad; calidad
+100/100 para los tres tests detectados (ocho variantes negativas y dos tests de
+runtime); el script no contiene tests detectables. Alcance final: trece archivos
+técnicos y seguimiento. Se reutilizan regresión, build, tipos y análisis Rust,
+que no cambiaron; el CI completo se repite sobre el commit corregido.

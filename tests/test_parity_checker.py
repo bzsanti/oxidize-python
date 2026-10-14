@@ -16,13 +16,13 @@ def test_parity_checker_rejects_contract_regressions(tmp_path, kind):
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(ROOT / relative, target)
     checker.REPO_ROOT = tmp_path
-    exports = checker.parse_init_exports((ROOT / 'python/oxidize_pdf/__init__.py').read_text())
+    exports = checker.parse_init_exports((ROOT / 'python/oxidize_pdf/__init__.py').read_text(encoding="utf-8"))
     assert checker.check_contract(exports) == []
     if kind == 'export':
         exports.remove('plan_merge_existing_pdfs')
     else:
         path = tmp_path / ('python/oxidize_pdf/signature_errors.py' if kind in ('error-code', 'error-field') else 'python/oxidize_pdf/parse_events.py' if kind == 'event-field' else 'Cargo.toml' if kind == 'core' else 'tests/test_existing_document.py' if kind == 'test' else 'python/oxidize_pdf/_oxidize_pdf.pyi')
-        source = path.read_text()
+        source = path.read_text(encoding="utf-8")
         before, after = {
             'core': ('=5.4.2', '=5.4.3'),
             'error-code': ("'unsupported_algorithm'", "'removed_algorithm'"),
@@ -33,5 +33,5 @@ def test_parity_checker_rejects_contract_regressions(tmp_path, kind):
             'test': ('def test_extract_preserves_prefix_and_full_plan(', 'def removed_behavior('),
         }[kind]
         assert before in source
-        path.write_text(source.replace(before, after, 1))
+        path.write_text(source.replace(before, after, 1), encoding="utf-8")
     assert checker.check_contract(exports), kind
