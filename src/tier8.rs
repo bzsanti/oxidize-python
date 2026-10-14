@@ -435,21 +435,66 @@ impl PyOcrEngine {
 
 // ── Feature 35: Batch Processing ──────────────────────────────────────────
 
-#[pyclass(name = "BatchOptions", from_py_object)]
-#[derive(Clone)]
+/// Batch execution options. Durations use seconds; memory uses bytes.
+/// Core 5.4.2 does not enforce memory_limit_per_worker or job_timeout.
+#[pyclass(name = "BatchOptions")]
 pub struct PyBatchOptions {
     pub inner: oxidize_pdf::batch::BatchOptions,
+    pub(crate) callback: Option<Py<PyAny>>,
+}
+
+fn batch_duration(seconds: f64, field: &str) -> PyResult<std::time::Duration> {
+    let duration = std::time::Duration::try_from_secs_f64(seconds)
+        .map_err(|_| pyo3::exceptions::PyValueError::new_err(format!("{field} must be finite, positive seconds representable as a duration")))?;
+    if duration.is_zero() {
+        return Err(pyo3::exceptions::PyValueError::new_err(format!("{field} must round to at least one nanosecond")));
+    }
+    Ok(duration)
 }
 
 #[pymethods]
 impl PyBatchOptions {
+    fn __traverse__(&self, visit: pyo3::gc::PyVisit<'_>) -> Result<(), pyo3::gc::PyTraverseError> {
+        visit.call(&self.callback)
+    }
+    fn __clear__(&mut self) { self.callback = None; }
     #[new]
-    #[pyo3(signature = (parallelism=None, stop_on_error=None))]
-    fn new(parallelism: Option<usize>, stop_on_error: Option<bool>) -> Self {
+    #[pyo3(signature = (parallelism=None, stop_on_error=None, *, memory_limit_per_worker=536870912, progress_interval=0.1, progress_callback=None, job_timeout=Some(300.0)))]
+    fn new(
+        parallelism: Option<usize>, stop_on_error: Option<bool>,
+        memory_limit_per_worker: usize, progress_interval: f64,
+        progress_callback: Option<Bound<'_, PyAny>>, job_timeout: Option<f64>,
+    ) -> PyResult<Self> {
         let mut opts = oxidize_pdf::batch::BatchOptions::default();
         if let Some(p) = parallelism { opts.parallelism = p; }
         if let Some(s) = stop_on_error { opts.stop_on_error = s; }
-        Self { inner: opts }
+        if opts.parallelism == 0 || memory_limit_per_worker == 0 {
+            return Err(pyo3::exceptions::PyValueError::new_err("parallelism and memory_limit_per_worker must be positive"));
+        }
+        opts.memory_limit_per_worker = memory_limit_per_worker;
+        opts.progress_interval = batch_duration(progress_interval, "progress_interval")?;
+        opts.job_timeout = job_timeout.map(|s| batch_duration(s, "job_timeout")).transpose()?;
+        let callback = progress_callback.map(|cb| {
+            if !cb.is_callable() {
+                return Err(pyo3::exceptions::PyTypeError::new_err("progress_callback must be callable or None"));
+            }
+            Ok(cb.unbind())
+        }).transpose()?;
+        Ok(Self { inner: opts, callback })
+    }
+    #[getter]
+    fn parallelism(&self) -> usize { self.inner.parallelism }
+    #[getter]
+    fn stop_on_error(&self) -> bool { self.inner.stop_on_error }
+    #[getter]
+    fn memory_limit_per_worker(&self) -> usize { self.inner.memory_limit_per_worker }
+    #[getter]
+    fn progress_interval(&self) -> f64 { self.inner.progress_interval.as_secs_f64() }
+    #[getter]
+    fn job_timeout(&self) -> Option<f64> { self.inner.job_timeout.map(|d| d.as_secs_f64()) }
+    #[getter]
+    fn progress_callback(&self, py: Python<'_>) -> Option<Py<PyAny>> {
+        self.callback.as_ref().map(|cb| cb.clone_ref(py))
     }
     fn __repr__(&self) -> String {
         format!("BatchOptions(parallelism={})", self.inner.parallelism)

@@ -467,3 +467,121 @@ upstream frente a PDF malicioso ni nuevas garantías de memoria.
 - Evidencias en `docs/evidence/issue-256/`, hashes en validation.json.
 - Sin bloqueantes locales. Integración/CI remota/publicación se verifican por
   separado; no se declara paridad global ni un parser incremental completo.
+
+## Incremento #257 — BatchOptions y ejecución observable
+
+Base: PR #269 fusionada en develop (`753c8d9`). Contrato: issue #257, core 5.4.2.
+
+| Requisito y fuente | Estado y evidencia | Bloqueante / siguiente acción |
+| --- | --- | --- |
+| Seis campos de BatchOptions, getters, unidades y tipos (#257) | Incumplido: solo dos argumentos | Añadir opciones y validar extremos; tests de API y typing |
+| Callbacks ejecutables y excepciones visibles (#257) | Pendiente: execute retiene GIL | Adaptador por procesador, liberar GIL, comprobar en subproceso con deadline |
+| Verificar límites/errores del ejecutor (#257) | Core worker ignora memoria y timeout | Prueba real con límites mínimos y documentación explícita; no prometer enforcement |
+| Regresión y revisión | Pendiente | Tests, contrato, Clippy, typing y ambos análisis Kripteia |
+
+### Contrato público
+
+`BatchOptions(parallelism=None, stop_on_error=None, *,
+memory_limit_per_worker=536870912, progress_interval=0.1,
+progress_callback=None, job_timeout=300.0)` conserva los dos argumentos
+posicionales. Los seis campos tienen getters de solo lectura. `None` en los dos
+primeros selecciona el default del core: min(CPUs, 8) y False. Memoria en bytes;
+intervalo y timeout en segundos, redondeados a nanosegundos. Conteos positivos;
+duraciones finitas, positivas y representables (mínimo redondeado: 1 ns).
+`job_timeout=None` desactiva la opción. Callback debe ser callable o None.
+
+Los callbacks reciben snapshots propios `ProgressInfo`; pueden conservarse tras
+execute. El ejecutor libera el GIL, el hilo de progreso vuelve a adquirirlo al
+llamar Python y el callback final se ejecuta en el hilo de execute. Deben retornar
+pronto y utilizar el snapshot: el procesador es de un solo uso y no admite acceso
+reentrante durante execute. El core puede emitir un estado completo más de una
+vez y no emite callbacks para lotes vacíos. El intervalo controla el sleep del
+hilo; intervalos largos pueden retrasar el retorno de execute, que espera ese hilo.
+
+La primera excepción del callback se conserva y se vuelve a lanzar en execute
+**después de que los trabajos terminen**; se suprimen callbacks posteriores.
+No revierte archivos ni cancela trabajos. Reutilizar opciones en otro procesador
+crea estado de errores independiente. Los ciclos callback/opciones/procesador
+participan en el recolector de Python.
+
+Core 5.4.2 **no aplica** memory_limit_per_worker ni job_timeout: almacena los
+valores, pero `batch/worker.rs` recibe `_memory_limit` y ejecuta normalmente con
+`Some(_timeout)`. La prueba real completa un PDF con 1 byte y 1 ns, mide una
+duración superior al timeout y comprueba el archivo de salida. No son límites
+de seguridad ni protección frente a documentos adversos. `stop_on_error` marca
+cancelación y omite trabajos aún no enviados, pero los ya encolados pueden seguir;
+no garantiza detenerse en el primer trabajo fallido. La cancelación previa omite
+trabajos sin generar sus archivos; su snapshot final puede no ser `is_complete`
+porque el core no cuenta cancelados como completados/fallidos.
+
+Estas limitaciones upstream quedan bajo #244; #257 exige exponerlas y verificarlas,
+no implementar un planificador nuevo ni cambiar el pin del core. Las funciones
+batch independientes conservan su API y no aceptan BatchOptions.
+
+### Resumen ejecutivo y evidencia final
+
+Contrato #257 demostrado sobre el pin 5.4.2. Se revisaron constructor, getters,
+conversión de duraciones, transferencia de opciones al core, callbacks y lifecycle,
+stubs/consumidor estricto, gate de paridad, CI y pruebas reales. No cambia el core.
+
+| Requisito | Evidencia final | Estado |
+| --- | --- | --- |
+| Seis campos/defaults/unidades/validación y API anterior | test_defaults_and_explicit_options, test_invalid_counts/durations/callback; mypy Python 3.10 | Demostrado |
+| Callbacks, errores, snapshots, reutilización y cancelación | test_executor_callbacks_errors_and_limits; ejecutor real en subproceso con timeout de 20 s | Demostrado |
+| Límites inertes documentados | Código publicado worker.rs y trabajo exitoso con 1 byte/1 ns | Demostrado; sin garantías de límites |
+| Propiedad y recolección | Dos fallos reproducidos antes de integrar GC, ambos pasan después | Demostrado |
+| Regresión/gates/revisión | Logs focused, regression, mcp, clippy, minimal, mypy, parity y Kripteia | Demostrado localmente |
+
+RED inicial: 19 fallos y dos pases ante la extensión anterior, por campos ausentes
+y validación incompleta (`red.log`). RED de GC: dos fallos y 21 pases ante la
+primera implementación (`gc-red.log`); los objetos callback seguían vivos después
+de gc.collect. GREEN final: 85 focalizados, incluidos los dos controles de GC.
+La prueba del GIL está acotada por timeout, pero no se ejecutó una mutación que
+retenga el GIL; no se atribuye a esa prueba evidencia RED de deadlock.
+
+### Hallazgos
+
+1. **Ciclos de referencias Python no visibles al GC**: `src/tier8.rs` y
+   `src/batch_recovery_streaming.rs`, campos callback — un callback que conservase
+   sus opciones/procesador retenía ambos indefinidamente. Corregido con referencias
+   Python independientes y métodos __traverse__/__clear__. Evidencia RED/GREEN
+   anterior. Revisión final de Arc y Py: cada propietario expone una referencia
+   Python; los Arc internos comparten el adaptador sin duplicar referencias Python.
+
+Sin bloqueantes restantes del contrato #257. Los límites y la cancelación parcial
+upstream descritos arriba permanecen en #244 por ser comportamiento nativo que
+esta issue exige caracterizar, no reemplazar. No se afirma paridad global.
+
+### Calidad de Tests (Kripteia)
+
+Python: 93/100, seis funciones y 23 casos. Avisos de similitud entre validadores
+revisados: enteros y duraciones tienen dominios y errores diferentes. El aviso de
+pocas aserciones en executor ignora las aserciones dentro del script ejecutado:
+se comprueban archivo, estados, errores, identidad de excepción, snapshots y
+cancelación. El control de GC usa una sola aserción deliberada sobre weakref.
+Rust: 100/100, tres tests preexistentes en parse_events; no equivale a cobertura
+Rust de BatchOptions. Los avisos sobre constantes/unwrap en esos tests ya estaban
+reconciliados en #256. Logs: `kripteia-python.log` y `kripteia-rust.log`.
+
+### Análisis de Seguridad (Kripteia Security)
+
+Ambos scans, Python del nuevo test y Rust de src, sin hallazgos. Revisión manual:
+no nuevo unsafe; duración inválida produce ValueError sin panic; callback se llama
+sin sostener el mutex; error no se silencia; procesador se consume una sola vez;
+snapshots clonados sin préstamos nativos; subproceso de pruebas sin shell y con
+ruta temporal como argumento. No se ofrece aislamiento de callbacks ni límites de
+recursos; un callback bloqueante puede bloquear execute, igual que otros callbacks
+Python síncronos. Sin cambios de rutas/permisos de archivos del ejecutor nativo.
+
+### Métricas y estado de entrega
+
+- Ocho archivos técnicos más este seguimiento revisados; un hallazgo corregido
+  en una fase de implementación y revisado de nuevo. Sin cambios durante la
+  última pasada de revisión.
+- 2.405 tests de biblioteca; 295 MCP, un skip; 85 focalizados; Clippy con warnings
+  prohibidos, compilación mínima, mypy de 25 archivos más consumidor estricto
+  Python 3.10 y contrato de paridad aprobados.
+- Se reutiliza MCP anterior a la corrección GC: no cambió la superficie MCP ni
+  usa BatchOptions; la suite de biblioteca y checks nativos sí se repitieron.
+- Evidencias: `docs/evidence/issue-257/`; hashes de fuentes en validation.json.
+  CI remota y aceptación/merge se verifican por separado.

@@ -1,6 +1,6 @@
 {
   "core": "5.4.2",
-  "scope": "existing-document preservation, page mutations and external CMS signing; remaining Rust API pending audit; composed extraction policies; incremental free-text editing; incremental Ink editing; configurable partitioning, element graphs, custom token counting and document export; real page iteration with explicit parser lifetime; lossless incremental event bridge (upstream parser limitations remain)",
+  "scope": "existing-document preservation, page mutations and external CMS signing; remaining Rust API pending audit; composed extraction policies; incremental free-text editing; incremental Ink editing; configurable partitioning, element graphs, custom token counting and document export; real page iteration with explicit parser lifetime; lossless incremental event bridge (upstream parser limitations remain); all BatchOptions fields with observable executor limitations",
   "callables": {
     "ExistingDocumentPolicy.preserve_base": [
       "page_labels_first_input_wins"
@@ -355,6 +355,14 @@
     ],
     "IncrementalParser.is_complete": [
       "self"
+    ],
+    "BatchOptions": [
+      "parallelism",
+      "stop_on_error",
+      "memory_limit_per_worker",
+      "progress_interval",
+      "progress_callback",
+      "job_timeout"
     ]
   },
   "properties": {
@@ -514,6 +522,23 @@
     "PdfValue": [
       "kind",
       "value"
+    ],
+    "BatchOptions": [
+      "parallelism",
+      "stop_on_error",
+      "memory_limit_per_worker",
+      "progress_interval",
+      "progress_callback",
+      "job_timeout"
+    ],
+    "ProgressInfo": [
+      "total_jobs",
+      "completed_jobs",
+      "failed_jobs",
+      "running_jobs",
+      "percentage",
+      "is_complete",
+      "elapsed_secs"
     ]
   },
   "required_tests": [
@@ -583,6 +608,14 @@
       "test_pdf_value_scalar_inspection",
       "test_nested_pdf_values_are_owned_and_inspectable",
       "test_invalid_feed_type_does_not_discard_pending_events"
+    ],
+    "tests/test_batch_options.py": [
+      "test_defaults_and_explicit_options",
+      "test_invalid_counts",
+      "test_invalid_durations",
+      "test_invalid_callback",
+      "test_executor_callbacks_errors_and_limits",
+      "test_callback_reference_cycles_are_collected"
     ]
   },
   "typed_dicts": {
