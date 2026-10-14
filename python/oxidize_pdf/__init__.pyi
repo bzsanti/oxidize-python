@@ -162,3 +162,8 @@ from oxidize_pdf._oxidize_pdf import (
     RichCell as RichCell,
     DocumentSource as DocumentSource,
 )
+
+from oxidize_pdf._oxidize_pdf import (
+    PageStreamer as PageStreamer,
+    StreamingPage as StreamingPage,
+)

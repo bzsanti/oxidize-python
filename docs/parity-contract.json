@@ -1,6 +1,6 @@
 {
   "core": "5.4.2",
-  "scope": "existing-document preservation, page mutations and external CMS signing; remaining Rust API pending audit; composed extraction policies; incremental free-text editing; incremental Ink editing; configurable partitioning, element graphs, custom token counting and document export",
+  "scope": "existing-document preservation, page mutations and external CMS signing; remaining Rust API pending audit; composed extraction policies; incremental free-text editing; incremental Ink editing; configurable partitioning, element graphs, custom token counting and document export; real page iteration with explicit parser lifetime",
   "callables": {
     "ExistingDocumentPolicy.preserve_base": [
       "page_labels_first_input_wins"
@@ -322,6 +322,28 @@
     "ElementGraph.elements_in_section": [
       "self",
       "index"
+    ],
+    "PageStreamer.open": [
+      "path"
+    ],
+    "PageStreamer.next": [
+      "self"
+    ],
+    "PageStreamer.seek_to_page": [
+      "self",
+      "page_num"
+    ],
+    "PageStreamer.total_pages": [
+      "self"
+    ],
+    "PageStreamer.close": [
+      "self"
+    ],
+    "StreamingPage.media_box": [
+      "self"
+    ],
+    "StreamingPage.extract_text_streaming": [
+      "self"
     ]
   },
   "properties": {
@@ -472,6 +494,11 @@
       "table_cols",
       "source",
       "extra"
+    ],
+    "StreamingPage": [
+      "number",
+      "width",
+      "height"
     ]
   },
   "required_tests": [
@@ -526,6 +553,13 @@
       "test_new_reader_paths_reject_locked_documents",
       "test_nondefault_profile_and_graph_configuration_are_applied",
       "test_invalid_counter_on_empty_input_and_reentry"
+    ],
+    "tests/test_page_streamer.py": [
+      "test_exact_single_page_and_eof",
+      "test_exact_iteration_and_retained_pages",
+      "test_invalid_input_is_rejected",
+      "test_only_selected_page_is_decoded_and_failure_does_not_advance",
+      "test_close_releases_file_and_preserves_page"
     ]
   }
 }

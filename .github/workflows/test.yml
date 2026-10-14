@@ -78,7 +78,7 @@ jobs:
         run: |
           source .venv/bin/activate
           mypy python/oxidize_pdf/
-          mypy --strict --disallow-any-expr tests/typing/extraction.py tests/typing/mcp_contract.py tests/typing/upstream_5_4.py tests/typing/existing_document.py tests/typing/incremental_signing.py tests/typing/incremental_annotations.py tests/typing/incremental_ink.py tests/typing/rag_reader.py
+          mypy --strict --disallow-any-expr tests/typing/extraction.py tests/typing/mcp_contract.py tests/typing/upstream_5_4.py tests/typing/existing_document.py tests/typing/incremental_signing.py tests/typing/incremental_annotations.py tests/typing/incremental_ink.py tests/typing/rag_reader.py tests/typing/page_streamer.py
 
   build-check:
     name: Release build check

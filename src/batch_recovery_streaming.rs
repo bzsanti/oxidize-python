@@ -12,6 +12,7 @@
 //! Renaming these functions would break the existing public API.
 
 use std::fs::File;
+use std::io::{Seek, SeekFrom};
 use std::path::PathBuf;
 
 use pyo3::prelude::*;
@@ -24,7 +25,9 @@ use oxidize_pdf::recovery::{
     analyze_corruption, detect_corruption, repair_document, CorruptionReport, CorruptionType,
     ObjectScanner, RepairResult, RepairStrategy, ScanResult,
 };
-use oxidize_pdf::streaming::{IncrementalParser, PageStreamer, StreamingPage};
+use oxidize_pdf::streaming::IncrementalParser;
+use oxidize_pdf::{PdfDocument, PdfReader};
+use crate::parser::parse_err_to_py;
 
 use crate::errors::to_py_err;
 
@@ -754,91 +757,163 @@ fn repair_pdf(path: &str, strategy: &PyRepairStrategy) -> PyResult<PyRepairResul
 
 // ── StreamingPage ─────────────────────────────────────────────────────────
 
-/// A page obtained from streaming — read-only.
-///
-/// Provides access to page number, dimensions, and streaming text extraction.
+/// An owned snapshot of one parsed page, independent of the source file.
 #[pyclass(name = "StreamingPage", frozen)]
 pub struct PyStreamingPage {
-    inner: StreamingPage,
+    number: u32,
+    width: f64,
+    height: f64,
+    media_box: [f64; 4],
+    text: String,
 }
 
 #[pymethods]
 impl PyStreamingPage {
     #[getter]
     fn number(&self) -> u32 {
-        self.inner.number()
+        self.number
     }
-
     #[getter]
     fn width(&self) -> f64 {
-        self.inner.width()
+        self.width
     }
-
     #[getter]
     fn height(&self) -> f64 {
-        self.inner.height()
+        self.height
     }
-
-    fn extract_text_streaming(&self) -> PyResult<String> {
-        self.inner.extract_text_streaming().map_err(to_py_err)
+    fn extract_text_streaming(&self) -> &str {
+        &self.text
     }
-
     fn media_box(&self) -> [f64; 4] {
-        self.inner.media_box()
+        self.media_box
     }
-
     fn __repr__(&self) -> String {
         format!(
             "StreamingPage(number={}, {}x{})",
-            self.inner.number(),
-            self.inner.width(),
-            self.inner.height()
+            self.number, self.width, self.height
         )
     }
 }
 
-// ── PageStreamer ───────────────────────────────────────────────────────────
-
-/// Streams pages from a PDF file without loading the whole document.
+/// Iterate real PDF pages using a fresh core parser for each page.
 ///
-/// Example::
-///
-///     streamer = PageStreamer.open("large.pdf")
-///     while True:
-///         page = streamer.next()
-///         if page is None:
-///             break
-///         print(f"Page {page.number}: {page.width}x{page.height}")
+/// Keeps one source file open. Each next() reparses the PDF index and extracts
+/// only the selected page, then drops all parser caches. Memory depends on the
+/// index, page resources and decoded page content; it is not constant or capped.
+/// Returned pages own their text and geometry. Do not modify the source file
+/// while it is open. Use close() or a with statement to release the descriptor.
 #[pyclass(name = "PageStreamer", unsendable)]
 pub struct PyPageStreamer {
-    inner: PageStreamer<File>,
+    file: Option<File>,
+    current_page: u32,
+    total_pages: u32,
+}
+
+impl PyPageStreamer {
+    fn file(&self) -> PyResult<&File> {
+        self.file
+            .as_ref()
+            .ok_or_else(|| pyo3::exceptions::PyValueError::new_err("PageStreamer is closed"))
+    }
+
+    // Duplicated descriptors share a cursor; all access is serialized by the
+    // mutable PyO3 borrow. No parser/BufReader survives this operation.
+    fn document(file: &File) -> PyResult<PdfDocument<File>> {
+        let mut input = file
+            .try_clone()
+            .map_err(|e| crate::errors::PdfIoError::new_err(e.to_string()))?;
+        input
+            .seek(SeekFrom::Start(0))
+            .map_err(|e| crate::errors::PdfIoError::new_err(e.to_string()))?;
+        let reader = PdfReader::new(input).map_err(parse_err_to_py)?;
+        if reader.is_encrypted() {
+            return Err(crate::errors::PdfEncryptionError::new_err(
+                "PageStreamer does not support encrypted PDFs; use PdfReader.unlock",
+            ));
+        }
+        Ok(PdfDocument::new(reader))
+    }
 }
 
 #[pymethods]
 impl PyPageStreamer {
     #[staticmethod]
-    fn open(path: &str) -> PyResult<Self> {
-        let file = File::open(path).map_err(|e| crate::errors::PdfIoError::new_err(e.to_string()))?;
-        Ok(Self {
-            inner: PageStreamer::new(file),
+    fn open(py: Python<'_>, path: String) -> PyResult<Self> {
+        py.detach(move || {
+            let file =
+                File::open(path).map_err(|e| crate::errors::PdfIoError::new_err(e.to_string()))?;
+            let total_pages = Self::document(&file)?
+                .page_count()
+                .map_err(parse_err_to_py)?;
+            Ok(Self {
+                file: Some(file),
+                current_page: 0,
+                total_pages,
+            })
         })
     }
 
-    fn next(&mut self) -> PyResult<Option<PyStreamingPage>> {
-        let page = self.inner.next().map_err(to_py_err)?;
-        Ok(page.map(|p| PyStreamingPage { inner: p }))
+    fn next(&mut self, py: Python<'_>) -> PyResult<Option<PyStreamingPage>> {
+        let file = self.file()?;
+        if self.current_page >= self.total_pages {
+            return Ok(None);
+        }
+        let number = self.current_page;
+        let page = py.detach(|| {
+            let document = Self::document(file)?;
+            let page = document.get_page(number).map_err(parse_err_to_py)?;
+            let text = document
+                .extract_text_from_page(number)
+                .map_err(parse_err_to_py)?
+                .text;
+            Ok::<_, PyErr>(PyStreamingPage {
+                number,
+                width: page.width(),
+                height: page.height(),
+                media_box: page.media_box,
+                text,
+            })
+        })?;
+        // Failed reads leave the cursor unchanged, permitting explicit retry/seek.
+        self.current_page += 1;
+        Ok(Some(page))
     }
 
+    /// Position the next read. total_pages is the valid EOF position.
     fn seek_to_page(&mut self, page_num: u32) -> PyResult<()> {
-        self.inner.seek_to_page(page_num).map_err(to_py_err)
+        self.file()?;
+        if page_num > self.total_pages {
+            return Err(pyo3::exceptions::PyIndexError::new_err(
+                "page index out of range",
+            ));
+        }
+        self.current_page = page_num;
+        Ok(())
     }
-
-    fn total_pages(&self) -> Option<u32> {
-        self.inner.total_pages()
+    fn total_pages(&self) -> u32 {
+        self.total_pages
     }
-
+    fn close(&mut self) {
+        self.file = None;
+    }
+    fn __enter__(slf: PyRef<'_, Self>) -> PyResult<PyRef<'_, Self>> {
+        slf.file()?;
+        Ok(slf)
+    }
+    fn __exit__(
+        &mut self,
+        _exc_type: &Bound<'_, PyAny>,
+        _exc_value: &Bound<'_, PyAny>,
+        _traceback: &Bound<'_, PyAny>,
+    ) {
+        self.close();
+    }
     fn __repr__(&self) -> String {
-        "PageStreamer(file)".to_string()
+        format!(
+            "PageStreamer(pages={}, closed={})",
+            self.total_pages,
+            self.file.is_none()
+        )
     }
 }
 

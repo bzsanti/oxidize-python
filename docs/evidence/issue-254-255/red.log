@@ -1,0 +1,179 @@
+FFFFFFFFFF.FFF                                                           [100%]
+=================================== FAILURES ===================================
+____________________ test_exact_single_page_and_eof[False] _____________________
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-9/test_exact_single_page_and_eof0')
+compressed = False
+
+    @pytest.mark.parametrize('compressed', [False, True])
+    def test_exact_single_page_and_eof(tmp_path, compressed):
+        path = write_pdf(tmp_path, ['REAL-PARITY-SENTINEL'], compressed=compressed)
+        reader = pdf.PdfReader.open(path)
+>       with pdf.PageStreamer.open(path) as stream:
+E       TypeError: 'builtins.PageStreamer' object does not support the context manager protocol
+
+tests/test_page_streamer.py:45: TypeError
+_____________________ test_exact_single_page_and_eof[True] _____________________
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-9/test_exact_single_page_and_eof1')
+compressed = True
+
+    @pytest.mark.parametrize('compressed', [False, True])
+    def test_exact_single_page_and_eof(tmp_path, compressed):
+        path = write_pdf(tmp_path, ['REAL-PARITY-SENTINEL'], compressed=compressed)
+        reader = pdf.PdfReader.open(path)
+>       with pdf.PageStreamer.open(path) as stream:
+E       TypeError: 'builtins.PageStreamer' object does not support the context manager protocol
+
+tests/test_page_streamer.py:45: TypeError
+__________________ test_exact_iteration_and_retained_pages[0] __________________
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-9/test_exact_iteration_and_retai0')
+count = 0
+
+    @pytest.mark.parametrize('count', [0, 1, 2, 5])
+    def test_exact_iteration_and_retained_pages(tmp_path, count):
+        texts = [f'SENTINEL-{i}' for i in range(count)]
+>       with pdf.PageStreamer.open(write_pdf(tmp_path, texts)) as stream:
+E       TypeError: 'builtins.PageStreamer' object does not support the context manager protocol
+
+tests/test_page_streamer.py:60: TypeError
+__________________ test_exact_iteration_and_retained_pages[1] __________________
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-9/test_exact_iteration_and_retai1')
+count = 1
+
+    @pytest.mark.parametrize('count', [0, 1, 2, 5])
+    def test_exact_iteration_and_retained_pages(tmp_path, count):
+        texts = [f'SENTINEL-{i}' for i in range(count)]
+>       with pdf.PageStreamer.open(write_pdf(tmp_path, texts)) as stream:
+E       TypeError: 'builtins.PageStreamer' object does not support the context manager protocol
+
+tests/test_page_streamer.py:60: TypeError
+__________________ test_exact_iteration_and_retained_pages[2] __________________
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-9/test_exact_iteration_and_retai2')
+count = 2
+
+    @pytest.mark.parametrize('count', [0, 1, 2, 5])
+    def test_exact_iteration_and_retained_pages(tmp_path, count):
+        texts = [f'SENTINEL-{i}' for i in range(count)]
+>       with pdf.PageStreamer.open(write_pdf(tmp_path, texts)) as stream:
+E       TypeError: 'builtins.PageStreamer' object does not support the context manager protocol
+
+tests/test_page_streamer.py:60: TypeError
+__________________ test_exact_iteration_and_retained_pages[5] __________________
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-9/test_exact_iteration_and_retai3')
+count = 5
+
+    @pytest.mark.parametrize('count', [0, 1, 2, 5])
+    def test_exact_iteration_and_retained_pages(tmp_path, count):
+        texts = [f'SENTINEL-{i}' for i in range(count)]
+>       with pdf.PageStreamer.open(write_pdf(tmp_path, texts)) as stream:
+E       TypeError: 'builtins.PageStreamer' object does not support the context manager protocol
+
+tests/test_page_streamer.py:60: TypeError
+_____________________ test_inherited_box_rotation_and_seek _____________________
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-9/test_inherited_box_rotation_an0')
+
+    def test_inherited_box_rotation_and_seek(tmp_path):
+        path = write_pdf(tmp_path, ['Alpha', 'Bravo', 'Charlie'], box=(10, 20, 331, 476), rotation=90)
+>       with pdf.PageStreamer.open(path) as stream:
+E       TypeError: 'builtins.PageStreamer' object does not support the context manager protocol
+
+tests/test_page_streamer.py:71: TypeError
+_______________________ test_invalid_input_is_rejected[] _______________________
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-9/test_invalid_input_is_rejected0')
+data = b''
+
+    @pytest.mark.parametrize('data', [b'', b'This is not a PDF', b'%PDF-1.7\n'])
+    def test_invalid_input_is_rejected(tmp_path, data):
+        path = tmp_path / 'invalid.pdf'
+        path.write_bytes(data)
+>       with pytest.raises(pdf.PdfParseError):
+E       Failed: DID NOT RAISE <class 'oxidize_pdf.PdfParseError'>
+
+tests/test_page_streamer.py:92: Failed
+______________ test_invalid_input_is_rejected[This is not a PDF] _______________
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-9/test_invalid_input_is_rejected1')
+data = b'This is not a PDF'
+
+    @pytest.mark.parametrize('data', [b'', b'This is not a PDF', b'%PDF-1.7\n'])
+    def test_invalid_input_is_rejected(tmp_path, data):
+        path = tmp_path / 'invalid.pdf'
+        path.write_bytes(data)
+>       with pytest.raises(pdf.PdfParseError):
+E       Failed: DID NOT RAISE <class 'oxidize_pdf.PdfParseError'>
+
+tests/test_page_streamer.py:92: Failed
+__________________ test_invalid_input_is_rejected[%PDF-1.7\n] __________________
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-9/test_invalid_input_is_rejected2')
+data = b'%PDF-1.7\n'
+
+    @pytest.mark.parametrize('data', [b'', b'This is not a PDF', b'%PDF-1.7\n'])
+    def test_invalid_input_is_rejected(tmp_path, data):
+        path = tmp_path / 'invalid.pdf'
+        path.write_bytes(data)
+>       with pytest.raises(pdf.PdfParseError):
+E       Failed: DID NOT RAISE <class 'oxidize_pdf.PdfParseError'>
+
+tests/test_page_streamer.py:92: Failed
+_______________________ test_locked_document_is_rejected _______________________
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-9/test_locked_document_is_reject0')
+
+    def test_locked_document_is_rejected(tmp_path):
+        document = pdf.Document()
+        document.add_page(pdf.Page.a4())
+        document.encrypt('user', 'owner')
+        path = tmp_path / 'locked.pdf'
+        document.save(str(path))
+>       with pytest.raises(pdf.PdfEncryptionError):
+E       Failed: DID NOT RAISE <class 'oxidize_pdf.PdfEncryptionError'>
+
+tests/test_page_streamer.py:107: Failed
+_________________ test_close_releases_file_and_preserves_page __________________
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-9/test_close_releases_file_and_p0')
+
+    def test_close_releases_file_and_preserves_page(tmp_path):
+        path = write_pdf(tmp_path, ['Kept'])
+        stream = pdf.PageStreamer.open(path)
+        page = stream.next()
+        assert page is not None
+>       stream.close()
+        ^^^^^^^^^^^^
+E       AttributeError: 'builtins.PageStreamer' object has no attribute 'close'
+
+tests/test_page_streamer.py:116: AttributeError
+_________________ test_context_manager_closes_after_exception __________________
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-9/test_context_manager_closes_af0')
+
+    def test_context_manager_closes_after_exception(tmp_path):
+        stream = pdf.PageStreamer.open(write_pdf(tmp_path, ['Kept']))
+        with pytest.raises(LookupError):
+>           with stream:
+E           TypeError: 'builtins.PageStreamer' object does not support the context manager protocol
+
+tests/test_page_streamer.py:130: TypeError
+=========================== short test summary info ============================
+FAILED tests/test_page_streamer.py::test_exact_single_page_and_eof[False] - T...
+FAILED tests/test_page_streamer.py::test_exact_single_page_and_eof[True] - Ty...
+FAILED tests/test_page_streamer.py::test_exact_iteration_and_retained_pages[0]
+FAILED tests/test_page_streamer.py::test_exact_iteration_and_retained_pages[1]
+FAILED tests/test_page_streamer.py::test_exact_iteration_and_retained_pages[2]
+FAILED tests/test_page_streamer.py::test_exact_iteration_and_retained_pages[5]
+FAILED tests/test_page_streamer.py::test_inherited_box_rotation_and_seek - Ty...
+FAILED tests/test_page_streamer.py::test_invalid_input_is_rejected[] - Failed...
+FAILED tests/test_page_streamer.py::test_invalid_input_is_rejected[This is not a PDF]
+FAILED tests/test_page_streamer.py::test_invalid_input_is_rejected[%PDF-1.7\n]
+FAILED tests/test_page_streamer.py::test_locked_document_is_rejected - Failed...
+FAILED tests/test_page_streamer.py::test_close_releases_file_and_preserves_page
+FAILED tests/test_page_streamer.py::test_context_manager_closes_after_exception
+13 failed, 1 passed in 0.17s
