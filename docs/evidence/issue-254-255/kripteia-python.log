@@ -1,0 +1,23 @@
+## Calidad de Tests (Kripteia)
+
+=== Kripteia Test Quality Report ===
+Overall Score: 100 | Tests: 9 | Files: 1
+
+--- Files ---
+Path                                                          Tests  Score
+--------------------------------------------------------------------------
+tests/test_page_streamer.py                                       9    100
+
+--- Worst Offenders ---
+  test_exact_single_page_and_eof (tests/test_page_streamer.py:44) - Score: 100
+  test_exact_iteration_and_retained_pages (tests/test_page_streamer.py:60) - Score: 100
+  test_inherited_box_rotation_and_seek (tests/test_page_streamer.py:71) - Score: 100
+  test_invalid_input_is_rejected (tests/test_page_streamer.py:91) - Score: 100
+  test_missing_file_is_io_error (tests/test_page_streamer.py:98) - Score: 100
+
+
+## Analisis de Seguridad (Kripteia Security)
+
+=== Kripteia Security Analysis ===
+
+No security issues found.

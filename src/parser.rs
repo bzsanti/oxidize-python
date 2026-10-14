@@ -29,7 +29,7 @@ use crate::text_extraction::{
 /// We map directly instead of going through `PdfError` because the
 /// `From<ParseError> for PdfError` conversion loses variant information
 /// (e.g. `ParseError::Io` becomes `PdfError::ParseError(String)`).
-fn parse_err_to_py(err: oxidize_pdf::parser::ParseError) -> PyErr {
+pub(crate) fn parse_err_to_py(err: oxidize_pdf::parser::ParseError) -> PyErr {
     use oxidize_pdf::parser::ParseError as PE;
 
     match err {

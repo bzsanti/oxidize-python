@@ -1,0 +1,177 @@
+FF.FFFF.....F.F......................................................... [ 94%]
+....                                                                     [100%]
+=================================== FAILURES ===================================
+____________________ test_exact_single_page_and_eof[False] _____________________
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-16/test_exact_single_page_and_eof0')
+compressed = False
+
+    @pytest.mark.parametrize('compressed', [False, True])
+    def test_exact_single_page_and_eof(tmp_path, compressed):
+        path = write_pdf(tmp_path, ['REAL-PARITY-SENTINEL'], compressed=compressed)
+        reader = pdf.PdfReader.open(path)
+        with pdf.PageStreamer.open(path) as stream:
+            assert stream.total_pages() == reader.page_count == 1
+            page = stream.next()
+            assert page is not None
+            assert (page.number, page.width, page.height) == (0, 321, 456)
+            assert page.media_box() == [0, 0, 321, 456]
+>           assert page.extract_text_streaming() == reader.extract_text_from_page(0) == 'REAL-PARITY-SENTINEL'
+E           AssertionError: assert 'Text from page 1' == 'REAL-PARITY-SENTINEL'
+E             
+E             - REAL-PARITY-SENTINEL
+E             + Text from page 1
+
+tests/test_page_streamer.py:53: AssertionError
+_____________________ test_exact_single_page_and_eof[True] _____________________
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-16/test_exact_single_page_and_eof1')
+compressed = True
+
+    @pytest.mark.parametrize('compressed', [False, True])
+    def test_exact_single_page_and_eof(tmp_path, compressed):
+        path = write_pdf(tmp_path, ['REAL-PARITY-SENTINEL'], compressed=compressed)
+        reader = pdf.PdfReader.open(path)
+        with pdf.PageStreamer.open(path) as stream:
+            assert stream.total_pages() == reader.page_count == 1
+            page = stream.next()
+            assert page is not None
+            assert (page.number, page.width, page.height) == (0, 321, 456)
+            assert page.media_box() == [0, 0, 321, 456]
+>           assert page.extract_text_streaming() == reader.extract_text_from_page(0) == 'REAL-PARITY-SENTINEL'
+E           AssertionError: assert 'Text from page 1' == 'REAL-PARITY-SENTINEL'
+E             
+E             - REAL-PARITY-SENTINEL
+E             + Text from page 1
+
+tests/test_page_streamer.py:53: AssertionError
+__________________ test_exact_iteration_and_retained_pages[1] __________________
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-16/test_exact_iteration_and_retai1')
+count = 1
+
+    @pytest.mark.parametrize('count', [0, 1, 2, 5])
+    def test_exact_iteration_and_retained_pages(tmp_path, count):
+        texts = [f'SENTINEL-{i}' for i in range(count)]
+        with pdf.PageStreamer.open(write_pdf(tmp_path, texts)) as stream:
+            pages = [stream.next() for _ in range(count)]
+            assert all(page is not None for page in pages)
+            assert stream.total_pages() == count
+            assert stream.next() is None
+        assert [page.number for page in pages] == list(range(count))
+>       assert [page.extract_text_streaming() for page in pages] == texts
+E       AssertionError: assert ['Text from page 1'] == ['SENTINEL-0']
+E         
+E         At index 0 diff: 'Text from page 1' != 'SENTINEL-0'
+E         Use -v to get more diff
+
+tests/test_page_streamer.py:68: AssertionError
+__________________ test_exact_iteration_and_retained_pages[2] __________________
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-16/test_exact_iteration_and_retai2')
+count = 2
+
+    @pytest.mark.parametrize('count', [0, 1, 2, 5])
+    def test_exact_iteration_and_retained_pages(tmp_path, count):
+        texts = [f'SENTINEL-{i}' for i in range(count)]
+        with pdf.PageStreamer.open(write_pdf(tmp_path, texts)) as stream:
+            pages = [stream.next() for _ in range(count)]
+            assert all(page is not None for page in pages)
+            assert stream.total_pages() == count
+            assert stream.next() is None
+        assert [page.number for page in pages] == list(range(count))
+>       assert [page.extract_text_streaming() for page in pages] == texts
+E       AssertionError: assert ['Text from p... from page 1'] == ['SENTINEL-0', 'SENTINEL-1']
+E         
+E         At index 0 diff: 'Text from page 1' != 'SENTINEL-0'
+E         Use -v to get more diff
+
+tests/test_page_streamer.py:68: AssertionError
+__________________ test_exact_iteration_and_retained_pages[5] __________________
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-16/test_exact_iteration_and_retai3')
+count = 5
+
+    @pytest.mark.parametrize('count', [0, 1, 2, 5])
+    def test_exact_iteration_and_retained_pages(tmp_path, count):
+        texts = [f'SENTINEL-{i}' for i in range(count)]
+        with pdf.PageStreamer.open(write_pdf(tmp_path, texts)) as stream:
+            pages = [stream.next() for _ in range(count)]
+            assert all(page is not None for page in pages)
+            assert stream.total_pages() == count
+            assert stream.next() is None
+        assert [page.number for page in pages] == list(range(count))
+>       assert [page.extract_text_streaming() for page in pages] == texts
+E       AssertionError: assert ['Text from p... from page 1'] == ['SENTINEL-0'... 'SENTINEL-4']
+E         
+E         At index 0 diff: 'Text from page 1' != 'SENTINEL-0'
+E         Use -v to get more diff
+
+tests/test_page_streamer.py:68: AssertionError
+_____________________ test_inherited_box_rotation_and_seek _____________________
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-16/test_inherited_box_rotation_an0')
+
+    def test_inherited_box_rotation_and_seek(tmp_path):
+        path = write_pdf(tmp_path, ['Alpha', 'Bravo', 'Charlie'], box=(10, 20, 331, 476), rotation=90)
+        with pdf.PageStreamer.open(path) as stream:
+            stream.seek_to_page(2)
+            page = stream.next()
+            assert page is not None
+            assert (page.number, page.width, page.height) == (2, 456, 321)
+            assert page.media_box() == [10, 20, 331, 476]
+>           assert page.extract_text_streaming() == 'Charlie'
+E           AssertionError: assert 'Text from page 1' == 'Charlie'
+E             
+E             - Charlie
+E             + Text from page 1
+
+tests/test_page_streamer.py:79: AssertionError
+_________________ test_close_releases_file_and_preserves_page __________________
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-16/test_close_releases_file_and_p0')
+
+    def test_close_releases_file_and_preserves_page(tmp_path):
+        path = write_pdf(tmp_path, ['Kept'])
+        stream = pdf.PageStreamer.open(path)
+        page = stream.next()
+        assert page is not None
+        stream.close()
+        stream.close()
+        for action in (stream.next, lambda: stream.seek_to_page(0), stream.__enter__):
+            with pytest.raises(ValueError, match='closed'):
+                action()
+        assert stream.total_pages() == 1
+        from pathlib import Path
+        Path(path).unlink()  # Also exercises descriptor closure on Windows CI.
+>       assert page.extract_text_streaming() == 'Kept'
+E       AssertionError: assert 'Text from page 1' == 'Kept'
+E         
+E         - Kept
+E         + Text from page 1
+
+tests/test_page_streamer.py:126: AssertionError
+_______ test_only_selected_page_is_decoded_and_failure_does_not_advance ________
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-16/test_only_selected_page_is_dec0')
+
+    def test_only_selected_page_is_decoded_and_failure_does_not_advance(tmp_path):
+        path = write_pdf(tmp_path, ['First', 'Broken', 'Last'], compressed=True, broken_page=1)
+        with pdf.PageStreamer.open(path) as stream:
+>           assert stream.next().extract_text_streaming() == 'First'
+E           AssertionError: assert 'Text from page 1' == 'First'
+E             
+E             - First
+E             + Text from page 1
+
+tests/test_page_streamer.py:141: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_page_streamer.py::test_exact_single_page_and_eof[False] - A...
+FAILED tests/test_page_streamer.py::test_exact_single_page_and_eof[True] - As...
+FAILED tests/test_page_streamer.py::test_exact_iteration_and_retained_pages[1]
+FAILED tests/test_page_streamer.py::test_exact_iteration_and_retained_pages[2]
+FAILED tests/test_page_streamer.py::test_exact_iteration_and_retained_pages[5]
+FAILED tests/test_page_streamer.py::test_inherited_box_rotation_and_seek - As...
+FAILED tests/test_page_streamer.py::test_close_releases_file_and_preserves_page
+FAILED tests/test_page_streamer.py::test_only_selected_page_is_decoded_and_failure_does_not_advance
+8 failed, 68 passed in 1.29s

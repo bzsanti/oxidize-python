@@ -247,5 +247,110 @@ e índices. Este resultado no elimina el hallazgo AES #253 del core dependiente.
 - Clippy con warnings prohibidos, build sin features predeterminadas y contrato
   de paridad ejecutados; resultados y hashes en
   [validation.json](evidence/issue-260/validation.json).
-- Bloqueantes locales de #260: ninguno. Pendiente de integración/publicación;
-  la issue remota permanece abierta. Siguiente acción: revisar e integrar el diff.
+- Bloqueantes de #260: ninguno. Integrada en develop mediante PR #267
+  (`0a3c4c1`), con 26 checks aprobados. Pendiente de una futura publicación.
+
+## Incremento #254 / #255 — 2026-10-14
+
+Base: `0a3c4c1` (PR #267 integrada), core 5.4.2. Se reemplaza el adaptador
+Python al PageStreamer ficticio por el parser real del core publicado.
+No se modifica la dependencia ni el repositorio Rust. La clase nativa de
+streaming upstream sigue siendo un stub; este cambio deja de utilizarla.
+La paridad global #244 y las opciones de streaming #258 siguen pendientes.
+
+### Resumen ejecutivo
+
+El iterador Python entrega páginas con texto y geometría reales, valida el
+archivo al abrirlo y conserva errores tipados. Los ocho tests anteriores que
+aceptaban el stub se sustituyen por 15 casos con PDFs escritos manualmente.
+Se conserva la API existente y se añade cierre explícito/context manager.
+`total_pages()` ahora devuelve siempre el número real; `seek_to_page(n)` acepta
+índices entre cero y el total incluido (EOF), y rechaza los superiores.
+Los documentos cifrados se rechazan explícitamente; para desbloquearlos debe
+usarse PdfReader. Los fallos de extracción ocurren en `next()`, que no avanza
+el cursor cuando falla. `extract_text_streaming()` devuelve la instantánea ya
+extraída, sin lecturas adicionales.
+
+### Contratos y evidencia
+
+| Requisito | Estado | Evidencia |
+| --- | --- | --- |
+| Páginas, dimensiones y texto reales (#254) | Demostrado | Fixture 321×456, sentinel exacto y comparación con PdfReader; Flate, 0/1/2/5 páginas, EOF repetido |
+| Geometría y navegación (#254) | Demostrado | MediaBox heredado con origen no nulo, rotación 90°, seek hacia atrás y EOF, rechazo sin mover cursor |
+| Entrada inválida y errores (#254) | Demostrado | PDF inválido/truncado, fichero ausente, cifrado y stream corrupto; reintento falla en la misma página |
+| Recursos (#254) | Demostrado para el contrato descrito | Parser local a cada next, sin cachés retenidas; página dañada posterior no se decodifica antes de seleccionarla; close/context manager y páginas conservadas |
+| Tests discriminantes (#255) | Demostrado | Dos fallos por cero páginas y dos por texto fijo en extensión mutada aislada |
+| Distribución y tipado | Demostrado localmente | Stubs, consumidor estricto en CI y contrato de miembros; CI remota pendiente |
+
+El recorrido probado es Python → PyO3 → PdfDocument/TextExtractor reales.
+Los fixtures declaran bytes PDF, coordenadas y sentinels independientemente del
+productor. [RED](evidence/issue-254-255/red.log) registra el comportamiento inicial;
+[GREEN](evidence/issue-254-255/focused.log) registra los 76 casos focalizados.
+[Mutación](evidence/issue-254-255/mutation.json): una copia compilada aislada devuelve
+cero páginas o texto fijo. Se verificó la ruta de su extensión; los cuatro fallos
+son aserciones conductuales, no fallos de montaje. El código de producto no se
+mutó para ejecutar esa prueba.
+
+### Contrato de recursos y uso
+
+```python
+from oxidize_pdf import PageStreamer
+
+with PageStreamer.open("documento.pdf") as stream:
+    while (page := stream.next()) is not None:
+        print(page.number, page.media_box(), page.extract_text_streaming())
+```
+
+Se mantiene un descriptor del archivo fuente, que debe permanecer sin cambios
+mientras se usa. Cada `next()` duplica temporalmente ese descriptor, reconstruye
+el índice y extrae solo la página seleccionada. Al terminar o fallar, libera el
+parser, su descriptor y todas sus cachés. No se acumulan cachés entre páginas;
+las páginas que retiene el llamante sí ocupan su propio texto y geometría.
+La memoria depende del índice, recursos y contenido decodificado de la página:
+no hay una cota numérica ni garantía de memoria constante. La reconstrucción del
+índice por página añade coste de CPU/lectura; no se hace una afirmación de mejora
+de rendimiento. Es una alternativa funcional al stub publicado, no una
+implementación de lectura secuencial de bytes sin seek.
+
+`close()` es idempotente; leer, buscar o entrar en un contexto cerrado falla con
+ValueError. El conteo sigue disponible y las páginas ya entregadas siguen siendo
+válidas. El context manager cierra incluso ante una excepción del llamante.
+El fichero también se libera al destruir el iterador. No se ofrece autenticación,
+OCR ni la configuración pendiente de #258.
+
+### Hallazgos
+
+No se detectan bloqueantes nuevos en el adaptador Python. Se inspeccionaron
+propiedad de descriptores, préstamos PyO3 durante GIL liberado, propagación de
+errores, EOF, overflow y actualización del cursor solo tras éxito. El parser se
+construye dentro de la operación; no quedan referencias a sus datos en las páginas.
+El coste de reconstrucción del índice y los límites upstream quedan declarados
+arriba. El problema AES #253 sigue pendiente y no queda cubierto por estos scans.
+
+### Calidad de Tests (Kripteia)
+
+[Python](evidence/issue-254-255/kripteia-python.log): 100/100, nueve funciones,
+un archivo (15 casos parametrizados), sin infractores señalados. El análisis
+Rust encuentra cero tests en src: no representa cobertura. La evidencia
+conductual procede de pytest con extensión real y de las mutaciones descritas.
+
+### Análisis de Seguridad (Kripteia Security)
+
+Los scans de [Rust](evidence/issue-254-255/kripteia-rust.log) y del archivo Python
+no detectan problemas. Se revisaron manualmente lectura de archivos, errores,
+vida de recursos y ausencia de datos inventados tras fallos. No se auditó de nuevo
+todo el parser dependiente ni se certifican límites contra PDFs adversarios.
+
+### Métricas y entrega
+
+- Diez archivos de código, tipos, tests, contrato y CI revisados; seguimiento en
+  este documento. Sin cambios de producto adicionales por hallazgos de la revisión.
+- Regresión de biblioteca: 2.369 pruebas aprobadas; MCP: 295 aprobadas, un skip.
+  El primer intento MCP se interrumpió por bloqueo IPC del sandbox; la ejecución
+  fuera del sandbox pasó. La restauración tras mutación detectó un artefacto de
+  Cargo reutilizado; se forzó recompilación y se repitió la regresión final.
+- Build, Clippy con warnings prohibidos, compilación mínima, mypy de 24 archivos
+  y consumidor estricto pasan; contrato parcial aprobado, 442 exports.
+- Evidencias en `docs/evidence/issue-254-255/`; estado final y hashes en validation.json.
+- Implementación y aceptación local terminadas. Integración, CI remota y
+  publicación son estados separados; no se declara cerrada la paridad global.
