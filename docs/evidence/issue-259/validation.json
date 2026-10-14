@@ -1,0 +1,22 @@
+{
+  "base": "19d9357eee878282048fc06a53a045f14f60ab4c",
+  "core": "5.4.2",
+  "library_passed": 2459,
+  "mcp_passed": 295,
+  "mcp_skipped": 1,
+  "focused_passed": 27,
+  "native_passed": 4,
+  "source_sha256": {
+    ".github/workflows/test.yml": "ed55177fe47c0240f6444ac20a38dc011412717e528197a0bd1d8f5ea46a4f27",
+    "docs/FEATURE_PARITY.md": "58cfa018fa7095ed39bb3c0cea3cd0d5e8daf8c3c5b5e9752750e0ded5157d4e",
+    "docs/parity-contract.json": "78f3f77f14577d471c8b770a5c59e2ecc46485d5d641c3387111a9054dba00ea",
+    "python/oxidize_pdf/__init__.py": "2c4f709aa2474ccedcdc094fc4d0ab1428955799f4cf9bfc6f0f78fc4ff731c2",
+    "python/oxidize_pdf/__init__.pyi": "b5664830b71860da9d542b5b51a3ddcd4de2bafb621e5853b54f943e7a68af64",
+    "python/oxidize_pdf/_oxidize_pdf.pyi": "e4ab5d63a85f42d8b987f5dbaf4c5dbdf5d9211aa4967124c0ea3c93c0051576",
+    "src/batch_recovery_streaming.rs": "766e1854cd8947518a9bf2cbc8e02dd5b7e72f5478be4f0932ad03855fe435cb",
+    "src/parser.rs": "407cc118d5aff22c0c9dc36519018759bc156fee4ccf47181eb9297bff6b6d8e",
+    "tests/test_parity_checker.py": "e8b03f280acee030a26b8788e946a66127daf1d56ce9ab4e2f3b6a925c9a020e",
+    "tests/test_parser_recovery_options.py": "3a05b6ea74a4d470271752a4a7b9e49c3f78835f0acc17aeff2a0c01fa0a973e",
+    "tests/typing/parser_recovery.py": "9b465f0969aa9892d2c0c9d7f382ed55aa27a82eabe19faec36e04b7da96f220"
+  }
+}

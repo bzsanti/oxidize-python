@@ -183,3 +183,7 @@ from oxidize_pdf.signature_errors import SignatureVerificationSummary as Signatu
 
 from oxidize_pdf._oxidize_pdf import (OutlineReadOptions as OutlineReadOptions, ReadOutline as ReadOutline,
     ReadOutlineItem as ReadOutlineItem, ReadOutlineDestination as ReadOutlineDestination)
+
+from oxidize_pdf._oxidize_pdf import (RecoveryOptions as RecoveryOptions, RepairStrategy as RepairStrategy,
+    RepairResult as RepairResult, repair_pdf as repair_pdf)
+from oxidize_pdf._oxidize_pdf import ParseOptions as ParseOptions

@@ -47,6 +47,9 @@ fn pdf_err_to_py(err: oxidize_pdf::PdfError) -> PyErr {
 
 // ── ParseOptions ──────────────────────────────────────────────────────────────
 
+/// Parser configuration. preferred_encoding and log_recovery_details are stored
+/// but not consumed by core 5.4.2. Lenient presets do not accept incomplete or
+/// checksum-invalid Flate streams. Recovery budgets are not total memory limits.
 #[pyclass(name = "ParseOptions", frozen, from_py_object)]
 #[derive(Clone)]
 pub struct PyParseOptions {
@@ -67,6 +70,8 @@ impl PyParseOptions {
         max_recovery_attempts = 3,
         max_recovery_bytes = 1000,
         collect_warnings = false,
+        preferred_encoding = None,
+        log_recovery_details = false,
     ))]
     #[allow(clippy::too_many_arguments)]
     fn new(
@@ -80,8 +85,23 @@ impl PyParseOptions {
         max_recovery_attempts: usize,
         max_recovery_bytes: usize,
         collect_warnings: bool,
-    ) -> Self {
-        Self {
+        preferred_encoding: Option<&str>,
+        log_recovery_details: bool,
+    ) -> PyResult<Self> {
+        use oxidize_pdf::parser::encoding::EncodingType;
+        let preferred_encoding = match preferred_encoding {
+            None => None,
+            Some("utf-8") => Some(EncodingType::Utf8),
+            Some("latin-1") => Some(EncodingType::Latin1),
+            Some("windows-1252") => Some(EncodingType::Windows1252),
+            Some("mac-roman") => Some(EncodingType::MacRoman),
+            Some("pdf-doc") => Some(EncodingType::PdfDocEncoding),
+            Some("mixed") => Some(EncodingType::Mixed),
+            Some(_) => return Err(pyo3::exceptions::PyValueError::new_err(
+                "preferred_encoding must be None, utf-8, latin-1, windows-1252, mac-roman, pdf-doc or mixed",
+            )),
+        };
+        Ok(Self {
             inner: oxidize_pdf::parser::ParseOptions {
                 strict_mode,
                 recover_from_stream_errors,
@@ -93,9 +113,10 @@ impl PyParseOptions {
                 max_recovery_attempts,
                 max_recovery_bytes,
                 collect_warnings,
-                ..Default::default()
+                preferred_encoding,
+                log_recovery_details,
             },
-        }
+        })
     }
 
     #[staticmethod]
@@ -174,6 +195,26 @@ impl PyParseOptions {
     #[getter]
     fn collect_warnings(&self) -> bool {
         self.inner.collect_warnings
+    }
+
+    /// Stored by core 5.4.2, but not consumed by its PDF parser.
+    #[getter]
+    fn preferred_encoding(&self) -> Option<&'static str> {
+        use oxidize_pdf::parser::encoding::EncodingType;
+        self.inner.preferred_encoding.map(|encoding| match encoding {
+            EncodingType::Utf8 => "utf-8",
+            EncodingType::Latin1 => "latin-1",
+            EncodingType::Windows1252 => "windows-1252",
+            EncodingType::MacRoman => "mac-roman",
+            EncodingType::PdfDocEncoding => "pdf-doc",
+            EncodingType::Mixed => "mixed",
+        })
+    }
+
+    /// Stored by core 5.4.2; no recovery logging consumer exists in that release.
+    #[getter]
+    fn log_recovery_details(&self) -> bool {
+        self.inner.log_recovery_details
     }
 
     fn __repr__(&self) -> String {

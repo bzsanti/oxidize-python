@@ -483,6 +483,72 @@ fn batch_merge_pdfs(
 
 // ── F63: Recovery Full ────────────────────────────────────────────────────
 
+/// Recovery configuration for repair_pdf.
+/// Core 5.4.2 only consumes partial_content in extraction (also used by aggressive
+/// repair): false stops after ten text blocks. Other fields are stored but inert;
+/// memory_limit and max_errors are NOT enforced resource limits.
+#[pyclass(name = "RecoveryOptions", frozen, from_py_object)]
+#[derive(Clone)]
+pub struct PyRecoveryOptions {
+    inner: oxidize_pdf::recovery::RecoveryOptions,
+}
+
+#[pymethods]
+impl PyRecoveryOptions {
+    #[new]
+    #[pyo3(signature = (aggressive_recovery = false, partial_content = true, max_errors = 100, rebuild_xref = true, recover_embedded = false, skip_validation = false, memory_limit = 524288000))]
+    #[allow(clippy::too_many_arguments)]
+    fn new(
+        aggressive_recovery: bool,
+        partial_content: bool,
+        max_errors: usize,
+        rebuild_xref: bool,
+        recover_embedded: bool,
+        skip_validation: bool,
+        memory_limit: usize,
+    ) -> Self {
+        Self {
+            inner: oxidize_pdf::recovery::RecoveryOptions {
+                aggressive_recovery,
+                partial_content,
+                max_errors,
+                rebuild_xref,
+                recover_embedded,
+                skip_validation,
+                memory_limit,
+            },
+        }
+    }
+    #[getter]
+    fn aggressive_recovery(&self) -> bool {
+        self.inner.aggressive_recovery
+    }
+    #[getter]
+    fn partial_content(&self) -> bool {
+        self.inner.partial_content
+    }
+    #[getter]
+    fn max_errors(&self) -> usize {
+        self.inner.max_errors
+    }
+    #[getter]
+    fn rebuild_xref(&self) -> bool {
+        self.inner.rebuild_xref
+    }
+    #[getter]
+    fn recover_embedded(&self) -> bool {
+        self.inner.recover_embedded
+    }
+    #[getter]
+    fn skip_validation(&self) -> bool {
+        self.inner.skip_validation
+    }
+    #[getter]
+    fn memory_limit(&self) -> usize {
+        self.inner.memory_limit
+    }
+}
+
 // ── RepairStrategy ────────────────────────────────────────────────────────
 
 /// Strategy for repairing a corrupted PDF.
@@ -627,6 +693,8 @@ impl PyCorruptionReport {
 // ── RepairResult ──────────────────────────────────────────────────────────
 
 /// Result of a PDF repair operation — read-only.
+/// success only means core produced a document. Core 5.4.2 reconstruction can
+/// produce blank pages; neither success nor is_partial certifies content fidelity.
 ///
 /// Properties: ``success`` (bool), ``pages_recovered`` (int),
 /// ``objects_recovered`` (int), ``warnings`` (list[str]),
@@ -786,12 +854,24 @@ fn analyze_pdf_corruption(path: &str) -> PyResult<PyCorruptionReport> {
     Ok(PyCorruptionReport { inner: report })
 }
 
-/// Repair a corrupted PDF using the given strategy.
+/// Repair a corrupted PDF using the given strategy and optional configuration.
+/// Core 5.4.2 consumes only partial_content; false caps extraction at ten text
+/// blocks. Other RecoveryOptions fields, including memory_limit, are inert.
+/// Results may contain blank reconstructed pages rather than original content.
 #[pyfunction]
-fn repair_pdf(path: &str, strategy: &PyRepairStrategy) -> PyResult<PyRepairResult> {
-    let options = oxidize_pdf::recovery::RecoveryOptions::default();
-    let result = repair_document(path, strategy.inner.clone(), &options).map_err(to_py_err)?;
-    PyRepairResult::from_repair_result(result)
+#[pyo3(signature = (path, strategy, options = None))]
+fn repair_pdf(
+    py: Python<'_>,
+    path: String,
+    strategy: &PyRepairStrategy,
+    options: Option<&PyRecoveryOptions>,
+) -> PyResult<PyRepairResult> {
+    let options = options.map(|value| value.inner.clone()).unwrap_or_default();
+    let strategy = strategy.inner.clone();
+    py.detach(move || {
+        let result = repair_document(path, strategy, &options).map_err(to_py_err)?;
+        PyRepairResult::from_repair_result(result)
+    })
 }
 
 // ── F64: Streaming Full ───────────────────────────────────────────────────
@@ -1022,6 +1102,7 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(batch_merge_pdfs, m)?)?;
 
     // F63: Recovery
+    m.add_class::<PyRecoveryOptions>()?;
     m.add_class::<PyRepairStrategy>()?;
     m.add_class::<PyCorruptionType>()?;
     m.add_class::<PyCorruptionReport>()?;

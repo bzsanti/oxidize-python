@@ -1,0 +1,7 @@
+   Compiling pyo3-build-config v0.28.3
+   Compiling pyo3-ffi v0.28.3
+   Compiling pyo3-macros-backend v0.28.3
+   Compiling pyo3 v0.28.3
+   Compiling pyo3-macros v0.28.3
+    Checking oxidize-python v0.22.0 (/home/santi/repos/BelowZero/oxidizePdf/oxidize-python)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 22.03s

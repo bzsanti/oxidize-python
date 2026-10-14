@@ -837,3 +837,162 @@ análisis Kripteia sobre los tres archivos: sin hallazgos de seguridad; calidad
 runtime); el script no contiene tests detectables. Alcance final: trece archivos
 técnicos y seguimiento. Se reutilizan regresión, build, tipos y análisis Rust,
 que no cambiaron; el CI completo se repite sobre el commit corregido.
+
+## Incremento #259 — contratos de parser y recuperación (core 5.4.2)
+
+### Resumen ejecutivo y bloqueantes iniciales
+
+Base: develop tras fusionar #272. Alcance: las doce opciones de ParseOptions,
+los siete campos de RecoveryOptions conectados a repair_pdf, presets y contrato
+de RepairResult. Se conservan las firmas existentes añadiendo argumentos al final.
+No se implementa un motor de reparación nuevo ni se promete fidelidad del contenido.
+
+| Requisito #259 | Estado inicial / evidencia | Bloqueante y cierre previsto |
+| --- | --- | --- |
+| Inventario de opciones/presets/resultados | Fuentes publicadas 5.4.2 inspeccionadas | Documentar consumo e interfaces reducidas |
+| Configuración accesible | Faltan dos campos ParseOptions y RecoveryOptions | Exponer, conectar y probar defaults/rangos |
+| Comportamiento efectivo | repair.rs consume solo partial_content | Prueba diferencial con 15 bloques BT/ET y resultados completos |
+| Tipos y paridad | repair_pdf y RepairResult carecen de stubs | Tipar API afectada, gate y consumidor estricto |
+
+### Inventario y consumo publicado
+
+`ParseOptions` tiene doce campos; todos se exponen con getters inmutables. Los
+argumentos nuevos se añaden al final, conservando los diez posicionales anteriores.
+
+| Campo | Default | Consumo en 5.4.2 |
+| --- | --- | --- |
+| strict_mode | true | Conservado; las decisiones estructurales usan los flags lenient, no este campo como interruptor global |
+| recover_from_stream_errors | false | Legacy; no permite devolver Flate incompleto o con checksum incorrecto |
+| ignore_corrupt_streams | false | Legacy; no suprime errores Flate ni produce bytes vacíos ficticios |
+| partial_content_allowed | false | Legacy; no autoriza Flate parcial en la API de bytes |
+| lenient_streams | false | Recuperación de estructura/longitud del stream en parser/objects.rs |
+| lenient_encoding | true | Lexer permite saltar caracteres problemáticos del flujo de tokens |
+| lenient_syntax | false | Lexer, reader y xref toleran determinadas irregularidades estructurales |
+| max_recovery_attempts | 3 | xref.rs comprueba >0 para intentar recuperación; no es presupuesto global de intentos |
+| max_recovery_bytes | 1000 | Distancia de búsqueda de endstream; no memoria total ni tamaño del PDF |
+| collect_warnings | false | Recoge avisos en ramas del lexer/parser; no todos los caminos producen avisos |
+| preferred_encoding | None | Almacenado, sin consumo por el parser publicado |
+| log_recovery_details | false | Almacenado, sin consumidor en la versión publicada |
+
+`preferred_encoding` acepta None o los nombres utf-8, latin-1, windows-1252,
+mac-roman, pdf-doc y mixed (las seis variantes nativas). Un nombre desconocido
+produce ValueError, un tipo incorrecto TypeError. La utilidad separada
+parser/encoding.rs consume **EncodingOptions.preferred_encoding**, no
+ParseOptions.preferred_encoding; no se confunden ambas configuraciones. El
+comentario de log_recovery_details menciona feature logging, pero no hay lector
+del campo en 5.4.2: activar una feature no demuestra efecto de esta opción.
+
+Presets delegados al core: strict desactiva lenient_encoding y pone ambos
+presupuestos a cero; tolerant activa lenient*, recuperación, contenido parcial,
+avisos y log, usa 5 intentos y 5000 bytes; lenient es alias de tolerant;
+skip_errors parte del tolerante con ignore_corrupt_streams=true, un intento,
+sin avisos ni log. Todos conservan preferred_encoding=None. El constructor por
+defecto no equivale a strict(). Tests comparan los doce campos de cada preset.
+
+`RecoveryOptions` tiene siete campos y únicamente Default (sin presets):
+
+| Campo | Default | Consumo en repair_document |
+| --- | --- | --- |
+| aggressive_recovery | false | Inerte; la estrategia se elige con RepairStrategy |
+| partial_content | true | ExtractContent y su uso dentro de AggressiveRepair: false detiene tras diez bloques BT/ET; true no aplica ese corte |
+| max_errors | 100 | Inerte, no presupuesto de errores |
+| rebuild_xref | true | Inerte; elegir RepairStrategy.REBUILD_XREF explícitamente |
+| recover_embedded | false | Inerte, no extracción de adjuntos |
+| skip_validation | false | Inerte, no política de validación |
+| memory_limit | 524288000 | Inerte, NO limita memoria; varias estrategias leen el archivo entero |
+
+El constructor Python sustituye los cuatro builders Rust (aggressive, partial,
+max_errors, memory_limit) y permite todos los campos directamente. Enteros usan
+usize: negativos y fuera de rango producen OverflowError; cero está permitido,
+sin inventar garantías de límites. `repair_pdf(path, strategy, options=None)`
+clona la configuración antes de liberar GIL; None conserva Default. Las seis
+estrategias existentes no cambian. quick_recover sigue siendo el atajo nativo
+con Default; no recibe configuración ni expone PdfRecovery como clase Python.
+
+### Inventario de resultados y límites de representación
+
+- RepairResult cubre los cinco campos Rust: recovered_document se serializa a
+  repaired_bytes (bytes o None); pages_recovered, objects_recovered, warnings e
+  is_partial se conservan. success es la vista adicional de presencia del documento.
+  La serialización puede fallar y devuelve una excepción, no éxito parcial oculto.
+- El core puede reconstruir páginas vacías incluso con success=true e
+  is_partial=false (por ejemplo MinimalRepair). ExtractContent cuenta bloques
+  BT/ET, no páginas originales, y no copia el texto. Los tests abren los bytes
+  devueltos y comprueban expresamente que el texto está vacío. No usar estos
+  contadores/flags como prueba de conservación de contenido.
+- ScanResult sigue siendo una vista reducida de total_objects, valid_objects y
+  estimated_pages; no exporta objects ni stats. CorruptionReport expone tipo,
+  severidad, errores y tres estadísticas, no todo FileStats. validate_pdf conserva
+  su resumen is_valid/error_count/warning_count, no los detalles de ValidationResult.
+- PdfRecovery/PartialRecovery/RecoveredPage no son clases públicas Python. Sus
+  inventarios no se presentan como paridad completa: ampliar esas superficies y
+  mejorar fidelidad del motor queda bajo #244/upstream #710. No es necesario para
+  configurar el entrypoint repair_pdf de #259, y no se ocultan garantías ausentes.
+
+Inventario de datos auxiliares no exportados (inspección de recovery/*.rs):
+PartialRecovery contiene recovered_pages, total_objects, recovered_objects,
+metadata y recovery_warnings; RecoveredPage contiene page_number, content,
+has_text y has_images. ScannedObject contiene id, generation, offset,
+object_type e is_valid; ScanStats contiene bytes_scanned, objects_found,
+valid_objects, pages_found y duration_ms. ValidationResult contiene is_valid,
+errors, warnings y stats; ValidationStats contiene objects_checked,
+valid_objects, pages_validated, streams_validated y xrefs_validated.
+CorruptionReport también contiene recoverable_sections (section_type,
+start_offset, end_offset, confidence), ausente de la vista Python.
+
+### Contratos y evidencia final
+
+| Requisito | Evidencia | Estado |
+| --- | --- | --- |
+| Doce campos parser y siete recovery, defaults/presets | test_parse_defaults_and_presets, test_recovery_options_defaults_and_readonly_fields | Demostrado |
+| Encoding, errores y fronteras usize | Siete variantes, valor/tipo inválido, negativos/overflow/cero | Demostrado |
+| Consumo efectivo | partial_content diferencia 15/10 bloques; lenient_syntax cambia página aceptada en archivo/bytes/stream | Demostrado |
+| Resultados y limitaciones | Bytes abiertos por PdfReader, texto vacío, warnings propios, fallo sin documento e IO ausente | Demostrado |
+| Tipos y paridad | mypy 26 archivos + consumidor estricto Python 3.10; gate y diez controles de contrato | Demostrado |
+
+RED: trece casos fallaban por API ausente (red.log). GREEN: diecisiete casos
+nuevos más diez de contrato, 27 en total (focused.log). No se sustituyen el core
+ni las decisiones bajo prueba. El fixture de objetos reutiliza el constructor
+independiente de test_outline_read.py; alterar lenient_syntax o ignorar options
+en repair_pdf rompe las diferencias de página o de bloques esperadas. El test
+inicial de texto asumía str en vez de list[str]; se corrigió antes de ejecutarlo
+contra el nuevo binding, sin cambiar la API de lectura.
+
+### Hallazgos
+
+Sin bloqueantes pendientes del alcance #259. La inspección confirma las opciones
+inertes y la reconstrucción sin fidelidad descritas arriba; se explican en los
+docstrings públicos y en este inventario, con destino #244/upstream #710. No se
+reimplementan algoritmos nativos ni se cambia su semántica para ocultar esos
+límites. Se revisaron la copia de opciones, firmas posicionales previas,
+conversión exhaustiva de seis encodings, propagación de errores y snapshots.
+La liberación del GIL solo captura datos Rust propios y no referencias Python.
+
+### Calidad de Tests (Kripteia)
+
+Python: 98/100, nueve funciones y diecisiete casos. Dos avisos por proporción
+assert/setup baja: el test del límite inerte y el de las tres entradas del lector.
+Sus assertions comprueban el resultado específico de cada fixture; añadir
+assertions cosméticas no mejoraría la discriminación. Rust: 100/100 sobre los
+cuatro tests preexistentes; no equivale a cobertura Rust nueva de estas opciones.
+Los avisos de constantes/unwrap son de tests anteriores revisados en #256/#264.
+Los nuevos bindings se ejercitan con el core real desde Python. Logs conservados.
+
+### Análisis de Seguridad (Kripteia Security)
+
+Scans de src Rust y del test Python: sin hallazgos. Inspección manual: no hay
+unsafe nuevo, ejecución de contenido PDF ni comandos construidos desde entradas.
+Los valores usize se validan por PyO3 antes de entrar al core. La documentación
+advierte expresamente que memory_limit/max_errors son inertes, que varias
+estrategias leen todo el archivo y que success no certifica preservación. No se
+atribuye protección frente a agotamiento de recursos al mero constructor.
+
+### Métricas y entrega
+
+- Diez archivos técnicos y este seguimiento revisados; cero defectos nuevos
+  pendientes. La pasada de revisión no altera comportamiento; se formateó solo
+  el código Rust añadido, conservando la evidencia funcional vigente.
+- 2.459 tests de biblioteca y 295 MCP aprobados, un skip; cuatro tests nativos;
+  27 focalizados; build, Clippy, configuración mínima, tipos y paridad aprobados.
+- Evidencia en docs/evidence/issue-259 y hashes en validation.json. CI remota y
+  merge se comprueban aparte. No se declara paridad global ni nueva release.
