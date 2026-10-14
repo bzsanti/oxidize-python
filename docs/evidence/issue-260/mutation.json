@@ -1,0 +1,17 @@
+{
+  "mutations": [
+    "partition_with ignores config",
+    "rag_chunks_with_counter ignores callback"
+  ],
+  "command": [
+    "/home/santi/repos/BelowZero/oxidizePdf/oxidize-python/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "/tmp/oxidize-260-mutation-dzi2a2cv/tests/test_rag_reader_parity.py",
+    "-k",
+    "partition_config_reaches or partition_profile_and_title_threshold or custom_counter_controls or nonadditive or counter_failure"
+  ],
+  "exit_code": 1,
+  "expected_exit_code": 1
+}

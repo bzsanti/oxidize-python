@@ -1,0 +1,17 @@
+## Calidad de Tests (Kripteia)
+
+=== Kripteia Test Quality Report ===
+Overall Score: 100 | Tests: 0 | Files: 0
+
+--- Files ---
+Path                                                          Tests  Score
+--------------------------------------------------------------------------
+
+2026-10-13T18:29:08.698390Z  WARN kripteia: telemetry DB unavailable: telemetry DB error: attempt to write a readonly database
+
+## Analisis de Seguridad (Kripteia Security)
+2026-10-13T18:29:09.352653Z  WARN kripteia: telemetry DB unavailable: telemetry DB error: attempt to write a readonly database
+
+=== Kripteia Security Analysis ===
+
+No security issues found.

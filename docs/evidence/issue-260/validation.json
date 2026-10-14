@@ -1,0 +1,79 @@
+{
+  "issue": 260,
+  "date": "2026-10-13",
+  "base": "f7bfe534c085d5d28eafef4f7cef4da0ed72d24a",
+  "core": "5.4.2",
+  "status": "implemented and validated locally; not committed, merged, or released",
+  "source_sha256": {
+    "src/ai_pipeline.rs": "2bcbb80c1f691417e89c177ed9ab3d6bdef5ea2db2c962e94630a93bed334d6e",
+    "src/lib.rs": "7a4ca87eee7bf1606c44f7e8ad8f95c09ff6f89ba2bd2d4ce22fdf1af95f53c9",
+    "src/parser.rs": "25562e9d6d4c314fade80d560a0b9dccef56692b079bcbb72ec4816989e91fb8",
+    "src/rag_analysis.rs": "f493a0a0c82af1962ab4b9e14206fba7e9f3eb3cf56d669e968d92152ca816fd",
+    "python/oxidize_pdf/__init__.py": "069d0ac8c44d6eb41dbe43895389210f49afea8bf6f78f5ee8fd9e046a8853a3",
+    "python/oxidize_pdf/__init__.pyi": "69d8bd3fefb67927e0f5741bc78464433598e831e07407f85892605b6d18ae83",
+    "python/oxidize_pdf/_oxidize_pdf.pyi": "caae6fe9b55691d87795276e78db7dd671fe1b44b1c11dc5bc2437edb0cff0a1",
+    "tests/test_parity_checker.py": "18c70b84889eece458d94da86ffed77c98b67e7faba68374b3a3a8c919a6a0eb",
+    "tests/test_rag_reader_parity.py": "2d03a19d64342a4f786a6fc096ba00e44a6d37f5ecc700baf5b7b0e14dafedbf",
+    "tests/typing/rag_reader.py": "894259b41e414751be4be5fee21a345944d5f1b546ccca6d014f5dda3b0c2e12",
+    "docs/parity-contract.json": "4379f21cb1687889228e75b1345d8167cd688a4d3bf9dc23d83a6911f47cfd4f",
+    ".github/workflows/test.yml": "49ef89a52db6e62b6a234c964c796737b2393c98e955371bb164782fca42c95e"
+  },
+  "checks": {
+    "focused": {
+      "passed": 29,
+      "log": "focused.log"
+    },
+    "regression": {
+      "passed": 2362,
+      "log": "regression.log",
+      "reuse": "Final change after run removed only unused nested Arc import; final build and focused suite repeated."
+    },
+    "mcp": {
+      "passed": 295,
+      "skipped": 1,
+      "log": "mcp.log"
+    },
+    "clippy": {
+      "result": "passed",
+      "log": "clippy.log",
+      "command": "cargo clippy --locked --offline --all-targets -- -D warnings"
+    },
+    "minimal": {
+      "result": "passed",
+      "log": "minimal.log",
+      "command": "cargo check --locked --offline --no-default-features"
+    },
+    "typing": {
+      "result": "passed",
+      "package_files": 24,
+      "strict_consumers": 8,
+      "logs": [
+        "typing.log",
+        "typing-py310.log"
+      ]
+    },
+    "mutation": {
+      "expected_failures": 5,
+      "log": "mutation.log",
+      "patch": "mutation.patch",
+      "note": "Disposable copy additionally retains an unused import removed by final lint cleanup; no runtime effect."
+    },
+    "contract": {
+      "result": "passed",
+      "log": "contract.log"
+    },
+    "kripteia": {
+      "python_functions": 13,
+      "score": 100,
+      "rust_tests_detected": 0,
+      "security_findings": 0,
+      "logs": [
+        "kripteia-python.log",
+        "kripteia-rust.log"
+      ],
+      "limitation": "Read-only telemetry warning; scans completed. Dependency AES finding #253 remains open."
+    }
+  },
+  "remaining_local_blockers": [],
+  "outside_scope": "Other thirteen findings remain in their issues; #253 awaits a published core fix."
+}

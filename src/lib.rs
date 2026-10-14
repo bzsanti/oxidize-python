@@ -28,6 +28,7 @@ mod page;
 mod page_labels;
 mod page_transitions;
 mod parser;
+mod rag_analysis;
 mod security;
 mod semantic;
 mod signing;
@@ -58,6 +59,7 @@ fn _oxidize_pdf(m: &Bound<'_, PyModule>) -> PyResult<()> {
     text::register(m)?;
     graphics::register(m)?;
     parser::register(m)?;
+    rag_analysis::register(m)?;
     operations::register(m)?;
     security::register(m)?;
     image::register(m)?;

@@ -1141,3 +1141,6 @@ from oxidize_pdf._oxidize_pdf import (
     prepare_incremental_signature,
 )
 __all__ += ['PdfValue', 'SignatureTarget', 'CertificationPermission', 'FieldLock', 'SignaturePreparationOptions', 'SignatureWatermark', 'SignatureAppearanceLayout', 'SignatureAppearance', 'PreparedSignature', 'prepare_incremental_signature']
+
+from oxidize_pdf._oxidize_pdf import ElementGraph
+__all__ += ["ElementGraph"]
