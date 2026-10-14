@@ -1160,3 +1160,6 @@ __all__ += ["SignatureVerificationSummary"]
 
 from oxidize_pdf._oxidize_pdf import OutlineReadOptions, ReadOutline, ReadOutlineItem, ReadOutlineDestination
 __all__ += ["OutlineReadOptions", "ReadOutline", "ReadOutlineItem", "ReadOutlineDestination"]
+
+from oxidize_pdf._oxidize_pdf import RecoveryOptions
+__all__ += ["RecoveryOptions"]

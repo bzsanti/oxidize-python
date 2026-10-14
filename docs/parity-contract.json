@@ -1,6 +1,6 @@
 {
   "core": "5.4.2",
-  "scope": "existing-document preservation, page mutations and external CMS signing; remaining Rust API pending audit; composed extraction policies; incremental free-text editing; incremental Ink editing; configurable partitioning, element graphs, custom token counting and document export; real page iteration with explicit parser lifetime; lossless incremental event bridge (upstream parser limitations remain); all BatchOptions fields with observable executor limitations; structured SignatureError exceptions; bounded existing-document outline reading",
+  "scope": "existing-document preservation, page mutations and external CMS signing; remaining Rust API pending audit; composed extraction policies; incremental free-text editing; incremental Ink editing; configurable partitioning, element graphs, custom token counting and document export; real page iteration with explicit parser lifetime; lossless incremental event bridge (upstream parser limitations remain); all BatchOptions fields with observable executor limitations; structured SignatureError exceptions; bounded existing-document outline reading; parser and recovery configuration with explicit upstream consumption limits",
   "callables": {
     "ExistingDocumentPolicy.preserve_base": [
       "page_labels_first_input_wins"
@@ -376,7 +376,39 @@
     "PdfReader.outline_with_options": [
       "self",
       "options"
-    ]
+    ],
+    "ParseOptions": [
+      "strict_mode",
+      "recover_from_stream_errors",
+      "ignore_corrupt_streams",
+      "partial_content_allowed",
+      "lenient_streams",
+      "lenient_encoding",
+      "lenient_syntax",
+      "max_recovery_attempts",
+      "max_recovery_bytes",
+      "collect_warnings",
+      "preferred_encoding",
+      "log_recovery_details"
+    ],
+    "RecoveryOptions": [
+      "aggressive_recovery",
+      "partial_content",
+      "max_errors",
+      "rebuild_xref",
+      "recover_embedded",
+      "skip_validation",
+      "memory_limit"
+    ],
+    "repair_pdf": [
+      "path",
+      "strategy",
+      "options"
+    ],
+    "ParseOptions.strict": [],
+    "ParseOptions.tolerant": [],
+    "ParseOptions.lenient": [],
+    "ParseOptions.skip_errors": []
   },
   "properties": {
     "SemanticPreservationReport": [
@@ -575,6 +607,37 @@
       "page_index",
       "kind",
       "parameters"
+    ],
+    "ParseOptions": [
+      "strict_mode",
+      "recover_from_stream_errors",
+      "ignore_corrupt_streams",
+      "partial_content_allowed",
+      "lenient_streams",
+      "lenient_encoding",
+      "lenient_syntax",
+      "max_recovery_attempts",
+      "max_recovery_bytes",
+      "collect_warnings",
+      "preferred_encoding",
+      "log_recovery_details"
+    ],
+    "RecoveryOptions": [
+      "aggressive_recovery",
+      "partial_content",
+      "max_errors",
+      "rebuild_xref",
+      "recover_embedded",
+      "skip_validation",
+      "memory_limit"
+    ],
+    "RepairResult": [
+      "success",
+      "pages_recovered",
+      "objects_recovered",
+      "warnings",
+      "is_partial",
+      "repaired_bytes"
     ]
   },
   "required_tests": [
@@ -673,6 +736,17 @@
       "test_non_goto_action_has_no_page_destination",
       "test_legacy_named_destination_and_indirect_dictionary",
       "test_named_destination_and_name_tree_cycles_are_rejected"
+    ],
+    "tests/test_parser_recovery_options.py": [
+      "test_parse_defaults_and_presets",
+      "test_encoding_configuration_is_round_tripped",
+      "test_option_errors_and_unsigned_boundaries",
+      "test_recovery_options_defaults_and_readonly_fields",
+      "test_partial_content_reaches_repair_and_results_are_owned",
+      "test_inert_recovery_fields_do_not_enforce_limits",
+      "test_unsuccessful_repair_and_io_errors",
+      "test_parser_options_reach_each_reader_entrypoint",
+      "test_preferred_encoding_does_not_override_core_decoding"
     ]
   },
   "typed_dicts": {
