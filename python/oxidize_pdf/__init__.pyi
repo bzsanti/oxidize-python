@@ -180,3 +180,6 @@ from oxidize_pdf.signature_errors import (
 )
 
 from oxidize_pdf.signature_errors import SignatureVerificationSummary as SignatureVerificationSummary
+
+from oxidize_pdf._oxidize_pdf import (OutlineReadOptions as OutlineReadOptions, ReadOutline as ReadOutline,
+    ReadOutlineItem as ReadOutlineItem, ReadOutlineDestination as ReadOutlineDestination)

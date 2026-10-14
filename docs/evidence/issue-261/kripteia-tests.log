@@ -1,0 +1,32 @@
+## Calidad de Tests (Kripteia)
+
+=== Kripteia Test Quality Report ===
+Overall Score: 98 | Tests: 10 | Files: 1
+
+--- Files ---
+Path                                                          Tests  Score
+--------------------------------------------------------------------------
+tests/test_outline_read.py                                       10     98
+
+--- Worst Offenders ---
+  test_malformed_outline_is_an_error_not_partial_success (tests/test_outline_read.py:127) - Score: 90
+    - Test 'test_malformed_outline_is_an_error_not_partial_success' has identical neighborhood to 'test_named_destination_and_name_tree_cycles_are_rejected'
+  test_named_destination_and_name_tree_cycles_are_rejected (tests/test_outline_read.py:150) - Score: 90
+    - Test 'test_named_destination_and_name_tree_cycles_are_rejected' has identical neighborhood to 'test_malformed_outline_is_an_error_not_partial_success'
+  test_outline_options_defaults_and_validation (tests/test_outline_read.py:31) - Score: 100
+  test_absent_and_empty_outlines_are_distinct (tests/test_outline_read.py:44) - Score: 100
+  test_hierarchy_styles_resolved_destinations_and_owned_results (tests/test_outline_read.py:54) - Score: 100
+
+--- Details ---
+tests/test_outline_read.py:
+  test_malformed_outline_is_an_error_not_partial_success (line 127) - Score: 90
+    - Test 'test_malformed_outline_is_an_error_not_partial_success' has identical neighborhood to 'test_named_destination_and_name_tree_cycles_are_rejected'
+  test_named_destination_and_name_tree_cycles_are_rejected (line 150) - Score: 90
+    - Test 'test_named_destination_and_name_tree_cycles_are_rejected' has identical neighborhood to 'test_malformed_outline_is_an_error_not_partial_success'
+
+
+## Analisis de Seguridad (Kripteia Security)
+
+=== Kripteia Security Analysis ===
+
+No security issues found.

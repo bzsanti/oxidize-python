@@ -1,0 +1,22 @@
+{
+  "base": "4fffbfa05019bab5fc38e2efcfb1b22f7771c596",
+  "core": "5.4.2",
+  "sha256": {
+    ".github/workflows/test.yml": "8954d65a6bda771fc19b0b1764f998a231b7a666faf3d81a44f149b9501fe433",
+    "docs/FEATURE_PARITY.md": "12ec6d2fa3703e0eaf1c7433cd02b7ec7ddf4788a815bfdbcceb8798173af779",
+    "docs/parity-contract.json": "58312efd4f065a54a21ca9812ab5d7d86f2c748ae36330e98693bd71ed4a5a73",
+    "python/oxidize_pdf/__init__.py": "7efec277b55d124ecc9af8a35552386fe4f96c30837484f1d90cf4d6a839060e",
+    "python/oxidize_pdf/__init__.pyi": "92a17b6fde882c20dbfb6a0a13d3fda36880240587105b36ce155647c9a89634",
+    "python/oxidize_pdf/_oxidize_pdf.pyi": "a950b563f9ca1eaece937034b7807881ed259a787ae7fb61202cb75a7407366d",
+    "src/lib.rs": "7a40d8f842da7b0cb7e23c6c3443016d8267ea014ddf123048ab10f95d3f58f1",
+    "src/parser.rs": "42db52b2abf2bbffd4546f7a6addf4a080e0cf8397afd9a2862fe6b13740d76b",
+    "tests/test_parity_checker.py": "d3d50f887b22d2b8f1805f7a8f0c6355286c494a45a2bdf53e161b7db7cba94a",
+    "src/outline_read.rs": "fbf09f01d8ba0e60e3b7a8af66845f630cd2398c14a2315c6d49e65b3b4bffb7",
+    "tests/test_outline_read.py": "e2172b330143033d7094d0b0b6c6b330f43405b82a2dee6545f542141f9fafcd",
+    "tests/typing/outline_read.py": "b4a3f6370612458263242fd8010d70bd51f9bd884a446f41629964b51352ddc2"
+  },
+  "library_tests": 2442,
+  "mcp_passed": 295,
+  "mcp_skipped": 1,
+  "focused_tests": 36
+}

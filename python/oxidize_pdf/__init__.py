@@ -1157,3 +1157,6 @@ __all__ += ["PdfSignatureError", "PdfSignatureValueError", "PdfSignatureRuntimeE
 
 from oxidize_pdf.signature_errors import SignatureVerificationSummary
 __all__ += ["SignatureVerificationSummary"]
+
+from oxidize_pdf._oxidize_pdf import OutlineReadOptions, ReadOutline, ReadOutlineItem, ReadOutlineDestination
+__all__ += ["OutlineReadOptions", "ReadOutline", "ReadOutlineItem", "ReadOutlineDestination"]

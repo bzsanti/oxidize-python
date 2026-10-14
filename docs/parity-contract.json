@@ -1,6 +1,6 @@
 {
   "core": "5.4.2",
-  "scope": "existing-document preservation, page mutations and external CMS signing; remaining Rust API pending audit; composed extraction policies; incremental free-text editing; incremental Ink editing; configurable partitioning, element graphs, custom token counting and document export; real page iteration with explicit parser lifetime; lossless incremental event bridge (upstream parser limitations remain); all BatchOptions fields with observable executor limitations; structured SignatureError exceptions",
+  "scope": "existing-document preservation, page mutations and external CMS signing; remaining Rust API pending audit; composed extraction policies; incremental free-text editing; incremental Ink editing; configurable partitioning, element graphs, custom token counting and document export; real page iteration with explicit parser lifetime; lossless incremental event bridge (upstream parser limitations remain); all BatchOptions fields with observable executor limitations; structured SignatureError exceptions; bounded existing-document outline reading",
   "callables": {
     "ExistingDocumentPolicy.preserve_base": [
       "page_labels_first_input_wins"
@@ -363,6 +363,19 @@
       "progress_interval",
       "progress_callback",
       "job_timeout"
+    ],
+    "OutlineReadOptions": [
+      "max_items",
+      "max_depth",
+      "max_named_destinations",
+      "max_name_tree_nodes"
+    ],
+    "PdfReader.outline": [
+      "self"
+    ],
+    "PdfReader.outline_with_options": [
+      "self",
+      "options"
     ]
   },
   "properties": {
@@ -539,6 +552,29 @@
       "percentage",
       "is_complete",
       "elapsed_secs"
+    ],
+    "OutlineReadOptions": [
+      "max_items",
+      "max_depth",
+      "max_named_destinations",
+      "max_name_tree_nodes"
+    ],
+    "ReadOutline": [
+      "items"
+    ],
+    "ReadOutlineItem": [
+      "title",
+      "destination",
+      "children",
+      "color",
+      "is_bold",
+      "is_italic",
+      "is_open"
+    ],
+    "ReadOutlineDestination": [
+      "page_index",
+      "kind",
+      "parameters"
     ]
   },
   "required_tests": [
@@ -625,6 +661,18 @@
       "test_aggregate_verification_rejects_invalid_crypto",
       "test_aggregate_cms_parse_error_retains_details",
       "test_standalone_detection_preserves_missing_field"
+    ],
+    "tests/test_outline_read.py": [
+      "test_outline_options_defaults_and_validation",
+      "test_absent_and_empty_outlines_are_distinct",
+      "test_hierarchy_styles_resolved_destinations_and_owned_results",
+      "test_all_destination_views",
+      "test_each_budget_is_enforced_and_reader_can_retry",
+      "test_empty_name_tree_nodes_consume_budget",
+      "test_malformed_outline_is_an_error_not_partial_success",
+      "test_non_goto_action_has_no_page_destination",
+      "test_legacy_named_destination_and_indirect_dictionary",
+      "test_named_destination_and_name_tree_cycles_are_rejected"
     ]
   },
   "typed_dicts": {
