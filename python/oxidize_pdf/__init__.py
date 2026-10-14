@@ -1144,3 +1144,6 @@ __all__ += ['PdfValue', 'SignatureTarget', 'CertificationPermission', 'FieldLock
 
 from oxidize_pdf._oxidize_pdf import ElementGraph
 __all__ += ["ElementGraph"]
+
+from oxidize_pdf.parse_events import ParseEvent
+__all__ += ["ParseEvent"]

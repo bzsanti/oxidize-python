@@ -354,3 +354,116 @@ todo el parser dependiente ni se certifican límites contra PDFs adversarios.
 - Evidencias en `docs/evidence/issue-254-255/`; estado final y hashes en validation.json.
 - Implementación y aceptación local terminadas. Integración, CI remota y
   publicación son estados separados; no se declara cerrada la paridad global.
+
+## Incremento #256 — 2026-10-14
+
+Base: `25bb005`, PR #268 integrada con 26 checks aprobados. #254/#255 tienen su
+implementación integrada; todavía no se ha publicado una versión nueva.
+
+### Resumen ejecutivo
+
+El bridge conserva los payloads de las siete variantes de ParseEvent. Se añaden
+`data`, `object`, `entries` y `dict` manteniendo los campos existentes, incluidos
+`data_len` y `entry_count`. Los eventos siguen siendo diccionarios Python.
+`PdfValue` añade las propiedades de lectura `kind` y `value`; sus constructores
+y usos en firma se conservan. No se modifica el core 5.4.2 ni su algoritmo.
+
+### Contratos y evidencia
+
+| Requisito | Estado | Evidencia |
+| --- | --- | --- |
+| Bytes de StreamData y compatibilidad | Demostrado | Feed real con payload exacto, data_len y object_id; prueba nativa con NUL, espacios, newline y bytes no UTF-8 |
+| ObjectEnd completo | Demostrado | Feed conserva Null upstream; prueba del conversor con objeto entero no nulo, id y generation |
+| XRef y Trailer | Demostrado en el conversor | Eventos Rust sintéticos con entradas no vacías, offset u64::MAX, referencia Root y Size; **no** se afirma que feed los emita |
+| Valores PDF utilizables | Demostrado | Diez variantes, bytes sin decodificación, referencia exacta, contenedores independientes e inmutabilidad |
+| Errores y drenaje | Demostrado | TypeError de feed no elimina eventos pendientes; take_events vacía la cola y los resultados conservan su propiedad |
+| Tipado y contrato | Demostrado | Unión de TypedDict discriminados, consumidor estricto en Python 3.10, miembros del parser/PdfValue y campos de cada evento protegidos |
+
+[RED](evidence/issue-256/red.log): once fallos por payloads/getters ausentes y un
+caso ya válido. [GREEN](evidence/issue-256/focused.log): 88 casos focalizados,
+incluida regresión de firma. [Pruebas nativas](evidence/issue-256/native.log): tres
+casos inyectan eventos core en el mismo conversor usado por take_events, con el
+intérprete Python real; no sustituyen el parser para afirmar que parsea XRef.
+Eliminar un payload hace fallar los accesos/aserciones exactos. El checker incluye
+un control negativo que elimina `StreamDataEvent.data` y exige detectar la pérdida.
+
+El runner nativo usa un directorio de build separado y enlaza CPython únicamente
+en el build de tests. Verifica que los tres tests estén presentes antes de
+lanzarlos; se ejecuta en CI Linux/Python 3.12. Las wheels conservan sus features
+y ABI; los tests Python se ejecutan en toda la matriz existente.
+
+### Uso y límites del core
+
+```python
+from oxidize_pdf import IncrementalParser
+
+parser = IncrementalParser()
+parser.feed(b"1 0 obj\nstream\nactual payload\nendstream\nendobj\n")
+for event in parser.take_events():
+    if event["type"] == "stream_data":
+        assert event["data"] == b"actual payload"
+    elif event["type"] == "object_end":
+        print(event["object"].kind, event["object"].value)
+```
+
+Los tipos están disponibles en `oxidize_pdf.parse_events`; la unión `ParseEvent`
+también se exporta desde el paquete. Son descripciones estáticas de diccionarios,
+no validadores ni objetos adicionales obligatorios en runtime.
+
+| PdfValue.kind | PdfValue.value |
+| --- | --- |
+| null | None |
+| boolean / integer / real | bool / int / float |
+| string / name | bytes / str |
+| array / dictionary | list[PdfValue] / dict[str, PdfValue] |
+| stream | tuple[dict[str, PdfValue], bytes] |
+| reference | tuple[int, int] (número, generación) |
+
+Los contenedores devueltos son copias; modificarlos no altera el PdfValue. No se
+resuelven referencias ni se decodifican strings/streams del objeto. El resultado
+de `feed`, en cambio, ya puede haber perdido información **antes** del bridge:
+core 5.4.2 devuelve Null en ObjectEnd, no emite XRef/Trailer, normaliza UTF-8
+inválido y recorta espacios/newlines de cada línea. Tampoco garantiza conservar
+una secuencia UTF-8 dividida entre feeds. No se pueden reconstruir los bytes PDF
+originales a partir de estos eventos. Esas limitaciones permanecen bajo #244;
+esta entrega cierra la pérdida adicional causada por el bridge (#256).
+
+### Hallazgos
+
+No se detectan incumplimientos nuevos del contrato del bridge. Se inspeccionaron
+las conversiones de todas las variantes, el tamaño completo u64 de offsets,
+propiedad tras drenar la cola, bytes sin conversión textual y compatibilidad con
+los consumidores de PdfValue de firma. La conversión de contenedores no resuelve
+referencias ni recorre el grafo PDF; clona sus valores internos. El runner no
+construye comandos shell a partir de entradas PDF. Los límites upstream anteriores
+son explícitos y no se consideran resueltos; #253 (AES) tampoco cambia.
+
+### Calidad de Tests (Kripteia)
+
+[Python](evidence/issue-256/kripteia-tests.log): 100/100, seis funciones y doce casos.
+[Rust](evidence/issue-256/kripteia-rust.log): 100/100, tres tests. Los avisos
+heurísticos sobre constantes y unwrap se revisaron: las constantes son oráculos
+independientes del conversor y unwrap hace fallar el test con el error; no lo
+silencia. Las aserciones señalan la línea/valor fallido. No se usa el score como
+prueba de fidelidad del parser.
+
+### Análisis de Seguridad (Kripteia Security)
+
+Scans Rust, tests Python, módulo de tipos y runner: sin hallazgos en los alcances
+escaneados. El módulo de tipos y runner no contienen tests detectables; sus scores
+no representan cobertura. Revisión manual de bytes, enteros, propiedad, carga del
+intérprete y comandos sin shell completada. No hay nueva validación del parser
+upstream frente a PDF malicioso ni nuevas garantías de memoria.
+
+### Métricas y estado de entrega
+
+- Dieciséis archivos de código, tipos, tests, contrato y CI revisados, además del
+  seguimiento. No se requirieron correcciones de producto durante la revisión.
+- 2.382 tests de biblioteca; 295 MCP, un skip; 88 focalizados; tres tests nativos.
+- Build, Clippy con warnings prohibidos, compilación mínima, mypy (25 archivos y
+  consumidor estricto, también Python 3.10), contrato y siete controles de contrato
+  aprobados. La última edición de Rust solo añade docstrings y aserciones nativas;
+  se recompila y repite la suite focalizada sobre esa extensión final.
+- Evidencias en `docs/evidence/issue-256/`, hashes en validation.json.
+- Sin bloqueantes locales. Integración/CI remota/publicación se verifican por
+  separado; no se declara paridad global ni un parser incremental completo.

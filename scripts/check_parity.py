@@ -114,6 +114,15 @@ def check_contract(exports: set[str]) -> list[str]:
         names = {n.name for n in tree.body if isinstance(n, ast.FunctionDef)}
         if not set(required) <= names:
             errors.append(f"Missing audited behavioral tests: {relative}")
+    for relative, records in contract.get("typed_dicts", {}).items():
+        records_tree = ast.parse((REPO_ROOT / relative).read_text())
+        classes = {n.name: n for n in records_tree.body if isinstance(n, ast.ClassDef)}
+        for name, required in records.items():
+            record = classes.get(name)
+            fields = {n.target.id for n in record.body
+                      if isinstance(n, ast.AnnAssign) and isinstance(n.target, ast.Name)} if record else set()
+            if fields != set(required):
+                errors.append(f"Typed event fields changed: {name}")
     return errors
 
 

@@ -1,6 +1,6 @@
 {
   "core": "5.4.2",
-  "scope": "existing-document preservation, page mutations and external CMS signing; remaining Rust API pending audit; composed extraction policies; incremental free-text editing; incremental Ink editing; configurable partitioning, element graphs, custom token counting and document export; real page iteration with explicit parser lifetime",
+  "scope": "existing-document preservation, page mutations and external CMS signing; remaining Rust API pending audit; composed extraction policies; incremental free-text editing; incremental Ink editing; configurable partitioning, element graphs, custom token counting and document export; real page iteration with explicit parser lifetime; lossless incremental event bridge (upstream parser limitations remain)",
   "callables": {
     "ExistingDocumentPolicy.preserve_base": [
       "page_labels_first_input_wins"
@@ -344,6 +344,17 @@
     ],
     "StreamingPage.extract_text_streaming": [
       "self"
+    ],
+    "IncrementalParser": [],
+    "IncrementalParser.feed": [
+      "self",
+      "data"
+    ],
+    "IncrementalParser.take_events": [
+      "self"
+    ],
+    "IncrementalParser.is_complete": [
+      "self"
     ]
   },
   "properties": {
@@ -499,6 +510,10 @@
       "number",
       "width",
       "height"
+    ],
+    "PdfValue": [
+      "kind",
+      "value"
     ]
   },
   "required_tests": [
@@ -560,6 +575,57 @@
       "test_invalid_input_is_rejected",
       "test_only_selected_page_is_decoded_and_failure_does_not_advance",
       "test_close_releases_file_and_preserves_page"
+    ],
+    "tests/test_incremental_parser_payloads.py": [
+      "test_stream_payload_and_legacy_fields_survive_drain",
+      "test_chunked_feed_retains_complete_ascii_line",
+      "test_upstream_placeholders_and_loss_are_explicit",
+      "test_pdf_value_scalar_inspection",
+      "test_nested_pdf_values_are_owned_and_inspectable",
+      "test_invalid_feed_type_does_not_discard_pending_events"
     ]
+  },
+  "typed_dicts": {
+    "python/oxidize_pdf/parse_events.py": {
+      "HeaderEvent": [
+        "type",
+        "version"
+      ],
+      "ObjectStartEvent": [
+        "type",
+        "id",
+        "generation"
+      ],
+      "ObjectEndEvent": [
+        "type",
+        "id",
+        "generation",
+        "object"
+      ],
+      "StreamDataEvent": [
+        "type",
+        "object_id",
+        "data_len",
+        "data"
+      ],
+      "XRefEntry": [
+        "object_number",
+        "generation",
+        "offset",
+        "in_use"
+      ],
+      "XRefEvent": [
+        "type",
+        "entry_count",
+        "entries"
+      ],
+      "TrailerEvent": [
+        "type",
+        "dict"
+      ],
+      "EndOfFileEvent": [
+        "type"
+      ]
+    }
   }
 }
