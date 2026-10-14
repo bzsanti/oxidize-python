@@ -711,3 +711,129 @@ nuevas; no se promete validación completa de confianza ni paridad global.
   se repitieron los 102 focalizados y Kripteia Python; producto sin cambios.
 - Sin bloqueantes locales de #264. Evidencias en `docs/evidence/issue-264/` y
   hashes en validation.json. CI remota, aceptación y merge se verifican aparte.
+
+## Incremento #261 — Lectura acotada de outlines existentes
+
+Base: PR #271 fusionada; #264 cerrada. Se aplica scoped-delivery y quality-review.
+
+| Requisito (#261) | Estado inicial | Evidencia de cierre prevista |
+| --- | --- | --- |
+| outline/outline_with_options y cuatro presupuestos | Sin binding | API sobre PdfDocument real, tipos y defaults |
+| Destinos, estilos, jerarquía y estado | Sin resultados legibles | Fixtures PDF independientes; ocho vistas y destinos nombrados |
+| Ausencia, árboles malformados y límites | Pendiente | None/árbol vacío, ciclos y errores, frontera de cada presupuesto |
+| Stubs, paridad y revisión | Pendiente | Tipos estrictos, contrato, regresión y Kripteia |
+
+### Resumen ejecutivo
+
+Se exponen `PdfReader.outline()` y `outline_with_options(OutlineReadOptions)` sobre
+el lector real de core 5.4.2, liberando el GIL durante la lectura. Devuelven None
+si no existe /Outlines y ReadOutline(items=[]) si existe un árbol vacío. Errores
+de estructura, referencias o presupuestos se propagan como PdfParseError, sin
+resultados parciales. Funciona sobre lectores de archivo y de bytes, ya promovidos
+a PdfDocument. No utiliza el camino limitado de detect_signatures de #264.
+
+Los resultados ReadOutline, ReadOutlineItem y ReadOutlineDestination son snapshots
+propios, de solo lectura y distintos de OutlineTree/OutlineItem/Destination de
+creación. Sus listas son copias; modificarlas no altera ni el snapshot ni el PDF.
+La lectura conserva título, jerarquía, RGB opcional, negrita, cursiva y estado
+abierto/cerrado. Los destinos se resuelven a índices de página base cero; se
+conservan las ocho vistas PDF, sus parámetros y null como None (incluido zoom=0).
+
+### Contratos y evidencia
+
+| Requisito #261 | Evidencia | Estado |
+| --- | --- | --- |
+| Métodos, defaults y opciones consultables | test_outline_options_defaults_and_validation; typing y contrato JSON | Demostrado |
+| Ausencia distinta de árbol vacío | test_absent_and_empty_outlines_are_distinct | Demostrado |
+| Jerarquía, estilos, título Unicode y propiedad | test_hierarchy_styles_resolved_destinations_and_owned_results, archivo/bytes | Demostrado |
+| Destinos explícitos/GoTo/nombrados y ocho vistas | test_all_destination_views; name tree y diccionario /Dests legado con referencia indirecta | Demostrado |
+| Cada presupuesto, frontera y reintento | test_each_budget_is_enforced_and_reader_can_retry y nodos intermedios de nombres | Demostrado |
+| Árboles/destinos malformados | Ciclos de siblings, nombres y nodos; Parent erróneo, destino ausente/fuera de rango, flags inválidos y enlaces incompletos | Demostrado |
+| Tipos y gate de paridad | mypy estricto Python 3.10; diez checks de contrato/controles negativos | Demostrado |
+
+RED inicial: 23 casos fallan por API ausente (`red.log`). GREEN: 26 casos de lectura
+más diez de contrato = 36 focalizados. Fixtures construyen objetos y xref de PDF
+independientemente del escritor de outlines; no se sustituye el parser. La prueba
+original usó por error page_count() en vez de la propiedad page_count; se corrigió
+ese montaje, sin modificar el producto ni contar el fallo como defecto funcional.
+
+### Opciones, unidades y límites
+
+| Campo | Default | Semántica |
+| --- | --- | --- |
+| max_items | 100000 | Ítems de outline visitados |
+| max_depth | 256 | Profundidad de outlines, árbol de nombres y resolución de destinos |
+| max_named_destinations | 100000 | Destinos nombrados recogidos |
+| max_name_tree_nodes | 100000 | Nodos del árbol de nombres, incluidos intermedios vacíos |
+
+Todos son enteros no negativos representables como usize; cero es válido y puede
+rechazar un árbol no vacío. La raíz del outline tiene profundidad cero. Los
+getters no permiten modificar las opciones tras construcción. El core construye
+primero el mapa de páginas y puede cargar objetos/cache del documento: estos
+presupuestos **no** limitan memoria total, tamaño PDF, tiempo o el coste del árbol
+de páginas. Las copias de snapshots también ocupan memoria. Aumentar los límites
+no convierte entradas arbitrariamente grandes en seguras.
+
+ReadOutlineDestination expone page_index, kind y parameters. El orden es
+XYZ(left,top,zoom), FitR(left,bottom,right,top), FitH/FitBH(top), FitV/FitBV(left),
+Fit/FitB(). Los nombres originales quedan resueltos, no se conservan como alias.
+El core no representa acciones distintas de GoTo como destinos de página;
+`destination=None` puede indicar acción no GoTo o ausencia de destino. No se
+exportan ni ejecutan diccionarios de acción. Esta entrega es lectura de outlines,
+no una API para editar o reproducir íntegramente sus diccionarios originales.
+
+### Hallazgos
+
+Sin incumplimientos pendientes del contrato #261 tras la revisión. Se revisaron
+ambos backends de ReaderState, la liberación del GIL sin referencias Python,
+propiedad de árboles/listas, conversiones de todos los DestinationType y errores
+al superar cada presupuesto. El guard de PageRef no resuelta produce PdfParseError
+si el core incumpliese su contrato; el lector publicado resuelve a PageNumber.
+Las limitaciones de representación/recursos anteriores son explícitas y permanecen
+bajo #244; no se presenta lectura como creación ni como límite total de memoria.
+
+### Calidad de Tests (Kripteia)
+
+Python: 98/100, diez funciones, 26 casos. Dos avisos de similitud entre tests de
+árboles inválidos y ciclos de nombres: tienen el mismo patrón pytest.raises pero
+activan recorridos distintos; se conservan ambas familias. Rust: 100/100, cuatro
+tests preexistentes (parse_events y signature_errors); no representa cobertura
+unitaria Rust nueva de outlines. Los tests de integración Python sí ejecutan el
+nuevo binding y el core real. Avisos de unwrap en tests anteriores revisados en
+#256/#264 y sin cambios relevantes aquí. Logs kripteia-tests/rust.log.
+
+### Análisis de Seguridad (Kripteia Security)
+
+Ambos scans, Rust de src y Python del nuevo test: sin hallazgos. Revisión manual:
+ningún unsafe nuevo, ningún destino ejecutado, ningún comando construido desde
+PDF, presupuestos copiados antes de liberar GIL y enteros negativos/fuera de
+rango rechazados en la frontera PyO3. Se prueban ciclos y fallos de enlaces y
+resolución, sin devolver árboles parcialmente aceptados. No se afirma que los
+presupuestos de outlines cubran el parser completo o el árbol de páginas.
+
+### Métricas y estado de entrega
+
+- Once archivos técnicos y este seguimiento revisados; sin cambios de producto
+  durante la revisión final. Sin nuevos bloqueantes del contrato #261.
+- 2.442 tests de biblioteca; 295 MCP, un skip; 36 focalizados. Build, Clippy con
+  warnings prohibidos, compilación mínima, mypy (26 archivos y consumidor
+  estricto Python 3.10), contrato y controles negativos aprobados.
+- Evidencias en `docs/evidence/issue-261/`; hashes de fuentes en validation.json.
+  CI remota, aceptación y merge se comprueban aparte; no se declara paridad global.
+
+### Corrección de integración Windows
+
+CI del commit ec6a8f0 detectó nueve fallos del gate de paridad por UnicodeDecodeError
+(cp1252, byte 0x81 del título Á en UTF-8); los 26 casos de lectura pasaban. Evidencia:
+windows-red.log, run 38627644328, job 116070777411. El gate y sus tests usaban la
+codificación local al leer fuentes. Se corrige scripts/check_parity.py y ambos
+ficheros de tests del contrato para leer/escribir UTF-8 explícitamente, conservando
+el fixture Unicode. No cambian Rust, los stubs ni el comportamiento del lector.
+
+Hallazgo de portabilidad resuelto localmente: 36 focalizados pasan y el gate pasa
+con default cp1252 simulado (cp1252-gate.log). Se revisaron estos cambios y ambos
+análisis Kripteia sobre los tres archivos: sin hallazgos de seguridad; calidad
+100/100 para los tres tests detectados (ocho variantes negativas y dos tests de
+runtime); el script no contiene tests detectables. Alcance final: trece archivos
+técnicos y seguimiento. Se reutilizan regresión, build, tipos y análisis Rust,
+que no cambiaron; el CI completo se repite sobre el commit corregido.

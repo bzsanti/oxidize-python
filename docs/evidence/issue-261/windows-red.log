@@ -1,0 +1,20 @@
+GitHub run 38627644328, job 116070777411
+2026-10-14T19:57:18.8087090Z E       UnicodeDecodeError: 'charmap' codec can't decode byte 0x81 in position 3126: character maps to <undefined>
+2026-10-14T19:57:18.8097200Z E       UnicodeDecodeError: 'charmap' codec can't decode byte 0x81 in position 3126: character maps to <undefined>
+2026-10-14T19:57:18.8107469Z E       UnicodeDecodeError: 'charmap' codec can't decode byte 0x81 in position 3126: character maps to <undefined>
+2026-10-14T19:57:18.8117143Z E       UnicodeDecodeError: 'charmap' codec can't decode byte 0x81 in position 3126: character maps to <undefined>
+2026-10-14T19:57:18.8127060Z E       UnicodeDecodeError: 'charmap' codec can't decode byte 0x81 in position 3126: character maps to <undefined>
+2026-10-14T19:57:18.9733738Z E       UnicodeDecodeError: 'charmap' codec can't decode byte 0x81 in position 3126: character maps to <undefined>
+2026-10-14T19:57:18.9749360Z E       UnicodeDecodeError: 'charmap' codec can't decode byte 0x81 in position 3126: character maps to <undefined>
+2026-10-14T19:57:18.9764531Z E       UnicodeDecodeError: 'charmap' codec can't decode byte 0x81 in position 3126: character maps to <undefined>
+2026-10-14T19:57:18.9777422Z E       UnicodeDecodeError: 'charmap' codec can't decode byte 0x81 in position 3126: character maps to <undefined>
+2026-10-14T19:57:18.9782819Z FAILED tests/test_parity_checker.py::test_parity_checker_rejects_contract_regressions[option] - UnicodeDecodeError: 'charmap' codec can't decode byte 0x81 in position 3126: character maps to <undefined>
+2026-10-14T19:57:18.9783935Z FAILED tests/test_parity_checker.py::test_parity_checker_rejects_contract_regressions[result] - UnicodeDecodeError: 'charmap' codec can't decode byte 0x81 in position 3126: character maps to <undefined>
+2026-10-14T19:57:18.9785051Z FAILED tests/test_parity_checker.py::test_parity_checker_rejects_contract_regressions[test] - UnicodeDecodeError: 'charmap' codec can't decode byte 0x81 in position 3126: character maps to <undefined>
+2026-10-14T19:57:18.9786155Z FAILED tests/test_parity_checker.py::test_parity_checker_rejects_contract_regressions[export] - UnicodeDecodeError: 'charmap' codec can't decode byte 0x81 in position 3126: character maps to <undefined>
+2026-10-14T19:57:18.9787386Z FAILED tests/test_parity_checker.py::test_parity_checker_rejects_contract_regressions[core] - UnicodeDecodeError: 'charmap' codec can't decode byte 0x81 in position 3126: character maps to <undefined>
+2026-10-14T19:57:18.9788506Z FAILED tests/test_parity_checker.py::test_parity_checker_rejects_contract_regressions[event-field] - UnicodeDecodeError: 'charmap' codec can't decode byte 0x81 in position 3126: character maps to <undefined>
+2026-10-14T19:57:18.9789639Z FAILED tests/test_parity_checker.py::test_parity_checker_rejects_contract_regressions[error-code] - UnicodeDecodeError: 'charmap' codec can't decode byte 0x81 in position 3126: character maps to <undefined>
+2026-10-14T19:57:18.9790771Z FAILED tests/test_parity_checker.py::test_parity_checker_rejects_contract_regressions[error-field] - UnicodeDecodeError: 'charmap' codec can't decode byte 0x81 in position 3126: character maps to <undefined>
+2026-10-14T19:57:18.9791826Z FAILED tests/test_parity_contract.py::test_audited_parity_contract - UnicodeDecodeError: 'charmap' codec can't decode byte 0x81 in position 3126: character maps to <undefined>
+2026-10-14T19:57:18.9792477Z ============ 9 failed, 2726 passed, 2 skipped, 1 warning in 34.18s ============

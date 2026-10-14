@@ -645,6 +645,23 @@ impl PyPdfReader {
         Ok(count as usize)
     }
 
+    /// Read existing bookmarks with the core's default traversal budgets.
+    fn outline(&mut self, py: Python<'_>) -> PyResult<Option<crate::outline_read::PyReadOutline>> {
+        self.ensure_document();
+        let result = py.detach(|| with_document_mut!(self, doc => doc.outline()))
+            .map_err(parse_err_to_py)?;
+        Ok(result.map(|inner| crate::outline_read::PyReadOutline { inner }))
+    }
+
+    /// Read existing bookmarks with explicit budgets; malformed trees raise PdfParseError.
+    fn outline_with_options(&mut self, py: Python<'_>, options: &crate::outline_read::PyOutlineReadOptions) -> PyResult<Option<crate::outline_read::PyReadOutline>> {
+        let options = options.inner.clone();
+        self.ensure_document();
+        let result = py.detach(|| with_document_mut!(self, doc => doc.outline_with_options(&options)))
+            .map_err(parse_err_to_py)?;
+        Ok(result.map(|inner| crate::outline_read::PyReadOutline { inner }))
+    }
+
     /// Detect signature fields in the PDF.
     ///
     /// Returns a list of dicts with ``name``, ``filter``, and ``sub_filter`` keys.

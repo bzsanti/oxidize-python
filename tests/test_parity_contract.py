@@ -8,7 +8,7 @@ from pathlib import Path
 import oxidize_pdf as pdf
 
 ROOT = Path(__file__).resolve().parents[1]
-CONTRACT = json.loads((ROOT / "docs/parity-contract.json").read_text())
+CONTRACT = json.loads((ROOT / "docs/parity-contract.json").read_text(encoding="utf-8"))
 
 def test_audited_parity_contract():
     for relative, records in CONTRACT.get("typed_dicts", {}).items():
@@ -27,12 +27,12 @@ def test_audited_parity_contract():
         cls = getattr(pdf, name)
         for prop in properties:
             assert hasattr(cls, prop), f"{name}.{prop}"
-    tree = ast.parse((ROOT / "tests/test_existing_document.py").read_text())
+    tree = ast.parse((ROOT / "tests/test_existing_document.py").read_text(encoding="utf-8"))
     test_names = {n.name for n in tree.body if isinstance(n, ast.FunctionDef)}
     assert set(CONTRACT["required_tests"]) <= test_names
 
     for relative, required in CONTRACT.get("additional_tests", {}).items():
-        tree = ast.parse((ROOT / relative).read_text())
+        tree = ast.parse((ROOT / relative).read_text(encoding="utf-8"))
         names = {n.name for n in tree.body if isinstance(n, ast.FunctionDef)}
         assert set(required) <= names
 

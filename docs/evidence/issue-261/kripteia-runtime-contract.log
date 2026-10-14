@@ -1,0 +1,20 @@
+## Calidad de Tests (Kripteia)
+
+=== Kripteia Test Quality Report ===
+Overall Score: 100 | Tests: 2 | Files: 1
+
+--- Files ---
+Path                                                          Tests  Score
+--------------------------------------------------------------------------
+tests/test_parity_contract.py                                     2    100
+
+--- Worst Offenders ---
+  test_audited_parity_contract (tests/test_parity_contract.py:13) - Score: 100
+  test_signature_error_contract (tests/test_parity_contract.py:40) - Score: 100
+
+
+## Analisis de Seguridad (Kripteia Security)
+
+=== Kripteia Security Analysis ===
+
+No security issues found.

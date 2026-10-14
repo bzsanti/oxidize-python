@@ -24,6 +24,7 @@ mod layout;
 mod list;
 mod operations;
 mod outlines;
+mod outline_read;
 mod page;
 mod page_labels;
 mod page_transitions;
@@ -71,6 +72,7 @@ fn _oxidize_pdf(m: &Bound<'_, PyModule>) -> PyResult<()> {
     actions::register(m)?;
     forms::register(m)?;
     outlines::register(m)?;
+    outline_read::register(m)?;
     page_labels::register(m)?;
     tier8::register(m)?;
     viewer_preferences::register(m)?;
