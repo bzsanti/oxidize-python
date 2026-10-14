@@ -167,3 +167,6 @@ from oxidize_pdf._oxidize_pdf import (
     PageStreamer as PageStreamer,
     StreamingPage as StreamingPage,
 )
+
+from oxidize_pdf._oxidize_pdf import IncrementalParser as IncrementalParser
+from oxidize_pdf.parse_events import ParseEvent as ParseEvent

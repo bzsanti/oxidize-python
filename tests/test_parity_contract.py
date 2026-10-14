@@ -1,6 +1,7 @@
 """Installed APIs must retain each audited option, result member and behavior test."""
 import ast
 import inspect
+import importlib
 import json
 from pathlib import Path
 import oxidize_pdf as pdf
@@ -9,6 +10,10 @@ ROOT = Path(__file__).resolve().parents[1]
 CONTRACT = json.loads((ROOT / "docs/parity-contract.json").read_text())
 
 def test_audited_parity_contract():
+    for relative, records in CONTRACT.get("typed_dicts", {}).items():
+        module = importlib.import_module(relative.removeprefix('python/').removesuffix('.py').replace('/', '.'))
+        for name, fields in records.items():
+            assert getattr(module, name).__required_keys__ == set(fields)
     for path, parameters in CONTRACT["callables"].items():
         parts = path.split(".")
         assert parts[0] in pdf.__all__

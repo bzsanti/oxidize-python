@@ -28,6 +28,7 @@ mod page;
 mod page_labels;
 mod page_transitions;
 mod parser;
+mod parse_events;
 mod rag_analysis;
 mod security;
 mod semantic;

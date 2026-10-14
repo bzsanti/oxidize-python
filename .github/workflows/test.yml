@@ -73,12 +73,16 @@ jobs:
           .venv\Scripts\activate
           pytest tests/ -v
 
+      - name: Native event payload contracts
+        if: matrix.python-version == '3.12' && matrix.os == 'ubuntu-latest'
+        run: .venv/bin/python scripts/test_parse_events_native.py
+
       - name: Type check
         if: matrix.python-version == '3.13' && matrix.os == 'ubuntu-latest'
         run: |
           source .venv/bin/activate
           mypy python/oxidize_pdf/
-          mypy --strict --disallow-any-expr tests/typing/extraction.py tests/typing/mcp_contract.py tests/typing/upstream_5_4.py tests/typing/existing_document.py tests/typing/incremental_signing.py tests/typing/incremental_annotations.py tests/typing/incremental_ink.py tests/typing/rag_reader.py tests/typing/page_streamer.py
+          mypy --strict --disallow-any-expr tests/typing/extraction.py tests/typing/mcp_contract.py tests/typing/upstream_5_4.py tests/typing/existing_document.py tests/typing/incremental_signing.py tests/typing/incremental_annotations.py tests/typing/incremental_ink.py tests/typing/rag_reader.py tests/typing/page_streamer.py tests/typing/incremental_parser.py
 
   build-check:
     name: Release build check

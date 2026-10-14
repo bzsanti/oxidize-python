@@ -1,0 +1,210 @@
+FFFFFFFFFFF.                                                             [100%]
+=================================== FAILURES ===================================
+_____________ test_stream_payload_and_legacy_fields_survive_drain ______________
+
+    def test_stream_payload_and_legacy_fields_survive_drain():
+        parser = pdf.IncrementalParser()
+        parser.feed(b'%PDF-1.7\n17 0 obj\nstream\nactual payload\nsecond line\nendstream\nendobj\n')
+        events = parser.take_events()
+        assert [e['type'] for e in events] == ['header', 'object_start', 'stream_data', 'stream_data', 'object_end']
+        assert events[0] == {'type': 'header', 'version': '1.7'}
+        assert events[1] == {'type': 'object_start', 'id': 17, 'generation': 0}
+>       assert events[2:4] == [
+            {'type': 'stream_data', 'object_id': 17, 'data_len': 14, 'data': b'actual payload'},
+            {'type': 'stream_data', 'object_id': 17, 'data_len': 11, 'data': b'second line'},
+        ]
+E       AssertionError: assert [{'data_len':...stream_data'}] == [{'data': b'a...stream_data'}]
+E         
+E         At index 0 diff: {'type': 'stream_data', 'object_id': 17, 'data_len': 14} != {'type': 'stream_data', 'object_id': 17, 'data_len': 14, 'data': b'actual payload'}
+E         Use -v to get more diff
+
+tests/test_incremental_parser_payloads.py:13: AssertionError
+________________ test_chunked_feed_retains_complete_ascii_line _________________
+
+    def test_chunked_feed_retains_complete_ascii_line():
+        parser = pdf.IncrementalParser()
+        for chunk in [b'1 0 obj\nstr', b'eam\nactual ', b'payload\nendstream\nendobj\n']:
+            parser.feed(chunk)
+>       assert [e['data'] for e in parser.take_events() if e['type'] == 'stream_data'] == [b'actual payload']
+                ^^^^^^^^^
+E       KeyError: 'data'
+
+tests/test_incremental_parser_payloads.py:29: KeyError
+_______________ test_upstream_placeholders_and_loss_are_explicit _______________
+
+    def test_upstream_placeholders_and_loss_are_explicit():
+        parser = pdf.IncrementalParser()
+        parser.feed(b'1 0 obj\nstream\n  \xff binary  \nendstream\nendobj\nxref\n0 1\n0000000000 65535 f\ntrailer\n<< /Size 1 >>\n%%EOF\n')
+        events = parser.take_events()
+>       assert [e['data'] for e in events if e['type'] == 'stream_data'] == [b'\xef\xbf\xbd binary']
+                ^^^^^^^^^
+E       KeyError: 'data'
+
+tests/test_incremental_parser_payloads.py:36: KeyError
+_____________ test_pdf_value_scalar_inspection[<lambda>-null-None] _____________
+
+factory = <function <lambda> at 0x7c8ee8f5a480>, kind = 'null', expected = None
+
+    @pytest.mark.parametrize('factory,kind,expected', [
+        (lambda: pdf.PdfValue.null(), 'null', None),
+        (lambda: pdf.PdfValue.boolean(True), 'boolean', True),
+        (lambda: pdf.PdfValue.integer(-(2**63)), 'integer', -(2**63)),
+        (lambda: pdf.PdfValue.real(1.25), 'real', 1.25),
+        (lambda: pdf.PdfValue.string(b'\x00\xff'), 'string', b'\x00\xff'),
+        (lambda: pdf.PdfValue.name('A/B'), 'name', 'A/B'),
+        (lambda: pdf.PdfValue.reference(2**32 - 1, 65535), 'reference', (2**32 - 1, 65535)),
+    ])
+    def test_pdf_value_scalar_inspection(factory, kind, expected):
+        value = factory()
+>       assert value.kind == kind
+               ^^^^^^^^^^
+E       AttributeError: 'builtins.PdfValue' object has no attribute 'kind'
+
+tests/test_incremental_parser_payloads.py:54: AttributeError
+___________ test_pdf_value_scalar_inspection[<lambda>-boolean-True] ____________
+
+factory = <function <lambda> at 0x7c8ee8f5a520>, kind = 'boolean'
+expected = True
+
+    @pytest.mark.parametrize('factory,kind,expected', [
+        (lambda: pdf.PdfValue.null(), 'null', None),
+        (lambda: pdf.PdfValue.boolean(True), 'boolean', True),
+        (lambda: pdf.PdfValue.integer(-(2**63)), 'integer', -(2**63)),
+        (lambda: pdf.PdfValue.real(1.25), 'real', 1.25),
+        (lambda: pdf.PdfValue.string(b'\x00\xff'), 'string', b'\x00\xff'),
+        (lambda: pdf.PdfValue.name('A/B'), 'name', 'A/B'),
+        (lambda: pdf.PdfValue.reference(2**32 - 1, 65535), 'reference', (2**32 - 1, 65535)),
+    ])
+    def test_pdf_value_scalar_inspection(factory, kind, expected):
+        value = factory()
+>       assert value.kind == kind
+               ^^^^^^^^^^
+E       AttributeError: 'builtins.PdfValue' object has no attribute 'kind'
+
+tests/test_incremental_parser_payloads.py:54: AttributeError
+___ test_pdf_value_scalar_inspection[<lambda>-integer--9223372036854775808] ____
+
+factory = <function <lambda> at 0x7c8ee8f5a5c0>, kind = 'integer'
+expected = -9223372036854775808
+
+    @pytest.mark.parametrize('factory,kind,expected', [
+        (lambda: pdf.PdfValue.null(), 'null', None),
+        (lambda: pdf.PdfValue.boolean(True), 'boolean', True),
+        (lambda: pdf.PdfValue.integer(-(2**63)), 'integer', -(2**63)),
+        (lambda: pdf.PdfValue.real(1.25), 'real', 1.25),
+        (lambda: pdf.PdfValue.string(b'\x00\xff'), 'string', b'\x00\xff'),
+        (lambda: pdf.PdfValue.name('A/B'), 'name', 'A/B'),
+        (lambda: pdf.PdfValue.reference(2**32 - 1, 65535), 'reference', (2**32 - 1, 65535)),
+    ])
+    def test_pdf_value_scalar_inspection(factory, kind, expected):
+        value = factory()
+>       assert value.kind == kind
+               ^^^^^^^^^^
+E       AttributeError: 'builtins.PdfValue' object has no attribute 'kind'
+
+tests/test_incremental_parser_payloads.py:54: AttributeError
+_____________ test_pdf_value_scalar_inspection[<lambda>-real-1.25] _____________
+
+factory = <function <lambda> at 0x7c8ee8f5a660>, kind = 'real', expected = 1.25
+
+    @pytest.mark.parametrize('factory,kind,expected', [
+        (lambda: pdf.PdfValue.null(), 'null', None),
+        (lambda: pdf.PdfValue.boolean(True), 'boolean', True),
+        (lambda: pdf.PdfValue.integer(-(2**63)), 'integer', -(2**63)),
+        (lambda: pdf.PdfValue.real(1.25), 'real', 1.25),
+        (lambda: pdf.PdfValue.string(b'\x00\xff'), 'string', b'\x00\xff'),
+        (lambda: pdf.PdfValue.name('A/B'), 'name', 'A/B'),
+        (lambda: pdf.PdfValue.reference(2**32 - 1, 65535), 'reference', (2**32 - 1, 65535)),
+    ])
+    def test_pdf_value_scalar_inspection(factory, kind, expected):
+        value = factory()
+>       assert value.kind == kind
+               ^^^^^^^^^^
+E       AttributeError: 'builtins.PdfValue' object has no attribute 'kind'
+
+tests/test_incremental_parser_payloads.py:54: AttributeError
+__________ test_pdf_value_scalar_inspection[<lambda>-string-\x00\xff] __________
+
+factory = <function <lambda> at 0x7c8ee8f5a700>, kind = 'string'
+expected = b'\x00\xff'
+
+    @pytest.mark.parametrize('factory,kind,expected', [
+        (lambda: pdf.PdfValue.null(), 'null', None),
+        (lambda: pdf.PdfValue.boolean(True), 'boolean', True),
+        (lambda: pdf.PdfValue.integer(-(2**63)), 'integer', -(2**63)),
+        (lambda: pdf.PdfValue.real(1.25), 'real', 1.25),
+        (lambda: pdf.PdfValue.string(b'\x00\xff'), 'string', b'\x00\xff'),
+        (lambda: pdf.PdfValue.name('A/B'), 'name', 'A/B'),
+        (lambda: pdf.PdfValue.reference(2**32 - 1, 65535), 'reference', (2**32 - 1, 65535)),
+    ])
+    def test_pdf_value_scalar_inspection(factory, kind, expected):
+        value = factory()
+>       assert value.kind == kind
+               ^^^^^^^^^^
+E       AttributeError: 'builtins.PdfValue' object has no attribute 'kind'
+
+tests/test_incremental_parser_payloads.py:54: AttributeError
+_____________ test_pdf_value_scalar_inspection[<lambda>-name-A/B] ______________
+
+factory = <function <lambda> at 0x7c8ee8f5a7a0>, kind = 'name', expected = 'A/B'
+
+    @pytest.mark.parametrize('factory,kind,expected', [
+        (lambda: pdf.PdfValue.null(), 'null', None),
+        (lambda: pdf.PdfValue.boolean(True), 'boolean', True),
+        (lambda: pdf.PdfValue.integer(-(2**63)), 'integer', -(2**63)),
+        (lambda: pdf.PdfValue.real(1.25), 'real', 1.25),
+        (lambda: pdf.PdfValue.string(b'\x00\xff'), 'string', b'\x00\xff'),
+        (lambda: pdf.PdfValue.name('A/B'), 'name', 'A/B'),
+        (lambda: pdf.PdfValue.reference(2**32 - 1, 65535), 'reference', (2**32 - 1, 65535)),
+    ])
+    def test_pdf_value_scalar_inspection(factory, kind, expected):
+        value = factory()
+>       assert value.kind == kind
+               ^^^^^^^^^^
+E       AttributeError: 'builtins.PdfValue' object has no attribute 'kind'
+
+tests/test_incremental_parser_payloads.py:54: AttributeError
+________ test_pdf_value_scalar_inspection[<lambda>-reference-expected6] ________
+
+factory = <function <lambda> at 0x7c8ee8f5a840>, kind = 'reference'
+expected = (4294967295, 65535)
+
+    @pytest.mark.parametrize('factory,kind,expected', [
+        (lambda: pdf.PdfValue.null(), 'null', None),
+        (lambda: pdf.PdfValue.boolean(True), 'boolean', True),
+        (lambda: pdf.PdfValue.integer(-(2**63)), 'integer', -(2**63)),
+        (lambda: pdf.PdfValue.real(1.25), 'real', 1.25),
+        (lambda: pdf.PdfValue.string(b'\x00\xff'), 'string', b'\x00\xff'),
+        (lambda: pdf.PdfValue.name('A/B'), 'name', 'A/B'),
+        (lambda: pdf.PdfValue.reference(2**32 - 1, 65535), 'reference', (2**32 - 1, 65535)),
+    ])
+    def test_pdf_value_scalar_inspection(factory, kind, expected):
+        value = factory()
+>       assert value.kind == kind
+               ^^^^^^^^^^
+E       AttributeError: 'builtins.PdfValue' object has no attribute 'kind'
+
+tests/test_incremental_parser_payloads.py:54: AttributeError
+_______________ test_nested_pdf_values_are_owned_and_inspectable _______________
+
+    def test_nested_pdf_values_are_owned_and_inspectable():
+        value = pdf.PdfValue.dictionary({'Items': pdf.PdfValue.array([
+            pdf.PdfValue.string(b'\x00\xff'), pdf.PdfValue.reference(42, 7)])})
+>       snapshot = value.value
+                   ^^^^^^^^^^^
+E       AttributeError: 'builtins.PdfValue' object has no attribute 'value'
+
+tests/test_incremental_parser_payloads.py:63: AttributeError
+=========================== short test summary info ============================
+FAILED tests/test_incremental_parser_payloads.py::test_stream_payload_and_legacy_fields_survive_drain
+FAILED tests/test_incremental_parser_payloads.py::test_chunked_feed_retains_complete_ascii_line
+FAILED tests/test_incremental_parser_payloads.py::test_upstream_placeholders_and_loss_are_explicit
+FAILED tests/test_incremental_parser_payloads.py::test_pdf_value_scalar_inspection[<lambda>-null-None]
+FAILED tests/test_incremental_parser_payloads.py::test_pdf_value_scalar_inspection[<lambda>-boolean-True]
+FAILED tests/test_incremental_parser_payloads.py::test_pdf_value_scalar_inspection[<lambda>-integer--9223372036854775808]
+FAILED tests/test_incremental_parser_payloads.py::test_pdf_value_scalar_inspection[<lambda>-real-1.25]
+FAILED tests/test_incremental_parser_payloads.py::test_pdf_value_scalar_inspection[<lambda>-string-\x00\xff]
+FAILED tests/test_incremental_parser_payloads.py::test_pdf_value_scalar_inspection[<lambda>-name-A/B]
+FAILED tests/test_incremental_parser_payloads.py::test_pdf_value_scalar_inspection[<lambda>-reference-expected6]
+FAILED tests/test_incremental_parser_payloads.py::test_nested_pdf_values_are_owned_and_inspectable
+11 failed, 1 passed in 0.19s

@@ -942,55 +942,21 @@ impl PyIncrementalParser {
         Self { inner: IncrementalParser::new() }
     }
 
-    /// Feed a chunk of PDF bytes to the parser.
+    /// Feed the core's line-oriented parser. Core 5.4.2 normalizes UTF-8 and
+    /// whitespace; this is not a binary-safe PDF stream parser.
     fn feed(&mut self, data: &[u8]) -> PyResult<()> {
         self.inner.feed(data).map_err(to_py_err)
     }
 
     /// Return and clear all pending parse events as dicts.
     ///
-    /// Each dict has a ``type`` key and event-specific fields.
+    /// Each dict has a ``type`` key and retains the complete core event payload.
+    /// Core 5.4.2 supplies placeholder Null objects and does not yet emit xref
+    /// or trailer events. Stream bytes reflect core normalization, not raw input.
     fn take_events<'py>(&mut self, py: Python<'py>) -> PyResult<Vec<Bound<'py, PyDict>>> {
-        let events = self.inner.take_events();
-        let mut result = Vec::with_capacity(events.len());
-
-        for event in events {
-            let dict = PyDict::new(py);
-            match event {
-                oxidize_pdf::streaming::ParseEvent::Header { version } => {
-                    dict.set_item("type", "header")?;
-                    dict.set_item("version", version)?;
-                }
-                oxidize_pdf::streaming::ParseEvent::ObjectStart { id, generation } => {
-                    dict.set_item("type", "object_start")?;
-                    dict.set_item("id", id)?;
-                    dict.set_item("generation", generation)?;
-                }
-                oxidize_pdf::streaming::ParseEvent::ObjectEnd { id, generation, .. } => {
-                    dict.set_item("type", "object_end")?;
-                    dict.set_item("id", id)?;
-                    dict.set_item("generation", generation)?;
-                }
-                oxidize_pdf::streaming::ParseEvent::StreamData { object_id, data } => {
-                    dict.set_item("type", "stream_data")?;
-                    dict.set_item("object_id", object_id)?;
-                    dict.set_item("data_len", data.len())?;
-                }
-                oxidize_pdf::streaming::ParseEvent::XRef { entries } => {
-                    dict.set_item("type", "xref")?;
-                    dict.set_item("entry_count", entries.len())?;
-                }
-                oxidize_pdf::streaming::ParseEvent::Trailer { .. } => {
-                    dict.set_item("type", "trailer")?;
-                }
-                oxidize_pdf::streaming::ParseEvent::EndOfFile => {
-                    dict.set_item("type", "end_of_file")?;
-                }
-            }
-            result.push(dict);
-        }
-
-        Ok(result)
+        self.inner.take_events().into_iter()
+            .map(|event| crate::parse_events::event_to_dict(py, event))
+            .collect()
     }
 
     fn is_complete(&self) -> bool {
