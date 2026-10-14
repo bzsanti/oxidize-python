@@ -1,5 +1,5 @@
 //! External CMS signing: typed options, immutable preparation, no private-key handling.
-use crate::errors::PdfError;
+use crate::signature_errors::to_py_error as error;
 use oxidize_pdf::parser::objects::{
     PdfArray, PdfDictionary, PdfName, PdfObject, PdfStream, PdfString,
 };
@@ -8,9 +8,6 @@ use pyo3::prelude::*;
 use pyo3::IntoPyObjectExt;
 use pyo3::types::PyBytes;
 use std::collections::HashMap;
-fn error(e: sig::SignatureError) -> PyErr {
-    PdfError::new_err(e.to_string())
-}
 fn rect(v: (f64, f64, f64, f64)) -> sig::SignatureRect {
     sig::SignatureRect {
         left: v.0,

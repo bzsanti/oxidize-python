@@ -1147,3 +1147,13 @@ __all__ += ["ElementGraph"]
 
 from oxidize_pdf.parse_events import ParseEvent
 __all__ += ["ParseEvent"]
+
+from oxidize_pdf.signature_errors import (
+    PdfSignatureError, PdfSignatureValueError, PdfSignatureRuntimeError,
+    SignatureErrorCode, SignatureErrorDetails,
+)
+__all__ += ["PdfSignatureError", "PdfSignatureValueError", "PdfSignatureRuntimeError",
+            "SignatureErrorCode", "SignatureErrorDetails"]
+
+from oxidize_pdf.signature_errors import SignatureVerificationSummary
+__all__ += ["SignatureVerificationSummary"]

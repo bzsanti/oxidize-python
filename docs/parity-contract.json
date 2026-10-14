@@ -1,6 +1,6 @@
 {
   "core": "5.4.2",
-  "scope": "existing-document preservation, page mutations and external CMS signing; remaining Rust API pending audit; composed extraction policies; incremental free-text editing; incremental Ink editing; configurable partitioning, element graphs, custom token counting and document export; real page iteration with explicit parser lifetime; lossless incremental event bridge (upstream parser limitations remain); all BatchOptions fields with observable executor limitations",
+  "scope": "existing-document preservation, page mutations and external CMS signing; remaining Rust API pending audit; composed extraction policies; incremental free-text editing; incremental Ink editing; configurable partitioning, element graphs, custom token counting and document export; real page iteration with explicit parser lifetime; lossless incremental event bridge (upstream parser limitations remain); all BatchOptions fields with observable executor limitations; structured SignatureError exceptions",
   "callables": {
     "ExistingDocumentPolicy.preserve_base": [
       "page_labels_first_input_wins"
@@ -616,6 +616,15 @@
       "test_invalid_callback",
       "test_executor_callbacks_errors_and_limits",
       "test_callback_reference_cycles_are_collected"
+    ],
+    "tests/test_signature_errors.py": [
+      "test_preparation_and_slots_preserve_signature_errors",
+      "test_cms_error_preserves_base_message_and_pickle",
+      "test_byterange_preserves_integer_details_and_legacy_valueerror",
+      "test_legacy_runtimeerror_is_preserved",
+      "test_aggregate_verification_rejects_invalid_crypto",
+      "test_aggregate_cms_parse_error_retains_details",
+      "test_standalone_detection_preserves_missing_field"
     ]
   },
   "typed_dicts": {
@@ -659,6 +668,85 @@
       "EndOfFileEvent": [
         "type"
       ]
+    },
+    "python/oxidize_pdf/signature_errors.py": {
+      "SignatureVerificationSummary": [
+        "name",
+        "filter",
+        "sub_filter",
+        "valid",
+        "error",
+        "error_code",
+        "error_details"
+      ]
+    }
+  },
+  "signature_errors": {
+    "module": "python/oxidize_pdf/signature_errors.py",
+    "base": "PdfError",
+    "classes": {
+      "PdfSignatureError": [
+        "PdfError"
+      ],
+      "PdfSignatureValueError": [
+        "PdfSignatureError",
+        "ValueError"
+      ],
+      "PdfSignatureRuntimeError": [
+        "PdfSignatureError",
+        "RuntimeError"
+      ]
+    },
+    "codes": {
+      "missing_field": [
+        "field"
+      ],
+      "invalid_byte_range": [
+        "details"
+      ],
+      "invalid_signature_dict": [
+        "details"
+      ],
+      "contents_extraction_failed": [
+        "details"
+      ],
+      "acro_form_not_found": [],
+      "no_signature_fields": [],
+      "parse_error": [
+        "message"
+      ],
+      "cms_parsing_failed": [
+        "details"
+      ],
+      "unsupported_algorithm": [
+        "algorithm"
+      ],
+      "byte_range_exceeds_document": [
+        "offset",
+        "length",
+        "document_size"
+      ],
+      "hash_verification_failed": [
+        "details"
+      ],
+      "signature_verification_failed": [
+        "details"
+      ],
+      "certificate_extraction_failed": [
+        "details"
+      ],
+      "certificate_validation_failed": [
+        "details"
+      ]
+    },
+    "fields": {
+      "field": "str",
+      "details": "str",
+      "message": "str",
+      "algorithm": "str",
+      "offset": "int",
+      "length": "int",
+      "document_size": "int"
     }
   }
 }

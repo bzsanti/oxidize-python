@@ -33,6 +33,7 @@ mod rag_analysis;
 mod security;
 mod semantic;
 mod signing;
+mod signature_errors;
 mod table;
 mod text;
 mod text_extraction;

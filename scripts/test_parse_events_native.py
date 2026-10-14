@@ -1,4 +1,4 @@
-"""Run synthetic core-event conversion tests with an embedded CPython on Linux.
+"""Run synthetic native bridge conversion tests with an embedded CPython on Linux.
 
 The extension-module feature intentionally omits libpython linkage for wheels.
 Only this test executable links the active Python library; production build
@@ -22,6 +22,8 @@ def main() -> None:
         raise SystemExit('Shared CPython library not found')
     env = os.environ.copy()
     env['PYO3_PYTHON'] = sys.executable
+    # The embedded interpreter does not activate the editable venv installation.
+    env['PYTHONPATH'] = str(Path('python').resolve()) + os.pathsep + env.get('PYTHONPATH', '')
     flags = (env['CARGO_ENCODED_RUSTFLAGS'].split('\x1f')
              if 'CARGO_ENCODED_RUSTFLAGS' in env else shlex.split(env.get('RUSTFLAGS', '')))
     flags += ['-C', f'link-arg={Path(libdir) / library}']
@@ -42,13 +44,15 @@ def main() -> None:
     if len(executables) != 1:
         raise SystemExit(f'Expected one test executable, found {executables}')
     env['LD_LIBRARY_PATH'] = libdir + os.pathsep + env.get('LD_LIBRARY_PATH', '')
-    listing = subprocess.check_output([executables[0], 'parse_events::tests', '--list'], env=env, text=True)
+    listing = subprocess.check_output([executables[0], '--list'], env=env, text=True)
     for name in ('preserves_nonempty_xref_and_large_offsets',
                  'preserves_trailer_and_nonplaceholder_object',
                  'preserves_binary_stream_bytes_without_decoding'):
         if f'parse_events::tests::{name}: test' not in listing:
             raise SystemExit(f'Required native contract test missing: {name}')
-    subprocess.run([executables[0], 'parse_events::tests', '--nocapture'], env=env, check=True)
+    if 'signature_errors::tests::preserves_all_signature_variants_and_fields: test' not in listing:
+        raise SystemExit('Required native signature-error contract test missing')
+    subprocess.run([executables[0], '--nocapture'], env=env, check=True)
 
 
 if __name__ == '__main__':

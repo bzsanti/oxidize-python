@@ -123,6 +123,30 @@ def check_contract(exports: set[str]) -> list[str]:
                       if isinstance(n, ast.AnnAssign) and isinstance(n.target, ast.Name)} if record else set()
             if fields != set(required):
                 errors.append(f"Typed event fields changed: {name}")
+    signature = contract.get("signature_errors")
+    if signature:
+        tree = ast.parse((REPO_ROOT / signature["module"]).read_text())
+        classes = {n.name: n for n in tree.body if isinstance(n, ast.ClassDef)}
+        for name, bases in signature["classes"].items():
+            node = classes.get(name)
+            if name not in exports or node is None or [ast.unparse(b) for b in node.bases] != bases:
+                errors.append(f"Signature error inheritance/export changed: {name}")
+        definitions = {n.targets[0].id: n.value for n in tree.body
+                       if isinstance(n, ast.Assign) and isinstance(n.targets[0], ast.Name)}
+        codes = definitions.get("SignatureErrorCode")
+        actual_codes = set()
+        if isinstance(codes, ast.Subscript) and ast.unparse(codes.value) == "Literal":
+            values = codes.slice.elts if isinstance(codes.slice, ast.Tuple) else [codes.slice]
+            actual_codes = {n.value for n in values if isinstance(n, ast.Constant)}
+        if actual_codes != set(signature["codes"]):
+            errors.append("Signature error codes changed")
+        for name, expected in (("SignatureErrorDetails", signature["fields"]),
+                               ("PdfSignatureError", {"code": "SignatureErrorCode", "details": "SignatureErrorDetails"})):
+            node = classes.get(name)
+            actual = {n.target.id: ast.unparse(n.annotation) for n in node.body
+                      if isinstance(n, ast.AnnAssign) and isinstance(n.target, ast.Name)} if node else {}
+            if actual != expected:
+                errors.append(f"Signature error fields/types changed: {name}")
     return errors
 
 
