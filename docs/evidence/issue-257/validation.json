@@ -1,0 +1,19 @@
+{
+  "core": "5.4.2",
+  "base": "753c8d9d731465c247d0f0e8aa9c081d6b7e724d",
+  "sha256": {
+    ".github/workflows/test.yml": "994c5dc7fb0390e7b3dc210ee41bbdfd3b2201d6f324e9cf3f98ff38fdaa7cef",
+    "docs/FEATURE_PARITY.md": "7465afaec2d556ac81ee40a17f9b492e4b1d88090508f0029b903f2fda654e0f",
+    "docs/parity-contract.json": "37dc52f009d8d428cfe91cb97435d46c5ead20dbbfa2714e551430634eb9047b",
+    "python/oxidize_pdf/_oxidize_pdf.pyi": "e4176b8d4e3e03595b65ff2bc2dad50069ca76012bd58dfe898bd81a0037b06b",
+    "src/batch_recovery_streaming.rs": "2bd747ff5c2265ed12a84fefad97fc7606378f7e77c867b3fe4a14c68af79896",
+    "src/tier8.rs": "c1d099556ecc5f7874a42a45c08864ff981949f5353a6b090ab5afb53147126f",
+    "tests/test_parity_checker.py": "55a4865f0bdea13dae89dc3bc16cb03fc495073e6ae0d9274f7ca035b1aa5e99",
+    "tests/test_batch_options.py": "46f822b43e60b04d54d3bd2eed4e00aaefabf065d2ab14649655546c403baf89",
+    "tests/typing/batch_options.py": "d69c4f0411bec8c833d72100feb1133d1edee2b3177f7c39312f9edb85f900b8"
+  },
+  "library_tests": 2405,
+  "mcp_passed": 295,
+  "mcp_skipped": 1,
+  "focused_tests": 85
+}

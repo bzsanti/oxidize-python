@@ -1,0 +1,54 @@
+.....................FF                                                  [100%]
+=================================== FAILURES ===================================
+_____________ test_callback_reference_cycles_are_collected[False] ______________
+
+with_processor = False
+
+    @pytest.mark.parametrize('with_processor', [False, True])
+    def test_callback_reference_cycles_are_collected(with_processor):
+        import gc
+        import weakref
+    
+        class Callback:
+            def __call__(self, info):
+                pass
+    
+        callback = Callback()
+        reference = weakref.ref(callback)
+        options = op.BatchOptions(progress_callback=callback)
+        callback.owner = op.BatchProcessor(options) if with_processor else options
+        del callback, options
+        gc.collect()
+>       assert reference() is None
+E       AssertionError: assert <test_batch_options.test_callback_reference_cycles_are_collected.<locals>.Callback object at 0x7c49f3d6daf0> is None
+E        +  where <test_batch_options.test_callback_reference_cycles_are_collected.<locals>.Callback object at 0x7c49f3d6daf0> = <weakref at 0x7c49f3d69ee0; to 'Callback' at 0x7c49f3d6daf0>()
+
+tests/test_batch_options.py:142: AssertionError
+______________ test_callback_reference_cycles_are_collected[True] ______________
+
+with_processor = True
+
+    @pytest.mark.parametrize('with_processor', [False, True])
+    def test_callback_reference_cycles_are_collected(with_processor):
+        import gc
+        import weakref
+    
+        class Callback:
+            def __call__(self, info):
+                pass
+    
+        callback = Callback()
+        reference = weakref.ref(callback)
+        options = op.BatchOptions(progress_callback=callback)
+        callback.owner = op.BatchProcessor(options) if with_processor else options
+        del callback, options
+        gc.collect()
+>       assert reference() is None
+E       AssertionError: assert <test_batch_options.test_callback_reference_cycles_are_collected.<locals>.Callback object at 0x7c49f3e5b020> is None
+E        +  where <test_batch_options.test_callback_reference_cycles_are_collected.<locals>.Callback object at 0x7c49f3e5b020> = <weakref at 0x7c49f3d6b060; to 'Callback' at 0x7c49f3e5b020>()
+
+tests/test_batch_options.py:142: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_batch_options.py::test_callback_reference_cycles_are_collected[False]
+FAILED tests/test_batch_options.py::test_callback_reference_cycles_are_collected[True]
+2 failed, 21 passed in 0.21s

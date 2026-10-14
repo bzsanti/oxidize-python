@@ -1302,13 +1302,39 @@ class AnalysisPipeline:
 # ── Batch processing (F62) ───────────────────────────────────────────────────
 
 class BatchOptions:
-    """Options controlling batch execution."""
+    """Batch options (immutable). Memory is bytes; durations are positive seconds.
+
+    Defaults: parallelism=min(CPU count, 8), stop_on_error=False, memory=512 MiB,
+    progress_interval=0.1, callback=None, job_timeout=300. None disables timeout.
+    Core 5.4.2 stores but DOES NOT ENFORCE memory and timeout limits.
+    Callbacks receive owned ProgressInfo snapshots on native execution threads;
+    they must return promptly. Empty batches do not call back. The first callback
+    exception is re-raised by execute AFTER jobs finish; outputs may already exist.
+    stop_on_error cancels jobs not yet dispatched, not work already queued.
+    """
 
     def __init__(
         self,
         parallelism: Optional[int] = ...,
         stop_on_error: Optional[bool] = ...,
+        *,
+        memory_limit_per_worker: int = 536870912,
+        progress_interval: float = 0.1,
+        progress_callback: Optional[Callable[[ProgressInfo], None]] = None,
+        job_timeout: Optional[float] = 300.0,
     ) -> None: ...
+    @property
+    def parallelism(self) -> int: ...
+    @property
+    def stop_on_error(self) -> bool: ...
+    @property
+    def memory_limit_per_worker(self) -> int: ...
+    @property
+    def progress_interval(self) -> float: ...
+    @property
+    def progress_callback(self) -> Optional[Callable[[ProgressInfo], None]]: ...
+    @property
+    def job_timeout(self) -> Optional[float]: ...
     def __repr__(self) -> str: ...
 
 class BatchJob:
@@ -1374,6 +1400,7 @@ class ProgressInfo:
     def running_jobs(self) -> int: ...
     def percentage(self) -> float: ...
     def is_complete(self) -> bool: ...
+    def elapsed_secs(self) -> float: ...
 
 class BatchProcessor:
     """Queue and execute batch jobs."""
@@ -2122,3 +2149,4 @@ class IncrementalParser:
     def feed(self, data: bytes) -> None: ...
     def take_events(self) -> list[ParseEvent]: ...
     def is_complete(self) -> bool: ...
+    def elapsed_secs(self) -> float: ...

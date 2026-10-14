@@ -14,6 +14,7 @@
 use std::fs::File;
 use std::io::{Seek, SeekFrom};
 use std::path::PathBuf;
+use std::sync::{Arc, Mutex};
 
 use pyo3::prelude::*;
 use pyo3::types::PyDict;
@@ -291,6 +292,26 @@ impl PyProgressInfo {
 
 // ── BatchProcessor ────────────────────────────────────────────────────────
 
+// One adapter per processor: reusing options must not share callback failures.
+struct PythonProgressCallback {
+    callback: Py<PyAny>,
+    error: Mutex<Option<PyErr>>,
+}
+
+impl oxidize_pdf::batch::ProgressCallback for PythonProgressCallback {
+    fn on_progress(&self, info: &ProgressInfo) {
+        if self.error.lock().unwrap_or_else(|e| e.into_inner()).is_some() {
+            return;
+        }
+        Python::attach(|py| {
+            // Never hold the error mutex while invoking user Python code.
+            if let Err(error) = self.callback.call1(py, (PyProgressInfo { inner: info.clone() },)) {
+                *self.error.lock().unwrap_or_else(|e| e.into_inner()) = Some(error);
+            }
+        });
+    }
+}
+
 /// Batch processor for executing multiple PDF jobs in parallel.
 ///
 /// Example::
@@ -303,15 +324,30 @@ impl PyProgressInfo {
 #[pyclass(name = "BatchProcessor", unsendable)]
 pub struct PyBatchProcessor {
     inner: Option<BatchProcessor>,
+    callback: Option<Arc<PythonProgressCallback>>,
 }
 
 #[pymethods]
 impl PyBatchProcessor {
+    fn __traverse__(&self, visit: pyo3::gc::PyVisit<'_>) -> Result<(), pyo3::gc::PyTraverseError> {
+        if let Some(callback) = &self.callback { visit.call(&callback.callback)?; }
+        Ok(())
+    }
+    fn __clear__(&mut self) {
+        self.inner = None;
+        self.callback = None;
+    }
     #[new]
-    fn new(options: &crate::tier8::PyBatchOptions) -> Self {
-        Self {
-            inner: Some(BatchProcessor::new(options.inner.clone())),
-        }
+    fn new(options: &crate::tier8::PyBatchOptions, py: Python<'_>) -> Self {
+        let mut native = options.inner.clone();
+        let callback = options.callback.as_ref().map(|callback| Arc::new(PythonProgressCallback {
+            callback: callback.clone_ref(py),
+            error: Mutex::new(None),
+        }));
+        native.progress_callback = callback.as_ref().map(|cb| {
+            Arc::clone(cb) as Arc<dyn oxidize_pdf::batch::ProgressCallback>
+        });
+        Self { inner: Some(BatchProcessor::new(native)), callback }
     }
 
     fn add_job(&mut self, job: &mut PyBatchJob) -> PyResult<()> {
@@ -350,14 +386,19 @@ impl PyBatchProcessor {
     }
 
     /// Execute all queued jobs. Consumes the processor — cannot call again.
-    fn execute(&mut self) -> PyResult<PyBatchSummary> {
+    fn execute(&mut self, py: Python<'_>) -> PyResult<PyBatchSummary> {
         let processor = self.inner.take().ok_or_else(|| {
             pyo3::exceptions::PyRuntimeError::new_err(
                 "BatchProcessor already consumed by a previous execute() call",
             )
         })?;
-        let summary = processor.execute().map_err(to_py_err)?;
-        Ok(PyBatchSummary { inner: summary })
+        let result = py.detach(move || processor.execute());
+        if let Some(callback) = self.callback.take() {
+            if let Some(error) = callback.error.lock().unwrap_or_else(|e| e.into_inner()).take() {
+                return Err(error);
+            }
+        }
+        Ok(PyBatchSummary { inner: result.map_err(to_py_err)? })
     }
 
     fn __repr__(&self) -> String {

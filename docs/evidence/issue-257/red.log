@@ -1,0 +1,327 @@
+FFF.F.FFFFFFFFFFFFFFF                                                    [100%]
+=================================== FAILURES ===================================
+______________________ test_defaults_and_explicit_options ______________________
+
+    def test_defaults_and_explicit_options():
+        default = op.BatchOptions()
+>       assert 1 <= default.parallelism <= 8
+                    ^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'builtins.BatchOptions' object has no attribute 'parallelism'
+
+tests/test_batch_options.py:11: AttributeError
+______________________ test_invalid_counts[0-parallelism] ______________________
+
+field = 'parallelism', value = 0
+
+    @pytest.mark.parametrize('field', ['parallelism', 'memory_limit_per_worker'])
+    @pytest.mark.parametrize('value', [0, -1, 2**100])
+    def test_invalid_counts(field, value):
+>       with pytest.raises((ValueError, OverflowError)):
+E       Failed: DID NOT RAISE any of (<class 'ValueError'>, <class 'OverflowError'>)
+
+tests/test_batch_options.py:35: Failed
+________________ test_invalid_counts[0-memory_limit_per_worker] ________________
+
+field = 'memory_limit_per_worker', value = 0
+
+    @pytest.mark.parametrize('field', ['parallelism', 'memory_limit_per_worker'])
+    @pytest.mark.parametrize('value', [0, -1, 2**100])
+    def test_invalid_counts(field, value):
+        with pytest.raises((ValueError, OverflowError)):
+>           op.BatchOptions(**{field: value})
+E           TypeError: BatchOptions.__new__() got an unexpected keyword argument 'memory_limit_per_worker'
+
+tests/test_batch_options.py:36: TypeError
+_______________ test_invalid_counts[-1-memory_limit_per_worker] ________________
+
+field = 'memory_limit_per_worker', value = -1
+
+    @pytest.mark.parametrize('field', ['parallelism', 'memory_limit_per_worker'])
+    @pytest.mark.parametrize('value', [0, -1, 2**100])
+    def test_invalid_counts(field, value):
+        with pytest.raises((ValueError, OverflowError)):
+>           op.BatchOptions(**{field: value})
+E           TypeError: BatchOptions.__new__() got an unexpected keyword argument 'memory_limit_per_worker'
+
+tests/test_batch_options.py:36: TypeError
+_ test_invalid_counts[1267650600228229401496703205376-memory_limit_per_worker] _
+
+field = 'memory_limit_per_worker', value = 1267650600228229401496703205376
+
+    @pytest.mark.parametrize('field', ['parallelism', 'memory_limit_per_worker'])
+    @pytest.mark.parametrize('value', [0, -1, 2**100])
+    def test_invalid_counts(field, value):
+        with pytest.raises((ValueError, OverflowError)):
+>           op.BatchOptions(**{field: value})
+E           TypeError: BatchOptions.__new__() got an unexpected keyword argument 'memory_limit_per_worker'
+
+tests/test_batch_options.py:36: TypeError
+_________________ test_invalid_durations[0-progress_interval] __________________
+
+field = 'progress_interval', value = 0
+
+    @pytest.mark.parametrize('field', ['progress_interval', 'job_timeout'])
+    @pytest.mark.parametrize('value', [0, -1, float('nan'), float('inf'), 1e100, 1e-20])
+    def test_invalid_durations(field, value):
+        with pytest.raises(ValueError):
+>           op.BatchOptions(**{field: value})
+E           TypeError: BatchOptions.__new__() got an unexpected keyword argument 'progress_interval'
+
+tests/test_batch_options.py:43: TypeError
+____________________ test_invalid_durations[0-job_timeout] _____________________
+
+field = 'job_timeout', value = 0
+
+    @pytest.mark.parametrize('field', ['progress_interval', 'job_timeout'])
+    @pytest.mark.parametrize('value', [0, -1, float('nan'), float('inf'), 1e100, 1e-20])
+    def test_invalid_durations(field, value):
+        with pytest.raises(ValueError):
+>           op.BatchOptions(**{field: value})
+E           TypeError: BatchOptions.__new__() got an unexpected keyword argument 'job_timeout'
+
+tests/test_batch_options.py:43: TypeError
+_________________ test_invalid_durations[-1-progress_interval] _________________
+
+field = 'progress_interval', value = -1
+
+    @pytest.mark.parametrize('field', ['progress_interval', 'job_timeout'])
+    @pytest.mark.parametrize('value', [0, -1, float('nan'), float('inf'), 1e100, 1e-20])
+    def test_invalid_durations(field, value):
+        with pytest.raises(ValueError):
+>           op.BatchOptions(**{field: value})
+E           TypeError: BatchOptions.__new__() got an unexpected keyword argument 'progress_interval'
+
+tests/test_batch_options.py:43: TypeError
+____________________ test_invalid_durations[-1-job_timeout] ____________________
+
+field = 'job_timeout', value = -1
+
+    @pytest.mark.parametrize('field', ['progress_interval', 'job_timeout'])
+    @pytest.mark.parametrize('value', [0, -1, float('nan'), float('inf'), 1e100, 1e-20])
+    def test_invalid_durations(field, value):
+        with pytest.raises(ValueError):
+>           op.BatchOptions(**{field: value})
+E           TypeError: BatchOptions.__new__() got an unexpected keyword argument 'job_timeout'
+
+tests/test_batch_options.py:43: TypeError
+________________ test_invalid_durations[nan-progress_interval] _________________
+
+field = 'progress_interval', value = nan
+
+    @pytest.mark.parametrize('field', ['progress_interval', 'job_timeout'])
+    @pytest.mark.parametrize('value', [0, -1, float('nan'), float('inf'), 1e100, 1e-20])
+    def test_invalid_durations(field, value):
+        with pytest.raises(ValueError):
+>           op.BatchOptions(**{field: value})
+E           TypeError: BatchOptions.__new__() got an unexpected keyword argument 'progress_interval'
+
+tests/test_batch_options.py:43: TypeError
+___________________ test_invalid_durations[nan-job_timeout] ____________________
+
+field = 'job_timeout', value = nan
+
+    @pytest.mark.parametrize('field', ['progress_interval', 'job_timeout'])
+    @pytest.mark.parametrize('value', [0, -1, float('nan'), float('inf'), 1e100, 1e-20])
+    def test_invalid_durations(field, value):
+        with pytest.raises(ValueError):
+>           op.BatchOptions(**{field: value})
+E           TypeError: BatchOptions.__new__() got an unexpected keyword argument 'job_timeout'
+
+tests/test_batch_options.py:43: TypeError
+________________ test_invalid_durations[inf-progress_interval] _________________
+
+field = 'progress_interval', value = inf
+
+    @pytest.mark.parametrize('field', ['progress_interval', 'job_timeout'])
+    @pytest.mark.parametrize('value', [0, -1, float('nan'), float('inf'), 1e100, 1e-20])
+    def test_invalid_durations(field, value):
+        with pytest.raises(ValueError):
+>           op.BatchOptions(**{field: value})
+E           TypeError: BatchOptions.__new__() got an unexpected keyword argument 'progress_interval'
+
+tests/test_batch_options.py:43: TypeError
+___________________ test_invalid_durations[inf-job_timeout] ____________________
+
+field = 'job_timeout', value = inf
+
+    @pytest.mark.parametrize('field', ['progress_interval', 'job_timeout'])
+    @pytest.mark.parametrize('value', [0, -1, float('nan'), float('inf'), 1e100, 1e-20])
+    def test_invalid_durations(field, value):
+        with pytest.raises(ValueError):
+>           op.BatchOptions(**{field: value})
+E           TypeError: BatchOptions.__new__() got an unexpected keyword argument 'job_timeout'
+
+tests/test_batch_options.py:43: TypeError
+_______________ test_invalid_durations[1e+100-progress_interval] _______________
+
+field = 'progress_interval', value = 1e+100
+
+    @pytest.mark.parametrize('field', ['progress_interval', 'job_timeout'])
+    @pytest.mark.parametrize('value', [0, -1, float('nan'), float('inf'), 1e100, 1e-20])
+    def test_invalid_durations(field, value):
+        with pytest.raises(ValueError):
+>           op.BatchOptions(**{field: value})
+E           TypeError: BatchOptions.__new__() got an unexpected keyword argument 'progress_interval'
+
+tests/test_batch_options.py:43: TypeError
+__________________ test_invalid_durations[1e+100-job_timeout] __________________
+
+field = 'job_timeout', value = 1e+100
+
+    @pytest.mark.parametrize('field', ['progress_interval', 'job_timeout'])
+    @pytest.mark.parametrize('value', [0, -1, float('nan'), float('inf'), 1e100, 1e-20])
+    def test_invalid_durations(field, value):
+        with pytest.raises(ValueError):
+>           op.BatchOptions(**{field: value})
+E           TypeError: BatchOptions.__new__() got an unexpected keyword argument 'job_timeout'
+
+tests/test_batch_options.py:43: TypeError
+_______________ test_invalid_durations[1e-20-progress_interval] ________________
+
+field = 'progress_interval', value = 1e-20
+
+    @pytest.mark.parametrize('field', ['progress_interval', 'job_timeout'])
+    @pytest.mark.parametrize('value', [0, -1, float('nan'), float('inf'), 1e100, 1e-20])
+    def test_invalid_durations(field, value):
+        with pytest.raises(ValueError):
+>           op.BatchOptions(**{field: value})
+E           TypeError: BatchOptions.__new__() got an unexpected keyword argument 'progress_interval'
+
+tests/test_batch_options.py:43: TypeError
+__________________ test_invalid_durations[1e-20-job_timeout] ___________________
+
+field = 'job_timeout', value = 1e-20
+
+    @pytest.mark.parametrize('field', ['progress_interval', 'job_timeout'])
+    @pytest.mark.parametrize('value', [0, -1, float('nan'), float('inf'), 1e100, 1e-20])
+    def test_invalid_durations(field, value):
+        with pytest.raises(ValueError):
+>           op.BatchOptions(**{field: value})
+E           TypeError: BatchOptions.__new__() got an unexpected keyword argument 'job_timeout'
+
+tests/test_batch_options.py:43: TypeError
+____________________________ test_invalid_callback _____________________________
+
+    def test_invalid_callback():
+        with pytest.raises(TypeError, match='callable'):
+>           op.BatchOptions(progress_callback=42)
+E           TypeError: BatchOptions.__new__() got an unexpected keyword argument 'progress_callback'
+
+tests/test_batch_options.py:48: TypeError
+
+During handling of the above exception, another exception occurred:
+
+    def test_invalid_callback():
+>       with pytest.raises(TypeError, match='callable'):
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'callable'
+E         Actual message: "BatchOptions.__new__() got an unexpected keyword argument 'progress_callback'"
+
+tests/test_batch_options.py:47: AssertionError
+__________________ test_executor_callbacks_errors_and_limits ___________________
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-26/test_executor_callbacks_errors0')
+
+    def test_executor_callbacks_errors_and_limits(tmp_path):
+        # A retained GIL deadlocks the native progress thread. Bound the entire real
+        # execution, including callback exceptions, reuse and cancellation.
+        script = r'''
+    import sys
+    from pathlib import Path
+    import oxidize_pdf as op
+    root = Path(sys.argv[1])
+    doc = op.Document()
+    page = op.Page.a4()
+    page.set_font(op.Font.HELVETICA, 12)
+    page.text_at(50, 750, 'Batch execution')
+    doc.add_page(page)
+    source = root / 'input.pdf'
+    doc.save(str(source))
+    seen = []
+    def callback(info):
+        assert isinstance(info, op.ProgressInfo)
+        seen.append(info)
+    options = op.BatchOptions(1, False, memory_limit_per_worker=1,
+        job_timeout=1e-9, progress_interval=0.001, progress_callback=callback)
+    processor = op.BatchProcessor(options)
+    processor.add_job(op.BatchJob.split(str(source), str(root / 'part_{n}.pdf'), 1))
+    processor.add_job(op.BatchJob.split(str(root / 'missing.pdf'), str(root / 'bad_{n}.pdf'), 1))
+    summary = processor.execute()
+    assert (summary.total_jobs, summary.successful, summary.failed) == (2, 1, 1)
+    assert (root / 'part_1.pdf').read_bytes().startswith(b'%PDF-')
+    assert summary.results[0].duration_secs > options.job_timeout
+    assert summary.results[1].error
+    assert seen[-1].is_complete()
+    assert (seen[-1].total_jobs, seen[-1].completed_jobs, seen[-1].failed_jobs) == (2, 1, 1)
+    assert seen[-1].running_jobs == 0
+    assert seen[-1].elapsed_secs() >= 0
+    # The snapshots remain usable after the native executor has been consumed.
+    assert seen[0].total_jobs == 2
+    try:
+        processor.execute()
+    except RuntimeError:
+        pass
+    else:
+        raise AssertionError('processor reused')
+    class CallbackFailure(Exception): pass
+    error = CallbackFailure('callback sentinel')
+    calls = []
+    def failing(info):
+        calls.append(info)
+        raise error
+    options = op.BatchOptions(progress_callback=failing, progress_interval=0.001)
+    for run in range(2):
+        processor = op.BatchProcessor(options)
+        processor.add_job(op.BatchJob.split(str(source), str(root / f'error{run}_{{n}}.pdf'), 1))
+        try:
+            processor.execute()
+        except CallbackFailure as caught:
+            assert caught is error
+        else:
+            raise AssertionError('callback error swallowed')
+        assert (root / f'error{run}_1.pdf').exists()
+    assert len(calls) == 2  # independent error state and no repeated callbacks after error
+    assert op.BatchProcessor(options).execute().total_jobs == 0
+    processor = op.BatchProcessor(op.BatchOptions(stop_on_error=True, progress_callback=callback, progress_interval=0.001))
+    processor.add_job(op.BatchJob.split(str(root / 'missing.pdf'), str(root / 'stop_{n}.pdf'), 1))
+    summary = processor.execute()
+    assert summary.failed == 1 and summary.cancelled
+    processor = op.BatchProcessor(op.BatchOptions(progress_callback=callback))
+    processor.add_job(op.BatchJob.split(str(source), str(root / 'cancel_{n}.pdf'), 1))
+    processor.cancel()
+    summary = processor.execute()
+    assert summary.cancelled and summary.results[0].status == 'cancelled'
+    assert not (root / 'cancel_1.pdf').exists()
+    '''
+        result = subprocess.run([sys.executable, '-c', script, str(tmp_path)],
+                                capture_output=True, text=True, timeout=20)
+>       assert result.returncode == 0, result.stdout + result.stderr
+E       AssertionError: Traceback (most recent call last):
+E           File "<string>", line 17, in <module>
+E         TypeError: BatchOptions.__new__() got an unexpected keyword argument 'memory_limit_per_worker'
+E         
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['/home/santi/repos/BelowZero/oxidizePdf/oxidize-python/.venv/bin/python', '-c', "\nimport sys\n...e 17, in <module>\nTypeError: BatchOptions.__new__() got an unexpected keyword argument \'memory_limit_per_worker\'\n').returncode
+
+tests/test_batch_options.py:124: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_batch_options.py::test_defaults_and_explicit_options - Attr...
+FAILED tests/test_batch_options.py::test_invalid_counts[0-parallelism] - Fail...
+FAILED tests/test_batch_options.py::test_invalid_counts[0-memory_limit_per_worker]
+FAILED tests/test_batch_options.py::test_invalid_counts[-1-memory_limit_per_worker]
+FAILED tests/test_batch_options.py::test_invalid_counts[1267650600228229401496703205376-memory_limit_per_worker]
+FAILED tests/test_batch_options.py::test_invalid_durations[0-progress_interval]
+FAILED tests/test_batch_options.py::test_invalid_durations[0-job_timeout] - T...
+FAILED tests/test_batch_options.py::test_invalid_durations[-1-progress_interval]
+FAILED tests/test_batch_options.py::test_invalid_durations[-1-job_timeout] - ...
+FAILED tests/test_batch_options.py::test_invalid_durations[nan-progress_interval]
+FAILED tests/test_batch_options.py::test_invalid_durations[nan-job_timeout]
+FAILED tests/test_batch_options.py::test_invalid_durations[inf-progress_interval]
+FAILED tests/test_batch_options.py::test_invalid_durations[inf-job_timeout]
+FAILED tests/test_batch_options.py::test_invalid_durations[1e+100-progress_interval]
+FAILED tests/test_batch_options.py::test_invalid_durations[1e+100-job_timeout]
+FAILED tests/test_batch_options.py::test_invalid_durations[1e-20-progress_interval]
+FAILED tests/test_batch_options.py::test_invalid_durations[1e-20-job_timeout]
+FAILED tests/test_batch_options.py::test_invalid_callback - AssertionError: R...
+FAILED tests/test_batch_options.py::test_executor_callbacks_errors_and_limits
+19 failed, 2 passed in 0.39s
