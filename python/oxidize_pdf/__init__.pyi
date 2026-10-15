@@ -966,3 +966,19 @@ __all__ += [
     "GeometricUpdate",
     "IncrementalGeometricEditor",
 ]
+
+# Caller-supplied incremental OCR text layers.
+from oxidize_pdf._oxidize_pdf import (
+    OcrLayerFragment as OcrLayerFragment,
+    OcrLayerPage as OcrLayerPage,
+    OcrLayerPlan as OcrLayerPlan,
+    OcrLayerUpdate as OcrLayerUpdate,
+    IncrementalOcrLayerEditor as IncrementalOcrLayerEditor,
+)
+__all__ += [
+    "OcrLayerFragment",
+    "OcrLayerPage",
+    "OcrLayerPlan",
+    "OcrLayerUpdate",
+    "IncrementalOcrLayerEditor",
+]

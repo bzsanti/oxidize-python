@@ -1,0 +1,20 @@
+checking /tmp/tmpderrg1ep/base.pdf
+PDF Version: 1.7
+File is not encrypted
+File is not linearized
+No syntax or stream encoding errors found; the file may still contain
+errors that qpdf cannot detect
+checking /tmp/tmpderrg1ep/output.pdf
+PDF Version: 1.7
+File is not encrypted
+File is not linearized
+No syntax or stream encoding errors found; the file may still contain
+errors that qpdf cannot detect
+Both rendered pages are pixel-identical after adding invisible OCR text
+Poppler text: 'ORIGINAL\n\ncaf?\n\n\x0c\x0c'
+qpdf independently confirms preserved catalog, page tree, other page, font, image, annotation, original stream and metadata
+Traceback (most recent call last):
+  File "/home/santi/repos/BelowZero/oxidizePdf/oxidize-python/docs/evidence/issue-278/independent_probe.py", line 38, in <module>
+    assert text_ok, 'BLOCKER: Poppler does not recover the complete Unicode OCR text'
+           ^^^^^^^
+AssertionError: BLOCKER: Poppler does not recover the complete Unicode OCR text

@@ -1,0 +1,2 @@
+pytest tests/ -q (outside sandbox)
+2844 passed, 1 skipped in 75.08s (0:01:15)

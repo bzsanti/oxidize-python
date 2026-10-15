@@ -1236,3 +1236,70 @@ avisa del uso de enumerate como iterable en parametrize: corregido a list en
 el test nuevo sin cambiar casos. Aviso previo equivalente en
 test_core_5_1_bindings.py queda fuera de #276 (mantenimiento de tests); no
 bloquea la ejecución actual. CI se repite sobre el head corregido.
+
+
+## Issue #278 — capa incremental OcrLayer, subcontrato de #262
+
+| Requisito | Estado y evidencia | Bloqueante / siguiente acción |
+| --- | --- | --- |
+| Tipos completos y plan/apply (core 5.4.2) | Implementado en borrador; tipos y guard pasan | No integrar hasta resolver interoperabilidad |
+| Preservación, orden, no-op/skip y atomicidad | 34 casos pasan; qpdf y render independiente conservan objetos y píxeles | Unicode externo INCUMPLIDO: Poppler recupera caf? |
+| Permisos, cifrado y layouts no soportados | Demostrado plan/apply: P1/P2/P3 y cifrado rechazados | Ninguno |
+| Tipado, guard, revisión y CI | Pendiente | Validar antes de integrar |
+
+Texto aportado por el llamante; no reconocimiento ni Tesseract. No se cambia
+el pin =5.4.2. La validación semántica de structs se conserva en plan/apply;
+no se afirma validación BCP47 completa (core acepta ASCII no vacío).
+
+### Revisión de #278: bloqueo confirmado, no aceptada
+
+La implementación del binding queda en borrador. No se integra, no se cierra
+#278 y no se afirma que sea independiente de upstream: esa hipótesis inicial
+queda refutada por la comprobación externa. Core sigue =5.4.2.
+
+Contratos y evidencia: 34 casos del binding más ocho del guard (42 passed);
+stubs públicos/nativos y mypy pasan. qpdf comprueba estructura, recursos,
+contenido original, imagen, anotación y metadatos. Poppler pdftoppm 24.02.0
+produce imágenes idénticas antes/después en ambas páginas del fixture.
+
+Hallazgos:
+1. Core writer/incremental_ocr_layer.rs:357 emite /OCR para el marcado con
+   ActualText. Poppler pdftotext 24.02.0 devuelve `caf?` donde se suministró
+   `café 世界 😀`. El lector core sí recupera el texto, por lo que el round-trip
+   interno no acredita interoperabilidad. En una copia QDF, cambiar solo /OCR
+   por /Span y regenerar offsets con fix-qdf recupera exactamente el Unicode.
+   Corrección candidata: emisión interoperable de ActualText en core, con
+   validación externa; no se modifica ni parchea la salida del producto aquí.
+2. Core writer/incremental_ocr_layer.rs:354 calcula escala sin incorporar el
+   tamaño de fuente aplicado. Para región [30,80,100,12], `searchable` se emite
+   con Tf=12 y Tz=1000 y Poppler devuelve `sea`. Reducir solo Tz a100 en copia
+   permite recuperar el ASCII, pero no el Unicode. Falta determinar y probar
+   la fórmula correcta de ajuste a la región; no confundir ese experimento
+   con una corrección validada de geometría.
+
+Ambos hallazgos corresponden al core publicado y las mismas expresiones
+siguen presentes en la fuente remota develop inspeccionada el 2026-10-15.
+La issue upstream #542 (cerrada) exige búsqueda/copia correcta; no se encontró
+una issue abierta específica para estos contraejemplos. Evidencia ejecutable:
+docs/evidence/issue-278/independent_probe.py (RED esperado en original),
+interoperability_probe.py (variantes en copias descartables) y logs asociados.
+
+Calidad de tests (Kripteia): 100, 11 funciones en un archivo. Rust no detecta
+tests; los casos atraviesan la extensión real. Seguridad (Kripteia Security):
+sin hallazgos en ambos archivos. Análisis manual: datos Rust propios antes
+de detach, sin unsafe ni escrituras de archivos en la API; no se introducen
+proveedores OCR, dependencias nativas o reconocimiento. La puntuación no
+cierra la contradicción funcional demostrada por Poppler.
+
+Métricas: dos hallazgos funcionales heredados bloqueantes; no hay correcciones
+de producto durante la revisión. Pendientes: resolver emisión interoperable
+y ajuste de región en una versión publicada o acordar otra arquitectura;
+validación externa GREEN, controles discriminantes y aceptación final.
+La validación completa de layouts/xref streams sigue pendiente de aceptación.
+No se relajan los requisitos para cerrar la issue.
+
+Regresión de #278: pytest tests/ fuera del sandbox, 2844 passed/1 skipped en
+75.08s. Este GREEN no cambia el estado bloqueado: el probe independiente
+sigue RED. Bloqueo registrado en el comentario de #278:
+https://github.com/bzsanti/oxidize-python/issues/278#issuecomment-6201888326.
+No se creó ni reabrió una issue upstream durante este incremento.
