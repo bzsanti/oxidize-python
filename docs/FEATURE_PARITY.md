@@ -996,3 +996,97 @@ atribuye protección frente a agotamiento de recursos al mero constructor.
   27 focalizados; build, Clippy, configuración mínima, tipos y paridad aprobados.
 - Evidencia en docs/evidence/issue-259 y hashes en validation.json. CI remota y
   merge se comprueban aparte. No se declara paridad global ni nueva release.
+
+## Issue #265 — Conciliación de tipos públicos (2026-10-15)
+
+Fuente: issue #265 abierta; base develop 6b4d61c, core =5.4.2. Se conserva el
+relevo local anterior. Alcance: API instalada existente, ambos stubs, inventario
+repetible y consumidores estrictos con controles negativos. No añade capacidades
+Rust ni cambia la versión del core. Los tipos no certifican fidelidad funcional.
+
+| Requisito y fuente | Estado y evidencia | Bloqueante / siguiente acción |
+| --- | --- | --- |
+| Exports y miembros frente a ambos stubs (#265) | Demostrado: inventory.json, 453 exports nativos, 2.312 miembros incluidos constructores, 454 exports públicos | Sin omisiones en el build instalado; guard conectado a pytest y CI |
+| Tipos concretos de APIs omitidas (#265) | Demostrado: firmas Rust, retornos binarios ejecutados, typing.log; ningún Any nuevo | Incluye aliases nativos y constructores omitidos |
+| Consumidores RAG/streaming positivos y negativos en CI (#265) | Demostrado localmente: public_surface.py y 15 consumidores strict/disallow-any-expr | CI configurada; ejecución remota pendiente |
+| Revisión y aceptación local | Demostrado para el alcance descrito abajo | Sin bloqueantes locales de #265; publicación/CI/merge no ejecutados |
+
+Los placeholders funcionales de streaming/lazy continúan bajo #258; los stubs
+representan la superficie actual sin atribuirles nuevas garantías. AES #253,
+OCR #262, redacción #263 y documentación global #266 siguen fuera de este cambio.
+
+
+### Revisión integrada de #265
+
+Fuentes: base 6b4d61c más cambios locales de stubs, guard, consumidor, pruebas y
+workflow. No hay modificaciones Rust, dependencias ni comportamiento de producto.
+Se revisaron seis archivos funcionales/configuración; este seguimiento y las
+salidas de evidencia son documentación. La revisión fue seguida de correcciones
+expresamente incluidas en la implementación; no fue una auditoría global del core.
+
+Contratos y evidencia:
+
+- El inventario compara aliases de ambos stubs, nombres de miembros, constructores,
+  orden de argumentos y opcionalidad. Comprueba también miembros declarados que
+  no existen. No deduce tipos de retorno de nombres ni demuestra paridad Rust.
+  Los dos miembros condicionados por unstable-spi se comprueban cuando ese build
+  está instalado. Esta sesión usó el build por defecto con SPI, no recompiló el
+  build mínimo. La implementación de los features no cambió.
+- Las declaraciones nuevas se contrastaron con tipos y conversiones PyO3 de los
+  bindings actuales. Las entradas Vec<u8> nuevas usan Sequence[int]; sus salidas
+  usan bytes. Los diccionarios de firmas y extracción de claves conservan valores
+  concretos, sin Any nuevo. Los Any preexistentes de SPI y otros contratos quedan
+  fuera de la corrección de omisiones, bajo la auditoría global #244.
+- La reproducción partition/to_contextual devuelve list[Element]/str. El consumidor
+  nuevo incluye RAG, streaming/lazy, gráficos, firmas y operaciones binarias;
+  controles negativos exigen errores específicos mediante unused-ignore en strict.
+  El consumidor no ejecuta usos inválidos como ejemplos de producción.
+- RED contra los stubs originales: red.log. GREEN: inventory.json sin errores.
+  Siete mutaciones comprueban export ausente, alias erróneo, constructor/método
+  omitido, miembro ficticio, parámetro adicional y parámetro opcional vuelto
+  obligatorio. Cinco casos abren PDFs de resultados binarios y comprueban bytes.
+
+Hallazgos conciliados:
+
+1. Omisiones extensas en ambos stubs: corregidas sin alterar el runtime.
+2. Opción strength de Document.encrypt y nombre del argumento FieldValue.text:
+   corregidos; opción with_context_mode de AnalysisPipeline incorporada.
+3. IncrementalParser.elapsed_secs era una declaración sin implementación:
+   retirada; no se retiró ProgressInfo.elapsed_secs, que sí existe.
+4. Los retornos Rust Vec<u8> se convierten a bytes en PyO3 0.28: corregidos y
+   comprobados con cinco operaciones reales; no se confundieron con Vec<usize>.
+5. Una comprobación exploratoria con mypy.stubtest reportó diferencias generales
+   en metadatos de herencia nativa (final/disjoint_base) y en __init__/__new__ de
+   PyO3. No se presenta stubtest como aprobado: el guard compara el contrato de
+   llamada de la clase, que es el usado por consumidores, en lugar de object.__init__.
+   La precisión global de herencia queda registrada bajo #244: no bloquea la
+   presencia, parámetros y tipos concretos de las APIs omitidas exigidos aquí.
+   Las discrepancias de miembros y parámetros detectadas se corrigieron; los
+   operadores de igualdad existentes ahora indican su argumento posicional.
+
+### Calidad de tests y seguridad de #265
+
+Kripteia: tests/test_typing_surface.py, 100/100, tres funciones (13 casos pytest).
+El checker no contiene tests propios: el scan reporta cero; sus pruebas se
+encuentran en el archivo anterior. Ambos scans de seguridad no detectan problemas
+(kripteia-tests.log y kripteia-checker.log). Se comprobaron manualmente los límites:
+AST de archivos locales confiables, introspección del paquete instalado, sin eval,
+red ni escrituras del guard. Las mutaciones se hacen en tmp_path. Las anotaciones
+no cambian criptografía ni subsanan el hallazgo upstream #253.
+
+### Validación y siguiente acción de #265
+
+- Regresión de biblioteca: 2.465 tests aprobados antes de añadir los últimos siete
+  casos del guard/retornos binarios. Tras esos cambios, los 13 focalizados pasan.
+  No se repitió toda la biblioteca por cambios exclusivos de tipos/guard.
+- Mypy: 26 archivos del paquete, 15 consumidores estrictos para Python 3.10 y el
+  checker con strict. Gate de paridad aprobado: contrato aún explícitamente parcial.
+- Sin build/Clippy/MCP nuevos: no se modificó Rust, MCP ni sus dependencias; no se
+  atribuye a esta sesión una ejecución nueva de esas verificaciones.
+- Evidencias en docs/evidence/issue-265; validation.json registra hashes de las
+  fuentes verificadas. Se conserva el relevo local previo sin descartarlo.
+- Implementación y revisión local completadas; publicación, CI remota, merge y
+  cierre de #265 pendientes al completar la validación local. La entrega continúa
+  mediante PR hacia develop; no se publica release. Tras verificar su CI y al
+  fusionarla, cerrar explícitamente #265. La siguiente issue del inventario #266
+  permanece separada de esta corrección de tipos.
