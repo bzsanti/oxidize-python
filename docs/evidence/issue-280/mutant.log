@@ -1,0 +1,84 @@
+FFFFFF                                                                   [100%]
+=================================== FAILURES ===================================
+__________________ test_each_budget_is_effective[max_objects] __________________
+
+field = 'max_objects'
+
+    @pytest.mark.parametrize('field', ['max_objects', 'max_depth', 'max_entries', 'max_decoded_content_bytes'])
+    def test_each_budget_is_effective(field):
+        options = TaggedPdfValidationOptions(TaggedPdfLimits(**{field: 0}))
+>       with pytest.raises(PdfError, match='(?i)limit|budget|exceed|depth'):
+E       Failed: DID NOT RAISE <class 'oxidize_pdf.PdfError'>
+
+tests/test_tagged_validation.py:91: Failed
+___________________ test_each_budget_is_effective[max_depth] ___________________
+
+field = 'max_depth'
+
+    @pytest.mark.parametrize('field', ['max_objects', 'max_depth', 'max_entries', 'max_decoded_content_bytes'])
+    def test_each_budget_is_effective(field):
+        options = TaggedPdfValidationOptions(TaggedPdfLimits(**{field: 0}))
+>       with pytest.raises(PdfError, match='(?i)limit|budget|exceed|depth'):
+E       Failed: DID NOT RAISE <class 'oxidize_pdf.PdfError'>
+
+tests/test_tagged_validation.py:91: Failed
+__________________ test_each_budget_is_effective[max_entries] __________________
+
+field = 'max_entries'
+
+    @pytest.mark.parametrize('field', ['max_objects', 'max_depth', 'max_entries', 'max_decoded_content_bytes'])
+    def test_each_budget_is_effective(field):
+        options = TaggedPdfValidationOptions(TaggedPdfLimits(**{field: 0}))
+>       with pytest.raises(PdfError, match='(?i)limit|budget|exceed|depth'):
+E       Failed: DID NOT RAISE <class 'oxidize_pdf.PdfError'>
+
+tests/test_tagged_validation.py:91: Failed
+___________ test_each_budget_is_effective[max_decoded_content_bytes] ___________
+
+field = 'max_decoded_content_bytes'
+
+    @pytest.mark.parametrize('field', ['max_objects', 'max_depth', 'max_entries', 'max_decoded_content_bytes'])
+    def test_each_budget_is_effective(field):
+        options = TaggedPdfValidationOptions(TaggedPdfLimits(**{field: 0}))
+>       with pytest.raises(PdfError, match='(?i)limit|budget|exceed|depth'):
+E       Failed: DID NOT RAISE <class 'oxidize_pdf.PdfError'>
+
+tests/test_tagged_validation.py:91: Failed
+___________________ test_decoded_byte_limit_boundary[False] ____________________
+
+compressed = False
+
+    @pytest.mark.parametrize('compressed', [False, True])
+    def test_decoded_byte_limit_boundary(compressed):
+        source = tagged_pdf(compressed=compressed)
+        length = len(b'/CustomP <</MCID 0>> BDC EMC\n/Artifact <</Subtype /Pagination>> BDC EMC')
+        options = TaggedPdfValidationOptions(TaggedPdfLimits(max_decoded_content_bytes=length))
+        assert validate_tagged_pdf(source, options).valid
+        short = TaggedPdfValidationOptions(TaggedPdfLimits(max_decoded_content_bytes=length - 1))
+>       with pytest.raises(PdfError, match='decoded content bytes'):
+E       Failed: DID NOT RAISE <class 'oxidize_pdf.PdfError'>
+
+tests/test_tagged_validation.py:156: Failed
+____________________ test_decoded_byte_limit_boundary[True] ____________________
+
+compressed = True
+
+    @pytest.mark.parametrize('compressed', [False, True])
+    def test_decoded_byte_limit_boundary(compressed):
+        source = tagged_pdf(compressed=compressed)
+        length = len(b'/CustomP <</MCID 0>> BDC EMC\n/Artifact <</Subtype /Pagination>> BDC EMC')
+        options = TaggedPdfValidationOptions(TaggedPdfLimits(max_decoded_content_bytes=length))
+        assert validate_tagged_pdf(source, options).valid
+        short = TaggedPdfValidationOptions(TaggedPdfLimits(max_decoded_content_bytes=length - 1))
+>       with pytest.raises(PdfError, match='decoded content bytes'):
+E       Failed: DID NOT RAISE <class 'oxidize_pdf.PdfError'>
+
+tests/test_tagged_validation.py:156: Failed
+=========================== short test summary info ============================
+FAILED tests/test_tagged_validation.py::test_each_budget_is_effective[max_objects]
+FAILED tests/test_tagged_validation.py::test_each_budget_is_effective[max_depth]
+FAILED tests/test_tagged_validation.py::test_each_budget_is_effective[max_entries]
+FAILED tests/test_tagged_validation.py::test_each_budget_is_effective[max_decoded_content_bytes]
+FAILED tests/test_tagged_validation.py::test_decoded_byte_limit_boundary[False]
+FAILED tests/test_tagged_validation.py::test_decoded_byte_limit_boundary[True]
+6 failed, 13 deselected in 0.11s

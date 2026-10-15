@@ -1236,3 +1236,27 @@ avisa del uso de enumerate como iterable en parametrize: corregido a list en
 el test nuevo sin cambiar casos. Aviso previo equivalente en
 test_core_5_1_bindings.py queda fuera de #276 (mantenimiento de tests); no
 bloquea la ejecución actual. CI se repite sobre el head corregido.
+
+## Issue #280 — validación TaggedPdf de solo lectura
+
+| Requisito | Estado/evidencia | Bloqueante / siguiente acción |
+| --- | --- | --- |
+| Opciones, cuatro límites y reportes completos | Demostrado: 19 casos específicos, guard de paridad y consumidor mypy estricto | Sin bloqueantes locales |
+| Hallazgos, mapas, atributos desconocidos y referencias | Demostrado: PDF independiente y probe qpdf; generación 7, bytes opacos, parent/class/role maps y MCIDs | Sin pérdida en el binding |
+| Límites efectivos y errores | Demostrado: cuatro presupuestos, frontera de bytes crudos/Flate, ciclos, malformed y cifrado | Mutante ignora opciones: 6 fallos esperados |
+| Ownership, tipado y revisión | Demostrado: snapshots, propiedades frozen, exports/stubs, revisión manual y ambos análisis Kripteia | CI y merge pendientes |
+
+Evidencia: `docs/evidence/issue-280/`; 27 casos focalizados (19 nuevos y 8 del
+comprobador de paridad). Regresión general: 2826 passed, 1 skipped, antes de
+los tres casos adicionales de cifrado/frontera; todos esos casos pasan en la
+verificación focalizada final. El binding no cambió durante esas ampliaciones.
+
+`valid` refleja hallazgos de severidad Error, no certificación PDF/UA; un PDF sin
+tags puede devolver `valid=True` y warning MissingStructureTree. Los límites son
+presupuestos de recorrido/decodificación del core, no una cota global de memoria
+o tiempo: copia inicial y parsing preceden al recorrido. README documenta esto.
+
+#278/#279 quedan apartadas por instrucción del usuario. Este incremento parte de
+develop sin código OCR. #262 conserva el editor TaggedPdf pendiente. Pin =5.4.2;
+sin releases ni modificaciones upstream. Siguiente acción: CI del head final,
+merge en develop y cierre de #280 si los checks pasan.

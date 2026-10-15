@@ -471,6 +471,23 @@
     "IncrementalGeometricEditor.apply": [
       "self",
       "mutations"
+    ],
+    "validate_tagged_pdf": [
+      "pdf",
+      "options"
+    ],
+    "TaggedPdfLimits": [
+      "max_objects",
+      "max_depth",
+      "max_entries",
+      "max_decoded_content_bytes"
+    ],
+    "TaggedPdfValidationOptions": [
+      "limits"
+    ],
+    "TaggedPdfObjectRef": [
+      "object_number",
+      "generation"
     ]
   },
   "properties": {
@@ -735,6 +752,58 @@
     "GeometricUpdate": [
       "pdf_bytes",
       "annotations"
+    ],
+    "TaggedPdfObjectRef": [
+      "object_number",
+      "generation"
+    ],
+    "TaggedPdfLimits": [
+      "max_objects",
+      "max_depth",
+      "max_entries",
+      "max_decoded_content_bytes"
+    ],
+    "TaggedPdfValidationOptions": [
+      "limits"
+    ],
+    "TaggedPdfFinding": [
+      "severity",
+      "code",
+      "path",
+      "message",
+      "object"
+    ],
+    "TaggedPdfStructureElement": [
+      "object",
+      "parent",
+      "structure_type",
+      "language",
+      "alternate_text",
+      "actual_text",
+      "title",
+      "child_count",
+      "marked_content_count",
+      "dictionary_keys",
+      "dictionary"
+    ],
+    "TaggedPdfArtifact": [
+      "context",
+      "operation_index",
+      "subtype"
+    ],
+    "TaggedPdfValidationReport": [
+      "tagged",
+      "valid",
+      "structure_tree_root",
+      "role_map",
+      "class_names",
+      "class_map",
+      "parent_tree_entries",
+      "parent_tree",
+      "content_mcids",
+      "artifacts",
+      "elements",
+      "findings"
     ]
   },
   "required_tests": [
@@ -856,6 +925,18 @@
       "test_geometric_invalid_pdf",
       "test_geometric_existing_generation_and_unrelated_keys",
       "test_geometric_unsigned_boundaries"
+    ],
+    "tests/test_tagged_validation.py": [
+      "test_complete_report_and_lossless_values",
+      "test_defaults_and_owned_snapshots",
+      "test_each_budget_is_effective",
+      "test_findings_are_typed_and_warnings_do_not_certify",
+      "test_cycles_terminate_with_findings",
+      "test_malformed_input_is_an_error",
+      "test_unsigned_limit_boundaries",
+      "test_reference_hash_and_generation_boundaries",
+      "test_locked_document_is_rejected",
+      "test_decoded_byte_limit_boundary"
     ]
   },
   "typed_dicts": {
