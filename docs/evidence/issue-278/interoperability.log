@@ -1,0 +1,8 @@
+ascii original: 'ORIGINAL\n\nsea\n\n\x0c\x0c'
+ascii tag 'ORIGINAL\n\nsearchable\n\n\x0c\x0c'
+ascii scale 'ORIGINAL\n\nsearchable\n\n\x0c\x0c'
+ascii both 'ORIGINAL\n\nsearchable\n\n\x0c\x0c'
+unicode original: 'ORIGINAL\n\ncaf?\n\n\x0c\x0c'
+unicode tag 'ORIGINAL\n\ncafé 世界 😀\n\n\x0c\x0c'
+unicode scale 'ORIGINAL\n\ncaf? ?? ?\n\n\x0c\x0c'
+unicode both 'ORIGINAL\n\ncafé 世界 😀\n\n\x0c\x0c'

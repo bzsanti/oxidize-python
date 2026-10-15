@@ -471,6 +471,28 @@
     "IncrementalGeometricEditor.apply": [
       "self",
       "mutations"
+    ],
+    "OcrLayerFragment": [
+      "text",
+      "region",
+      "confidence",
+      "reading_order"
+    ],
+    "OcrLayerPage": [
+      "page_index",
+      "language",
+      "fragments"
+    ],
+    "IncrementalOcrLayerEditor": [
+      "pdf"
+    ],
+    "IncrementalOcrLayerEditor.plan": [
+      "self",
+      "pages"
+    ],
+    "IncrementalOcrLayerEditor.apply": [
+      "self",
+      "pages"
     ]
   },
   "properties": {
@@ -735,6 +757,27 @@
     "GeometricUpdate": [
       "pdf_bytes",
       "annotations"
+    ],
+    "OcrLayerFragment": [
+      "text",
+      "region",
+      "confidence",
+      "reading_order"
+    ],
+    "OcrLayerPage": [
+      "page_index",
+      "language",
+      "fragments"
+    ],
+    "OcrLayerPlan": [
+      "pages",
+      "streams_added",
+      "resources_added",
+      "pages_skipped_existing_ocr"
+    ],
+    "OcrLayerUpdate": [
+      "pdf_bytes",
+      "plan"
     ]
   },
   "required_tests": [
@@ -856,6 +899,19 @@
       "test_geometric_invalid_pdf",
       "test_geometric_existing_generation_and_unrelated_keys",
       "test_geometric_unsigned_boundaries"
+    ],
+    "tests/test_incremental_ocr_layer.py": [
+      "test_ocr_layer_plan_apply_unicode_and_preservation",
+      "test_ocr_layer_owned_inputs_and_results",
+      "test_ocr_layer_sorted_plan_determinism_and_logical_order",
+      "test_ocr_layer_noop_skip_and_mixed_existing_pages",
+      "test_ocr_layer_invalid_batch_atomic_and_retry",
+      "test_ocr_layer_duplicate_pages_rejected",
+      "test_ocr_layer_docmdp_denies_plan_and_apply",
+      "test_ocr_layer_encrypted_pdf_is_rejected",
+      "test_ocr_layer_unsupported_resources_and_contents",
+      "test_ocr_layer_invalid_pdf",
+      "test_ocr_layer_unsigned_boundaries"
     ]
   },
   "typed_dicts": {

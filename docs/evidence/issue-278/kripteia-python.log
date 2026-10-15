@@ -1,0 +1,23 @@
+## Calidad de Tests (Kripteia)
+
+=== Kripteia Test Quality Report ===
+Overall Score: 100 | Tests: 11 | Files: 1
+
+--- Files ---
+Path                                                          Tests  Score
+--------------------------------------------------------------------------
+tests/test_incremental_ocr_layer.py                              11    100
+
+--- Worst Offenders ---
+  test_ocr_layer_plan_apply_unicode_and_preservation (tests/test_incremental_ocr_layer.py:42) - Score: 100
+  test_ocr_layer_owned_inputs_and_results (tests/test_incremental_ocr_layer.py:66) - Score: 100
+  test_ocr_layer_sorted_plan_determinism_and_logical_order (tests/test_incremental_ocr_layer.py:88) - Score: 100
+  test_ocr_layer_noop_skip_and_mixed_existing_pages (tests/test_incremental_ocr_layer.py:101) - Score: 100
+  test_ocr_layer_invalid_batch_atomic_and_retry (tests/test_incremental_ocr_layer.py:131) - Score: 100
+
+
+## Analisis de Seguridad (Kripteia Security)
+
+=== Kripteia Security Analysis ===
+
+No security issues found.

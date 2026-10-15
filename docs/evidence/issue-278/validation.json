@@ -1,0 +1,16 @@
+{
+  "core": "5.4.2",
+  "status": "BLOCKED - draft only",
+  "focused": "42 passed (34 new + 8 parity guard)",
+  "independent": "qpdf objects/render preserved; Poppler text assertion fails",
+  "source_sha256": {
+    "src/incremental_ocr_layer.rs": "31c48ea26142cd7663f50a9d788b11c76598cf17c1d97a0a85826f21402d9917",
+    "tests/test_incremental_ocr_layer.py": "39619bea4ef81353e10d9773bf3cfb359551db9436f40590e75d7c170d16a846"
+  },
+  "pending": [
+    "external text interoperability",
+    "region fit",
+    "acceptance/CI"
+  ],
+  "full_regression": "2844 passed, 1 skipped in 75.08s (0:01:15)"
+}
