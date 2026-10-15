@@ -25,7 +25,7 @@ what an already-published 0.22.0 wheel contains. Cross-bridge status and evidenc
 | Parser/recovery options | Integrated via #273 (#259); inert options, unbounded memory and repair fidelity limits documented |
 | Public typing inventory | Integrated via #274 (#265); exports/members covered, not proof of behavioral completeness |
 | Streaming/lazy configuration | Incomplete consumer wiring/audit under #258 |
-| Other incremental annotation/tagged/OCR editors | Missing/partial bindings under #262; core defects remain core defects |
+| Other incremental annotation/tagged/OCR editors | Geometric editor delivered under #276; remaining editors/OCR tracked by #262 |
 | Revision-aware comparison and irreversible redaction | Missing bindings under #263; structural comparison is not equivalent |
 | Real Tesseract recognition | No recognition binding; enum/mock provider presence is not OCR |
 | AES IV generation | Core 5.4.2 limitation tracked by #253; no security approval inferred from round trips |
@@ -1151,3 +1151,81 @@ No se repite regresión global/MCP/build sin cambios funcionales. Sin bloqueante
 locales de contenido; la entrega no se considera completa hasta sincronizar las
 PRs de ambos repositorios. Las notas locales anteriores se conservan fuera del
 commit; el checkout .NET principal mantiene su trabajo independiente.
+
+
+## Issue #276 — editor geométrico, subcontrato independiente de #262
+
+| Requisito | Estado y evidencia | Bloqueante / siguiente acción |
+| --- | --- | --- |
+| Cinco geometrías, endings y estilos completos en core 5.4.2 | Demostrado: 43 casos geométricos, lectura y qpdf | Ninguno |
+| Prefijo/identidad/atomicidad y permisos | Demostrado: generación 7, clave propia, retry, P1/P2 rechazo y P3 permitido; mutación RED | Ninguno |
+| Stubs, guard y revisión/CI | Demostrado localmente; fallo de fixture corregido, 51 casos repetidos GREEN | Matriz remota pendiente |
+
+Alcance: #276; #262 sigue abierta para otros editores/OCR/features. Sin nueva
+dependencia ni cambios upstream. El core no ofrece plan para este editor;
+apply devuelve bytes y anotaciones. Se conserva esa semántica.
+
+### Contrato y uso de #276
+
+IncrementalGeometricEditor conserva una copia inmutable de los bytes. Cada
+apply valida un lote completo y devuelve una revisión independiente con
+pdf_bytes y annotations; no modifica archivos ni el editor original. Lote vacío
+conserva exactamente los bytes. Line, Square, Circle, Polygon y PolyLine se
+construyen mediante GeometricGeometry; kind discrimina los getters opcionales.
+GeometricLineEnding.None_ representa /None. GeometricStyle valida width, dash y
+opacity; GeometricColor valida Gray/Rgb/Cmyk. La geometría se valida al aplicar
+el lote. Actualizar conserva subtipo e identidad, incluidos números de generación.
+Los errores del core conservan el mapeo Python existente; P1/P2 prohíben las
+mutaciones y P3 permite anotaciones. La prueba de políticas no certifica la
+autenticidad criptográfica de los fixtures modificados. No hay plan API en core.
+
+```python
+from oxidize_pdf import (IncrementalGeometricEditor, GeometricGeometry,
+                        GeometricStyle, GeometricColor, GeometricMutation)
+
+editor = IncrementalGeometricEditor(source_bytes)
+shape = GeometricGeometry.square([10.0, 20.0, 100.0, 80.0])
+style = GeometricStyle(GeometricColor.rgb([0.0, 0.0, 1.0]), 2.0)
+result = editor.apply([GeometricMutation.add(0, shape, style)])
+# result.pdf_bytes conserva source_bytes como prefijo exacto.
+```
+
+### Revisión integrada de #276
+
+Inspección de contratos, ownership y fronteras PyO3: los valores se convierten
+a datos Rust propios antes de detach; solo se capturan el snapshot Rust y el
+lote. Sin unsafe, nuevos procesos de producto, rutas de salida, dependencias
+ni configuración criptográfica. Core sigue =5.4.2. Se conservan límites y
+validaciones upstream, sin prometer límites globales de memoria.
+
+Evidencia en docs/evidence/issue-276/: 72 tests focalizados (43 nuevos y 29
+de editores vecinos); qpdf_probe.py comprueba sintaxis y grafo/referencias,
+subtipos, colores y estilos independientemente para añadir/actualizar/eliminar.
+Mutación en copia desechable del binding cambia into_iter() por
+into_iter().take(1): cinco fallos DID NOT RAISE, frente a GREEN original. No
+se instaló el wheel mutante en el entorno del proyecto.
+
+Kripteia Python: 98, 10 funciones/1 archivo; aviso de similitud entre tests de
+validación y enteros descartado tras inspección: ejercitan excepciones y fronteras
+distintas. Rust: cero tests detectados, no demuestra cobertura; las pruebas
+reales atraviesan PyO3. Ambos análisis de seguridad sin hallazgos.
+
+Sin hallazgos confirmados pendientes dentro de #276. Fuera del incremento,
+#262 conserva TaggedPdf/OcrLayer/TextNote/Highlight, OCR real y auditoría de
+features opcionales; #253/#258/#263 conservan sus propios requisitos.
+Tipado: 464 exports nativos, 2368 miembros y 465 públicos; consumidor estricto
+y guard de paridad incluyen este editor. Regresión global: 2802 pasaron, un skip y ocho fallos de montaje del guard;
+corregida la copia temporal y repetidos los ocho casos junto a 43 geométricos
+(51 passed). CI remota pendiente antes de aceptar la entrega.
+
+#### Resumen de revisión #276
+
+Contratos y evidencia: tabla de requisitos y análisis anteriores. Hallazgos
+confirmados: ninguno pendiente tras corregir las expectativas de subtipo y
+representación de strings PDF en pruebas, sin cambiar el contrato del core.
+Calidad de tests (Kripteia): 98/100, 10 funciones, un archivo. Seguridad
+(Kripteia Security): sin hallazgos en Python ni Rust; logs completos adjuntos.
+Métricas: 12 archivos de implementación/tipado/contrato/CI/pruebas revisados;
+0 hallazgos de producto confirmados; un fallo de montaje del guard resuelto;
+0 cambios de producto durante la revisión.
+Verificaciones pendientes: matriz remota.

@@ -11,7 +11,7 @@ def test_parity_checker_rejects_contract_regressions(tmp_path, kind):
     spec = importlib.util.spec_from_file_location('parity_checker', ROOT / 'scripts/check_parity.py')
     checker = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(checker)
-    for relative in ['Cargo.toml', 'docs/parity-contract.json', 'python/oxidize_pdf/_oxidize_pdf.pyi', 'tests/test_existing_document.py', 'tests/test_incremental_signing.py', 'tests/test_extraction_options_parity.py', 'tests/test_incremental_annotations.py', 'tests/test_incremental_ink.py', 'tests/test_rag_reader_parity.py', 'tests/test_page_streamer.py', 'tests/test_incremental_parser_payloads.py', 'tests/test_batch_options.py', 'tests/test_signature_errors.py', 'tests/test_outline_read.py', 'tests/test_parser_recovery_options.py', 'tests/test_parser_recovery_options.py', 'python/oxidize_pdf/signature_errors.py', 'python/oxidize_pdf/parse_events.py']:
+    for relative in ['Cargo.toml', 'docs/parity-contract.json', 'python/oxidize_pdf/_oxidize_pdf.pyi', 'tests/test_existing_document.py', 'tests/test_incremental_signing.py', 'tests/test_extraction_options_parity.py', 'tests/test_incremental_annotations.py', 'tests/test_incremental_ink.py', 'tests/test_incremental_geometric.py', 'tests/test_rag_reader_parity.py', 'tests/test_page_streamer.py', 'tests/test_incremental_parser_payloads.py', 'tests/test_batch_options.py', 'tests/test_signature_errors.py', 'tests/test_outline_read.py', 'tests/test_parser_recovery_options.py', 'tests/test_parser_recovery_options.py', 'python/oxidize_pdf/signature_errors.py', 'python/oxidize_pdf/parse_events.py']:
         target = tmp_path / relative
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(ROOT / relative, target)

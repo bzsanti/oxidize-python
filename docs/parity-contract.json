@@ -408,7 +408,70 @@
     "ParseOptions.strict": [],
     "ParseOptions.tolerant": [],
     "ParseOptions.lenient": [],
-    "ParseOptions.skip_errors": []
+    "ParseOptions.skip_errors": [],
+    "GeometricColor.rgb": [
+      "components"
+    ],
+    "GeometricColor.gray": [
+      "component"
+    ],
+    "GeometricColor.cmyk": [
+      "components"
+    ],
+    "GeometricId": [
+      "object_number",
+      "generation_number"
+    ],
+    "GeometricGeometry.line": [
+      "start",
+      "end",
+      "start_ending",
+      "end_ending"
+    ],
+    "GeometricGeometry.square": [
+      "rect"
+    ],
+    "GeometricGeometry.circle": [
+      "rect"
+    ],
+    "GeometricGeometry.polygon": [
+      "vertices"
+    ],
+    "GeometricGeometry.polyline": [
+      "vertices",
+      "start_ending",
+      "end_ending"
+    ],
+    "GeometricStyle": [
+      "stroke_color",
+      "width",
+      "fill_color",
+      "dash_pattern",
+      "opacity"
+    ],
+    "GeometricMutation.add": [
+      "page_index",
+      "geometry",
+      "style"
+    ],
+    "GeometricMutation.update": [
+      "id",
+      "geometry",
+      "style"
+    ],
+    "GeometricMutation.remove": [
+      "id"
+    ],
+    "IncrementalGeometricEditor": [
+      "pdf"
+    ],
+    "IncrementalGeometricEditor.annotations": [
+      "self"
+    ],
+    "IncrementalGeometricEditor.apply": [
+      "self",
+      "mutations"
+    ]
   },
   "properties": {
     "SemanticPreservationReport": [
@@ -638,6 +701,40 @@
       "warnings",
       "is_partial",
       "repaired_bytes"
+    ],
+    "GeometricColor": [
+      "space",
+      "components"
+    ],
+    "GeometricId": [
+      "object_number",
+      "generation_number"
+    ],
+    "GeometricGeometry": [
+      "kind",
+      "rect",
+      "vertices",
+      "start",
+      "end",
+      "start_ending",
+      "end_ending"
+    ],
+    "GeometricStyle": [
+      "stroke_color",
+      "fill_color",
+      "width",
+      "dash_pattern",
+      "opacity"
+    ],
+    "GeometricAnnotation": [
+      "id",
+      "page_index",
+      "geometry",
+      "style"
+    ],
+    "GeometricUpdate": [
+      "pdf_bytes",
+      "annotations"
     ]
   },
   "required_tests": [
@@ -747,6 +844,18 @@
       "test_unsuccessful_repair_and_io_errors",
       "test_parser_options_reach_each_reader_entrypoint",
       "test_preferred_encoding_does_not_override_core_decoding"
+    ],
+    "tests/test_incremental_geometric.py": [
+      "test_geometric_shapes_styles_and_readback",
+      "test_geometric_line_endings_and_gray",
+      "test_geometric_update_remove_identity_and_ownership",
+      "test_geometric_style_validation",
+      "test_geometric_invalid_batch_atomic_retry",
+      "test_geometric_missing_target_atomic",
+      "test_geometric_docmdp_policy",
+      "test_geometric_invalid_pdf",
+      "test_geometric_existing_generation_and_unrelated_keys",
+      "test_geometric_unsigned_boundaries"
     ]
   },
   "typed_dicts": {

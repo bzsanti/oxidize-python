@@ -1,0 +1,29 @@
+FFFFF                                                                    [100%]
+=================================== FAILURES ===================================
+_____________ test_geometric_invalid_batch_atomic_retry[geometry0] _____________
+tests/test_incremental_geometric.py:124: in test_geometric_invalid_batch_atomic_retry
+    with pytest.raises(p.PdfParseError):
+E   Failed: DID NOT RAISE <class 'oxidize_pdf.PdfParseError'>
+_____________ test_geometric_invalid_batch_atomic_retry[geometry1] _____________
+tests/test_incremental_geometric.py:124: in test_geometric_invalid_batch_atomic_retry
+    with pytest.raises(p.PdfParseError):
+E   Failed: DID NOT RAISE <class 'oxidize_pdf.PdfParseError'>
+_____________ test_geometric_invalid_batch_atomic_retry[geometry2] _____________
+tests/test_incremental_geometric.py:124: in test_geometric_invalid_batch_atomic_retry
+    with pytest.raises(p.PdfParseError):
+E   Failed: DID NOT RAISE <class 'oxidize_pdf.PdfParseError'>
+_____________ test_geometric_invalid_batch_atomic_retry[geometry3] _____________
+tests/test_incremental_geometric.py:124: in test_geometric_invalid_batch_atomic_retry
+    with pytest.raises(p.PdfParseError):
+E   Failed: DID NOT RAISE <class 'oxidize_pdf.PdfParseError'>
+_____________ test_geometric_invalid_batch_atomic_retry[geometry4] _____________
+tests/test_incremental_geometric.py:124: in test_geometric_invalid_batch_atomic_retry
+    with pytest.raises(p.PdfParseError):
+E   Failed: DID NOT RAISE <class 'oxidize_pdf.PdfParseError'>
+=========================== short test summary info ============================
+FAILED tests/test_incremental_geometric.py::test_geometric_invalid_batch_atomic_retry[geometry0]
+FAILED tests/test_incremental_geometric.py::test_geometric_invalid_batch_atomic_retry[geometry1]
+FAILED tests/test_incremental_geometric.py::test_geometric_invalid_batch_atomic_retry[geometry2]
+FAILED tests/test_incremental_geometric.py::test_geometric_invalid_batch_atomic_retry[geometry3]
+FAILED tests/test_incremental_geometric.py::test_geometric_invalid_batch_atomic_retry[geometry4]
+5 failed, 38 deselected in 2.43s

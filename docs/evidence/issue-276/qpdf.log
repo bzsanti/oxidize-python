@@ -1,0 +1,21 @@
+checking /tmp/tmp8ogmb392/added.pdf
+PDF Version: 1.7
+File is not encrypted
+File is not linearized
+No syntax or stream encoding errors found; the file may still contain
+errors that qpdf cannot detect
+checking /tmp/tmp8ogmb392/updated.pdf
+PDF Version: 1.7
+File is not encrypted
+File is not linearized
+No syntax or stream encoding errors found; the file may still contain
+errors that qpdf cannot detect
+checking /tmp/tmp8ogmb392/removed.pdf
+PDF Version: 1.7
+File is not encrypted
+File is not linearized
+No syntax or stream encoding errors found; the file may still contain
+errors that qpdf cannot detect
+added independent references, subtypes, color/style and appearance verified
+updated independent references, subtypes, color/style and appearance verified
+removed independent references, subtypes, color/style and appearance verified
