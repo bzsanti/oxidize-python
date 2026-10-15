@@ -1,0 +1,639 @@
+{
+  "RAG-001": {
+    "python_symbol": "PdfReader.partition",
+    "dotnet_symbol": "PartitionAsync",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfExtractor.cs"
+    ]
+  },
+  "RAG-002": {
+    "python_symbol": "PdfReader.rag_chunks",
+    "dotnet_symbol": "RagChunksAsync",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfExtractor.cs",
+      "dotnet/OxidizePdf.NET/Models/ChunkOptions.cs",
+      "dotnet/OxidizePdf.NET/Ai/DocumentChunker.cs"
+    ]
+  },
+  "RAG-003": {
+    "python_symbol": "PdfReader.rag_chunks_with_profile",
+    "dotnet_symbol": "RagChunksAsync",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfExtractor.cs",
+      "dotnet/OxidizePdf.NET/Models/ChunkOptions.cs",
+      "dotnet/OxidizePdf.NET/Ai/DocumentChunker.cs"
+    ]
+  },
+  "RAG-004": {
+    "python_symbol": "ExtractionProfile",
+    "dotnet_symbol": "ExtractionProfile",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfExtractor.cs",
+      "dotnet/OxidizePdf.NET/NativeMethods.cs",
+      "dotnet/OxidizePdf.NET/Pipeline/ExtractionProfile.cs"
+    ]
+  },
+  "RAG-005": {
+    "python_symbol": "PdfReader.rag_chunks_with",
+    "dotnet_symbol": "RagChunksAsync",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfExtractor.cs",
+      "dotnet/OxidizePdf.NET/Models/ChunkOptions.cs",
+      "dotnet/OxidizePdf.NET/Ai/DocumentChunker.cs"
+    ]
+  },
+  "RAG-006": {
+    "python_symbol": "MergePolicy",
+    "dotnet_symbol": "MergePolicy",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/Pipeline/HybridChunkConfig.cs",
+      "dotnet/OxidizePdf.NET/Pipeline/MergePolicy.cs"
+    ]
+  },
+  "RAG-007": {
+    "python_symbol": "ReadingOrderStrategy",
+    "dotnet_symbol": "ReadingOrderStrategy",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfExtractor.cs",
+      "dotnet/OxidizePdf.NET/Pipeline/PartitionConfig.cs",
+      "dotnet/OxidizePdf.NET/Pipeline/ReadingOrderStrategy.cs"
+    ]
+  },
+  "RAG-008": {
+    "python_symbol": "DocumentChunker.chunk_text",
+    "dotnet_symbol": "ChunkText",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/Ai/DocumentChunker.cs"
+    ]
+  },
+  "RAG-009": {
+    "python_symbol": "DocumentChunker.estimate_tokens",
+    "dotnet_symbol": "EstimateTokens",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/Ai/DocumentChunker.cs"
+    ]
+  },
+  "RAG-010": {
+    "python_symbol": "PdfReader.chunk_page",
+    "dotnet_symbol": "ExtractChunksFromPageAsync",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfExtractor.cs"
+    ]
+  },
+  "RAG-011": {
+    "python_symbol": "PdfReader.to_markdown",
+    "dotnet_symbol": "ToMarkdownAsync",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfExtractor.cs"
+    ]
+  },
+  "RAG-012": {
+    "python_symbol": "MarkdownExporter.export",
+    "dotnet_symbol": "ToMarkdownAsync",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfExtractor.cs"
+    ]
+  },
+  "RAG-013": {
+    "python_symbol": "PdfReader.to_contextual",
+    "dotnet_symbol": "ToContextualAsync",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfExtractor.cs"
+    ]
+  },
+  "RAG-014": {
+    "python_symbol": "PdfReader.to_json",
+    "dotnet_symbol": "ToJsonAsync",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfExtractor.cs"
+    ]
+  },
+  "RAG-015": {
+    "python_symbol": "RagChunk",
+    "dotnet_symbol": "RagChunk",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfExtractor.cs",
+      "dotnet/OxidizePdf.NET/Models/SemanticChunk.cs",
+      "dotnet/OxidizePdf.NET/Models/RagChunk.cs"
+    ]
+  },
+  "RAG-016": {
+    "python_symbol": "Element",
+    "dotnet_symbol": "PdfElement",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfExtractor.cs",
+      "dotnet/OxidizePdf.NET/Models/PdfElement.cs"
+    ]
+  },
+  "RAG-017": {
+    "python_symbol": "DocumentChunk",
+    "dotnet_symbol": "DocumentChunk",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfExtractor.cs",
+      "dotnet/OxidizePdf.NET/NativeMethods.cs",
+      "dotnet/OxidizePdf.NET/Models/TextChunk.cs",
+      "dotnet/OxidizePdf.NET/Models/DocumentChunk.cs",
+      "dotnet/OxidizePdf.NET/Ai/DetectedLanguage.cs",
+      "dotnet/OxidizePdf.NET/Ai/DocumentChunker.cs",
+      "dotnet/OxidizePdf.NET/Ai/TokenEfficientExporter.cs",
+      "dotnet/OxidizePdf.NET/Ai/DocumentChunk.cs"
+    ]
+  },
+  "RAG-018": {
+    "python_symbol": "analyze_page_content",
+    "dotnet_symbol": "AnalyzePageContentAsync",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfExtractor.cs"
+    ]
+  },
+  "READ-001": {
+    "python_symbol": "PdfReader.open",
+    "dotnet_symbol": null,
+    "dotnet_sources": []
+  },
+  "READ-002": {
+    "python_symbol": "PdfReader.from_bytes",
+    "dotnet_symbol": "ExtractTextAsync",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfExtractor.cs",
+      "dotnet/OxidizePdf.NET/TextValidation.cs"
+    ]
+  },
+  "READ-003": {
+    "python_symbol": "PdfReader.from_stream",
+    "dotnet_symbol": null,
+    "dotnet_sources": []
+  },
+  "READ-004": {
+    "python_symbol": "PdfReader.page_count",
+    "dotnet_symbol": "GetPageCountAsync",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfExtractor.cs"
+    ]
+  },
+  "READ-005": {
+    "python_symbol": "PdfReader.version",
+    "dotnet_symbol": "GetPdfVersionAsync",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfExtractor.cs"
+    ]
+  },
+  "READ-006": {
+    "python_symbol": "PdfReader.extract_text_from_page",
+    "dotnet_symbol": "ExtractTextFromPageAsync",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfExtractor.cs"
+    ]
+  },
+  "READ-007": {
+    "python_symbol": "PdfReader.extract_text",
+    "dotnet_symbol": "ExtractTextAsync",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfExtractor.cs",
+      "dotnet/OxidizePdf.NET/TextValidation.cs"
+    ]
+  },
+  "READ-008": {
+    "python_symbol": "PdfReader.extract_text_with_options",
+    "dotnet_symbol": "ExtractTextWithResultAsync",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfExtractor.cs"
+    ]
+  },
+  "READ-009": {
+    "python_symbol": "PdfReader.metadata",
+    "dotnet_symbol": "ExtractMetadataAsync",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfExtractor.cs"
+    ]
+  },
+  "READ-010": {
+    "python_symbol": "PdfReader.get_page",
+    "dotnet_symbol": "GetPageGeometryAsync",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfExtractor.cs"
+    ]
+  },
+  "READ-011": {
+    "python_symbol": "PdfReader.get_page_resources",
+    "dotnet_symbol": "GetPageResourcesAsync",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfExtractor.cs"
+    ]
+  },
+  "READ-012": {
+    "python_symbol": "PdfReader.get_page_content_streams",
+    "dotnet_symbol": "GetPageContentStreamAsync",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfExtractor.cs"
+    ]
+  },
+  "READ-013": {
+    "python_symbol": "ParseOptions",
+    "dotnet_symbol": "ParseOptions",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfTextExtractionModels.cs"
+    ]
+  },
+  "READ-014": {
+    "python_symbol": "PdfReader.resolve_font",
+    "dotnet_symbol": "GetResolvedFontResourceAsync",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfExtractor.cs"
+    ]
+  },
+  "READ-015": {
+    "python_symbol": null,
+    "dotnet_symbol": "PdfImages",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfImages.cs"
+    ]
+  },
+  "READ-016": {
+    "python_symbol": null,
+    "dotnet_symbol": "GetPageResourceProvenanceAsync",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfExtractor.cs"
+    ]
+  },
+  "READ-017": {
+    "python_symbol": null,
+    "dotnet_symbol": "PdfStreams",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfImages.cs",
+      "dotnet/OxidizePdf.NET/PdfStreams.cs"
+    ]
+  },
+  "WRITE-001": {
+    "python_symbol": "Document",
+    "dotnet_symbol": "PdfDocument",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfFlowLayout.cs",
+      "dotnet/OxidizePdf.NET/PdfPage.cs",
+      "dotnet/OxidizePdf.NET/PdfDocument.cs",
+      "dotnet/OxidizePdf.NET/PdfSaveOptions.cs",
+      "dotnet/OxidizePdf.NET/PdfDocumentBuilder.cs",
+      "dotnet/OxidizePdf.NET/NativeLibraryBootstrap.cs",
+      "dotnet/OxidizePdf.NET/PdfOperations.cs",
+      "dotnet/OxidizePdf.NET/Models/CidFontMapping.cs",
+      "dotnet/OxidizePdf.NET/Models/PdfStructureTree.cs",
+      "dotnet/OxidizePdf.NET/Models/FormFieldRef.cs"
+    ]
+  },
+  "WRITE-002": {
+    "python_symbol": "Document.set_producer",
+    "dotnet_symbol": "SetProducer",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfDocument.cs"
+    ]
+  },
+  "WRITE-003": {
+    "python_symbol": "Document.add_page",
+    "dotnet_symbol": "AddPage",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfPage.cs",
+      "dotnet/OxidizePdf.NET/PdfDocument.cs"
+    ]
+  },
+  "WRITE-004": {
+    "python_symbol": "Document.save_to_bytes",
+    "dotnet_symbol": "SaveToBytes",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfFlowLayout.cs",
+      "dotnet/OxidizePdf.NET/PdfDocument.cs",
+      "dotnet/OxidizePdf.NET/PdfSaveOptions.cs",
+      "dotnet/OxidizePdf.NET/PdfDocumentBuilder.cs"
+    ]
+  },
+  "WRITE-005": {
+    "python_symbol": "Document.save",
+    "dotnet_symbol": "SaveToFile",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfDocument.cs"
+    ]
+  },
+  "WRITE-006": {
+    "python_symbol": "WriterConfig",
+    "dotnet_symbol": "PdfSaveOptions",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfDocument.cs",
+      "dotnet/OxidizePdf.NET/PdfSaveOptions.cs"
+    ]
+  },
+  "WRITE-007": {
+    "python_symbol": "Document.encrypt",
+    "dotnet_symbol": "Encrypt",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfDocument.cs",
+      "dotnet/OxidizePdf.NET/NativeMethods.cs"
+    ]
+  },
+  "WRITE-008": {
+    "python_symbol": "EncryptionStrength.AES_128",
+    "dotnet_symbol": "EncryptAes128",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfDocument.cs"
+    ]
+  },
+  "WRITE-009": {
+    "python_symbol": "EncryptionStrength.AES_256",
+    "dotnet_symbol": "EncryptAes256",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfDocument.cs"
+    ]
+  },
+  "WRITE-010": {
+    "python_symbol": "Permissions",
+    "dotnet_symbol": "PdfPermissions",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/Enums.cs",
+      "dotnet/OxidizePdf.NET/PdfDocument.cs"
+    ]
+  },
+  "WRITE-011": {
+    "python_symbol": "Document.add_font_from_bytes",
+    "dotnet_symbol": "AddFont",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfPage.cs",
+      "dotnet/OxidizePdf.NET/PdfDocument.cs"
+    ]
+  },
+  "WRITE-012": {
+    "python_symbol": "Document.add_font",
+    "dotnet_symbol": "AddFontFromFile",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfDocument.cs"
+    ]
+  },
+  "WRITE-013": {
+    "python_symbol": "Document.set_open_action_goto",
+    "dotnet_symbol": "SetOpenAction",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfDocument.cs"
+    ]
+  },
+  "WRITE-014": {
+    "python_symbol": "Document.set_viewer_preferences",
+    "dotnet_symbol": "SetViewerPreferences",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfDocument.cs"
+    ]
+  },
+  "WRITE-015": {
+    "python_symbol": "PdfReader.outline",
+    "dotnet_symbol": "GetBookmarksAsync",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfExtractor.cs"
+    ]
+  },
+  "WRITE-016": {
+    "python_symbol": "NamedDestinations",
+    "dotnet_symbol": "AddNamedDestination",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfDocument.cs"
+    ]
+  },
+  "WRITE-017": {
+    "python_symbol": "PageLabelTree",
+    "dotnet_symbol": "SetPageLabels",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfDocument.cs"
+    ]
+  },
+  "WRITE-018": {
+    "python_symbol": "Document.set_struct_tree",
+    "dotnet_symbol": "SetStructureTree",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfDocument.cs",
+      "dotnet/OxidizePdf.NET/Models/PdfStructureTree.cs"
+    ]
+  },
+  "WRITE-019": {
+    "python_symbol": "EntityMap",
+    "dotnet_symbol": "SetEntityContent",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfDocument.cs"
+    ]
+  },
+  "WRITE-020": {
+    "python_symbol": "WriterConfig.pdf_version",
+    "dotnet_symbol": "PdfVersion",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfDocument.cs",
+      "dotnet/OxidizePdf.NET/PdfSaveOptions.cs"
+    ]
+  },
+  "WRITE-021": {
+    "python_symbol": "Document.save_to_bytes_with_config",
+    "dotnet_symbol": "SaveToBytes",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfFlowLayout.cs",
+      "dotnet/OxidizePdf.NET/PdfDocument.cs",
+      "dotnet/OxidizePdf.NET/PdfSaveOptions.cs",
+      "dotnet/OxidizePdf.NET/PdfDocumentBuilder.cs"
+    ]
+  },
+  "ANN-001": {
+    "python_symbol": null,
+    "dotnet_symbol": "GetAnnotationsAsync",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfExtractor.cs"
+    ]
+  },
+  "ANN-002": {
+    "python_symbol": "LinkAnnotation",
+    "dotnet_symbol": "AddLinkUri",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfPage.cs"
+    ]
+  },
+  "ANN-003": {
+    "python_symbol": "MarkupAnnotation",
+    "dotnet_symbol": "AddHighlight",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfPage.cs"
+    ]
+  },
+  "ANN-004": {
+    "python_symbol": "TextAnnotation",
+    "dotnet_symbol": "AddTextNote",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfPage.cs"
+    ]
+  },
+  "ANN-005": {
+    "python_symbol": "FileAttachmentAnnotation",
+    "dotnet_symbol": null,
+    "dotnet_sources": []
+  },
+  "ANN-006": {
+    "python_symbol": "FreeTextAnnotation",
+    "dotnet_symbol": "EditFreeTextAnnotationsAsync",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfOperations.FreeText.cs"
+    ]
+  },
+  "FORM-001": {
+    "python_symbol": null,
+    "dotnet_symbol": "GetFormFieldsAsync",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfExtractor.cs"
+    ]
+  },
+  "FORM-002": {
+    "python_symbol": "Document.add_checkbox",
+    "dotnet_symbol": "AddTextField",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfDocument.cs",
+      "dotnet/OxidizePdf.NET/Models/FormFieldRef.cs"
+    ]
+  },
+  "FORM-003": {
+    "python_symbol": "IncrementalFormFiller",
+    "dotnet_symbol": "FillFormFieldsAsync",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfOperations.cs"
+    ]
+  },
+  "FORM-004": {
+    "python_symbol": "FormCalculationSystem",
+    "dotnet_symbol": null,
+    "dotnet_sources": []
+  },
+  "FORM-005": {
+    "python_symbol": "FieldValidator",
+    "dotnet_symbol": null,
+    "dotnet_sources": []
+  },
+  "OPS-001": {
+    "python_symbol": "split_pdf",
+    "dotnet_symbol": "SplitAsync",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfSplitOptions.cs",
+      "dotnet/OxidizePdf.NET/PdfOperations.cs",
+      "dotnet/OxidizePdf.NET/PdfExistingDocumentOperations.cs"
+    ]
+  },
+  "OPS-002": {
+    "python_symbol": "split_pdf_with_options",
+    "dotnet_symbol": "SplitAsync",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfSplitOptions.cs",
+      "dotnet/OxidizePdf.NET/PdfOperations.cs",
+      "dotnet/OxidizePdf.NET/PdfExistingDocumentOperations.cs"
+    ]
+  },
+  "OPS-003": {
+    "python_symbol": "merge_pdfs",
+    "dotnet_symbol": "MergeAsync",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfMergeInput.cs",
+      "dotnet/OxidizePdf.NET/PdfOperations.cs",
+      "dotnet/OxidizePdf.NET/PdfExistingDocumentOperations.cs"
+    ]
+  },
+  "OPS-004": {
+    "python_symbol": "merge_pdfs_with_inputs",
+    "dotnet_symbol": "MergeAsync",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfMergeInput.cs",
+      "dotnet/OxidizePdf.NET/PdfOperations.cs",
+      "dotnet/OxidizePdf.NET/PdfExistingDocumentOperations.cs"
+    ]
+  },
+  "OPS-005": {
+    "python_symbol": "rotate_pdf",
+    "dotnet_symbol": "RotateAsync",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfOperations.cs"
+    ]
+  },
+  "OPS-006": {
+    "python_symbol": "rotate_pdf_with_options",
+    "dotnet_symbol": "RotatePagesAsync",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfOperations.cs"
+    ]
+  },
+  "OPS-007": {
+    "python_symbol": "extract_pages",
+    "dotnet_symbol": "ExtractPagesAsync",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfOperations.cs"
+    ]
+  },
+  "OPS-008": {
+    "python_symbol": "overlay_pdf",
+    "dotnet_symbol": "OverlayAsync",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfOperations.cs"
+    ]
+  },
+  "OPS-009": {
+    "python_symbol": "reorder_pdf_pages",
+    "dotnet_symbol": "ReorderPagesAsync",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfOperations.cs"
+    ]
+  },
+  "OPS-010": {
+    "python_symbol": "extract_images_in_memory",
+    "dotnet_symbol": "ExtractImagesAsync",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfOperations.cs"
+    ]
+  },
+  "OPS-011": {
+    "python_symbol": "SplitMode.ranges",
+    "dotnet_symbol": "PdfSplitMode",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfSplitOptions.cs"
+    ]
+  },
+  "OPS-012": {
+    "python_symbol": "SplitOptions",
+    "dotnet_symbol": "PdfSplitOptions",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfSplitOptions.cs",
+      "dotnet/OxidizePdf.NET/PdfOperations.cs"
+    ]
+  },
+  "OPS-013": {
+    "python_symbol": null,
+    "dotnet_symbol": "MergeWithMetadataAsync",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfMergeMetadata.cs"
+    ]
+  },
+  "SIG-001": {
+    "python_symbol": "PdfReader.detect_signatures",
+    "dotnet_symbol": "HasDigitalSignaturesAsync",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfExtractor.cs"
+    ]
+  },
+  "SIG-002": {
+    "python_symbol": "parse_pkcs7_signature",
+    "dotnet_symbol": "GetDigitalSignaturesAsync",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfExtractor.cs"
+    ]
+  },
+  "SIG-003": {
+    "python_symbol": "verify_pdf_signature",
+    "dotnet_symbol": "VerifySignaturesAsync",
+    "dotnet_sources": [
+      "dotnet/OxidizePdf.NET/PdfExtractor.cs"
+    ]
+  },
+  "PDFA-001": {
+    "python_symbol": "PdfAValidator",
+    "dotnet_symbol": null,
+    "dotnet_sources": []
+  },
+  "PDFA-002": {
+    "python_symbol": "XmpMetadata",
+    "dotnet_symbol": null,
+    "dotnet_sources": []
+  }
+}

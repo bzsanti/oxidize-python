@@ -5,19 +5,32 @@ results and errors. Pinning the same core version is not proof of API parity.
 Tracking: [#244](https://github.com/bzsanti/oxidize-python/issues/244), coordinated
 by [core #710](https://github.com/bzsanti/oxidizePdf/issues/710).
 
+Current source checkpoint: Python manifest 0.22.0, core =5.4.2, develop
+55c3528 (2026-10-15). Post-release changes in develop are not a promise about
+what an already-published 0.22.0 wheel contains. Cross-bridge status and evidence:
+[PARITY_SPEC.md](PARITY_SPEC.md). This is a partial inventory.
+
 | Capability | Current status |
 | --- | --- |
-| Existing-document merge/extract/split with explicit preservation policies and complete plans | Integrated in develop via #245; 26 CI checks passed |
-| Atomic lossless page mutations (move/rotate/delete/duplicate/insert) | Integrated in develop via #245; 26 CI checks passed |
-| CMS preparation and completion | Integrated in develop via #246; 26 CI checks passed |
-| Composed extraction policies (CR, reading order, column reordering) | Integrated in develop via #248; 26 CI checks passed |
-| Incremental FreeText editor (read/add/update/remove, all fields) | Integrated via #249; 26 CI checks passed |
-| Incremental Ink editor (read/add/update/remove, all fields) | Implemented and locally validated; CI pending |
-| Incremental notes/highlights | Candidate bindings blocked on upstream DocMDP fix [core #712](https://github.com/bzsanti/oxidizePdf/issues/712); not exported |
-| Other incremental annotation/tagged/OCR editors, security redaction, revision-aware comparison | Missing bindings; required for full parity |
-| Recovery diagnostics, NBSP normalization, signature slots, batch/streaming, experimental SPI | Bindings exist; complete option/result audit pending |
-| Generation, parsing, graphics, forms, layout, AI and remaining public Rust API | Bindings exist in part; complete functional audit pending |
-| Tesseract recognition and optional production features | Full exposure pending |
+| Policy-driven merge/extract/split and atomic page mutations | Integrated via #245; explicit structural preservation/rejection contract |
+| CMS preparation/completion and signature slots | Integrated via #246 and upstream 5.4.1 bindings; not blanket certification |
+| Composed text extraction | Integrated via #248; explicit policy contract |
+| Incremental FreeText and Ink editing | Integrated via #249/#250; independent APIs for existing PDFs |
+| RAG configs, element graphs, token counters and document exports | Integrated via #267 (#260); semantic tests and types recorded below |
+| File page iteration and positional text extraction | Integrated via #268 (#254/#255); not a general bounded-memory streaming claim |
+| Incremental parser event payloads | Integrated via #269 (#256); core payload/normalization limitations remain |
+| BatchOptions | Integrated via #270 (#257); core does not enforce timeout/memory options |
+| Structured signature errors | Integrated via #271 (#264); verification limitations remain explicit |
+| Existing-outline reading | Integrated via #272 (#261); bounded reading distinct from OutlineTree writing |
+| Parser/recovery options | Integrated via #273 (#259); inert options, unbounded memory and repair fidelity limits documented |
+| Public typing inventory | Integrated via #274 (#265); exports/members covered, not proof of behavioral completeness |
+| Streaming/lazy configuration | Incomplete consumer wiring/audit under #258 |
+| Other incremental annotation/tagged/OCR editors | Missing/partial bindings under #262; core defects remain core defects |
+| Revision-aware comparison and irreversible redaction | Missing bindings under #263; structural comparison is not equivalent |
+| Real Tesseract recognition | No recognition binding; enum/mock provider presence is not OCR |
+| AES IV generation | Core 5.4.2 limitation tracked by #253; no security approval inferred from round trips |
+| GIL concurrency evidence | Scheduling-only speedup rejection remains under #247 |
+| Remaining core capabilities and optional production features | Complete functional inventory/audit pending under #244 |
 
 `docs/parity-contract.json` records the first audited API contract. CI tests each
 callable parameter and result property and runs the named behavioral tests. Its
@@ -136,16 +149,16 @@ Status values:
 
 ---
 
-## Scope of this document
+## Scope of the historical matrix
 
 This table covers the **core PDF generation, parsing, and operations surface** that the ecosystem-wide parity framework tracks across bridges (Python, .NET, WASM). The Python bridge also exposes a larger feature set not represented in this core surface — tables, charts, dashboards, annotations (deep), forms (deep), AI/ML pipeline (`DocumentChunker`, `MarkdownExporter`, `RagChunk`), signatures, PDF/A validation, XMP metadata, templates, MCP server. Those live in the internal TDD plan (`.private/tdd-plan-full.md`) and in the `_oxidize_pdf.pyi` type stub.
 
-## Known gaps
+## Historical known gaps (not the current backlog)
 
 - **OCR**: the Rust core exposes a Tesseract-backed OCR provider (`oxidize-pdf-core/src/text/ocr/`), but it is **not wrapped in the Python bridge** yet. This is the main user-facing gap for scanned-PDF pipelines.
 - **OPS-001**: `split_pdf` uses a hardcoded `page_{n}.pdf` naming pattern. The core may support custom patterns — check if this should be exposed.
 
-## Incremento activo — #260 (2026-10-13)
+## Registro histórico del incremento #260 (2026-10-13)
 
 Por decisión del usuario, #253 queda pendiente de una publicación del core con
 el arreglo AES (el índice oficial sigue en 5.4.2); no se cambia el pin a Git ni
@@ -1090,3 +1103,51 @@ no cambian criptografía ni subsanan el hallazgo upstream #253.
   mediante PR hacia develop; no se publica release. Tras verificar su CI y al
   fusionarla, cerrar explícitamente #265. La siguiente issue del inventario #266
   permanece separada de esta corrección de tipos.
+
+
+## Issue #266 — Documentación de paridad (2026-10-15)
+
+Fuente: #266; Python base 55c3528 y .NET base 0b8905e. Se usa un snapshot del
+commit .NET para excluir su trabajo concurrente. Alcance: documentación y espejo;
+no cambios de core, runtime ni publicación de paquetes. Se conservan notas locales.
+
+| Requisito y fuente | Estado y evidencia | Bloqueante / siguiente acción |
+| --- | --- | --- |
+| Spec frente a capacidades reales (#266) | Demostrado: 107 IDs conservados; inventario API en evidence/issue-266 | 49 tests RAG/outlines aprobados; 32 referencias de fuente comprobadas |
+| Espejo .NET en el mismo ciclo (#266) | Demostrado localmente: mismo SHA-256 en Python y worktree .NET aislado | Entregar PRs coordinadas sin tocar el trabajo concurrente .NET |
+| Histórico/parcial/ausente/core (#266) | Demostrado: leyenda, checkpoints y límites; sin porcentaje global | README y referencias lifecycle conciliados |
+| Entrega verificable | Revisión documental y gates locales completos | PRs coordinadas y CI remota pendientes |
+
+
+### Revisión y evidencia de #266
+
+Alcance: cinco documentos Python y el espejo de PARITY_SPEC.md en .NET, sobre
+los checkpoints citados. No se cambia código ni se añade una suite de tests para
+texto reversible. El inventario api-inventory.json comprueba símbolos de Python
+instalado y referencias C# del snapshot; no prueba por sí solo comportamiento.
+Se trazaron las llamadas de RagChunksAsync y GetBookmarksAsync hasta el FFI y
+sus implementaciones Rust y se inspeccionaron fixtures de ambos bridges. No se
+recompiló ni ejecutó .NET: su estado se marca API/tests presentes, no tests nuevos.
+
+Hallazgos resueltos: versiones/checkpoints mezclados; firma de chunk_page y
+analyze_page_content; JSON directo omitido; lectura de outlines confundida con
+escritura; pendientes .NET obsoletos de forms/labels/estructura/split/metadata;
+OCR reconocido confundido con capas de texto suministradas; cinco familias OS
+Python incorrectas; publicaciones externas inferidas de notas privadas/antiguas.
+Los 107 IDs se mantienen; sus estados no sirven como denominador de cobertura.
+La ausencia de equivalencia semántica global sigue en #244/.NET #81 y no bloquea
+esta corrección documental, que la declara expresamente en lugar de prometerla.
+
+Calidad de tests (Kripteia): el scan del Markdown encuentra cero tests; su score
+no aporta evidencia conductual. Seguridad (Kripteia): sin hallazgos en ese archivo;
+la revisión manual comprueba que los ejemplos y textos no recomiendan capacidades
+OCR inexistentes ni atribuyen garantías de seguridad a la mera exposición AES.
+No es una nueva auditoría del core ni cierra #253. Salida: kripteia-docs.log.
+
+Validación: focused.log (49 pruebas RAG/outlines); parity.log (contrato parcial
+aprobado); document-checks.json (107 IDs únicos, 32 rutas fuente y hash idéntico
+del espejo). Los enlaces a checkpoints históricos conservan la evidencia original.
+No se repite regresión global/MCP/build sin cambios funcionales. Sin bloqueantes
+locales de contenido; la entrega no se considera completa hasta sincronizar las
+PRs de ambos repositorios. Las notas locales anteriores se conservan fuera del
+commit; el checkout .NET principal mantiene su trabajo independiente.

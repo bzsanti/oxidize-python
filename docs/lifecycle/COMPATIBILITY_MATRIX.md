@@ -1,5 +1,11 @@
 # oxidize-pdf Ecosystem Compatibility Matrix
 
+> Historical snapshot (March 2026), retained for provenance. Version ranges,
+> platform statements and planned work below are not the current support contract.
+> See [the reconciled bridge inventory](../PARITY_SPEC.md) and
+> [current Python capability status](../FEATURE_PARITY.md). This legacy ID set is
+> not a complete core 5.4.2 inventory and must not be used to compute global parity.
+
 Last updated: 2026-03-14
 
 This is the ecosystem-wide compatibility reference.

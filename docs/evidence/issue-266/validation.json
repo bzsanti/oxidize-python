@@ -1,0 +1,15 @@
+{
+  "python_base": "55c3528843ec2bbe6d4fc413879f6936fd35d000",
+  "dotnet_base": "0b8905e6624d02b80bd6c18c409879dedcb916e6",
+  "source_hashes": {
+    "README.md": "cdf107b9da9618b8383f5c989c833718bc927da361887e8ccb6223f98de1517b",
+    "docs/PARITY_SPEC.md": "9ca7cf2deabc56668b2bae5e00791b9e9c163b030bebc94ee3125d9561cc9e5d",
+    "docs/lifecycle/API_SURFACE.md": "710013e62b214c3c757b20f6ed2200004d93e56f7aea8cc03f6700532afbf368",
+    "docs/lifecycle/COMPATIBILITY_MATRIX.md": "2c03b9613e462d4a1d7fc6fe612be076a12609842e220a34338006a8b4bf0364"
+  },
+  "mirror_sha256": "9ca7cf2deabc56668b2bae5e00791b9e9c163b030bebc94ee3125d9561cc9e5d",
+  "focused_tests": 49,
+  "runtime_changes": false,
+  "dotnet_execution": "not rerun; source inspection only",
+  "remote_delivery": "pending"
+}
