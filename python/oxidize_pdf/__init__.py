@@ -1163,3 +1163,31 @@ __all__ += ["OutlineReadOptions", "ReadOutline", "ReadOutlineItem", "ReadOutline
 
 from oxidize_pdf._oxidize_pdf import RecoveryOptions
 __all__ += ["RecoveryOptions"]
+
+# Incremental geometric annotations (core 5.4.2).
+from oxidize_pdf._oxidize_pdf import (
+    GeometricColorSpace,
+    GeometricColor,
+    GeometricId,
+    GeometricLineEnding,
+    GeometricKind,
+    GeometricGeometry,
+    GeometricStyle,
+    GeometricAnnotation,
+    GeometricMutation,
+    GeometricUpdate,
+    IncrementalGeometricEditor,
+)
+__all__ += [
+    "GeometricColorSpace",
+    "GeometricColor",
+    "GeometricId",
+    "GeometricLineEnding",
+    "GeometricKind",
+    "GeometricGeometry",
+    "GeometricStyle",
+    "GeometricAnnotation",
+    "GeometricMutation",
+    "GeometricUpdate",
+    "IncrementalGeometricEditor",
+]

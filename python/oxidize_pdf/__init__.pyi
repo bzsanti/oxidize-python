@@ -939,3 +939,30 @@ from oxidize_pdf._oxidize_pdf import (
     RichText as RichText,
     FlowLayout as FlowLayout,
 )
+
+from oxidize_pdf._oxidize_pdf import (
+    GeometricColorSpace as GeometricColorSpace,
+    GeometricColor as GeometricColor,
+    GeometricId as GeometricId,
+    GeometricLineEnding as GeometricLineEnding,
+    GeometricKind as GeometricKind,
+    GeometricGeometry as GeometricGeometry,
+    GeometricStyle as GeometricStyle,
+    GeometricAnnotation as GeometricAnnotation,
+    GeometricMutation as GeometricMutation,
+    GeometricUpdate as GeometricUpdate,
+    IncrementalGeometricEditor as IncrementalGeometricEditor,
+)
+__all__ += [
+    "GeometricColorSpace",
+    "GeometricColor",
+    "GeometricId",
+    "GeometricLineEnding",
+    "GeometricKind",
+    "GeometricGeometry",
+    "GeometricStyle",
+    "GeometricAnnotation",
+    "GeometricMutation",
+    "GeometricUpdate",
+    "IncrementalGeometricEditor",
+]

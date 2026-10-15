@@ -1,0 +1,32 @@
+## Calidad de Tests (Kripteia)
+
+=== Kripteia Test Quality Report ===
+Overall Score: 98 | Tests: 10 | Files: 1
+
+--- Files ---
+Path                                                          Tests  Score
+--------------------------------------------------------------------------
+tests/test_incremental_geometric.py                              10     98
+
+--- Worst Offenders ---
+  test_geometric_style_validation (tests/test_incremental_geometric.py:112) - Score: 90
+    - Test 'test_geometric_style_validation' has identical neighborhood to 'test_geometric_unsigned_boundaries'
+  test_geometric_unsigned_boundaries (tests/test_incremental_geometric.py:201) - Score: 90
+    - Test 'test_geometric_unsigned_boundaries' has identical neighborhood to 'test_geometric_style_validation'
+  test_geometric_shapes_styles_and_readback (tests/test_incremental_geometric.py:32) - Score: 100
+  test_geometric_line_endings_and_gray (tests/test_incremental_geometric.py:61) - Score: 100
+  test_geometric_update_remove_identity_and_ownership (tests/test_incremental_geometric.py:72) - Score: 100
+
+--- Details ---
+tests/test_incremental_geometric.py:
+  test_geometric_style_validation (line 112) - Score: 90
+    - Test 'test_geometric_style_validation' has identical neighborhood to 'test_geometric_unsigned_boundaries'
+  test_geometric_unsigned_boundaries (line 201) - Score: 90
+    - Test 'test_geometric_unsigned_boundaries' has identical neighborhood to 'test_geometric_style_validation'
+
+
+## Analisis de Seguridad (Kripteia Security)
+
+=== Kripteia Security Analysis ===
+
+No security issues found.
