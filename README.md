@@ -36,6 +36,12 @@ New APIs include explicit text recovery, non-breaking-space normalization,
 build identification controls and incremental signature slots. See the
 [API guide and validation](docs/UPSTREAM-5.4.1.md).
 
+The current develop branch contains post-release parity work. See the
+[current capability inventory](docs/FEATURE_PARITY.md) and
+[Python/.NET comparison](docs/PARITY_SPEC.md) for the audited subset, missing
+bindings and inherited core limitations. Neither the core version nor the type
+stubs establish full functional parity; no global coverage percentage is claimed.
+
 ## Why oxidize-pdf?
 
 | | oxidize-pdf | Pure-Python libs | C/Java wrappers |
@@ -43,14 +49,14 @@ build identification controls and incremental signature slots. See the
 | **Performance** | Native (compiled Rust) | Interpreted | Native but heavy |
 | **Dependencies** | Zero | Varies | Poppler, Java, Ghostscript |
 | **Memory safety** | Rust ownership model | GC-dependent | Manual / GC |
-| **Type stubs** | Full (mypy/pyright) | Partial | Rare |
+| **Type stubs** | Public API inventory + strict mypy checks on develop | Varies | Varies |
 | **AI-ready (MCP)** | Built-in | No | No |
 
 ---
 
 ## MCP Server
 
-Give your AI agent full PDF capabilities in one line:
+Expose the supported PDF tools to your AI agent:
 
 ```bash
 oxidize-mcp

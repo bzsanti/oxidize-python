@@ -1,0 +1,29 @@
+{
+  "failed_run": 38727638671,
+  "cause": "Restored PyO3 build-script output references a previous Python patch-version directory; LNK1181 python3.lib before tests",
+  "jobs": [
+    {
+      "python": "313",
+      "evidence": [
+        "2026-10-15T11:30:04.2221688Z Successfully set up CPython (3.13.16)",
+        "2026-10-15T11:30:26.2932411Z Restored from cache key \"v0-rust-windows-latest-py3.13-test-Windows_NT-x64-691f2d0c-16865e56\" full match: true.",
+        "2026-10-15T11:32:34.8735135Z   = note: LINK : fatal error LNK1181: cannot open input file 'python3.lib'"
+      ],
+      "cached_link_path": "/LIBPATH:C:\\\\hostedtoolcache\\\\windows\\\\Python\\\\3.13.15\\\\x64\\\\libs"
+    },
+    {
+      "python": "314",
+      "evidence": [
+        "2026-10-15T11:29:31.3621943Z Successfully set up CPython (3.14.8)",
+        "2026-10-15T11:29:55.6381557Z Restored from cache key \"v0-rust-windows-latest-py3.14-test-Windows_NT-x64-691f2d0c-16865e56\" full match: true.",
+        "2026-10-15T11:32:18.1935046Z   = note: LINK : fatal error LNK1181: cannot open input file 'python3.lib'"
+      ],
+      "cached_link_path": "/LIBPATH:C:\\\\hostedtoolcache\\\\windows\\\\Python\\\\3.14.7\\\\x64\\\\libs"
+    }
+  ],
+  "correction": "Use setup-python resolved python-version in rust-cache key, for matrix and release build jobs",
+  "references": [
+    "https://github.com/Swatinem/rust-cache/blob/v2/README.md",
+    "https://github.com/actions/setup-python/blob/v5/action.yml"
+  ]
+}

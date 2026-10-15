@@ -1,253 +1,273 @@
-# Bridge Parity Spec — oxidize-pdf (Python + .NET)
+# Bridge Parity Spec — Python + .NET
 
-**Last updated:** 2026-05-05
-**Bridge versions checkpoint:** Python `oxidize-pdf` 0.5.0 (=core 2.6.0) · .NET `OxidizePdf.NET` 0.8.0 (=core 2.6.0)
+**Reconciled:** 2026-10-15, Python issue [#266](https://github.com/bzsanti/oxidize-python/issues/266).
+**Source checkpoints (not package-release claims):** Python 0.22.0, `55c3528843ec2bbe6d4fc413879f6936fd35d000`;
+.NET managed package 0.19.0, `0b8905e6624d02b80bd6c18c409879dedcb916e6` (native FFI crate 0.14.0).
+These are repository snapshots; features added after a release are not promised by
+the published package with the same manifest version. Both Cargo manifests pin
+core **=5.4.2**. Equal core versions do not establish
+bridge parity, identical output, or complete security/standards guarantees.
 
-This document is the **canonical contract** that both bridges must satisfy. The same matrix exists in [`oxidize-pdf-dotnet/docs/PARITY_SPEC.md`](https://github.com/bzsanti/oxidize-pdf-dotnet/blob/main/docs/PARITY_SPEC.md). Any divergence between the two copies is a bug — the IDs, capability descriptions, and "Action for parity" cells must stay synchronized.
+This document is a synchronized **partial capability inventory and work contract**,
+not a certificate that either bridge implements all Rust functionality. It replaces
+the mixed May 2026 status table. The historical Python and .NET versions remain
+available in the [Python checkpoint](https://github.com/bzsanti/oxidize-python/blob/55c3528843ec2bbe6d4fc413879f6936fd35d000/docs/PARITY_SPEC.md) and
+[.NET checkpoint](https://github.com/bzsanti/oxidize-pdf-dotnet/blob/0b8905e6624d02b80bd6c18c409879dedcb916e6/docs/PARITY_SPEC.md); their old checkmarks and TODOs are
+historical assertions, not current evidence. All 107 existing IDs are retained.
+No global coverage percentage is published: a complete inventory of core
+capabilities and behavioral evidence per capability is still missing.
 
-**Driver priority:** RAG/AI is the #1 surface. Tier 0 takes precedence over every other tier when scheduling work.
+## Evidence and status semantics
 
-## Status legend
+- **API**: the named binding exists in the inspected source (and, for Python,
+  the installed runtime). It does not assert all options work or certify equivalence.
+- **Partial**: a concrete limitation or asymmetry is stated; the action remains open.
+- **Absent**: no equivalent public binding found in the inspected bridge snapshot.
+- **Unreviewed/external**: current availability or behavior has not been established;
+  it must not be interpreted as absent, complete, or a stale release claim.
+- **Tests present/configured**: source or CI wiring exists, not a new execution result.
+- **N/A**: an ecosystem-specific capability, with the reason stated.
 
-| Symbol | Meaning |
-|---|---|
-| ✅ | Implemented and tested |
-| ⚠️ | Partial — present but missing options, missing config knobs, or missing semantic tests |
-| ❌ | Not exposed in this bridge |
-| 🚫 | N/A — does not apply to this runtime (justified asymmetry) |
+RAG/AI remains the scheduling priority. Tier 0 cannot be promoted to semantic
+parity without fixtures that assert meaningful content/results in both bridges.
+Python [#244](https://github.com/bzsanti/oxidize-python/issues/244), .NET
+[#81](https://github.com/bzsanti/oxidize-pdf-dotnet/issues/81), and core
+[#710](https://github.com/bzsanti/oxidizePdf/issues/710) track the larger work.
+This documentation reconciliation does not authorize API renaming or migrations.
 
-When marking a row ⚠️ or ❌, the **Action for parity** column must specify exactly which side owes work and what the work is. Cells that read `—` mean "parity reached, no work pending".
+### Audited sources and behavioral anchors
 
----
+Python sources: [reader](https://github.com/bzsanti/oxidize-python/blob/55c3528843ec2bbe6d4fc413879f6936fd35d000/src/parser.rs), [RAG/config models](https://github.com/bzsanti/oxidize-python/blob/55c3528843ec2bbe6d4fc413879f6936fd35d000/src/ai_pipeline.rs),
+[writer](https://github.com/bzsanti/oxidize-python/blob/55c3528843ec2bbe6d4fc413879f6936fd35d000/src/document.rs), [operations](https://github.com/bzsanti/oxidize-python/blob/55c3528843ec2bbe6d4fc413879f6936fd35d000/src/operations.rs),
+[forms](https://github.com/bzsanti/oxidize-python/blob/55c3528843ec2bbe6d4fc413879f6936fd35d000/src/forms.rs), [outline reader](https://github.com/bzsanti/oxidize-python/blob/55c3528843ec2bbe6d4fc413879f6936fd35d000/src/outline_read.rs),
+[public stubs](https://github.com/bzsanti/oxidize-python/blob/55c3528843ec2bbe6d4fc413879f6936fd35d000/python/oxidize_pdf/_oxidize_pdf.pyi).
+.NET sources: [extractor and native call sites](https://github.com/bzsanti/oxidize-pdf-dotnet/blob/0b8905e6624d02b80bd6c18c409879dedcb916e6/dotnet/OxidizePdf.NET/PdfExtractor.cs),
+[writer](https://github.com/bzsanti/oxidize-pdf-dotnet/blob/0b8905e6624d02b80bd6c18c409879dedcb916e6/dotnet/OxidizePdf.NET/PdfDocument.cs),
+[operations](https://github.com/bzsanti/oxidize-pdf-dotnet/blob/0b8905e6624d02b80bd6c18c409879dedcb916e6/dotnet/OxidizePdf.NET/PdfOperations.cs),
+[managed models](https://github.com/bzsanti/oxidize-pdf-dotnet/tree/0b8905e6624d02b80bd6c18c409879dedcb916e6/dotnet/OxidizePdf.NET/Models),
+[hybrid config](https://github.com/bzsanti/oxidize-pdf-dotnet/blob/0b8905e6624d02b80bd6c18c409879dedcb916e6/dotnet/OxidizePdf.NET/Pipeline/HybridChunkConfig.cs),
+[native implementation](https://github.com/bzsanti/oxidize-pdf-dotnet/tree/0b8905e6624d02b80bd6c18c409879dedcb916e6/native/src).
 
-## Tier 0 — RAG/AI pipeline (HIGHEST PRIORITY)
+Behavioral anchors for the corrected RAG/outline claims:
+[Python RAG](https://github.com/bzsanti/oxidize-python/blob/55c3528843ec2bbe6d4fc413879f6936fd35d000/tests/test_rag_reader_parity.py),
+[Python outlines](https://github.com/bzsanti/oxidize-python/blob/55c3528843ec2bbe6d4fc413879f6936fd35d000/tests/test_outline_read.py),
+[.NET hybrid config](https://github.com/bzsanti/oxidize-pdf-dotnet/blob/0b8905e6624d02b80bd6c18c409879dedcb916e6/dotnet/OxidizePdf.NET.Tests/Pipeline/PdfExtractorHybridChunksTests.cs),
+[.NET disjointness](https://github.com/bzsanti/oxidize-pdf-dotnet/blob/0b8905e6624d02b80bd6c18c409879dedcb916e6/dotnet/OxidizePdf.NET.Tests/Pipeline/RagChunksDisjointnessTests.cs),
+[.NET bookmarks](https://github.com/bzsanti/oxidize-pdf-dotnet/blob/0b8905e6624d02b80bd6c18c409879dedcb916e6/dotnet/OxidizePdf.NET.Tests/BookmarkReadingTests.cs).
+Python's bounded, audited contract and prior execution evidence are in
+[parity-contract.json](https://github.com/bzsanti/oxidize-python/blob/55c3528843ec2bbe6d4fc413879f6936fd35d000/docs/parity-contract.json) and
+[FEATURE_PARITY.md](https://github.com/bzsanti/oxidize-python/blob/55c3528843ec2bbe6d4fc413879f6936fd35d000/docs/FEATURE_PARITY.md). Tests and native call paths were
+inspected for this source review; .NET tests were not rerun for this docs-only edit.
+The issue-266 evidence in the Python repository records the row-to-symbol/source
+inventory; it is presence evidence, not a full behavioral audit.
 
-The reason we maintain bridges in lockstep. A consumer building a RAG pipeline must be able to swap Python ↔ .NET and get the same semantic guarantees.
+## RAG capabilities
 
-| ID | Capability | Python | .NET | Action for parity |
-|---|---|---|---|---|
-| RAG-001 | Partition document → semantic elements | ✅ `PdfReader.partition()` | ✅ `PdfExtractor.PartitionAsync()` | — |
-| RAG-002 | RAG chunks (default config) | ✅ `PdfReader.rag_chunks()` | ✅ `PdfExtractor.RagChunksAsync()` | — |
-| RAG-003 | RAG chunks with `ExtractionProfile` | ✅ `PdfReader.rag_chunks_with_profile(p)` | ✅ `RagChunksAsync(byte[], ExtractionProfile)` | — |
-| RAG-004 | `ExtractionProfile` enum (7 values: `STANDARD`, `RAG`, `ACADEMIC`, `FORM`, `GOVERNMENT`, `DENSE`, `PRESENTATION`) | ✅ | ✅ | — |
-| RAG-005 | RAG chunks with granular `HybridChunkConfig` (`max_tokens`, `overlap_tokens`, `merge_adjacent`, `propagate_headings`, `merge_policy`) | ✅ `rag_chunks_with(config)` | ✅ `RagChunksAsync(byte[], PartitionConfig?, HybridChunkConfig?)` (5 fields, all present) | — |
-| RAG-006 | `MergePolicy` enum (`AnyInlineContent`, `SameTypeOnly`) | ✅ (2 variants) | ✅ (2 variants) | **Python: drop spurious `None` variant from this row (docs-only drift; Rust core + Python bridge both expose 2)** |
-| RAG-007 | `ReadingOrderStrategy` (`Simple`, `None`, `XyCut(min_gap)`) | ✅ | ✅ | — |
-| RAG-008 | Low-level reusable chunker (chunk arbitrary text, not just PDFs) | ✅ `DocumentChunker(size, overlap).chunk_text(str)` | ✅ `DocumentChunker(chunkSize, overlap).ChunkText(text)` | — |
-| RAG-009 | Token estimation utility | ✅ `DocumentChunker.estimate_tokens(str)` static | ✅ `DocumentChunker.EstimateTokens(string)` static | — |
-| RAG-010 | Per-page chunking | ✅ `PdfReader.chunk_page(idx, options)` | ✅ `ExtractChunksFromPageAsync()` | — |
-| RAG-011 | Markdown export | ✅ `PdfReader.to_markdown()` | ✅ `ToMarkdownAsync()` | — |
-| RAG-012 | Markdown export with configurable `MarkdownOptions` | ✅ `MarkdownExporter(opts).export(text)` | ✅ `ToMarkdownAsync(byte[], MarkdownOptions)` | — |
-| RAG-013 | Contextual export (LLM context windows) | ✅ `to_contextual()` | ✅ `ToContextualAsync()` | — |
-| RAG-014 | Structured JSON export | ⚠️ via `EntityMap.to_json()` (entity-centric) | ⚠️ `ToJsonAsync()` direct (extraction-centric) | **Decide single philosophy; recommend direct method on both:** `to_json()` / `ToJsonAsync()` |
-| RAG-015 | `RagChunk` schema (`chunk_index`, `text`, `full_text`, `page_numbers`, `element_types`, `heading_context`, `token_estimate`, `is_oversized`) | ✅ | ✅ | — (verify identical serialization in cross-bridge integration test) |
-| RAG-016 | `Element` schema (`element_type`, `text`, `page_number`, `x`, `y`, `width`, `height`, `confidence`) | ✅ `Element` | ✅ `PdfElement` | **Both: align name (recommend `Element` without prefix; namespace is sufficient)** |
-| RAG-017 | `DocumentChunk` schema | ✅ | ✅ | — |
-| RAG-018 | Page content analysis (text/scanned/mixed) | ✅ `analyze_page_content(idx)` | ✅ `AnalyzePageContentAsync()` | — |
-| RAG-019 | OCR for scanned PDFs (Tesseract) | ❌ (known gap) | ❌ | **BOTH: expose core's `OcrProvider`** |
-| RAG-020 | **Semantic disjointness regression tests** (known input → expected output) | ✅ 12 bridge + 7 reader (`test_rag_chunks_disjoint.py`, `test_reader_disjoint.py`) | ✅ 12 ported (`RagChunksDisjointnessTests.cs`) | — |
-| RAG-021 | First-class adapter for ecosystem RAG framework | ✅ `llama-index-readers-oxidize-pdf 0.1.1` (PyPI) | ⚠️ `examples/KernelMemory/` (sample, not a NuGet package) | **.NET: package `OxidizePdf.KernelMemory.DocumentReader` as a NuGet** |
+| ID | Capability | Python | .NET | Action for parity / limitation |
+| --- | --- | --- | --- | --- |
+| RAG-001 | Partition document → semantic elements | API `PdfReader.partition` | API `PartitionAsync` | Both: retain API contract; cross-bridge semantic equivalence remains unverified. |
+| RAG-002 | RAG chunks (default config) | API `PdfReader.rag_chunks` | API `RagChunksAsync` | Both: retain API contract; cross-bridge semantic equivalence remains unverified. |
+| RAG-003 | RAG chunks with `ExtractionProfile` | API `PdfReader.rag_chunks_with_profile` | API `RagChunksAsync` | Both: retain API contract; cross-bridge semantic equivalence remains unverified. |
+| RAG-004 | `ExtractionProfile` enum (7 values: `STANDARD`, `RAG`, `ACADEMIC`, `FORM`, `GOVERNMENT`, `DENSE`, `PRESENTATION`) | API `ExtractionProfile` | API `ExtractionProfile` | Both: retain API contract; cross-bridge semantic equivalence remains unverified. |
+| RAG-005 | Granular HybridChunkConfig and partition options | API `PdfReader.rag_chunks_with` | API `RagChunksAsync` | Python config and custom token counter are exposed (#260). .NET exposes partition + hybrid configs; compare context/token policies before claiming equivalence. |
+| RAG-006 | `MergePolicy` enum (`AnyInlineContent`, `SameTypeOnly`) | API `MergePolicy` | API `MergePolicy` | Both expose two policies; the old spurious Python None TODO is obsolete. |
+| RAG-007 | `ReadingOrderStrategy` (`Simple`, `None`, `XyCut(min_gap)`) | API `ReadingOrderStrategy` | API `ReadingOrderStrategy` | Both: retain API contract; cross-bridge semantic equivalence remains unverified. |
+| RAG-008 | Chunk arbitrary text | API `DocumentChunker.chunk_text` | API `ChunkText` | Both: retain API contract; cross-bridge semantic equivalence remains unverified. |
+| RAG-009 | Token estimation utility | API `DocumentChunker.estimate_tokens` | API `EstimateTokens` | Both: retain API contract; cross-bridge semantic equivalence remains unverified. |
+| RAG-010 | Per-page chunking | API `PdfReader.chunk_page` | API `ExtractChunksFromPageAsync` | Python: chunk_page(page_index, chunk_size=512, overlap=50). .NET: see ExtractChunksFromPageAsync options; do not copy Python arguments. |
+| RAG-011 | Markdown export | API `PdfReader.to_markdown` | API `ToMarkdownAsync` | Both: retain API contract; cross-bridge semantic equivalence remains unverified. |
+| RAG-012 | Markdown export with configurable `MarkdownOptions` | API `MarkdownExporter.export` | API `ToMarkdownAsync` | Both: retain API contract; cross-bridge semantic equivalence remains unverified. |
+| RAG-013 | Contextual export (LLM context windows) | API `PdfReader.to_contextual` | API `ToContextualAsync` | Both: retain API contract; cross-bridge semantic equivalence remains unverified. |
+| RAG-014 | Structured JSON export | API `PdfReader.to_json` | API `ToJsonAsync` | Both: retain API contract; cross-bridge semantic equivalence remains unverified. |
+| RAG-015 | RagChunk result schema | API `RagChunk` | API `RagChunk` | Both: compare schema, source metadata, ordering and serialization; matching model names do not prove semantic equivalence. |
+| RAG-016 | Element result schema | API `Element` | API `PdfElement` | Element/PdfElement are idiomatic public names; no rename or migration is authorized by this matrix. |
+| RAG-017 | `DocumentChunk` schema | API `DocumentChunk` | API `DocumentChunk` | Both: retain API contract; cross-bridge semantic equivalence remains unverified. |
+| RAG-018 | Page content analysis (text/scanned/mixed) | API `analyze_page_content` | API `AnalyzePageContentAsync` | Python: analyze_page_content(input_path, page_number). Classification is not image recognition. |
+| RAG-019 | OCR for scanned PDFs (Tesseract) | Absent — no real Tesseract recognition binding | Absent — no real Tesseract recognition binding | Both: expose and validate recognition. Python #262; supplied OCR text layers are a separate capability. |
+| RAG-020 | Semantic disjointness regression evidence | Tests present: test_rag_chunks_disjoint.py and test_rag_reader_parity.py | Tests present: Pipeline/RagChunksDisjointnessTests.cs | Both: retain semantic fixtures. No cross-bridge execution or identical-output result is claimed here. |
+| RAG-021 | First-class adapter for ecosystem RAG framework | External integration — publication not revalidated | API/project: OxidizePdf.NET.KernelMemory | Consult INT-001/002; a project in source does not prove current package publication. |
 
-### Tier 0 priority within itself
+## READ capabilities
 
-1. **Immediate (zero risk, high impact):** RAG-003, RAG-004, RAG-005, RAG-006, RAG-007, RAG-008, RAG-009, RAG-012, RAG-020. **All closed for .NET in 0.8.0.**
-2. **After (philosophy decisions required):** RAG-014, RAG-019, RAG-021.
+| ID | Capability | Python | .NET | Action for parity / limitation |
+| --- | --- | --- | --- | --- |
+| READ-001 | Open PDF from file path | API `PdfReader.open` | Partial — PdfExtractor methods consume byte[] | .NET: caller loads bytes; a stateful file-path reader equivalent to Python is not established. |
+| READ-002 | Open PDF from bytes | API `PdfReader.from_bytes` | API `ExtractTextAsync` | Both: retain API contract; cross-bridge semantic equivalence remains unverified. |
+| READ-003 | Read a file-like or network input | Partial — from_stream reads the input into memory | Partial — caller supplies byte[] | Both: do not describe buffered input as bounded network streaming. Python PageStreamer is a separate file iterator (#254/#255); options/lazy work remains #258. |
+| READ-004 | Page count | API `PdfReader.page_count` | API `GetPageCountAsync` | Both: retain API contract; cross-bridge semantic equivalence remains unverified. |
+| READ-005 | PDF version | API `PdfReader.version` | API `GetPdfVersionAsync` | Both: retain API contract; cross-bridge semantic equivalence remains unverified. |
+| READ-006 | Extract text (single page) | API `PdfReader.extract_text_from_page` | API `ExtractTextFromPageAsync` | Python reader indexes are zero-based; legacy .NET extraction uses one-based pageNumber. New .NET bookmarks/operations may use zero-based page_index. Follow each API; no blanket migration. |
+| READ-007 | Extract text (all pages) | API `PdfReader.extract_text` | API `ExtractTextAsync` | Python returns list[str]; legacy .NET ExtractTextAsync returns concatenated string. .NET per-page alternatives require explicit consumer choice. |
+| READ-008 | Extract text with `ExtractionOptions` | API `PdfReader.extract_text_with_options` | API `ExtractTextWithResultAsync` | Both: retain API contract; cross-bridge semantic equivalence remains unverified. |
+| READ-009 | Document metadata | API `PdfReader.metadata` | API `ExtractMetadataAsync` | Both: retain API contract; cross-bridge semantic equivalence remains unverified. |
+| READ-010 | Page dimensions | API `PdfReader.get_page` | API `GetPageGeometryAsync` | .NET GetPageDimensionsAsync still returns width/height; use GetPageGeometryAsync for rotation and boxes. |
+| READ-011 | Page resources (fonts, images) | API `PdfReader.get_page_resources` | API `GetPageResourcesAsync` | Both: retain API contract; cross-bridge semantic equivalence remains unverified. |
+| READ-012 | Decoded page content streams | API `PdfReader.get_page_content_streams` | API `GetPageContentStreamAsync` | Both: retain API contract; cross-bridge semantic equivalence remains unverified. |
+| READ-013 | Lenient/tolerant parsing | Partial — ParseOptions accepted by open/from_bytes/from_stream | API ParseOptions (inspect each consuming overload) | Python #259 documents inert core options; neither a tolerant constructor nor memory_limit proves a parser resource bound. |
+| READ-014 | Extract embedded font program bytes | API `PdfReader.resolve_font` | API `GetResolvedFontResourceAsync` | Both: resolved font APIs expose embedded font data; inspect subtype/optional-result behavior. Old blanket absent status is obsolete. |
+| READ-015 | Extract single image XObject by name | Absent — no equivalent public reader API | API `PdfImages` | Python: add named-image selection to public API. |
+| READ-016 | Distinguish direct vs inherited resources | Absent — no equivalent public reader API | API `GetPageResourceProvenanceAsync` | Python: expose direct/inherited resource provenance. |
+| READ-017 | Raw undecoded content streams + filter chain metadata | Absent — no equivalent public reader API | API `PdfStreams` | Python: expose raw streams and filter-chain metadata; current content-stream method returns decoded bytes. |
 
----
+## WRITE capabilities
 
-## Tier 1 — Reading & Extraction
+| ID | Capability | Python | .NET | Action for parity / limitation |
+| --- | --- | --- | --- | --- |
+| WRITE-001 | Create empty document | API `Document` | API `PdfDocument` | Both: retain API contract; cross-bridge semantic equivalence remains unverified. |
+| WRITE-002 | Set metadata (title, author, subject, keywords, creator, producer, dates) | API `Document.set_producer` | API `SetProducer` | Both: retain API contract; cross-bridge semantic equivalence remains unverified. |
+| WRITE-003 | Add pages | API `Document.add_page` | API `AddPage` | Both: retain API contract; cross-bridge semantic equivalence remains unverified. |
+| WRITE-004 | Save to bytes | API `Document.save_to_bytes` | API `SaveToBytes` | Both: retain API contract; cross-bridge semantic equivalence remains unverified. |
+| WRITE-005 | Save to file | API `Document.save` | API `SaveToFile` | Both: retain API contract; cross-bridge semantic equivalence remains unverified. |
+| WRITE-006 | Writer configuration and save methods | API `WriterConfig` | API `PdfSaveOptions` | Both: retain API contract; cross-bridge semantic equivalence remains unverified. |
+| WRITE-007 | Encrypt RC4-128 | API `Document.encrypt` | API `Encrypt` | Both: retain API contract; cross-bridge semantic equivalence remains unverified. |
+| WRITE-008 | Encrypt AES-128 | Partial — AES enum and encrypt binding | Partial — explicit AES methods | Both inherit pinned core 5.4.2. Python #253 tracks fallible cryptographically secure IV generation; API presence is not a security approval. |
+| WRITE-009 | Encrypt AES-256 | Partial — AES enum and encrypt binding | Partial — explicit AES methods | Both inherit pinned core 5.4.2. Python #253 tracks fallible cryptographically secure IV generation; API presence is not a security approval. |
+| WRITE-010 | Permissions | API `Permissions` | API `PdfPermissions` | Both: retain API contract; cross-bridge semantic equivalence remains unverified. |
+| WRITE-011 | Embed font from bytes | API `Document.add_font_from_bytes` | API `AddFont` | Both: retain API contract; cross-bridge semantic equivalence remains unverified. |
+| WRITE-012 | Embed font from file path | API `Document.add_font` | API `AddFontFromFile` | Both: retain API contract; cross-bridge semantic equivalence remains unverified. |
+| WRITE-013 | Open action (GoTo page, URI) | API `Document.set_open_action_goto` | API `SetOpenAction` | Both: retain API contract; cross-bridge semantic equivalence remains unverified. |
+| WRITE-014 | Viewer preferences | API `Document.set_viewer_preferences` | API `SetViewerPreferences` | Both: retain API contract; cross-bridge semantic equivalence remains unverified. |
+| WRITE-015 | Outlines/bookmarks: separate reading and writing | API OutlineTree/OutlineItem write; PdfReader.outline()/outline_with_options() read | API SetOutline write; GetBookmarksAsync read | Both have bounded reading. Python returns ReadOutline/items; .NET returns preorder PdfBookmark list. Named/GoTo destinations resolve; other actions are not executed. |
+| WRITE-016 | Named destinations | API `NamedDestinations` | API `AddNamedDestination` | Both: retain API contract; cross-bridge semantic equivalence remains unverified. |
+| WRITE-017 | Page labels (custom numbering) | API `PageLabelTree` | API `SetPageLabels` | Both: retain API contract; cross-bridge semantic equivalence remains unverified. |
+| WRITE-018 | Tagged PDF (Structure tree) | API `Document.set_struct_tree` | API `SetStructureTree` | Creation is exposed in both bridges. Existing-document tagged editors/preparation are separate contracts; Python #262 remains open. |
+| WRITE-019 | Semantic entities (AI-ready markup) | API `EntityMap` | API `SetEntityContent` | Both: retain API contract; cross-bridge semantic equivalence remains unverified. |
+| WRITE-020 | `WriterConfig.pdf_version` / `PdfSaveOptions.PdfVersion` explicit version kwarg | API `WriterConfig.pdf_version` | API `PdfVersion` | Both: retain API contract; cross-bridge semantic equivalence remains unverified. |
+| WRITE-021 | In-memory save with config (no file roundtrip) | API `Document.save_to_bytes_with_config` | API `SaveToBytes` | Both: retain API contract; cross-bridge semantic equivalence remains unverified. |
 
-Consumed downstream by every RAG/AI use case, so kept high-priority even though not strictly Tier 0.
+## ANN capabilities
 
-| ID | Capability | Python | .NET | Action for parity |
-|---|---|---|---|---|
-| READ-001 | Open PDF from file path | ✅ `PdfReader.open(path)` | ⚠️ requires `File.ReadAllBytes` + `ExtractTextAsync(bytes)` | **.NET: add overload `Open(string path)` or extension method** |
-| READ-002 | Open PDF from bytes | ✅ `PdfReader.from_bytes(bytes)` | ✅ all methods accept `byte[]` | — |
-| READ-003 | Open PDF from stream (cloud/network) | ✅ `PdfReader.from_stream(stream)` | ✅ via `byte[]` | — |
-| READ-004 | Page count | ✅ `len(reader)` / `reader.page_count` | ✅ `GetPageCountAsync()` | — |
-| READ-005 | PDF version | ✅ `reader.version` | ✅ `GetPdfVersionAsync()` | — |
-| READ-006 | Extract text (single page) | ✅ `extract_text_from_page(idx)` | ✅ `ExtractTextFromPageAsync(bytes, idx)` | **Align page indexing — Python 0-based, .NET 1-based; pick one** |
-| READ-007 | Extract text (all pages) | ✅ `extract_text() -> list[str]` | ⚠️ `ExtractTextAsync() -> string` (concatenated) | **.NET: add overload `ExtractTextPerPageAsync() -> List<string>`** |
-| READ-008 | Extract text with `ExtractionOptions` | ✅ `extract_text_with_options(opts)` | ✅ `ExtractTextAsync(bytes, opts)` | — |
-| READ-009 | Document metadata | ✅ `reader.metadata` property | ✅ `ExtractMetadataAsync()` | — |
-| READ-010 | Page dimensions | ✅ `ParsedPage(width, height, rotation)` | ⚠️ `(Width, Height)` tuple, no rotation | **.NET: add `Rotation` to return** |
-| READ-011 | Page resources (fonts, images) | ✅ `get_page_resources(idx) → PageResources` rich hierarchy (fonts, images, forms, ext_g_states, proc_sets, resource_keys) | ✅ `GetPageResourcesAsync()` | — |
-| READ-012 | Page content streams (raw decoded bytes) | ✅ `get_page_content_streams(idx) → list[bytes]` (decoded) | ✅ `GetPageContentStreamAsync()` | — |
-| READ-013 | Lenient/tolerant parsing | ✅ `ParseOptions.strict()/.tolerant()/.lenient()/.skip_errors()` + kwargs, accepted by `PdfReader.open/from_bytes/from_stream` | ✅ `ParseOptions::lenient()` | — |
-| READ-014 | Extract embedded font program bytes | ❌ | ❌ | **BOTH: expose `/FontDescriptor/FontFile*` bytes via `get_embedded_font_bytes(page_idx, font_name)`** |
-| READ-015 | Extract single image XObject by name | ❌ | ❌ | **BOTH: selective image extraction beyond batch `extract_images()`** |
-| READ-016 | Distinguish direct vs inherited resources | ❌ | ❌ | **BOTH: surface `ParsedPage.inherited_resources` (core has it in `page_tree.rs`)** |
-| READ-017 | Raw undecoded content streams + filter chain metadata | ❌ | ❌ | **BOTH: forensic/debug API for filter-chain analysis (FlateDecode, DCTDecode, …)** |
+| ID | Capability | Python | .NET | Action for parity / limitation |
+| --- | --- | --- | --- | --- |
+| ANN-001 | Read annotations from existing PDF | Partial — IncrementalFreeTextEditor/IncrementalInkEditor read their annotation types | API `GetAnnotationsAsync` | Python: no general PdfReader.get_annotations API established; do not infer arbitrary annotation reading from creation classes. |
+| ANN-002 | Write link annotations (URI + GoTo) | API `LinkAnnotation` | API `AddLinkUri` | Both: retain API contract; cross-bridge semantic equivalence remains unverified. |
+| ANN-003 | Write text markup (highlight, underline, strikeout) | API `MarkupAnnotation` | API `AddHighlight` | Both: retain API contract; cross-bridge semantic equivalence remains unverified. |
+| ANN-004 | Write text note + stamp + geometric annotations | API `TextAnnotation` | API `AddTextNote` | Both: retain API contract; cross-bridge semantic equivalence remains unverified. |
+| ANN-005 | FileAttachment annotation | API `FileAttachmentAnnotation` | Absent — no public FileAttachment creation API found | .NET: expose/validate FileAttachment creation; Python type presence does not certify all embedded-file semantics. |
+| ANN-006 | FreeText annotation | API `FreeTextAnnotation` | API `EditFreeTextAnnotationsAsync` | Python has creation and IncrementalFreeTextEditor; .NET EditFreeTextAnnotationsAsync targets existing PDFs. Keep creation and incremental editing distinct. |
 
----
+## FORM capabilities
 
-## Tier 2 — Document creation (writing)
+| ID | Capability | Python | .NET | Action for parity / limitation |
+| --- | --- | --- | --- | --- |
+| FORM-001 | Read form fields (text, checkbox, radio, dropdown, listbox, button) | Unreviewed — general existing-field inventory not established | API `GetFormFieldsAsync` | Python: verify actual existing-PDF reading separately from FormManager in-memory state; .NET has GetFormFieldsAsync. |
+| FORM-002 | Create form fields | API `Document.add_checkbox` | API `AddTextField` | Both: retain API contract; cross-bridge semantic equivalence remains unverified. |
+| FORM-003 | Fill form fields programmatically | API `IncrementalFormFiller` | API `FillFormFieldsAsync` | Distinguish new-document FillField from existing-document incremental updates; neither implies arbitrary form preservation. |
+| FORM-004 | Form calculation engine | API `FormCalculationSystem` | Absent — no equivalent general engine found | .NET: scope and expose a calculation/field-validation engine; TextValidation is text analysis, not form validation. |
+| FORM-005 | Field validation | API `FieldValidator` | Absent — no equivalent general engine found | .NET: scope and expose a calculation/field-validation engine; TextValidation is text analysis, not form validation. |
 
-| ID | Capability | Python | .NET | Action for parity |
-|---|---|---|---|---|
-| WRITE-001 | Create empty document | ✅ `Document()` | ✅ `PdfDocument()` | — |
-| WRITE-002 | Set metadata (title, author, subject, keywords, creator, producer, dates) | ✅ | ✅ | — |
-| WRITE-003 | Add pages | ✅ `add_page(page)` | ✅ `AddPage(page)` | — |
-| WRITE-004 | Save to bytes | ✅ `save_to_bytes()` | ✅ `SaveToBytes()` | — |
-| WRITE-005 | Save to file | ✅ `save(path)` | ✅ `SaveToFile(path)` | — |
-| WRITE-006 | Save with `WriterConfig` presets (compression, xref streams, PDF version) | ✅ `WriterConfig.modern()/legacy()/incremental()` + kwargs (`pdf_version`, `compress_streams`, `use_xref_streams`, `use_object_streams`, `incremental_update`) + `Document.save_with_config()` / `save_to_bytes_with_config()` | ✅ `SaveToBytes(PdfSaveOptions)` with Default/Modern/Legacy | — |
-| WRITE-007 | Encrypt RC4-128 | ✅ `encrypt(user_pwd, owner_pwd)` | ✅ `Encrypt()` | — |
-| WRITE-008 | Encrypt AES-128 | ✅ `doc.encrypt(user, owner, strength=EncryptionStrength.AES_128)` (Python idiom: kwarg+enum) | ✅ `EncryptAes128()` explicit | — |
-| WRITE-009 | Encrypt AES-256 | ✅ `doc.encrypt(user, owner, strength=EncryptionStrength.AES_256)` (Python idiom: kwarg+enum) | ✅ `EncryptAes256()` explicit | — |
-| WRITE-010 | Permissions | ✅ | ✅ | — |
-| WRITE-011 | Embed font from bytes | ✅ | ✅ `AddFont(name, bytes)` | — |
-| WRITE-012 | Embed font from file path | ✅ `doc.add_font(name, path)` accepts a path directly (plus `add_font_from_bytes(name, data)` for the bytes case) | ✅ `AddFontFromFile(name, path)` | — |
-| WRITE-013 | Open action (GoTo page, URI) | ✅ | ❌ | **.NET: implement (already in backlog as DOC-014)** |
-| WRITE-014 | Viewer preferences | ✅ | ✅ DOC-015 (recent: commit `6e7e9c4`) | — |
-| WRITE-015 | Outlines/bookmarks tree | ✅ `OutlineTree` + `OutlineItem` (read+write) | ⚠️ `SetOutline()` write-only, no read | **.NET: add `GetOutlineAsync()`** |
-| WRITE-016 | Named destinations | ✅ | ✅ DOC-017 (recent: commit `dbb918f`) | — |
-| WRITE-017 | Page labels (custom numbering) | ✅ | ❌ | **.NET: implement (DOC-018 backlog)** |
-| WRITE-018 | Tagged PDF (Structure tree) | ❌ | ❌ | **BOTH: accessibility backlog** |
-| WRITE-019 | Semantic entities (AI-ready markup) | ✅ `Entity`/`EntityMap` | ❌ | **.NET: implement (DOC-021 backlog)** |
-| WRITE-020 | `WriterConfig.pdf_version` / `PdfSaveOptions.PdfVersion` explicit version kwarg | ✅ kwarg + getter on `WriterConfig` | ✅ `PdfSaveOptions.PdfVersion` property | — |
-| WRITE-021 | In-memory save with config (no file roundtrip) | ✅ `Document.save_to_bytes_with_config(config)` | ✅ `PdfDocument.SaveToBytes(PdfSaveOptions)` | — |
+## OPS capabilities
 
----
+| ID | Capability | Python | .NET | Action for parity / limitation |
+| --- | --- | --- | --- | --- |
+| OPS-001 | Split to individual pages | API `split_pdf` | API `SplitAsync` | Both: these legacy operations may reconstruct documents. Use explicit existing-document preservation policies for audited structural guarantees. |
+| OPS-002 | Split by size/range | API `split_pdf_with_options` | API `SplitAsync` | Both: these legacy operations may reconstruct documents. Use explicit existing-document preservation policies for audited structural guarantees. |
+| OPS-003 | Merge documents | API `merge_pdfs` | API `MergeAsync` | Both: these legacy operations may reconstruct documents. Use explicit existing-document preservation policies for audited structural guarantees. |
+| OPS-004 | Merge with selective page ranges | API `merge_pdfs_with_inputs` | API `MergeAsync` | Both: these legacy operations may reconstruct documents. Use explicit existing-document preservation policies for audited structural guarantees. |
+| OPS-005 | Rotate all pages | API `rotate_pdf` | API `RotateAsync` | Both: these legacy operations may reconstruct documents. Use explicit existing-document preservation policies for audited structural guarantees. |
+| OPS-006 | Rotate selective pages | API `rotate_pdf_with_options` | API `RotatePagesAsync` | Both: these legacy operations may reconstruct documents. Use explicit existing-document preservation policies for audited structural guarantees. |
+| OPS-007 | Extract pages | API `extract_pages` | API `ExtractPagesAsync` | Both: these legacy operations may reconstruct documents. Use explicit existing-document preservation policies for audited structural guarantees. |
+| OPS-008 | Overlay/watermark | API `overlay_pdf` | API `OverlayAsync` | Both: these legacy operations may reconstruct documents. Use explicit existing-document preservation policies for audited structural guarantees. |
+| OPS-009 | Reorder/swap/move/reverse pages | API `reorder_pdf_pages` | API `ReorderPagesAsync` | Both: these legacy operations may reconstruct documents. Use explicit existing-document preservation policies for audited structural guarantees. |
+| OPS-010 | Extract images | API `extract_images_in_memory` | API `ExtractImagesAsync` | Both: retain API contract; cross-bridge semantic equivalence remains unverified. |
+| OPS-011 | Split using explicit page ranges | API `SplitMode.ranges` | API `PdfSplitMode` | .NET PdfSplitMode.Ranges is exposed; old missing-constructor TODO is obsolete. |
+| OPS-012 | Split pattern, metadata and optimization options | Partial — SplitOptions(mode, output_pattern, preserve_metadata, optimize) | Partial — PdfSplitOptions and SplitNamedAsync | Core 5.4.2 ignores Optimize. .NET copies four Info fields, names are suggestions; Python filesystem-pattern behavior is different. No optimization/full metadata-preservation claim. |
+| OPS-013 | Expose `MetadataMode` in merge | Absent — no MetadataMode selector on merge bindings | API PdfMergeMetadataOptions / MergeWithMetadataAsync | Python: expose metadata selection; .NET contract covers Title/Author/Subject/Keywords, not XMP or structural preservation. |
 
-## Tier 3 — Annotations / Forms (architectural asymmetry)
+## SIG capabilities
 
-This tier exposes the largest current asymmetry: Python is "build + read"; .NET is "read only" for forms and most annotations.
+| ID | Capability | Python | .NET | Action for parity / limitation |
+| --- | --- | --- | --- | --- |
+| SIG-001 | Detect signatures | API `PdfReader.detect_signatures` | API `HasDigitalSignaturesAsync` | Both: retain API contract; cross-bridge semantic equivalence remains unverified. |
+| SIG-002 | Parse signatures (PKCS#7/CMS) | API `parse_pkcs7_signature` | API `GetDigitalSignaturesAsync` | Both: retain API contract; cross-bridge semantic equivalence remains unverified. |
+| SIG-003 | Verify signatures | API `verify_pdf_signature` | API `VerifySignaturesAsync` | Both: retain API contract; cross-bridge semantic equivalence remains unverified. |
 
-| ID | Capability | Python | .NET | Action for parity |
-|---|---|---|---|---|
-| ANN-001 | Read annotations from existing PDF | ✅ | ✅ `GetAnnotationsAsync()` | — |
-| ANN-002 | Write link annotations (URI + GoTo) | ✅ | ✅ `AddLinkUri()` / `AddLinkGoToPage()` | — |
-| ANN-003 | Write text markup (highlight, underline, strikeout) | ✅ rich types | ✅ `AddHighlight/Underline/StrikeOut` | — |
-| ANN-004 | Write text note + stamp + geometric annotations | ✅ | ✅ | — |
-| ANN-005 | FileAttachment annotation | ✅ | ❌ | **.NET: add `AddFileAttachment()`** |
-| ANN-006 | FreeText annotation | ✅ | ❌ | **.NET: add `AddFreeText()`** |
-| FORM-001 | Read form fields (text, checkbox, radio, dropdown, listbox, button) | ✅ | ✅ `GetFormFieldsAsync()` | — |
-| FORM-002 | Create form fields | ✅ `CheckBox`/`TextField`/`ListBox`/etc. | ❌ | **.NET: implement form-creation API** |
-| FORM-003 | Fill form fields programmatically | ✅ | ❌ | **.NET: implement `FillField(name, value)`** |
-| FORM-004 | Form calculation engine | ✅ `FormCalculationSystem` | ❌ | **.NET: scope decision pending** |
-| FORM-005 | Field validation | ✅ `FieldValidator` | ❌ | same as FORM-004 |
+## PDFA capabilities
 
----
+| ID | Capability | Python | .NET | Action for parity / limitation |
+| --- | --- | --- | --- | --- |
+| PDFA-001 | PDF/A validation | API `PdfAValidator` | Absent — no public PDF/A validator found | Python validator does not certify all ISO conformance; .NET: expose validation with explicit rule coverage. |
+| PDFA-002 | XMP metadata read/write | Partial — XmpMetadata and Document.create_xmp_metadata/get_xmp_packet | Absent — no general public XMP editor found | Python: distinguish new-document XMP from existing-PDF read/write; .NET: scope/expose XMP support. |
 
-## Tier 4 — Document operations
+## INT capabilities
 
-| ID | Capability | Python | .NET | Action for parity |
-|---|---|---|---|---|
-| OPS-001 | Split to individual pages | ✅ `split()` | ✅ `SplitAsync()` | — |
-| OPS-002 | Split by size/range | ✅ `split_pdf_with_options(SplitOptions)` | ✅ `SplitAsync(PdfSplitOptions)` rich | — |
-| OPS-003 | Merge documents | ✅ | ✅ `MergeAsync()` | — |
-| OPS-004 | Merge with selective page ranges | ✅ `merge_pdfs_with_inputs(MergeInput, PageRange)` | ✅ `PdfMergeInput + PdfPageRange` | — |
-| OPS-005 | Rotate all pages | ✅ | ✅ | — |
-| OPS-006 | Rotate selective pages | ✅ | ✅ `RotatePagesAsync(PdfPageRange)` | — |
-| OPS-007 | Extract pages | ✅ | ✅ | — |
-| OPS-008 | Overlay/watermark | ✅ | ✅ | — |
-| OPS-009 | Reorder/swap/move/reverse pages | ✅ | ✅ | — |
-| OPS-010 | Extract images | ✅ | ✅ `ExtractImagesAsync()` | — |
-| OPS-011 | `SplitMode.Ranges` constructor (core has the variant) | ✅ `SplitMode.ranges([PageRange])` | ❌ | **.NET: expose `Ranges` constructor** |
-| OPS-012 | `SplitOptions` full shape (`output_pattern` + `preserve_metadata` + `optimize`) | ✅ `SplitOptions(mode, output_pattern, preserve_metadata, optimize)` | ❌ | **.NET: expose all three fields on `PdfSplitOptions`** |
-| OPS-013 | Expose `MetadataMode` in merge | ❌ | ❌ | **BOTH: needed for multi-PDF publishing flows that fix a unified title** |
+| ID | Capability | Python | .NET | Action for parity / limitation |
+| --- | --- | --- | --- | --- |
+| INT-001 | LlamaIndex reader (PyPI) | External/unreviewed — no release state inferred | N/A or external integration, outside native bridge inventory | Integration maintainers: verify package/repository and published version before claiming availability. Historical release numbers are not current evidence. |
+| INT-002 | Microsoft Kernel Memory adapter (NuGet) | N/A — .NET ecosystem | Project present: dotnet/OxidizePdf.NET.KernelMemory | The old sample-only claim is obsolete. NuGet publication/version is not revalidated in this source review. |
+| INT-003 | LangChain document loader | External/unreviewed — no release state inferred | N/A or external integration, outside native bridge inventory | Integration maintainers: verify package/repository and published version before claiming availability. Historical release numbers are not current evidence. |
+| INT-004 | Haystack converter | External/unreviewed — no release state inferred | N/A or external integration, outside native bridge inventory | Integration maintainers: verify package/repository and published version before claiming availability. Historical release numbers are not current evidence. |
+| INT-005 | Semantic Kernel plugin | N/A — .NET ecosystem | Unreviewed — KernelMemory is not automatically a Semantic Kernel plugin | Integration maintainers: verify the specific adapter before claiming support. |
+| INT-006 | Claude Code plugin | External/unreviewed — no release state inferred | N/A or external integration, outside native bridge inventory | Integration maintainers: verify package/repository and published version before claiming availability. Historical release numbers are not current evidence. |
 
----
+## MCP capabilities
 
-## Tier 5 — Signatures + PDF/A
+| ID | Capability | Python | .NET | Action for parity / limitation |
+| --- | --- | --- | --- | --- |
+| MCP-001 | MCP server (Anthropic protocol) | API FastMCP server: 12 tools, 5 static resources + session template, 5 prompts | Absent — no MCP server in this snapshot | Python: see MCP catalog/interop CI. These are selected tools, not full Rust API exposure; no .NET server implementation is authorized here. |
+| MCP-002 | Official MCP registry submission | Unreviewed — live registry not queried | N/A — no server in snapshot | Registry owners: verify current publication separately. No registry update is requested by this document correction. |
 
-| ID | Capability | Python | .NET | Action for parity |
-|---|---|---|---|---|
-| SIG-001 | Detect signatures | ✅ | ✅ `HasDigitalSignaturesAsync()` | — |
-| SIG-002 | Parse signatures (PKCS#7/CMS) | ✅ + low-level utils | ✅ `GetDigitalSignaturesAsync()` | — |
-| SIG-003 | Verify signatures | ✅ `verify_pdf_signature()` | ✅ `VerifySignaturesAsync()` | — |
-| PDFA-001 | PDF/A validation | ✅ `PdfAValidationResult` | ❌ | **.NET: add `ValidatePdfAAsync()`** |
-| PDFA-002 | XMP metadata read/write | ✅ | ❌ | **.NET: add XMP support** |
+## QA capabilities
 
----
+| ID | Capability | Python | .NET | Action for parity / limitation |
+| --- | --- | --- | --- | --- |
+| QA-001 | `FEATURE_PARITY.md` up to date with current bridge version | Current partial status above historical FEATURE_PARITY matrix | Current increment tracking in FEATURE_PARITY | Both: preserve dated evidence; update current status without relabeling historical tests as fresh runs. |
+| QA-002 | Semantic disjointness tests for RAG | Tests present; see RAG-020 | Tests present; see RAG-020 | Old .NET absent-test claim is obsolete. No fixed historical test count is a coverage guarantee. |
+| QA-003 | Cross-platform build/test configuration | Configured: 3 OS families × Python 3.10–3.14 | Configured: net8.0/net9.0/net10.0 project; Linux x64/arm64, Windows x64, macOS arm64 test jobs | Distinguish target frameworks, native build matrix and actual test commands. See pinned workflow sources; not five Python OS families. |
+| QA-004 | Empirical audit script for RAG correctness | Unreviewed/private process artifact | Unreviewed/private process artifact | Both: private notes are not a public capability contract or reproducible evidence. Use versioned tests, contract and CI; no naming migration required. |
+| QA-005 | Cross-session error log | Unreviewed/private process artifact | Unreviewed/private process artifact | Both: private notes are not a public capability contract or reproducible evidence. Use versioned tests, contract and CI; no naming migration required. |
+| QA-006 | TDD plan visible | Unreviewed/private process artifact | Unreviewed/private process artifact | Both: private notes are not a public capability contract or reproducible evidence. Use versioned tests, contract and CI; no naming migration required. |
 
-## Tier 6 — Integrations / Tooling (platform-specific surface)
+## OCR capabilities
 
-| ID | Capability | Python | .NET | Action for parity |
-|---|---|---|---|---|
-| INT-001 | LlamaIndex reader (PyPI) | ✅ `llama-index-readers-oxidize-pdf 0.1.1` | 🚫 N/A (LlamaIndex is Python-only) | — |
-| INT-002 | Microsoft Kernel Memory adapter (NuGet) | 🚫 N/A | ⚠️ `examples/KernelMemory/` only sample | **.NET: package as NuGet `OxidizePdf.KernelMemory.DocumentReader`** |
-| INT-003 | LangChain document loader | ❌ | 🚫 N/A | **Python: add LangChain adapter** |
-| INT-004 | Haystack converter | ❌ | 🚫 N/A | **Python: add Haystack adapter** |
-| INT-005 | Semantic Kernel plugin | 🚫 N/A | ❌ | **.NET: add Semantic Kernel plugin** |
-| MCP-001 | MCP server (Anthropic protocol) | ✅ FastMCP, 12 tools, 6 resources, session + workspace | ❌ | **.NET: implement MCP server (official `ModelContextProtocol` C# SDK exists)** |
-| MCP-002 | Official MCP registry submission | ⚠️ `server.json` local at 0.4.1, registry at 0.3.1 (stale) | 🚫 blocked by MCP-001 | **Python: refresh `server.json` and run `mcp-publisher publish`** |
-| INT-006 | Claude Code plugin | 🚫 lives in `oxidize-pdf-integrations/claude-code` 1.0.1 (cross-language) | 🚫 same | — |
+| ID | Capability | Python | .NET | Action for parity / limitation |
+| --- | --- | --- | --- | --- |
+| OCR-001 | `TesseractOcrProvider` real provider | Absent — no real Tesseract recognition binding | Absent — no real Tesseract recognition binding | Both: expose and validate recognition. Python #262; supplied OCR text layers are a separate capability. |
+| OCR-002 | `OcrOptions.preprocessing` (deskew, denoise, enhance_contrast) | Absent — no real recognition/provider contract | Absent — no real recognition/provider contract | Both: expose recognition options/provider results with behavioral evidence. OcrEngine enum or MockOcrProvider is not recognition. |
+| OCR-003 | `OcrProcessingResult.fragments` with per-word confidence | Absent — no real recognition/provider contract | Absent — no real recognition/provider contract | Both: expose recognition options/provider results with behavioral evidence. OcrEngine enum or MockOcrProvider is not recognition. |
+| OCR-004 | Searchable PDF / OCR text layer | Absent — no existing-PDF OCR text-layer editor binding | Partial — PdfOcrLayer.PlanAsync/ApplyAsync consumes supplied recognition data | Python #262: expose layer editing. .NET does not recognize images; callers supply fragments/confidence. This is not a Tesseract-backed searchable-PDF pipeline. |
+| OCR-005 | `OcrProvider` protocol (Python ABC / C# interface) | Absent — no real recognition/provider contract | Absent — no real recognition/provider contract | Both: expose recognition options/provider results with behavioral evidence. OcrEngine enum or MockOcrProvider is not recognition. |
 
----
+## Core guarantees and current work boundaries
 
-## Tier 7 — Quality / Tooling alignment
+API presence must be separated from effectiveness. In pinned 5.4.2, Python parser
+and recovery options include inert fields; RecoveryOptions.memory_limit is not a
+memory bound and a successful repair can produce empty pages. Batch timeout and
+memory options are not enforced by core. StreamingOptions/LazyDocument presence
+is not evidence of a bounded streaming implementation (Python #258/#259/#257).
+AES IV generation remains tracked by Python #253; do not infer cryptographic
+security from AES enum availability or round-trip success.
 
-| ID | Capability | Python | .NET | Action for parity |
-|---|---|---|---|---|
-| QA-001 | `FEATURE_PARITY.md` up to date with current bridge version | ✅ 2026-04-22 | ❌ stale 2026-03-20 (says core 2.3.2; actual is 2.5.5) | **.NET: refresh parity doc when closing the alignment analysis** |
-| QA-002 | Semantic disjointness tests for RAG | ✅ 19 tests (12 bridge + 7 reader) | ❌ | (covered by RAG-020) |
-| QA-003 | CI cross-platform matrix (3.10–3.14 / .NET 6/8/9) | ✅ 5 OS × 5 Python | ✅ similar matrix | — |
-| QA-004 | Empirical audit script for RAG correctness | ✅ `.private/audit_rag_chunks.py` | ❌ | **.NET: add equivalent C# script that runs against `fixtures/`** |
-| QA-005 | Cross-session error log | ✅ `.private/error-log.md` (60+ entries) | ✅ similar | — |
-| QA-006 | TDD plan visible | ✅ `.private/tdd-plan-full.md` | ✅ `PROJECT_PROGRESS.md` | **Align doc name/location** |
+Legacy split/merge/mutation methods may reconstruct content. Both bridges have
+separate policy-driven existing-document APIs; preservation can reject unsupported
+structures. These guarantees cannot be attached to every operation with a similar
+name. New incremental editing, signing, revision comparison and irreversible
+redaction require their own contracts, beyond this historical ID set. Python
+#262/#263 remain open. .NET has separate tagged/OCR-layer/redaction/comparison
+surfaces; that does not mean Python inherits their bindings.
 
----
-
-## Tier 8 — OCR (ecosystem gap)
-
-Tesseract-based OCR exists in the core but is absent from both bridges. This tier blocks every RAG-019 consumer that processes scanned documents.
-
-| ID | Capability | Python | .NET | Action for parity |
-|---|---|---|---|---|
-| OCR-001 | `TesseractOcrProvider` real provider | ❌ | ❌ | **BOTH: expose the core provider; ship as extras (`pip install oxidize-pdf[ocr]` / NuGet `OxidizePdf.Ocr`) with Tesseract as a documented system dependency** |
-| OCR-002 | `OcrOptions.preprocessing` (deskew, denoise, enhance_contrast) | ❌ | ❌ | **BOTH: domain-tuning knobs without dropping to Rust** |
-| OCR-003 | `OcrProcessingResult.fragments` with per-word confidence | ❌ | ❌ | **BOTH: enables hybrid OCR + human-review pipelines** |
-| OCR-004 | `PdfOcrConverter` / `to_searchable_pdf()` | ❌ | ❌ | **BOTH: flagship OCR workflow — generate PDF with invisible text layer** |
-| OCR-005 | `OcrProvider` protocol (Python ABC / C# interface) | ❌ | ❌ | **BOTH: lets cloud providers (AWS Textract, GCP Vision) plug in without Rust changes** |
-
----
-
-## Summary: work owed by each side
-
-### .NET — bridge-specific actions (priority RAG first)
-
-**RAG/AI (Tier 0):** ~~RAG-003~~, ~~RAG-004~~, ~~RAG-005~~, ~~RAG-006~~, ~~RAG-007~~, ~~RAG-008~~, ~~RAG-009~~, ~~RAG-012~~, ~~RAG-020 (tests)~~ — **all closed in 0.8.0**. Decisions still pending: RAG-014 (JSON export philosophy), RAG-019 (OCR), RAG-021 (NuGet KernelMemory package).
-
-**Reading:** READ-001 (path overload), READ-007 (per-page list), READ-010 (rotation).
-**Writing:** WRITE-013 (open action), WRITE-015 (outline read), WRITE-017 (page labels), WRITE-019 (semantic entities).
-**Annotations/Forms:** ANN-005 (file attachment), ANN-006 (free text), FORM-002 (create), FORM-003 (fill), FORM-004/005 (calculation + validation).
-**Other:** PDFA-001, PDFA-002, MCP-001, INT-002 (NuGet pkg), INT-005 (Semantic Kernel), QA-001, QA-004.
-
-### Python — 6 bridge-specific actions
-
-**RAG/AI:** RAG-019 (OCR — known gap, covered by Tier 8).
-**Ops:** OPS-002, OPS-004 (page ranges).
-**Integrations:** INT-003 (LangChain), INT-004 (Haystack), MCP-002 (refresh registry).
-
-### Ecosystem gaps shared by both bridges
-
-Neither side exposes these today. Listed as first-class rows above to gain visibility in scheduling.
-
-**Reading:** READ-014 (embedded font bytes), READ-015 (single-image extraction by name), READ-016 (direct vs inherited resources), READ-017 (raw content streams + filter chain).
-**Writing:** WRITE-018 (tagged PDF / structure tree).
-**Ops:** OPS-011 (`SplitMode.Ranges`), OPS-012 (`SplitOptions` full shape), OPS-013 (`MetadataMode` in merge).
-**OCR (Tier 8):** OCR-001 through OCR-005 — blocks every RAG-019 consumer.
-
----
-
-## Philosophical decisions to settle BEFORE implementing parity work
-
-These are not implementation tasks — they are scope decisions that will change how rows above are written.
-
-1. **Page indexing.** Python is 0-based, .NET is 1-based. Pick one and migrate the other. Recommendation: 0-based (matches the PDF spec and the underlying Rust core).
-2. **`Element` vs `PdfElement` naming.** Both wrap the same Rust struct. Pick one. Recommendation: `Element` — the namespace already prevents collisions.
-3. **Sync vs async.** Python is sync-only for extraction; .NET is async-only. Recommendation: leave as-is — each is idiomatic for its language; forcing parity adds noise.
-4. **Stateful (file-based) vs stateless (bytes-based) reader.** Python stateful, .NET stateless. Recommendation: add overloads to both (READ-001 to .NET, READ-003 to Python) so users can choose without bridge-shopping.
-5. **MCP server in .NET (MCP-001).** The official `ModelContextProtocol` C# SDK exists. Decision pending: build it now (parallel investment) or defer until the .NET surface justifies it.
-6. **`.NET` writing-API scope.** Today .NET is mostly "read & analyze". The parity gaps in Tier 3 (forms, annotations) are large. Decision pending: full parity (large C# investment) vs deliberate read-focus (document the asymmetry as intentional).
-
----
+For recent .NET differences see [split options](https://github.com/bzsanti/oxidize-pdf-dotnet/blob/0b8905e6624d02b80bd6c18c409879dedcb916e6/dotnet/OxidizePdf.NET/PdfSplitOptions.cs),
+[split results](https://github.com/bzsanti/oxidize-pdf-dotnet/blob/0b8905e6624d02b80bd6c18c409879dedcb916e6/dotnet/OxidizePdf.NET/PdfSplitResult.cs),
+[merge metadata](https://github.com/bzsanti/oxidize-pdf-dotnet/blob/0b8905e6624d02b80bd6c18c409879dedcb916e6/dotnet/OxidizePdf.NET/PdfMergeMetadata.cs),
+[OCR layer](https://github.com/bzsanti/oxidize-pdf-dotnet/blob/0b8905e6624d02b80bd6c18c409879dedcb916e6/dotnet/OxidizePdf.NET/PdfOcrLayer.cs),
+[named images](https://github.com/bzsanti/oxidize-pdf-dotnet/blob/0b8905e6624d02b80bd6c18c409879dedcb916e6/dotnet/OxidizePdf.NET/PdfImages.cs),
+[raw streams](https://github.com/bzsanti/oxidize-pdf-dotnet/blob/0b8905e6624d02b80bd6c18c409879dedcb916e6/dotnet/OxidizePdf.NET/PdfStreams.cs),
+[FreeText editing](https://github.com/bzsanti/oxidize-pdf-dotnet/blob/0b8905e6624d02b80bd6c18c409879dedcb916e6/dotnet/OxidizePdf.NET/PdfOperations.FreeText.cs),
+[KernelMemory project](https://github.com/bzsanti/oxidize-pdf-dotnet/tree/0b8905e6624d02b80bd6c18c409879dedcb916e6/dotnet/OxidizePdf.NET.KernelMemory), and
+[CI](https://github.com/bzsanti/oxidize-pdf-dotnet/blob/0b8905e6624d02b80bd6c18c409879dedcb916e6/.github/workflows/ci.yml). Python CI is
+[here](https://github.com/bzsanti/oxidize-python/blob/55c3528843ec2bbe6d4fc413879f6936fd35d000/.github/workflows/test.yml). Package registry state is intentionally
+not inferred from these source files.
 
 ## Maintenance rules
 
-1. This document and its sibling in `oxidize-pdf-dotnet` are **mirrors**. Any edit to one must be propagated to the other in the same PR cycle.
-2. When a row changes status (e.g. ❌ → ✅), update both copies AND the row's "Action for parity" cell to `—`.
-3. When a new capability lands in either bridge, add a new row with a unique ID following the existing tier numbering.
-4. **Tier 0 rows MUST have semantic regression tests** before they can be marked ✅. Shape-only / smoke tests do not count (lesson from the 2026-04-21 RAG audit).
-5. Do not delete IDs — if a capability is intentionally dropped, mark it 🚫 with the reason in the action cell.
+1. `docs/PARITY_SPEC.md` in both repositories is a byte-identical mirror. Propagate
+   changes in the same PR cycle and compare both copies before acceptance.
+2. Preserve IDs. Update both status cells and the action together, with a source
+   checkpoint and behavioral evidence for any stronger guarantee. Do not replace
+   uncertainty with an unqualified checkmark or a count of passing tests.
+3. New core capabilities need new IDs and evidence; the retained legacy rows are
+   not the denominator for a global coverage percentage.
+4. Keep dated release notes and validation logs historical. Current source/package
+   versions, build matrices and open work belong in the current sections.
+5. Review each bridge independently. Equal method names, schema shapes, a core pin,
+   or successful smoke tests do not establish semantic equivalence.
