@@ -1,0 +1,709 @@
+Original stubs against installed runtime
+Public export missing: HeaderFooter
+Public export missing: HeaderFooterOptions
+Public export missing: measure_text
+Public export missing: measure_char
+Public export missing: BulletStyle
+Public export missing: OrderedList
+Public export missing: OrderedListStyle
+Public export missing: UnorderedList
+Public export missing: FontResource
+Public export missing: FormXObjectResource
+Public export missing: ImageResource
+Public export missing: PageResources
+Public export missing: reorder_pdf_pages
+Public export missing: swap_pdf_pages
+Public export missing: move_pdf_page
+Public export missing: merge_pdfs_to_bytes
+Public export missing: rotate_pdf_to_bytes
+Public export missing: extract_pages_to_bytes
+Public export missing: split_pdf_to_bytes
+Public export missing: SplitMode
+Public export missing: split_pdf_with_mode
+Public export missing: SplitOptions
+Public export missing: split_pdf_with_options
+Public export missing: MergeOptions
+Public export missing: merge_pdfs_with_options
+Public export missing: MergeInput
+Public export missing: merge_pdfs_with_inputs
+Public export missing: RotationAngle
+Public export missing: RotateOptions
+Public export missing: rotate_pdf_with_options
+Public export missing: extract_page_range_to_bytes
+Public export missing: extract_page_range_to_file
+Public export missing: PageType
+Public export missing: ContentAnalysis
+Public export missing: analyze_page_content
+Public export missing: analyze_document_content
+Public export missing: Image
+Public export missing: GridStyle
+Public export missing: HeaderStyle
+Public export missing: Table
+Public export missing: TableCell
+Public export missing: TableOptions
+Public export missing: TableStyle
+Public export missing: BlendMode
+Public export missing: ClippingPath
+Public export missing: LineCap
+Public export missing: LineDashPattern
+Public export missing: LineJoin
+Public export missing: CalGrayColorSpace
+Public export missing: CalRgbColorSpace
+Public export missing: CalibratedColor
+Public export missing: LabColor
+Public export missing: PageColorSpace
+Public export missing: CidMapping
+Public export missing: CidShowElement
+Public export missing: AnnotationType
+Public export missing: MarkupType
+Public export missing: MarkupAnnotation
+Public export missing: AnnotationIcon
+Public export missing: BorderStyleType
+Public export missing: BorderStyle
+Public export missing: LineEndingStyle
+Public export missing: BorderEffectStyle
+Public export missing: BorderEffect
+Public export missing: CircleAnnotation
+Public export missing: SquareAnnotation
+Public export missing: LineAnnotation
+Public export missing: StampName
+Public export missing: StampAnnotation
+Public export missing: FileAttachmentIcon
+Public export missing: FileAttachmentAnnotation
+Public export missing: FreeTextAnnotation
+Public export missing: InkAnnotation
+Public export missing: PolygonAnnotation
+Public export missing: PolylineAnnotation
+Public export missing: QuadPoints
+Public export missing: PopupFlags
+Public export missing: PopupAnnotation
+Public export missing: HighlightMode
+Public export missing: LinkAnnotation
+Public export missing: Destination
+Public export missing: GoToAction
+Public export missing: JavaScriptAction
+Public export missing: NamedDestinations
+Public export missing: ResetFormAction
+Public export missing: UriAction
+Public export missing: LaunchAction
+Public export missing: StandardNamedAction
+Public export missing: NamedAction
+Public export missing: SubmitFormAction
+Public export missing: HideAction
+Public export missing: CheckBox
+Public export missing: ListBox
+Public export missing: RadioButton
+Public export missing: OutlineItem
+Public export missing: OutlineTree
+Public export missing: PageLabel
+Public export missing: PageLabelStyle
+Public export missing: PageLabelTree
+Public export missing: StandardStructureType
+Public export missing: StructTree
+Public export missing: StructureElement
+Public export missing: CoordinateSystem
+Public export missing: LabColorSpace
+Public export missing: MockOcrProvider
+Public export missing: OcrEngine
+Public export missing: LazyDocument
+Public export missing: StreamingOptions
+Public export missing: TemplateContext
+Public export missing: TemplateRenderer
+Public export missing: TemplateParser
+Public export missing: TemplateAnalysis
+Public export missing: Placeholder
+Public export missing: PdfAConformance
+Public export missing: TrendDirection
+Public export missing: KpiCard
+Public export missing: DashboardTheme
+Public export missing: DashboardBuilder
+Public export missing: EncryptionStrength
+Public export missing: Recipient
+Public export missing: DigestAlgorithm
+Public export missing: SignatureAlgorithm
+Public export missing: ByteRange
+Public export missing: SignatureField
+Public export missing: TrustStore
+Public export missing: ParsedSignature
+Public export missing: HashVerificationResult
+Public export missing: SignatureVerificationResult
+Public export missing: CertificateValidationResult
+Public export missing: FullSignatureValidationResult
+Public export missing: compute_pdf_hash
+Public export missing: parse_pkcs7_signature
+Public export missing: verify_pdf_signature
+Public export missing: validate_pdf_certificate
+Public export missing: has_incremental_update
+Public export missing: Duplex
+Public export missing: PageLayout
+Public export missing: PageMode
+Public export missing: PrintScaling
+Public export missing: ViewerPreferences
+Public export missing: WriterConfig
+Public export missing: FontEncoding
+Public export missing: ChartType
+Public export missing: LegendPosition
+Public export missing: BarOrientation
+Public export missing: ChartData
+Public export missing: BarChart
+Public export missing: BarChartBuilder
+Public export missing: DataSeries
+Public export missing: LineChart
+Public export missing: LineChartBuilder
+Public export missing: PieSegment
+Public export missing: PieChart
+Public export missing: PieChartBuilder
+Public export missing: ChartRenderer
+Public export missing: DashboardBarChart
+Public export missing: DashboardPieChart
+Public export missing: DashboardLineChart
+Public export missing: TransitionStyle
+Public export missing: TransitionDimension
+Public export missing: TransitionMotion
+Public export missing: TransitionDirection
+Public export missing: PageTransition
+Public export missing: CellAlignment
+Public export missing: CellBorderStyle
+Public export missing: CellPadding
+Public export missing: CellStyle
+Public export missing: HeaderCell
+Public export missing: HeaderBuilder
+Public export missing: AdvColumn
+Public export missing: AdvancedTable
+Public export missing: AdvancedTableBuilder
+Public export missing: AdvTableRenderer
+Public export missing: DetectedLanguage
+Public export missing: DocumentChunker
+Public export missing: MarkdownOptions
+Public export missing: MarkdownExporter
+Public export missing: TokenEfficientExporter
+Public export missing: JsonExporter
+Public export missing: SemanticChunkConfig
+Public export missing: ShadingType
+Public export missing: ShadingPoint
+Public export missing: ColorStop
+Public export missing: AxialShading
+Public export missing: RadialShading
+Public export missing: GouraudVertex
+Public export missing: FreeFormGouraudShading
+Public export missing: ConicShading
+Public export missing: ShadingManager
+Public export missing: PaintType
+Public export missing: TilingType
+Public export missing: PatternMatrix
+Public export missing: TilingPattern
+Public export missing: PatternManager
+Public export missing: FormXObject
+Public export missing: FormXObjectBuilder
+Public export missing: FormTemplates
+Public export missing: FormXObjectManager
+Public export missing: RenderingIntent
+Public export missing: ExtGState
+Public export missing: ExtGStateManager
+Public export missing: SoftMaskType
+Public export missing: SoftMask
+Public export missing: SoftMaskState
+Public export missing: TransparencyGroup
+Public export missing: IccColorSpace
+Public export missing: StandardIccProfile
+Public export missing: IccProfile
+Public export missing: IccProfileManager
+Public export missing: SeparationColorSpace
+Public export missing: SeparationColor
+Public export missing: SpotColors
+Public export missing: LineBreakMode
+Public export missing: PlainTextConfig
+Public export missing: PlainTextResult
+Public export missing: ColumnLayout
+Public export missing: ColumnOptions
+Public export missing: ColumnContent
+Public export missing: MatchType
+Public export missing: TextMatch
+Public export missing: TextValidationResult
+Public export missing: TextValidator
+Public export missing: ScanResult
+Public export missing: ObjectScanner
+Public export missing: quick_recover
+Public export missing: analyze_pdf_corruption
+Public export missing: FormData
+Public export missing: Widget
+Public export missing: FieldOptions
+Public export missing: PushButton
+Public export missing: AcroForm
+Public export missing: FormManager
+Public export missing: SpecialFormatType
+Public export missing: FieldAction
+Public export missing: FieldActions
+Public export missing: ActionSettings
+Public export missing: FieldActionSystem
+Public export missing: SimpleOperation
+Public export missing: PercentMode
+Public export missing: SeparatorStyle
+Public export missing: NegativeStyle
+Public export missing: SpecialFormat
+Public export missing: FieldFormat
+Public export missing: JavaScriptCalculation
+Public export missing: CalculationSettings
+Public export missing: CalculationSummary
+Public export missing: CalculationSystemSummary
+Public export missing: CalculationEngine
+Public export missing: FormCalculationSystem
+Public export missing: AppearanceState
+Public export missing: AppearanceStream
+Public export missing: IncrementalFormFiller
+Public export missing: ContentParser
+Public export missing: ContentOperation
+Public export missing: TextElement
+Public export missing: XRefEntry
+Public export missing: XRefTable
+Public export missing: XmpNamespace
+Public export missing: XmpValue
+Public export missing: XmpProperty
+Public export missing: XmpMetadata
+Public export missing: VerificationLevel
+Public export missing: ComplianceStats
+Public export missing: IsoRequirement
+Public export missing: RequirementInfo
+Public export missing: ComplianceSystem
+Public export missing: DifferenceSeverity
+Public export missing: PdfDifference
+Public export missing: ComparisonResult
+Public export missing: compare_pdfs_deep
+Public export missing: extract_pdf_differences
+Public export missing: pdfs_structurally_equivalent
+Public export missing: EntityType
+Public export missing: RelationType
+Public export missing: ExportFormat
+Public export missing: BoundingBox
+Public export missing: EntityMetadata
+Public export missing: SemanticEntity
+Public export missing: Entity
+Public export missing: EntityMap
+Public export missing: LineOrientation
+Public export missing: VectorLine
+Public export missing: ExtractedGraphics
+Public export missing: ExtractionConfig
+Public export missing: GraphicsExtractor
+Public export missing: PageConfig
+Public export missing: TextBlockMetrics
+Public export missing: fit_image_dimensions
+Public export missing: centered_image_x
+Public export missing: measure_text_block
+Public export missing: TextSpan
+Public export missing: RichText
+Public export missing: FlowLayout
+Native declaration missing: AcroForm
+Native declaration missing: ActionSettings
+Native declaration missing: AdvColumn
+Native declaration missing: AdvTableRenderer
+Native declaration missing: AdvancedTable
+Native declaration missing: AdvancedTableBuilder
+Member missing: AnalysisPipeline.with_context_mode
+Member missing: Annotation.__init__
+Member missing: Annotation.with_border
+Member missing: Annotation.with_color
+Member missing: Annotation.with_contents
+Member missing: Annotation.with_name
+Member missing: Annotation.with_subject
+Native declaration missing: AnnotationIcon
+Native declaration missing: AnnotationType
+Native declaration missing: AppearanceState
+Native declaration missing: AppearanceStream
+Member missing: AxialShading.__init__
+Member missing: AxialShading.extend_end
+Member missing: AxialShading.extend_start
+Member missing: AxialShading.linear_gradient
+Member missing: AxialShading.name
+Member missing: AxialShading.validate
+Member missing: AxialShading.with_extend
+Native declaration missing: BarChart
+Native declaration missing: BarChartBuilder
+Native declaration missing: BarOrientation
+Native declaration missing: BlendMode
+Native declaration missing: BorderEffect
+Native declaration missing: BorderEffectStyle
+Native declaration missing: BorderStyle
+Native declaration missing: BorderStyleType
+Native declaration missing: BoundingBox
+Native declaration missing: BulletStyle
+Native declaration missing: ByteRange
+Native declaration missing: CalculationEngine
+Native declaration missing: CalculationSettings
+Native declaration missing: CalculationSummary
+Native declaration missing: CalculationSystemSummary
+Native declaration missing: CellAlignment
+Native declaration missing: CellBorderStyle
+Native declaration missing: CellPadding
+Native declaration missing: CellStyle
+Native declaration missing: CertificateValidationResult
+Native declaration missing: ChartData
+Native declaration missing: ChartRenderer
+Native declaration missing: ChartType
+Native declaration missing: CheckBox
+Native declaration missing: CircleAnnotation
+Native declaration missing: ClippingPath
+Native declaration missing: ColorStop
+Native declaration missing: ColumnContent
+Native declaration missing: ColumnLayout
+Native declaration missing: ColumnOptions
+Native declaration missing: ComparisonResult
+Native declaration missing: ComplianceStats
+Native declaration missing: ComplianceSystem
+Member missing: ConicShading.__init__
+Member missing: ConicShading.domain
+Member missing: ConicShading.matrix
+Member missing: ConicShading.name
+Member missing: ConicShading.validate
+Member missing: ConicShading.with_matrix
+Native declaration missing: ContentAnalysis
+Native declaration missing: ContentOperation
+Native declaration missing: ContentParser
+Native declaration missing: CoordinateSystem
+Member missing: CorruptionType.BROKEN_REFERENCES
+Member missing: CorruptionType.CORRUPT_STREAMS
+Member missing: CorruptionType.CORRUPT_XREF
+Member missing: CorruptionType.INVALID_HEADER
+Member missing: CorruptionType.INVALID_PAGE_TREE
+Member missing: CorruptionType.MISSING_EOF
+Member missing: CorruptionType.TRUNCATED_FILE
+Member missing: CorruptionType.UNKNOWN
+Native declaration missing: DashboardBarChart
+Native declaration missing: DashboardBuilder
+Native declaration missing: DashboardLineChart
+Native declaration missing: DashboardPieChart
+Native declaration missing: DashboardTheme
+Native declaration missing: DataSeries
+Native declaration missing: Destination
+Native declaration missing: DetectedLanguage
+Native declaration missing: DifferenceSeverity
+Native declaration missing: DigestAlgorithm
+Member missing: Document.add_checkbox
+Member missing: Document.add_combo_box
+Member missing: Document.add_list_box
+Member missing: Document.add_radio_button
+Member missing: Document.create_xmp_metadata
+Member missing: Document.custom_font_names
+Member missing: Document.enable_xref_streams
+Document.encrypt: runtime parameters {'user_password': False, 'owner_password': False, 'permissions': True, 'strength': True} != stub {'user_password': False, 'owner_password': False, 'permissions': True}
+Member missing: Document.get_xmp_packet
+Member missing: Document.has_custom_font
+Member missing: Document.set_compress
+Member missing: Document.set_creation_date
+Member missing: Document.set_default_font_encoding
+Member missing: Document.set_modification_date
+Member missing: Document.set_named_destinations
+Member missing: Document.set_open_action_goto
+Member missing: Document.set_open_action_uri
+Member missing: Document.set_outline
+Member missing: Document.set_page_labels
+Member missing: Document.set_producer
+Member missing: Document.set_struct_tree
+Member missing: Document.set_viewer_preferences
+Member missing: DocumentChunk.language
+Native declaration missing: DocumentChunker
+Native declaration missing: Duplex
+Native declaration missing: EncryptionStrength
+Native declaration missing: Entity
+Native declaration missing: EntityMap
+Native declaration missing: EntityMetadata
+Native declaration missing: EntityType
+Native declaration missing: ExportFormat
+Native declaration missing: ExtGState
+Native declaration missing: ExtGStateManager
+Native declaration missing: ExtractedGraphics
+Native declaration missing: ExtractionConfig
+Native declaration missing: FieldAction
+Native declaration missing: FieldActionSystem
+Native declaration missing: FieldActions
+Native declaration missing: FieldFormat
+Native declaration missing: FieldOptions
+Member missing: FieldValue.boolean
+Member missing: FieldValue.number
+FieldValue.text: runtime parameters {'s': False} != stub {'value': False}
+Member missing: FieldValue.to_number
+Member missing: FieldValue.to_text
+Native declaration missing: FileAttachmentAnnotation
+Native declaration missing: FileAttachmentIcon
+Native declaration missing: FlowLayout
+Member missing: Font.custom
+Member missing: Font.from_bytes
+Member missing: Font.from_file
+Native declaration missing: FontEncoding
+Native declaration missing: FormCalculationSystem
+Native declaration missing: FormData
+Native declaration missing: FormManager
+Native declaration missing: FormTemplates
+Native declaration missing: FormXObject
+Native declaration missing: FormXObjectBuilder
+Native declaration missing: FormXObjectManager
+Member missing: FreeFormGouraudShading.__init__
+Member missing: FreeFormGouraudShading.bits_per_component
+Member missing: FreeFormGouraudShading.bits_per_coordinate
+Member missing: FreeFormGouraudShading.bits_per_flag
+Member missing: FreeFormGouraudShading.color_space
+Member missing: FreeFormGouraudShading.name
+Member missing: FreeFormGouraudShading.validate
+Member missing: FreeFormGouraudShading.vertex_count
+Member missing: FreeFormGouraudShading.with_bits
+Native declaration missing: FreeTextAnnotation
+Native declaration missing: FullSignatureValidationResult
+Native declaration missing: GoToAction
+Member missing: GouraudVertex.__init__
+Member missing: GouraudVertex.color
+Member missing: GouraudVertex.flag
+Member missing: GouraudVertex.x
+Member missing: GouraudVertex.y
+Native declaration missing: GraphicsExtractor
+Native declaration missing: GridStyle
+Native declaration missing: HashVerificationResult
+Native declaration missing: HeaderBuilder
+Native declaration missing: HeaderCell
+Native declaration missing: HeaderFooter
+Native declaration missing: HeaderFooterOptions
+Native declaration missing: HeaderStyle
+Native declaration missing: HideAction
+Member missing: HighlightAnnotation.with_quad_points
+Native declaration missing: HighlightMode
+Native declaration missing: IccColorSpace
+Native declaration missing: IccProfile
+Native declaration missing: IccProfileManager
+Native declaration missing: Image
+Declared member absent at runtime: IncrementalParser.elapsed_secs
+Native declaration missing: InkAnnotation
+Native declaration missing: IsoRequirement
+Native declaration missing: JavaScriptAction
+Native declaration missing: JavaScriptCalculation
+Native declaration missing: JsonExporter
+Native declaration missing: KpiCard
+Native declaration missing: LaunchAction
+Native declaration missing: LazyDocument
+Native declaration missing: LegendPosition
+Native declaration missing: LineAnnotation
+Native declaration missing: LineBreakMode
+Native declaration missing: LineCap
+Native declaration missing: LineChart
+Native declaration missing: LineChartBuilder
+Native declaration missing: LineDashPattern
+Native declaration missing: LineEndingStyle
+Native declaration missing: LineJoin
+Native declaration missing: LineOrientation
+Native declaration missing: LinkAnnotation
+Native declaration missing: ListBox
+Native declaration missing: MarkdownExporter
+Native declaration missing: MarkdownOptions
+Native declaration missing: MarkupAnnotation
+Native declaration missing: MarkupType
+Native declaration missing: MatchType
+Native declaration missing: MergeInput
+Native declaration missing: MergeOptions
+Native declaration missing: MockOcrProvider
+Native declaration missing: NamedAction
+Native declaration missing: NamedDestinations
+Native declaration missing: NegativeStyle
+Native declaration missing: ObjectScanner
+Native declaration missing: OcrEngine
+Native declaration missing: OrderedList
+Native declaration missing: OrderedListStyle
+Native declaration missing: OutlineItem
+Native declaration missing: OutlineTree
+Member missing: OverlayPosition.BOTTOM_LEFT
+Member missing: OverlayPosition.BOTTOM_RIGHT
+Member missing: OverlayPosition.CENTER
+Member missing: OverlayPosition.TOP_LEFT
+Member missing: OverlayPosition.TOP_RIGHT
+Member missing: Page.add_advanced_table
+Member missing: Page.add_advanced_table_auto
+Member missing: Page.add_bar_chart
+Member missing: Page.add_image
+Member missing: Page.add_line_chart
+Member missing: Page.add_ordered_list
+Member missing: Page.add_pie_chart
+Member missing: Page.add_quick_ordered_list
+Member missing: Page.add_quick_table
+Member missing: Page.add_quick_unordered_list
+Member missing: Page.add_simple_table
+Member missing: Page.add_styled_table
+Member missing: Page.add_unordered_list
+Member missing: Page.clear_clipping
+Member missing: Page.draw_image
+Member missing: Page.restore_graphics_state
+Member missing: Page.rotation
+Member missing: Page.save_graphics_state
+Member missing: Page.set_blend_mode
+Member missing: Page.set_clipping_path
+Member missing: Page.set_coordinate_system
+Member missing: Page.set_dash_pattern
+Member missing: Page.set_fill_color_calibrated
+Member missing: Page.set_fill_color_lab
+Member missing: Page.set_footer
+Member missing: Page.set_header
+Member missing: Page.set_horizontal_scaling
+Member missing: Page.set_line_cap
+Member missing: Page.set_line_join
+Member missing: Page.set_miter_limit
+Member missing: Page.set_rendering_mode
+Member missing: Page.set_rotation
+Member missing: Page.set_stroke_color_calibrated
+Member missing: Page.set_stroke_color_lab
+Member missing: Page.set_text_rise
+Member missing: Page.text_flow_at
+Native declaration missing: PageConfig
+Native declaration missing: PageLabel
+Native declaration missing: PageLabelStyle
+Native declaration missing: PageLabelTree
+Native declaration missing: PageLayout
+Native declaration missing: PageMode
+PageStreamer.__exit__: runtime parameters {'_exc_type': False, '_exc_value': False, '_traceback': False} != stub {'exc_type': False, 'exc_value': False, 'traceback': False}
+Native declaration missing: PageTransition
+Native declaration missing: PageType
+Native declaration missing: PaintType
+Native declaration missing: ParsedSignature
+Native declaration missing: PatternManager
+Native declaration missing: PatternMatrix
+Native declaration missing: PdfAConformance
+Member missing: PdfAValidator.level
+Native declaration missing: PdfDifference
+Member missing: PdfReader.chunk_page
+Member missing: PdfReader.detect_signatures
+Member missing: PdfReader.extract_plain_text
+Member missing: PdfReader.extract_plain_text_lines
+Member missing: PdfReader.rag_chunks_with_pipeline
+Native declaration missing: PercentMode
+Native declaration missing: PieChart
+Native declaration missing: PieChartBuilder
+Native declaration missing: PieSegment
+Native declaration missing: Placeholder
+Native declaration missing: PlainTextConfig
+Native declaration missing: PlainTextResult
+Native declaration missing: PolygonAnnotation
+Native declaration missing: PolylineAnnotation
+Native declaration missing: PopupAnnotation
+Native declaration missing: PopupFlags
+Native declaration missing: PrintScaling
+Native declaration missing: PushButton
+Native declaration missing: QuadPoints
+Member missing: RadialShading.__init__
+Member missing: RadialShading.end_radius
+Member missing: RadialShading.name
+Member missing: RadialShading.radial_gradient
+Member missing: RadialShading.start_radius
+Member missing: RadialShading.validate
+Member missing: RadialShading.with_extend
+Native declaration missing: RadioButton
+Native declaration missing: Recipient
+Native declaration missing: RelationType
+Native declaration missing: RenderingIntent
+Native declaration missing: RequirementInfo
+Native declaration missing: ResetFormAction
+Native declaration missing: RichText
+Native declaration missing: RotateOptions
+Native declaration missing: RotationAngle
+Native declaration missing: ScanResult
+Native declaration missing: SemanticChunkConfig
+Native declaration missing: SemanticEntity
+Native declaration missing: SeparationColor
+Native declaration missing: SeparationColorSpace
+Native declaration missing: SeparatorStyle
+Native declaration missing: ShadingManager
+Native declaration missing: ShadingPoint
+Native declaration missing: ShadingType
+Native declaration missing: SignatureAlgorithm
+Native declaration missing: SignatureField
+Native declaration missing: SignatureVerificationResult
+Native declaration missing: SimpleOperation
+Native declaration missing: SoftMask
+Native declaration missing: SoftMaskState
+Native declaration missing: SoftMaskType
+Native declaration missing: SpecialFormat
+Native declaration missing: SpecialFormatType
+Native declaration missing: SplitMode
+Native declaration missing: SplitOptions
+Native declaration missing: SpotColors
+Native declaration missing: SquareAnnotation
+Native declaration missing: StampAnnotation
+Native declaration missing: StampName
+Native declaration missing: StandardIccProfile
+Native declaration missing: StandardNamedAction
+Native declaration missing: StandardStructureType
+Native declaration missing: StreamingOptions
+Native declaration missing: StructTree
+Native declaration missing: StructureElement
+Native declaration missing: SubmitFormAction
+Native declaration missing: Table
+Native declaration missing: TableCell
+Native declaration missing: TableOptions
+Native declaration missing: TableStyle
+Native declaration missing: TemplateAnalysis
+Native declaration missing: TemplateContext
+Native declaration missing: TemplateParser
+Native declaration missing: TemplateRenderer
+Member missing: TextAnnotation.open
+Member missing: TextAnnotation.with_icon
+Native declaration missing: TextBlockMetrics
+Native declaration missing: TextElement
+Native declaration missing: TextMatch
+Native declaration missing: TextSpan
+Native declaration missing: TextValidationResult
+Native declaration missing: TextValidator
+Native declaration missing: TilingPattern
+Native declaration missing: TilingType
+Native declaration missing: TokenEfficientExporter
+Native declaration missing: TransitionDimension
+Native declaration missing: TransitionDirection
+Native declaration missing: TransitionMotion
+Native declaration missing: TransitionStyle
+Native declaration missing: TransparencyGroup
+Native declaration missing: TrendDirection
+Native declaration missing: TrustStore
+Native declaration missing: UnorderedList
+Native declaration missing: UriAction
+Member missing: ValidationResult.field_name
+Member missing: ValidationResult.formatted_value
+Member missing: ValidationResult.warnings
+Member missing: ValidationRule.email
+Member missing: ValidationRule.length
+Member missing: ValidationRule.pattern
+Member missing: ValidationRule.range
+Member missing: ValidationRule.url
+Native declaration missing: VectorLine
+Native declaration missing: VerificationLevel
+Native declaration missing: ViewerPreferences
+Native declaration missing: Widget
+Native declaration missing: XRefEntry
+Native declaration missing: XRefTable
+Native declaration missing: XmpMetadata
+Native declaration missing: XmpNamespace
+Native declaration missing: XmpProperty
+Native declaration missing: XmpValue
+Native declaration missing: analyze_document_content
+Native declaration missing: analyze_page_content
+Native declaration missing: analyze_pdf_corruption
+Native declaration missing: centered_image_x
+Native declaration missing: compare_pdfs_deep_py
+Native declaration missing: compute_pdf_hash_py
+Native declaration missing: extract_page_range_to_bytes
+Native declaration missing: extract_page_range_to_file
+Native declaration missing: extract_pages_to_bytes
+Native declaration missing: extract_pdf_differences_py
+Native declaration missing: fit_image_dimensions
+Native declaration missing: has_incremental_update_py
+Native declaration missing: measure_char
+Native declaration missing: measure_text
+Native declaration missing: measure_text_block
+Native declaration missing: merge_pdfs_to_bytes
+Native declaration missing: merge_pdfs_with_inputs
+Native declaration missing: merge_pdfs_with_options
+Native declaration missing: move_pdf_page
+Native declaration missing: parse_pkcs7_signature_py
+Native declaration missing: pdfs_structurally_equivalent_py
+Native declaration missing: quick_recover
+Native declaration missing: reorder_pdf_pages
+Native declaration missing: rotate_pdf_to_bytes
+Native declaration missing: rotate_pdf_with_options
+Native declaration missing: split_pdf_to_bytes
+Native declaration missing: split_pdf_with_mode
+Native declaration missing: split_pdf_with_options
+Native declaration missing: swap_pdf_pages
+Native declaration missing: validate_pdf_certificate_py
+Native declaration missing: verify_pdf_signature_py
+Errors: 707

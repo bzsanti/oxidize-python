@@ -1,0 +1,21 @@
+## Calidad de Tests (Kripteia)
+
+=== Kripteia Test Quality Report ===
+Overall Score: 100 | Tests: 3 | Files: 1
+
+--- Files ---
+Path                                                          Tests  Score
+--------------------------------------------------------------------------
+tests/test_typing_surface.py                                      3    100
+
+--- Worst Offenders ---
+  test_installed_typing_surface (tests/test_typing_surface.py:17) - Score: 100
+  test_inventory_rejects_stub_drift (tests/test_typing_surface.py:33) - Score: 100
+  test_binary_operation_result_types (tests/test_typing_surface.py:45) - Score: 100
+
+
+## Analisis de Seguridad (Kripteia Security)
+
+=== Kripteia Security Analysis ===
+
+No security issues found.

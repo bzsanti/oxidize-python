@@ -1,0 +1,3153 @@
+{
+  "errors": [],
+  "exports": {
+    "AcroForm": [
+      "__init__",
+      "field_count",
+      "need_appearances",
+      "sig_flags"
+    ],
+    "ActionSettings": [
+      "__init__"
+    ],
+    "AdvColumn": [
+      "__init__",
+      "auto_resize",
+      "header",
+      "width",
+      "with_style"
+    ],
+    "AdvTableRenderer": [
+      "__init__",
+      "render_table"
+    ],
+    "AdvancedTable": [
+      "calculate_width",
+      "column_count",
+      "row_count"
+    ],
+    "AdvancedTableBuilder": [
+      "__init__",
+      "add_column",
+      "add_data",
+      "add_row",
+      "add_styled_column",
+      "add_styled_row",
+      "build",
+      "cell_spacing",
+      "columns_equal_width",
+      "complex_header",
+      "data_style",
+      "default_style",
+      "financial_table",
+      "header_style",
+      "minimal_table",
+      "position",
+      "repeat_headers",
+      "set_cell_style",
+      "show_header",
+      "table_border",
+      "title",
+      "total_width",
+      "zebra_stripes",
+      "zebra_striping"
+    ],
+    "AnalysisPipeline": [
+      "__init__",
+      "with_chunking",
+      "with_classifier",
+      "with_context_mode",
+      "with_enricher",
+      "with_max_tokens",
+      "with_source"
+    ],
+    "Annotation": [
+      "__init__",
+      "with_border",
+      "with_color",
+      "with_contents",
+      "with_name",
+      "with_subject"
+    ],
+    "AnnotationIcon": [
+      "COMMENT",
+      "HELP",
+      "INSERT",
+      "KEY",
+      "NEW_PARAGRAPH",
+      "NOTE",
+      "PARAGRAPH"
+    ],
+    "AnnotationType": [
+      "CARET",
+      "CIRCLE",
+      "FILE_ATTACHMENT",
+      "FREE_TEXT",
+      "HIGHLIGHT",
+      "INK",
+      "LINE",
+      "LINK",
+      "POLYGON",
+      "POLY_LINE",
+      "POPUP",
+      "SOUND",
+      "SQUARE",
+      "SQUIGGLY",
+      "STAMP",
+      "STRIKE_OUT",
+      "TEXT",
+      "UNDERLINE"
+    ],
+    "AppearanceState": [
+      "DOWN",
+      "NORMAL",
+      "ROLLOVER",
+      "pdf_name"
+    ],
+    "AppearanceStream": [
+      "__init__",
+      "bbox",
+      "content"
+    ],
+    "AxialShading": [
+      "__init__",
+      "extend_end",
+      "extend_start",
+      "linear_gradient",
+      "name",
+      "validate",
+      "with_extend"
+    ],
+    "BarChart": [],
+    "BarChartBuilder": [
+      "__init__",
+      "add_data",
+      "background_color",
+      "bar_border",
+      "bar_spacing",
+      "bar_width_range",
+      "build",
+      "colors",
+      "data",
+      "financial_style",
+      "grid_color",
+      "label_font",
+      "labeled_data",
+      "legend_position",
+      "minimal_style",
+      "orientation",
+      "progress_style",
+      "show_grid",
+      "show_values",
+      "simple_data",
+      "title",
+      "title_font",
+      "value_font"
+    ],
+    "BarOrientation": [
+      "HORIZONTAL",
+      "VERTICAL"
+    ],
+    "BatchJob": [
+      "compress",
+      "extract",
+      "merge",
+      "rotate",
+      "split"
+    ],
+    "BatchOptions": [
+      "__init__",
+      "job_timeout",
+      "memory_limit_per_worker",
+      "parallelism",
+      "progress_callback",
+      "progress_interval",
+      "stop_on_error"
+    ],
+    "BatchProcessor": [
+      "__init__",
+      "add_job",
+      "cancel",
+      "execute",
+      "get_progress",
+      "is_cancelled"
+    ],
+    "BatchSummary": [
+      "cancelled",
+      "duration_secs",
+      "failed",
+      "results",
+      "success_rate",
+      "successful",
+      "total_jobs"
+    ],
+    "BlendMode": [
+      "COLOR_BURN",
+      "COLOR_DODGE",
+      "DARKEN",
+      "HARD_LIGHT",
+      "LIGHTEN",
+      "MULTIPLY",
+      "NORMAL",
+      "OVERLAY",
+      "SCREEN",
+      "SOFT_LIGHT"
+    ],
+    "BorderEffect": [
+      "__init__",
+      "intensity",
+      "is_cloudy"
+    ],
+    "BorderEffectStyle": [
+      "CLOUDY",
+      "SOLID"
+    ],
+    "BorderStyle": [
+      "__init__"
+    ],
+    "BorderStyleType": [
+      "BEVELED",
+      "DASHED",
+      "INSET",
+      "SOLID",
+      "UNDERLINE"
+    ],
+    "BoundingBox": [
+      "__init__",
+      "area",
+      "height",
+      "intersects",
+      "page",
+      "right",
+      "top",
+      "width",
+      "x",
+      "y"
+    ],
+    "BuildIdentification": [
+      "Disabled",
+      "Enabled"
+    ],
+    "BulletStyle": [
+      "CIRCLE",
+      "DASH",
+      "DISC",
+      "SQUARE"
+    ],
+    "ByteRange": [
+      "__init__",
+      "__len__",
+      "from_array",
+      "is_empty",
+      "ranges",
+      "total_bytes",
+      "validate"
+    ],
+    "CalGrayColorSpace": [
+      "__init__",
+      "d50",
+      "d65",
+      "gamma",
+      "white_point",
+      "with_black_point",
+      "with_gamma",
+      "with_white_point"
+    ],
+    "CalRgbColorSpace": [
+      "__init__",
+      "adobe_rgb",
+      "d65",
+      "gamma",
+      "srgb",
+      "with_gamma",
+      "with_matrix",
+      "with_white_point"
+    ],
+    "CalculationEngine": [
+      "__init__",
+      "get_field_value",
+      "get_summary",
+      "recalculate_all",
+      "set_field_value"
+    ],
+    "CalculationSettings": [
+      "__init__"
+    ],
+    "CalculationSummary": [
+      "calculated_fields",
+      "calculation_order",
+      "dependencies",
+      "total_fields"
+    ],
+    "CalculationSystemSummary": [
+      "events_logged",
+      "formatted_fields",
+      "js_calculations",
+      "total_fields"
+    ],
+    "CalibratedColor": [
+      "cal_gray",
+      "cal_rgb",
+      "values"
+    ],
+    "CarriageReturnHandling": [
+      "NORMALIZE_LINE_ENDING",
+      "REMOVE",
+      "REPLACE_WITH_SPACE"
+    ],
+    "CellAlignment": [
+      "CENTER",
+      "JUSTIFY",
+      "LEFT",
+      "RIGHT"
+    ],
+    "CellBorderStyle": [
+      "DASHED",
+      "DOTTED",
+      "DOUBLE",
+      "NONE",
+      "SOLID"
+    ],
+    "CellPadding": [
+      "__init__",
+      "bottom",
+      "left",
+      "right",
+      "symmetric",
+      "top",
+      "uniform"
+    ],
+    "CellStyle": [
+      "__init__",
+      "alignment",
+      "alternating",
+      "background_color",
+      "border",
+      "data",
+      "font",
+      "font_size",
+      "header",
+      "max_height",
+      "min_height",
+      "numeric",
+      "padding",
+      "text_color",
+      "text_wrap"
+    ],
+    "CertificateValidationResult": [
+      "has_warnings",
+      "is_signature_capable",
+      "is_time_valid",
+      "is_trusted",
+      "is_valid",
+      "issuer",
+      "subject",
+      "valid_from",
+      "valid_to",
+      "warnings"
+    ],
+    "CertificationPermission": [
+      "FormFillAndSign",
+      "FormFillSignAndAnnotate",
+      "NoChanges"
+    ],
+    "ChartData": [
+      "__init__",
+      "color",
+      "highlighted"
+    ],
+    "ChartRenderer": [
+      "__init__",
+      "render_bar_chart",
+      "render_line_chart",
+      "render_pie_chart"
+    ],
+    "ChartType": [
+      "AREA",
+      "HORIZONTAL_BAR",
+      "LINE",
+      "PIE",
+      "VERTICAL_BAR"
+    ],
+    "CheckBox": [
+      "__init__",
+      "checked",
+      "with_export_value"
+    ],
+    "ChunkGroup": [
+      "__init__",
+      "elements",
+      "heading_context"
+    ],
+    "CidMapping": [
+      "__init__",
+      "cid_to_gid",
+      "cid_to_unicode",
+      "cid_to_unicode_str",
+      "max_cid"
+    ],
+    "CidShowElement": [
+      "__init__",
+      "adjust",
+      "cid",
+      "with_x_offset",
+      "x_offset"
+    ],
+    "CircleAnnotation": [
+      "__init__",
+      "to_annotation",
+      "with_cloudy_border",
+      "with_contents",
+      "with_interior_color"
+    ],
+    "ClassLabel": [
+      "__init__",
+      "as_str"
+    ],
+    "ClassifyContext": [
+      "elements",
+      "index"
+    ],
+    "ClippingPath": [
+      "circle",
+      "ellipse",
+      "rect"
+    ],
+    "Color": [
+      "b",
+      "black",
+      "blue",
+      "c",
+      "cmyk",
+      "color_space",
+      "g",
+      "gray",
+      "gray_value",
+      "green",
+      "hex",
+      "k",
+      "m",
+      "r",
+      "red",
+      "rgb",
+      "white",
+      "y"
+    ],
+    "ColorStop": [
+      "__init__",
+      "position"
+    ],
+    "ColumnContent": [
+      "__init__"
+    ],
+    "ColumnLayout": [
+      "__init__",
+      "column_count",
+      "column_width",
+      "total_width",
+      "with_custom_widths"
+    ],
+    "ColumnOptions": [
+      "__init__"
+    ],
+    "ComboBox": [
+      "__init__",
+      "add_option",
+      "editable",
+      "with_default_appearance",
+      "with_value"
+    ],
+    "ComparisonResult": [
+      "content_equivalent",
+      "differences",
+      "similarity_score",
+      "structurally_equivalent"
+    ],
+    "ComplianceStats": [
+      "average_compliance_percentage",
+      "compliance_percentage_display",
+      "implementation_percentage",
+      "implemented_requirements",
+      "level_0_count",
+      "level_1_count",
+      "level_2_count",
+      "level_3_count",
+      "level_4_count",
+      "total_requirements"
+    ],
+    "ComplianceSystem": [
+      "calculate_compliance_stats",
+      "get_all_requirements",
+      "get_compliant_requirements",
+      "get_partially_implemented_requirements",
+      "get_requirement_info",
+      "get_section_requirements",
+      "get_unimplemented_requirements",
+      "load"
+    ],
+    "ConicShading": [
+      "__init__",
+      "domain",
+      "matrix",
+      "name",
+      "validate",
+      "with_matrix"
+    ],
+    "ContentAnalysis": [
+      "blank_space_ratio",
+      "character_count",
+      "image_count",
+      "image_ratio",
+      "page_number",
+      "page_type",
+      "text_fragment_count",
+      "text_ratio"
+    ],
+    "ContentOperation": [
+      "font_name",
+      "font_size",
+      "name",
+      "op_type",
+      "operands",
+      "text_array_elements",
+      "text_bytes"
+    ],
+    "ContentParser": [
+      "parse",
+      "parse_content",
+      "parse_strict"
+    ],
+    "ContentTypeFlags": [
+      "has_code",
+      "has_list",
+      "has_table",
+      "heading_only"
+    ],
+    "ContextFormat": [
+      "Labeled",
+      "Prose"
+    ],
+    "ContextMode": [
+      "contextual",
+      "format",
+      "heading",
+      "none"
+    ],
+    "CoordinateSystem": [
+      "PDF_STANDARD",
+      "SCREEN_SPACE"
+    ],
+    "CorruptionReport": [
+      "corruption_type",
+      "errors",
+      "estimated_objects",
+      "file_size",
+      "found_pages",
+      "severity"
+    ],
+    "CorruptionType": [
+      "BROKEN_REFERENCES",
+      "CORRUPT_STREAMS",
+      "CORRUPT_XREF",
+      "INVALID_HEADER",
+      "INVALID_PAGE_TREE",
+      "MISSING_EOF",
+      "TRUNCATED_FILE",
+      "UNKNOWN"
+    ],
+    "DashboardBarChart": [
+      "__init__",
+      "span"
+    ],
+    "DashboardBuilder": [
+      "__init__",
+      "add_kpi_row",
+      "author",
+      "build_to_page",
+      "get_author",
+      "get_subtitle",
+      "get_title",
+      "kpi_row_count",
+      "subtitle",
+      "theme",
+      "title"
+    ],
+    "DashboardLineChart": [
+      "__init__",
+      "span"
+    ],
+    "DashboardPieChart": [
+      "__init__",
+      "span"
+    ],
+    "DashboardTheme": [
+      "colorful",
+      "corporate",
+      "dark",
+      "minimal"
+    ],
+    "DataSeries": [
+      "__init__",
+      "fill_area",
+      "line_style",
+      "markers",
+      "xy_data",
+      "y_data"
+    ],
+    "DecodedGlyph": [
+      "advance",
+      "cid",
+      "gid",
+      "source_code",
+      "unicode"
+    ],
+    "Destination": [
+      "fit",
+      "fit_b",
+      "fit_h",
+      "fit_v",
+      "xyz"
+    ],
+    "DetectedLanguage": [
+      "code",
+      "confidence",
+      "reliable"
+    ],
+    "DifferenceSeverity": [
+      "COSMETIC",
+      "CRITICAL",
+      "IMPORTANT",
+      "MINOR"
+    ],
+    "DigestAlgorithm": [
+      "SHA256",
+      "SHA384",
+      "SHA512",
+      "name",
+      "oid"
+    ],
+    "Document": [
+      "__init__",
+      "add_checkbox",
+      "add_cid_keyed_font",
+      "add_combo_box",
+      "add_font",
+      "add_font_from_bytes",
+      "add_list_box",
+      "add_page",
+      "add_radio_button",
+      "add_text_field",
+      "build_identification",
+      "create_xmp_metadata",
+      "custom_font_names",
+      "embedded_font",
+      "enable_forms",
+      "enable_xref_streams",
+      "encrypt",
+      "font_missing_glyphs",
+      "get_xmp_packet",
+      "has_custom_font",
+      "is_encrypted",
+      "measure_char",
+      "measure_text",
+      "new_page",
+      "new_page_a4",
+      "new_page_letter",
+      "page_count",
+      "save",
+      "save_to_bytes",
+      "save_to_bytes_with_config",
+      "save_with_config",
+      "set_author",
+      "set_build_identification",
+      "set_compress",
+      "set_creation_date",
+      "set_creator",
+      "set_default_font_encoding",
+      "set_keywords",
+      "set_modification_date",
+      "set_named_destinations",
+      "set_open_action_goto",
+      "set_open_action_uri",
+      "set_outline",
+      "set_page_labels",
+      "set_producer",
+      "set_struct_tree",
+      "set_subject",
+      "set_title",
+      "set_viewer_preferences"
+    ],
+    "DocumentChunk": [
+      "chunk_index",
+      "content",
+      "id",
+      "language",
+      "page_numbers",
+      "tokens"
+    ],
+    "DocumentChunker": [
+      "__init__",
+      "chunk_text",
+      "default",
+      "document_language",
+      "estimate_tokens",
+      "with_language_detection"
+    ],
+    "DocumentMetadata": [
+      "author",
+      "creation_date",
+      "creator",
+      "keywords",
+      "modification_date",
+      "page_count",
+      "producer",
+      "subject",
+      "title",
+      "version"
+    ],
+    "DocumentSource": [
+      "__init__",
+      "author",
+      "creation_date",
+      "doc_hash",
+      "filename",
+      "title",
+      "total_pages"
+    ],
+    "DocumentStructure": [
+      "Annotations",
+      "DigitalSignatures",
+      "DocumentInfo",
+      "Encryption",
+      "Forms",
+      "MetadataStream",
+      "NamedDestinations",
+      "NamesAndAttachments",
+      "OptionalContent",
+      "Outlines",
+      "PageLabels",
+      "StructureTree"
+    ],
+    "Duplex": [
+      "FLIP_LONG_EDGE",
+      "FLIP_SHORT_EDGE",
+      "SIMPLEX"
+    ],
+    "Element": [
+      "class_label",
+      "display_text",
+      "page",
+      "table_structure",
+      "text",
+      "type_name"
+    ],
+    "ElementBBox": [
+      "height",
+      "width",
+      "x",
+      "y"
+    ],
+    "ElementGraph": [
+      "__len__",
+      "children_of",
+      "elements_in_section",
+      "is_empty",
+      "next_of",
+      "parent_of",
+      "prev_of",
+      "top_level_sections"
+    ],
+    "EmbeddedFont": [
+      "has_glyph",
+      "missing_glyphs",
+      "name"
+    ],
+    "EncryptionStrength": [
+      "AES_128",
+      "AES_256",
+      "RC4_128",
+      "RC4_40"
+    ],
+    "EnrichContext": [
+      "elements",
+      "heading_path",
+      "text"
+    ],
+    "Entity": [
+      "__init__",
+      "entity_type",
+      "id",
+      "page"
+    ],
+    "EntityMap": [
+      "__init__",
+      "add_entity",
+      "entities_by_type",
+      "entities_on_page",
+      "to_format",
+      "to_json",
+      "to_json_ld"
+    ],
+    "EntityMetadata": [
+      "__init__",
+      "with_confidence",
+      "with_property",
+      "with_schema"
+    ],
+    "EntityType": [
+      "ADDRESS",
+      "AMOUNT",
+      "CONTRACT",
+      "CONTRACT_PARTY",
+      "CONTRACT_TERM",
+      "CONTRACT_VALUE",
+      "CUSTOMER_NAME",
+      "DATE",
+      "DUE_DATE",
+      "EFFECTIVE_DATE",
+      "EMAIL",
+      "FOOTER",
+      "HEADER",
+      "HEADING",
+      "IMAGE",
+      "INVOICE",
+      "INVOICE_NUMBER",
+      "LINE_ITEM",
+      "LIST",
+      "ORGANIZATION_NAME",
+      "PAGE_NUMBER",
+      "PARAGRAPH",
+      "PAYMENT_AMOUNT",
+      "PERCENTAGE",
+      "PERSON_NAME",
+      "PHONE_NUMBER",
+      "QUANTITY",
+      "SIGNATURE",
+      "TABLE",
+      "TAX_AMOUNT",
+      "TEXT",
+      "TOTAL_AMOUNT",
+      "WEBSITE",
+      "custom",
+      "name"
+    ],
+    "ExistingDocumentEngine": [
+      "PreserveBase",
+      "Reconstruct"
+    ],
+    "ExistingDocumentExecutionPlan": [
+      "incremental",
+      "page_count"
+    ],
+    "ExistingDocumentMergeInput": [
+      "__init__",
+      "pages",
+      "path"
+    ],
+    "ExistingDocumentPolicy": [
+      "preserve_base",
+      "reconstruct"
+    ],
+    "ExportFormat": [
+      "JSON",
+      "JSON_LD",
+      "XML"
+    ],
+    "ExtGState": [
+      "__init__",
+      "is_empty",
+      "uses_transparency",
+      "with_alpha",
+      "with_alpha_fill",
+      "with_alpha_stroke",
+      "with_blend_mode",
+      "with_flatness",
+      "with_line_cap",
+      "with_line_join",
+      "with_line_width",
+      "with_miter_limit",
+      "with_overprint_fill",
+      "with_overprint_stroke",
+      "with_rendering_intent",
+      "with_smoothness",
+      "with_text_knockout"
+    ],
+    "ExtGStateManager": [
+      "__init__",
+      "add_state",
+      "clear",
+      "count"
+    ],
+    "ExtractImagesOptions": [
+      "__init__"
+    ],
+    "ExtractedGraphics": [
+      "__init__",
+      "add_line",
+      "has_table_structure",
+      "horizontal_count",
+      "horizontal_lines",
+      "lines",
+      "vertical_count",
+      "vertical_lines"
+    ],
+    "ExtractedImageData": [
+      "data",
+      "format",
+      "height",
+      "image_index",
+      "page_number",
+      "width"
+    ],
+    "ExtractedText": [
+      "fragments",
+      "text",
+      "truncated"
+    ],
+    "ExtractionConfig": [
+      "__init__",
+      "extract_diagonals",
+      "min_line_length",
+      "stroked_only"
+    ],
+    "ExtractionOptions": [
+      "__init__",
+      "carriage_return_handling",
+      "column_threshold",
+      "detect_columns",
+      "include_artifacts",
+      "include_link_annotations",
+      "include_unreliable_figure_text",
+      "max_extracted_bytes",
+      "merge_hyphenated",
+      "newline_threshold",
+      "normalize_non_breaking_spaces",
+      "preserve_layout",
+      "reading_order",
+      "reconstruct_paragraphs",
+      "reorder_columns",
+      "sort_by_position",
+      "space_threshold",
+      "tj_space_threshold",
+      "track_space_decisions"
+    ],
+    "ExtractionProfile": [
+      "ACADEMIC",
+      "DENSE",
+      "FORM",
+      "GOVERNMENT",
+      "PRESENTATION",
+      "RAG",
+      "STANDARD"
+    ],
+    "FieldAction": [
+      "calculate",
+      "custom",
+      "format_custom",
+      "format_date",
+      "format_number",
+      "format_percent",
+      "format_special",
+      "format_time",
+      "import_data",
+      "javascript",
+      "play_sound",
+      "reset_form",
+      "set_field",
+      "show_hide",
+      "submit_form",
+      "validate_custom",
+      "validate_range"
+    ],
+    "FieldActionSystem": [
+      "__init__",
+      "clear_event_history",
+      "event_history_count",
+      "get_focused_field",
+      "handle_blur",
+      "handle_focus",
+      "handle_keystroke",
+      "handle_validate",
+      "register_field_actions"
+    ],
+    "FieldActions": [
+      "__init__",
+      "on_blur",
+      "on_calculate",
+      "on_focus",
+      "on_format",
+      "on_keystroke",
+      "on_mouse_down",
+      "on_mouse_enter",
+      "on_mouse_exit",
+      "on_mouse_up",
+      "on_validate"
+    ],
+    "FieldFormat": [
+      "custom",
+      "date",
+      "number",
+      "percent",
+      "special",
+      "time"
+    ],
+    "FieldLock": [
+      "all",
+      "exclude",
+      "include"
+    ],
+    "FieldOptions": [
+      "__init__",
+      "no_export",
+      "read_only",
+      "required"
+    ],
+    "FieldValidator": [
+      "__init__",
+      "add_rule"
+    ],
+    "FieldValue": [
+      "boolean",
+      "empty",
+      "number",
+      "text",
+      "to_number",
+      "to_text"
+    ],
+    "FileAttachmentAnnotation": [
+      "__init__",
+      "to_annotation",
+      "with_icon",
+      "with_mime_type"
+    ],
+    "FileAttachmentIcon": [
+      "GRAPH",
+      "PAPERCLIP",
+      "PUSH_PIN",
+      "TAG"
+    ],
+    "FlowLayout": [
+      "__init__",
+      "add_rich_text",
+      "add_spacer",
+      "add_table",
+      "add_text",
+      "add_text_with_line_height",
+      "build_into"
+    ],
+    "Font": [
+      "COURIER",
+      "COURIER_BOLD",
+      "COURIER_BOLD_OBLIQUE",
+      "COURIER_OBLIQUE",
+      "HELVETICA",
+      "HELVETICA_BOLD",
+      "HELVETICA_BOLD_OBLIQUE",
+      "HELVETICA_OBLIQUE",
+      "SYMBOL",
+      "TIMES_BOLD",
+      "TIMES_BOLD_ITALIC",
+      "TIMES_ITALIC",
+      "TIMES_ROMAN",
+      "ZAPF_DINGBATS",
+      "custom",
+      "from_bytes",
+      "from_file"
+    ],
+    "FontEncoding": [
+      "MAC_EXPERT",
+      "MAC_ROMAN",
+      "STANDARD",
+      "WIN_ANSI"
+    ],
+    "FontResource": [
+      "base_font",
+      "encoding",
+      "is_embedded",
+      "is_subset",
+      "subtype"
+    ],
+    "FormCalculationSystem": [
+      "__init__",
+      "add_js_calculation",
+      "get_summary",
+      "set_field_format",
+      "set_field_value"
+    ],
+    "FormData": [
+      "__init__",
+      "get_value",
+      "set_value"
+    ],
+    "FormManager": [
+      "__init__",
+      "add_checkbox",
+      "add_combo_box",
+      "add_list_box",
+      "add_push_button",
+      "add_radio_button",
+      "add_text_field",
+      "field_count",
+      "get_acro_form"
+    ],
+    "FormTemplates": [
+      "checkmark",
+      "circle",
+      "cross",
+      "logo_placeholder",
+      "star"
+    ],
+    "FormValidationSystem": [
+      "__init__",
+      "add_validator",
+      "validate_field"
+    ],
+    "FormXObject": [
+      "__init__",
+      "from_graphics_ops",
+      "has_transparency",
+      "with_content",
+      "with_matrix"
+    ],
+    "FormXObjectBuilder": [
+      "__init__",
+      "build",
+      "fill",
+      "fill_color",
+      "fill_stroke",
+      "line_to",
+      "matrix",
+      "move_to",
+      "rectangle",
+      "restore_state",
+      "save_state",
+      "stroke",
+      "stroke_color",
+      "transparency_group"
+    ],
+    "FormXObjectManager": [
+      "__init__",
+      "add_form",
+      "clear",
+      "count",
+      "get_form",
+      "remove_form"
+    ],
+    "FormXObjectResource": [
+      "bbox"
+    ],
+    "FreeFormGouraudShading": [
+      "__init__",
+      "bits_per_component",
+      "bits_per_coordinate",
+      "bits_per_flag",
+      "color_space",
+      "name",
+      "validate",
+      "vertex_count",
+      "with_bits"
+    ],
+    "FreeText": [
+      "alignment",
+      "contents",
+      "default_appearance",
+      "id",
+      "page_index",
+      "rect"
+    ],
+    "FreeTextAlignment": [
+      "Center",
+      "Left",
+      "Right"
+    ],
+    "FreeTextAnnotation": [
+      "__init__",
+      "to_annotation",
+      "with_justification"
+    ],
+    "FreeTextId": [
+      "__init__",
+      "generation_number",
+      "object_number"
+    ],
+    "FreeTextMutation": [
+      "add",
+      "remove",
+      "update"
+    ],
+    "FreeTextUpdate": [
+      "annotations",
+      "pdf_bytes"
+    ],
+    "FullSignatureValidationResult": [
+      "certificate_result",
+      "errors",
+      "field",
+      "has_modifications_after_signing",
+      "has_warnings",
+      "hash_valid",
+      "is_valid",
+      "signature_valid",
+      "signer_name",
+      "signing_time",
+      "warnings"
+    ],
+    "GoToAction": [
+      "to_page",
+      "to_page_xyz"
+    ],
+    "GouraudVertex": [
+      "__init__",
+      "color",
+      "flag",
+      "x",
+      "y"
+    ],
+    "GraphicsExtractor": [
+      "__init__",
+      "extract_from_bytes"
+    ],
+    "GridStyle": [
+      "FULL",
+      "HORIZONTAL",
+      "NONE",
+      "OUTLINE",
+      "VERTICAL"
+    ],
+    "HashVerificationResult": [
+      "algorithm",
+      "bytes_hashed",
+      "computed_hash",
+      "hash_hex"
+    ],
+    "HeaderBuilder": [
+      "__init__",
+      "add_custom_row",
+      "add_group",
+      "add_level",
+      "add_simple_row",
+      "auto",
+      "default_style",
+      "financial_report",
+      "product_comparison",
+      "row_count"
+    ],
+    "HeaderCell": [
+      "__init__",
+      "colspan",
+      "rowspan",
+      "span_cols",
+      "span_rows",
+      "style",
+      "text"
+    ],
+    "HeaderFooter": [
+      "new_footer",
+      "new_header",
+      "with_alignment",
+      "with_font",
+      "with_margin",
+      "with_options"
+    ],
+    "HeaderFooterOptions": [
+      "__init__"
+    ],
+    "HeaderStyle": [
+      "__init__"
+    ],
+    "HideAction": [
+      "__init__",
+      "hide",
+      "show"
+    ],
+    "HighlightAnnotation": [
+      "__init__",
+      "to_annotation",
+      "with_quad_points"
+    ],
+    "HighlightMode": [
+      "INVERT",
+      "NONE",
+      "OUTLINE",
+      "PUSH"
+    ],
+    "HybridChunkConfig": [
+      "__init__",
+      "context_mode",
+      "max_tokens",
+      "merge_adjacent",
+      "merge_policy",
+      "overlap_tokens",
+      "propagate_headings"
+    ],
+    "IccColorSpace": [
+      "CMYK",
+      "GRAY",
+      "LAB",
+      "RGB"
+    ],
+    "IccProfile": [
+      "__init__",
+      "from_standard",
+      "is_cmyk",
+      "is_gray",
+      "is_rgb",
+      "name",
+      "size",
+      "validate",
+      "with_range"
+    ],
+    "IccProfileManager": [
+      "__init__",
+      "add_profile",
+      "add_standard_profile",
+      "clear",
+      "count",
+      "create_default_cmyk",
+      "create_default_gray",
+      "create_default_srgb"
+    ],
+    "Image": [
+      "from_file",
+      "from_jpeg_data",
+      "from_jpeg_file",
+      "from_png_data",
+      "from_png_file",
+      "from_tiff_data",
+      "from_tiff_file",
+      "has_transparency",
+      "height",
+      "width"
+    ],
+    "ImageExtractionLimits": [
+      "__init__",
+      "max_decoded_pixels_per_image",
+      "max_encoded_bytes_per_image",
+      "max_images",
+      "max_total_encoded_bytes"
+    ],
+    "ImageResource": [
+      "bits_per_component",
+      "color_space",
+      "filter",
+      "height",
+      "width"
+    ],
+    "IncrementalFormFiller": [
+      "__init__",
+      "fill",
+      "fill_many"
+    ],
+    "IncrementalFreeTextEditor": [
+      "__init__",
+      "annotations",
+      "apply"
+    ],
+    "IncrementalInkEditor": [
+      "__init__",
+      "annotations",
+      "apply"
+    ],
+    "IncrementalParser": [
+      "__init__",
+      "feed",
+      "is_complete",
+      "take_events"
+    ],
+    "Ink": [
+      "color",
+      "id",
+      "opacity",
+      "page_index",
+      "rect",
+      "strokes",
+      "width"
+    ],
+    "InkAnnotation": [
+      "__init__",
+      "add_stroke",
+      "to_annotation"
+    ],
+    "InkColor": [
+      "cmyk",
+      "components",
+      "gray",
+      "rgb",
+      "space"
+    ],
+    "InkColorSpace": [
+      "Cmyk",
+      "Gray",
+      "Rgb"
+    ],
+    "InkId": [
+      "__init__",
+      "generation_number",
+      "object_number"
+    ],
+    "InkMutation": [
+      "add",
+      "remove",
+      "update"
+    ],
+    "InkStroke": [
+      "__init__",
+      "points"
+    ],
+    "InkUpdate": [
+      "annotations",
+      "pdf_bytes"
+    ],
+    "InputSemanticReport": [
+      "path",
+      "role",
+      "selected_pages",
+      "structures"
+    ],
+    "InputSemanticRole": [
+      "ImportedPages",
+      "PreservedBase",
+      "ReconstructedPages"
+    ],
+    "IsoRequirement": [
+      "description",
+      "id",
+      "implementation",
+      "iso_reference",
+      "level",
+      "name",
+      "notes",
+      "test_file",
+      "verified"
+    ],
+    "JavaScriptAction": [
+      "__init__"
+    ],
+    "JavaScriptCalculation": [
+      "custom",
+      "date",
+      "number",
+      "percent",
+      "range",
+      "simple"
+    ],
+    "JobResult": [
+      "duration_secs",
+      "error",
+      "job_name",
+      "output_files",
+      "status"
+    ],
+    "JsonExporter": [
+      "__init__",
+      "default",
+      "export",
+      "export_chunks"
+    ],
+    "KpiCard": [
+      "__init__",
+      "with_icon",
+      "with_sparkline",
+      "with_subtitle",
+      "with_trend"
+    ],
+    "LabColor": [
+      "__init__",
+      "a",
+      "b",
+      "black",
+      "delta_e",
+      "gray",
+      "l",
+      "values",
+      "white"
+    ],
+    "LabColorSpace": [
+      "d50",
+      "d65"
+    ],
+    "LaunchAction": [
+      "__init__",
+      "application",
+      "document",
+      "in_new_window",
+      "with_params"
+    ],
+    "LazyDocument": [
+      "open",
+      "page_count"
+    ],
+    "LegendPosition": [
+      "BOTTOM",
+      "LEFT",
+      "NONE",
+      "RIGHT",
+      "TOP"
+    ],
+    "LineAnnotation": [
+      "__init__",
+      "to_annotation",
+      "with_contents",
+      "with_endings",
+      "with_interior_color"
+    ],
+    "LineBreakMode": [
+      "AUTO",
+      "NORMALIZE",
+      "PRESERVE_ALL"
+    ],
+    "LineCap": [
+      "BUTT",
+      "ROUND",
+      "SQUARE"
+    ],
+    "LineChart": [],
+    "LineChartBuilder": [
+      "__init__",
+      "add_series",
+      "add_simple_series",
+      "axis_font",
+      "axis_labels",
+      "background_color",
+      "build",
+      "grid",
+      "label_font",
+      "legend_position",
+      "title",
+      "title_font",
+      "x_range",
+      "y_range"
+    ],
+    "LineDashPattern": [
+      "__init__",
+      "solid"
+    ],
+    "LineEndingStyle": [
+      "BUTT",
+      "CIRCLE",
+      "CLOSED_ARROW",
+      "DIAMOND",
+      "NONE",
+      "OPEN_ARROW",
+      "R_CLOSED_ARROW",
+      "R_OPEN_ARROW",
+      "SLASH",
+      "SQUARE"
+    ],
+    "LineJoin": [
+      "BEVEL",
+      "MITER",
+      "ROUND"
+    ],
+    "LineOrientation": [
+      "DIAGONAL",
+      "HORIZONTAL",
+      "VERTICAL"
+    ],
+    "LinkAnnotation": [
+      "named_action",
+      "to_annotation",
+      "to_uri",
+      "with_highlight_mode"
+    ],
+    "ListBox": [
+      "__init__",
+      "add_option",
+      "multi_select"
+    ],
+    "Margins": [
+      "__init__",
+      "bottom",
+      "left",
+      "right",
+      "top",
+      "uniform"
+    ],
+    "MarkdownExporter": [
+      "__init__",
+      "default",
+      "export",
+      "export_text"
+    ],
+    "MarkdownOptions": [
+      "__init__",
+      "include_metadata",
+      "include_page_numbers"
+    ],
+    "MarkupAnnotation": [
+      "highlight",
+      "squiggly",
+      "strikeout",
+      "to_annotation",
+      "underline",
+      "with_author",
+      "with_color",
+      "with_contents"
+    ],
+    "MarkupType": [
+      "HIGHLIGHT",
+      "SQUIGGLY",
+      "STRIKE_OUT",
+      "UNDERLINE"
+    ],
+    "MatchType": [
+      "CONTRACT_NUMBER",
+      "DATE",
+      "LOCATION",
+      "MONETARY_AMOUNT",
+      "PARTY_NAME",
+      "custom"
+    ],
+    "MergeInput": [
+      "__init__",
+      "with_pages"
+    ],
+    "MergeOptions": [
+      "__init__"
+    ],
+    "MergePolicy": [
+      "ANY_INLINE_CONTENT",
+      "SAME_TYPE_ONLY"
+    ],
+    "MockOcrProvider": [
+      "__init__"
+    ],
+    "NamedAction": [
+      "custom",
+      "first_page",
+      "fit_page",
+      "fit_width",
+      "full_screen",
+      "last_page",
+      "name",
+      "next_page",
+      "prev_page",
+      "print",
+      "standard"
+    ],
+    "NamedDestinations": [
+      "__init__",
+      "add"
+    ],
+    "NegativeStyle": [
+      "BLACK_PARENTHESES",
+      "MINUS_BLACK",
+      "MINUS_RED",
+      "RED_PARENTHESES"
+    ],
+    "ObjectScanner": [
+      "__init__",
+      "scan_file"
+    ],
+    "OcrEngine": [
+      "MOCK",
+      "TESSERACT"
+    ],
+    "OrderedList": [
+      "__init__",
+      "add_item",
+      "height",
+      "set_start_number"
+    ],
+    "OrderedListStyle": [
+      "DECIMAL",
+      "LOWER_ALPHA",
+      "LOWER_ROMAN",
+      "UPPER_ALPHA",
+      "UPPER_ROMAN"
+    ],
+    "OutlineItem": [
+      "__init__",
+      "add_child",
+      "bold",
+      "closed",
+      "italic",
+      "with_color",
+      "with_destination"
+    ],
+    "OutlineReadOptions": [
+      "__init__",
+      "max_depth",
+      "max_items",
+      "max_name_tree_nodes",
+      "max_named_destinations"
+    ],
+    "OutlineTree": [
+      "__init__",
+      "add_item"
+    ],
+    "OverlayOptions": [
+      "__init__"
+    ],
+    "OverlayPosition": [
+      "BOTTOM_LEFT",
+      "BOTTOM_RIGHT",
+      "CENTER",
+      "TOP_LEFT",
+      "TOP_RIGHT"
+    ],
+    "Page": [
+      "__init__",
+      "a4",
+      "a4_landscape",
+      "add_advanced_table",
+      "add_advanced_table_auto",
+      "add_annotation",
+      "add_bar_chart",
+      "add_color_space",
+      "add_conic_shading",
+      "add_image",
+      "add_line_chart",
+      "add_mesh_shading",
+      "add_ordered_list",
+      "add_pie_chart",
+      "add_quick_ordered_list",
+      "add_quick_table",
+      "add_quick_unordered_list",
+      "add_shading",
+      "add_simple_table",
+      "add_styled_table",
+      "add_unordered_list",
+      "clear_clipping",
+      "clip",
+      "clip_even_odd",
+      "close_path",
+      "curve_to",
+      "draw_circle",
+      "draw_image",
+      "draw_rect",
+      "end_path",
+      "fill",
+      "fill_and_stroke",
+      "height",
+      "legal",
+      "legal_landscape",
+      "letter",
+      "letter_landscape",
+      "line_to",
+      "margins",
+      "move_to",
+      "paint_shading",
+      "restore_graphics_state",
+      "rotation",
+      "save_graphics_state",
+      "set_blend_mode",
+      "set_character_spacing",
+      "set_clipping_path",
+      "set_coordinate_system",
+      "set_custom_font",
+      "set_dash_pattern",
+      "set_fill_color",
+      "set_fill_color_calibrated",
+      "set_fill_color_calibrated_named",
+      "set_fill_color_icc",
+      "set_fill_color_lab",
+      "set_fill_color_lab_named",
+      "set_fill_opacity",
+      "set_font",
+      "set_footer",
+      "set_header",
+      "set_horizontal_scaling",
+      "set_leading",
+      "set_line_cap",
+      "set_line_join",
+      "set_line_width",
+      "set_margins",
+      "set_miter_limit",
+      "set_rendering_mode",
+      "set_rotation",
+      "set_stroke_color",
+      "set_stroke_color_calibrated",
+      "set_stroke_color_calibrated_named",
+      "set_stroke_color_icc",
+      "set_stroke_color_lab",
+      "set_stroke_color_lab_named",
+      "set_stroke_opacity",
+      "set_text_color",
+      "set_text_rise",
+      "set_word_spacing",
+      "show_cid_array",
+      "stroke",
+      "text_at",
+      "text_flow_at",
+      "width"
+    ],
+    "PageColorSpace": [
+      "cal_gray",
+      "cal_rgb",
+      "device",
+      "icc_based",
+      "lab",
+      "parameterised"
+    ],
+    "PageConfig": [
+      "__init__",
+      "a4",
+      "a4_with_margins",
+      "content_width",
+      "height",
+      "margin_bottom",
+      "margin_left",
+      "margin_right",
+      "margin_top",
+      "usable_height",
+      "width"
+    ],
+    "PageLabel": [
+      "decimal",
+      "letters_lowercase",
+      "letters_uppercase",
+      "roman_lowercase",
+      "roman_uppercase",
+      "starting_at",
+      "with_prefix"
+    ],
+    "PageLabelStyle": [
+      "ALPHA_LOWER",
+      "ALPHA_UPPER",
+      "DECIMAL",
+      "NONE",
+      "ROMAN_LOWER",
+      "ROMAN_UPPER"
+    ],
+    "PageLabelTree": [
+      "__init__",
+      "add_range"
+    ],
+    "PageLayout": [
+      "ONE_COLUMN",
+      "SINGLE_PAGE",
+      "TWO_COLUMN_LEFT",
+      "TWO_COLUMN_RIGHT",
+      "TWO_PAGE_LEFT",
+      "TWO_PAGE_RIGHT"
+    ],
+    "PageMode": [
+      "FULL_SCREEN",
+      "USE_ATTACHMENTS",
+      "USE_NONE",
+      "USE_OC",
+      "USE_OUTLINES",
+      "USE_THUMBS"
+    ],
+    "PageMutation": [
+      "delete",
+      "duplicate",
+      "insert",
+      "move_page",
+      "rotate"
+    ],
+    "PageMutationReport": [
+      "added_objects",
+      "page_count",
+      "replaced_objects",
+      "unreachable_objects"
+    ],
+    "PageRange": [
+      "all",
+      "list",
+      "range",
+      "single"
+    ],
+    "PageRegion": [
+      "bbox",
+      "page"
+    ],
+    "PageResources": [
+      "ext_g_states",
+      "fonts",
+      "forms",
+      "images",
+      "proc_sets",
+      "resource_keys"
+    ],
+    "PageStreamer": [
+      "__enter__",
+      "__exit__",
+      "close",
+      "next",
+      "open",
+      "seek_to_page",
+      "total_pages"
+    ],
+    "PageTransition": [
+      "__init__",
+      "blinds",
+      "box_transition",
+      "cover",
+      "dissolve",
+      "fade",
+      "fly",
+      "glitter",
+      "push",
+      "replace",
+      "split",
+      "uncover",
+      "wipe",
+      "with_area",
+      "with_dimension",
+      "with_direction",
+      "with_duration",
+      "with_motion",
+      "with_scale"
+    ],
+    "PageType": [
+      "MIXED",
+      "SCANNED",
+      "TEXT"
+    ],
+    "PaintType": [
+      "COLORED",
+      "UNCOLORED"
+    ],
+    "ParseOptions": [
+      "__init__",
+      "collect_warnings",
+      "ignore_corrupt_streams",
+      "lenient",
+      "lenient_encoding",
+      "lenient_streams",
+      "lenient_syntax",
+      "log_recovery_details",
+      "max_recovery_attempts",
+      "max_recovery_bytes",
+      "partial_content_allowed",
+      "preferred_encoding",
+      "recover_from_stream_errors",
+      "skip_errors",
+      "strict",
+      "strict_mode",
+      "tolerant"
+    ],
+    "ParsedPage": [
+      "height",
+      "rotation",
+      "width"
+    ],
+    "ParsedSignature": [
+      "digest_algorithm",
+      "signature_algorithm",
+      "signature_value",
+      "signer_certificate_der",
+      "signing_time"
+    ],
+    "PartitionConfig": [
+      "__init__",
+      "detect_headers_footers",
+      "detect_spatial_tables",
+      "detect_tables",
+      "footer_zone",
+      "header_zone",
+      "min_table_confidence",
+      "prefer_ruling_tables",
+      "reading_order",
+      "title_min_font_ratio",
+      "with_min_table_confidence",
+      "with_reading_order",
+      "with_title_min_font_ratio",
+      "without_headers_footers",
+      "without_ruling_tables",
+      "without_tables"
+    ],
+    "PatternManager": [
+      "__init__",
+      "add_pattern",
+      "clear",
+      "count",
+      "create_checkerboard_pattern",
+      "create_dots_pattern",
+      "create_stripe_pattern"
+    ],
+    "PatternMatrix": [
+      "identity",
+      "matrix",
+      "multiply",
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "PdfAConformance": [
+      "A",
+      "B",
+      "U"
+    ],
+    "PdfALevel": [
+      "A1A",
+      "A1B",
+      "A2A",
+      "A2B",
+      "A2U",
+      "A3A",
+      "A3B",
+      "A3U"
+    ],
+    "PdfAValidationResult": [
+      "error_count",
+      "errors",
+      "is_valid",
+      "warning_count",
+      "warnings"
+    ],
+    "PdfAValidator": [
+      "__init__",
+      "collect_all_errors",
+      "level",
+      "validate_bytes"
+    ],
+    "PdfDifference": [
+      "actual",
+      "expected",
+      "location",
+      "severity"
+    ],
+    "PdfEncryptionError": [],
+    "PdfError": [],
+    "PdfIoError": [],
+    "PdfParseError": [],
+    "PdfPermissionError": [],
+    "PdfReader": [
+      "__len__",
+      "chunk",
+      "chunk_page",
+      "detect_signatures",
+      "effective_version",
+      "extract_fragments_from_page",
+      "extract_fragments_with_options",
+      "extract_page_text",
+      "extract_page_text_with_recovery",
+      "extract_plain_text",
+      "extract_plain_text_lines",
+      "extract_text",
+      "extract_text_chunks",
+      "extract_text_from_page",
+      "extract_text_from_page_with_reading_order",
+      "extract_text_with_options",
+      "extract_text_with_reading_order",
+      "extract_text_with_recovery",
+      "from_bytes",
+      "from_stream",
+      "get_page",
+      "get_page_content_streams",
+      "get_page_resources",
+      "is_encrypted",
+      "metadata",
+      "open",
+      "outline",
+      "outline_with_options",
+      "page_count",
+      "partition",
+      "partition_graph",
+      "partition_with",
+      "partition_with_profile",
+      "rag_chunks",
+      "rag_chunks_with",
+      "rag_chunks_with_counter",
+      "rag_chunks_with_pipeline",
+      "rag_chunks_with_profile",
+      "rag_chunks_with_source",
+      "rag_chunks_with_source_and_config",
+      "resolve_font",
+      "to_contextual",
+      "to_element_markdown",
+      "to_json",
+      "to_markdown",
+      "unlock",
+      "version"
+    ],
+    "PdfValue": [
+      "array",
+      "boolean",
+      "dictionary",
+      "integer",
+      "kind",
+      "name",
+      "null",
+      "real",
+      "reference",
+      "stream",
+      "string",
+      "value"
+    ],
+    "PercentMode": [
+      "ADD_PERCENT",
+      "PERCENTAGE_OF",
+      "PERCENT_OF",
+      "SUBTRACT_PERCENT"
+    ],
+    "Permissions": [
+      "__init__",
+      "all",
+      "can_assemble",
+      "can_copy",
+      "can_fill_forms",
+      "can_modify_annotations",
+      "can_modify_contents",
+      "can_print",
+      "can_print_high_quality",
+      "none"
+    ],
+    "PieChart": [],
+    "PieChartBuilder": [
+      "__init__",
+      "add_segment",
+      "background_color",
+      "border",
+      "build",
+      "colors",
+      "data",
+      "donut_style",
+      "financial_style",
+      "label_font",
+      "label_settings",
+      "labeled_data",
+      "legend_position",
+      "minimal_style",
+      "percentage_font",
+      "segments",
+      "show_labels",
+      "show_percentages",
+      "simple_data",
+      "start_angle",
+      "title",
+      "title_font"
+    ],
+    "PieSegment": [
+      "__init__",
+      "exploded",
+      "show_label",
+      "show_percentage"
+    ],
+    "Placeholder": [
+      "end",
+      "full_text",
+      "start",
+      "variable_name"
+    ],
+    "PlainTextConfig": [
+      "__init__",
+      "dense",
+      "line_break_mode",
+      "loose",
+      "newline_threshold",
+      "preserve_layout",
+      "preserve_layout_flag",
+      "space_threshold",
+      "tj_space_threshold"
+    ],
+    "PlainTextResult": [
+      "char_count",
+      "line_count",
+      "text"
+    ],
+    "Point": [
+      "__init__",
+      "origin",
+      "x",
+      "y"
+    ],
+    "PolygonAnnotation": [
+      "__init__",
+      "to_annotation",
+      "with_fill_color",
+      "with_line_color",
+      "with_line_width",
+      "with_opacity"
+    ],
+    "PolylineAnnotation": [
+      "__init__",
+      "to_annotation",
+      "with_line_color",
+      "with_line_width",
+      "with_opacity"
+    ],
+    "PopupAnnotation": [
+      "__init__",
+      "to_annotation",
+      "with_color",
+      "with_contents",
+      "with_flags",
+      "with_open"
+    ],
+    "PopupFlags": [
+      "__init__"
+    ],
+    "PreparedSignature": [
+      "byte_range",
+      "bytes_to_digest",
+      "finalize",
+      "prepared_pdf"
+    ],
+    "PrintScaling": [
+      "APP_DEFAULT",
+      "NONE"
+    ],
+    "ProgressInfo": [
+      "completed_jobs",
+      "elapsed_secs",
+      "failed_jobs",
+      "is_complete",
+      "percentage",
+      "running_jobs",
+      "total_jobs"
+    ],
+    "PushButton": [
+      "__init__",
+      "with_caption"
+    ],
+    "QuadPoints": [
+      "__init__",
+      "from_rect"
+    ],
+    "RadialShading": [
+      "__init__",
+      "end_radius",
+      "name",
+      "radial_gradient",
+      "start_radius",
+      "validate",
+      "with_extend"
+    ],
+    "RadioButton": [
+      "__init__",
+      "add_option",
+      "with_selected"
+    ],
+    "RagChunk": [
+      "char_count",
+      "chunk_id",
+      "chunk_index",
+      "content_types",
+      "dominant_font",
+      "dominant_font_size",
+      "element_types",
+      "extra",
+      "full_text",
+      "heading_context",
+      "heading_path",
+      "is_bold",
+      "is_italic",
+      "is_oversized",
+      "language",
+      "language_confidence",
+      "language_reliable",
+      "min_confidence",
+      "next_chunk_id",
+      "page_numbers",
+      "page_regions",
+      "page_span",
+      "prev_chunk_id",
+      "sentence_count",
+      "source",
+      "table_cols",
+      "table_rows",
+      "text",
+      "token_estimate",
+      "word_count"
+    ],
+    "ReadOutline": [
+      "items"
+    ],
+    "ReadOutlineDestination": [
+      "kind",
+      "page_index",
+      "parameters"
+    ],
+    "ReadOutlineItem": [
+      "children",
+      "color",
+      "destination",
+      "is_bold",
+      "is_italic",
+      "is_open",
+      "title"
+    ],
+    "ReadingOrderStrategy": [
+      "NONE",
+      "SIMPLE",
+      "xy_cut"
+    ],
+    "Recipient": [
+      "from_certificate"
+    ],
+    "RecoveredText": [
+      "diagnostics",
+      "page_index",
+      "text"
+    ],
+    "RecoveryOptions": [
+      "__init__",
+      "aggressive_recovery",
+      "max_errors",
+      "memory_limit",
+      "partial_content",
+      "rebuild_xref",
+      "recover_embedded",
+      "skip_validation"
+    ],
+    "Rectangle": [
+      "__init__",
+      "center",
+      "from_xywh",
+      "height",
+      "lower_left",
+      "upper_right",
+      "width"
+    ],
+    "RelationType": [
+      "CONTAINS",
+      "FOLLOWS",
+      "IS_PART_OF",
+      "PRECEDES",
+      "REFERENCES",
+      "custom",
+      "name"
+    ],
+    "RenderingIntent": [
+      "ABSOLUTE_COLORIMETRIC",
+      "PERCEPTUAL",
+      "RELATIVE_COLORIMETRIC",
+      "SATURATION"
+    ],
+    "RepairResult": [
+      "is_partial",
+      "objects_recovered",
+      "pages_recovered",
+      "repaired_bytes",
+      "success",
+      "warnings"
+    ],
+    "RepairStrategy": [
+      "AGGRESSIVE_REPAIR",
+      "EXTRACT_CONTENT",
+      "FIX_STRUCTURE",
+      "MINIMAL_REPAIR",
+      "REBUILD_XREF",
+      "RECONSTRUCT_FRAGMENTS"
+    ],
+    "RequirementInfo": [
+      "description",
+      "id",
+      "implementation",
+      "iso_reference",
+      "last_checked",
+      "level",
+      "name",
+      "notes",
+      "page",
+      "requirement_type",
+      "test_file",
+      "verified"
+    ],
+    "ResetFormAction": [
+      "__init__"
+    ],
+    "ResolvedEmbeddedFont": [
+      "data",
+      "format"
+    ],
+    "ResolvedFontResource": [
+      "base_font",
+      "decode_glyphs",
+      "differences",
+      "embedded_font",
+      "encoding",
+      "resource_name",
+      "subtype",
+      "type3",
+      "writing_mode"
+    ],
+    "RichCell": [
+      "col",
+      "col_span",
+      "is_header",
+      "row",
+      "row_span",
+      "text"
+    ],
+    "RichText": [
+      "__init__",
+      "max_font_size",
+      "total_width"
+    ],
+    "RotateOptions": [
+      "__init__"
+    ],
+    "RotationAngle": [
+      "CLOCKWISE_270",
+      "CLOCKWISE_90",
+      "NONE",
+      "ROTATE_180"
+    ],
+    "ScanResult": [
+      "estimated_pages",
+      "total_objects",
+      "valid_objects"
+    ],
+    "SemanticChunkConfig": [
+      "__init__",
+      "max_tokens",
+      "overlap_tokens",
+      "with_overlap"
+    ],
+    "SemanticEntity": [
+      "__init__",
+      "content",
+      "entity_type",
+      "id",
+      "with_content",
+      "with_metadata",
+      "with_relationship"
+    ],
+    "SemanticPreservationReport": [
+      "engine",
+      "inputs",
+      "plan"
+    ],
+    "SeparationColor": [
+      "__init__",
+      "colorant_name",
+      "tint",
+      "to_rgb"
+    ],
+    "SeparationColorSpace": [
+      "apply_tint",
+      "cmyk_separation",
+      "colorant_name",
+      "rgb_separation"
+    ],
+    "SeparatorStyle": [
+      "APOSTROPHE_PERIOD",
+      "COMMA_PERIOD",
+      "NONE",
+      "PERIOD_COMMA",
+      "SPACE_PERIOD"
+    ],
+    "ShadingManager": [
+      "__init__",
+      "add_axial_shading",
+      "add_radial_shading",
+      "clear",
+      "create_linear_gradient",
+      "create_radial_gradient",
+      "shading_count"
+    ],
+    "ShadingPoint": [
+      "__init__",
+      "x",
+      "y"
+    ],
+    "ShadingType": [
+      "AXIAL",
+      "COONS_PATCH",
+      "FREE_FORM_GOURAUD",
+      "FUNCTION_BASED",
+      "LATTICE_FORM_GOURAUD",
+      "RADIAL",
+      "TENSOR_PRODUCT_PATCH"
+    ],
+    "SignatureAlgorithm": [
+      "ECDSA_SHA256",
+      "ECDSA_SHA384",
+      "RSA_SHA256",
+      "RSA_SHA384",
+      "RSA_SHA512",
+      "digest_algorithm",
+      "name"
+    ],
+    "SignatureAppearance": [
+      "__init__",
+      "layout"
+    ],
+    "SignatureAppearanceLayout": [
+      "first_baseline",
+      "font_size",
+      "line_height",
+      "lines",
+      "margin"
+    ],
+    "SignatureField": [
+      "__init__",
+      "byte_range",
+      "contact_info",
+      "contents_size",
+      "filter",
+      "is_pades",
+      "is_pkcs7_detached",
+      "location",
+      "name",
+      "reason",
+      "signing_time",
+      "sub_filter"
+    ],
+    "SignaturePreparationOptions": [
+      "__init__"
+    ],
+    "SignatureSlot": [
+      "completed",
+      "digitally_signed",
+      "metadata",
+      "name",
+      "page_index",
+      "rect",
+      "rotation"
+    ],
+    "SignatureTarget": [
+      "existing_field",
+      "new_field"
+    ],
+    "SignatureVerificationResult": [
+      "details",
+      "digest_algorithm",
+      "hash_valid",
+      "is_valid",
+      "signature_algorithm",
+      "signature_valid"
+    ],
+    "SignatureWatermark": [
+      "__init__"
+    ],
+    "SimpleOperation": [
+      "AVERAGE",
+      "MAXIMUM",
+      "MINIMUM",
+      "PRODUCT",
+      "SUM"
+    ],
+    "SoftMask": [
+      "alpha",
+      "is_none",
+      "luminosity",
+      "none",
+      "with_background_color",
+      "with_bbox"
+    ],
+    "SoftMaskState": [
+      "__init__",
+      "clear",
+      "is_active",
+      "pop_mask",
+      "push_mask",
+      "set_mask"
+    ],
+    "SoftMaskType": [
+      "ALPHA",
+      "LUMINOSITY"
+    ],
+    "SpaceDecision": [
+      "confidence",
+      "dx",
+      "inserted",
+      "offset",
+      "threshold"
+    ],
+    "SpecialFormat": [
+      "PHONE_NUMBER",
+      "SSN",
+      "ZIP_CODE",
+      "ZIP_CODE_PLUS_4"
+    ],
+    "SpecialFormatType": [
+      "PHONE",
+      "SSN",
+      "ZIP_CODE",
+      "ZIP_PLUS_4"
+    ],
+    "SplitMode": [
+      "chunk_size",
+      "ranges",
+      "single_pages",
+      "split_at"
+    ],
+    "SplitOptions": [
+      "__init__"
+    ],
+    "SpotColors": [
+      "gold",
+      "pantone_185c",
+      "pantone_286c",
+      "pantone_376c",
+      "silver",
+      "varnish"
+    ],
+    "SquareAnnotation": [
+      "__init__",
+      "to_annotation",
+      "with_cloudy_border",
+      "with_contents",
+      "with_interior_color"
+    ],
+    "StampAnnotation": [
+      "__init__",
+      "to_annotation",
+      "with_contents"
+    ],
+    "StampName": [
+      "APPROVED",
+      "AS_IS",
+      "CONFIDENTIAL",
+      "DEPARTMENTAL",
+      "DRAFT",
+      "EXPERIMENTAL",
+      "EXPIRED",
+      "FINAL",
+      "FOR_COMMENT",
+      "FOR_PUBLIC_RELEASE",
+      "NOT_APPROVED",
+      "NOT_FOR_PUBLIC_RELEASE",
+      "SOLD",
+      "TOP_SECRET",
+      "custom"
+    ],
+    "StandardIccProfile": [
+      "ADOBE_RGB",
+      "COATED_FOGRA39",
+      "GRAY_GAMMA22",
+      "PRO_PHOTO_RGB",
+      "S_RGB",
+      "UNCOATED_FOGRA29",
+      "USWC_SWOP_V2"
+    ],
+    "StandardNamedAction": [
+      "BOOKMARKS",
+      "FIND",
+      "FIRST_PAGE",
+      "FIT_HEIGHT",
+      "FIT_PAGE",
+      "FIT_WIDTH",
+      "FULL_SCREEN",
+      "GO_BACK",
+      "GO_FORWARD",
+      "LAST_PAGE",
+      "NEXT_PAGE",
+      "PREV_PAGE",
+      "PRINT",
+      "SAVE_AS"
+    ],
+    "StandardStructureType": [
+      "ANNOT",
+      "ART",
+      "BLOCK_QUOTE",
+      "CAPTION",
+      "CODE",
+      "DIV",
+      "DOCUMENT",
+      "FIGURE",
+      "FORM",
+      "FORMULA",
+      "H",
+      "H1",
+      "H2",
+      "H3",
+      "H4",
+      "H5",
+      "H6",
+      "INDEX",
+      "L",
+      "LI",
+      "LINK",
+      "NOTE",
+      "P",
+      "PART",
+      "QUOTE",
+      "REFERENCE",
+      "SECT",
+      "SPAN",
+      "TABLE",
+      "TBODY",
+      "TD",
+      "TFOOT",
+      "TH",
+      "THEAD",
+      "TOC",
+      "TR"
+    ],
+    "StreamingOptions": [
+      "fast_processing",
+      "minimal_memory"
+    ],
+    "StreamingPage": [
+      "extract_text_streaming",
+      "height",
+      "media_box",
+      "number",
+      "width"
+    ],
+    "StructTree": [
+      "__init__",
+      "add_child",
+      "is_empty",
+      "length",
+      "set_root"
+    ],
+    "StructureDisposition": [
+      "Discarded",
+      "FirstInputWins",
+      "Preserved",
+      "Rejected"
+    ],
+    "StructureElement": [
+      "__init__",
+      "add_mcid",
+      "custom",
+      "with_actual_text",
+      "with_alt_text",
+      "with_language",
+      "with_title"
+    ],
+    "StructureSemanticReport": [
+      "disposition",
+      "structure"
+    ],
+    "SubmitFormAction": [
+      "__init__",
+      "as_html",
+      "as_pdf",
+      "as_xml",
+      "with_charset",
+      "with_fields"
+    ],
+    "Table": [
+      "__init__",
+      "add_custom_row",
+      "add_header_row",
+      "add_row",
+      "height",
+      "set_options",
+      "set_position",
+      "width",
+      "with_equal_columns"
+    ],
+    "TableCell": [
+      "__init__",
+      "set_background_color",
+      "with_colspan"
+    ],
+    "TableOptions": [
+      "__init__"
+    ],
+    "TableStructure": [
+      "cells",
+      "header_rows",
+      "num_cols",
+      "num_rows"
+    ],
+    "TableStyle": [
+      "colorful",
+      "minimal",
+      "professional",
+      "simple"
+    ],
+    "TemplateAnalysis": [
+      "placeholders",
+      "total_placeholders",
+      "unique_variables",
+      "variable_names"
+    ],
+    "TemplateContext": [
+      "__init__",
+      "clear",
+      "has",
+      "keys",
+      "set",
+      "set_boolean",
+      "set_integer",
+      "set_number"
+    ],
+    "TemplateParser": [
+      "__init__",
+      "count_placeholders",
+      "get_variable_names",
+      "has_placeholders",
+      "parse"
+    ],
+    "TemplateRenderer": [
+      "__init__",
+      "analyze_template",
+      "get_required_variables",
+      "has_placeholders",
+      "render",
+      "validate_template"
+    ],
+    "TextAlign": [
+      "CENTER",
+      "JUSTIFIED",
+      "LEFT",
+      "RIGHT"
+    ],
+    "TextAnnotation": [
+      "__init__",
+      "open",
+      "to_annotation",
+      "with_contents",
+      "with_icon"
+    ],
+    "TextBlockMetrics": [
+      "height",
+      "line_count",
+      "width"
+    ],
+    "TextChunk": [
+      "font_name",
+      "font_size",
+      "text",
+      "x",
+      "y"
+    ],
+    "TextElement": [
+      "is_spacing",
+      "is_text",
+      "spacing",
+      "text_bytes"
+    ],
+    "TextField": [
+      "__init__",
+      "multiline",
+      "password",
+      "with_default_appearance",
+      "with_default_value",
+      "with_max_length",
+      "with_value"
+    ],
+    "TextFragment": [
+      "color",
+      "font_name",
+      "font_size",
+      "height",
+      "is_bold",
+      "is_italic",
+      "mcid",
+      "render_mode",
+      "space_decisions",
+      "struct_tag",
+      "text",
+      "width",
+      "x",
+      "y"
+    ],
+    "TextMatch": [
+      "confidence",
+      "length",
+      "match_type",
+      "position",
+      "text"
+    ],
+    "TextRecoveryDiagnostic": [
+      "action",
+      "contents_index",
+      "error",
+      "filter_index",
+      "form_name",
+      "kind",
+      "location",
+      "object_id"
+    ],
+    "TextRenderingMode": [
+      "CLIP",
+      "FILL",
+      "FILL_CLIP",
+      "FILL_STROKE",
+      "FILL_STROKE_CLIP",
+      "INVISIBLE",
+      "STROKE",
+      "STROKE_CLIP"
+    ],
+    "TextSpan": [
+      "__init__",
+      "measure_width"
+    ],
+    "TextValidationResult": [
+      "confidence",
+      "found",
+      "matches",
+      "metadata"
+    ],
+    "TextValidator": [
+      "__init__",
+      "extract_key_info",
+      "search_for_target",
+      "validate_contract_text"
+    ],
+    "TilingPattern": [
+      "__init__",
+      "add_circle",
+      "add_line",
+      "add_rectangle",
+      "fill",
+      "fill_and_stroke",
+      "name",
+      "stroke",
+      "with_matrix",
+      "x_step",
+      "y_step"
+    ],
+    "TilingType": [
+      "CONSTANT_SPACING",
+      "CONSTANT_SPACING_FASTER",
+      "NO_DISTORTION"
+    ],
+    "TokenEfficientExporter": [
+      "__init__",
+      "export_chunks",
+      "parse_chunks"
+    ],
+    "TransitionDimension": [
+      "HORIZONTAL",
+      "VERTICAL"
+    ],
+    "TransitionDirection": [
+      "BOTTOM_TO_TOP",
+      "LEFT_TO_RIGHT",
+      "RIGHT_TO_LEFT",
+      "TOP_LEFT_TO_BOTTOM_RIGHT",
+      "TOP_TO_BOTTOM",
+      "custom"
+    ],
+    "TransitionMotion": [
+      "INWARD",
+      "OUTWARD"
+    ],
+    "TransitionStyle": [
+      "BLINDS",
+      "BOX",
+      "COVER",
+      "DISSOLVE",
+      "FADE",
+      "FLY",
+      "GLITTER",
+      "PUSH",
+      "REPLACE",
+      "SPLIT",
+      "UNCOVER",
+      "WIPE"
+    ],
+    "TransparencyGroup": [
+      "__init__",
+      "isolated",
+      "knockout",
+      "with_blend_mode",
+      "with_color_space",
+      "with_isolated",
+      "with_knockout",
+      "with_opacity"
+    ],
+    "TrendDirection": [
+      "DOWN",
+      "FLAT",
+      "UP"
+    ],
+    "TrustStore": [
+      "empty",
+      "is_mozilla_bundle",
+      "mozilla_roots",
+      "root_count"
+    ],
+    "Type3Font": [
+      "font_bbox",
+      "font_matrix",
+      "glyph",
+      "glyphs",
+      "name"
+    ],
+    "Type3Glyph": [
+      "bbox",
+      "code",
+      "name",
+      "operations",
+      "procedure_width",
+      "width"
+    ],
+    "UnorderedList": [
+      "__init__",
+      "add_item",
+      "height"
+    ],
+    "UriAction": [
+      "__init__",
+      "email",
+      "web"
+    ],
+    "ValidationResult": [
+      "errors",
+      "field_name",
+      "formatted_value",
+      "is_valid",
+      "warnings"
+    ],
+    "ValidationRule": [
+      "email",
+      "length",
+      "pattern",
+      "range",
+      "required",
+      "url"
+    ],
+    "VectorLine": [
+      "__init__",
+      "is_stroked",
+      "length",
+      "midpoint",
+      "orientation",
+      "stroke_color",
+      "stroke_width",
+      "x1",
+      "x2",
+      "y1",
+      "y2"
+    ],
+    "VerificationLevel": [
+      "CODE_EXISTS",
+      "CONTENT_VERIFIED",
+      "GENERATES_PDF",
+      "ISO_COMPLIANT",
+      "NOT_IMPLEMENTED",
+      "as_percentage"
+    ],
+    "ViewerPreferences": [
+      "__init__",
+      "center_window",
+      "display_doc_title",
+      "duplex",
+      "fit_window",
+      "hide_menubar",
+      "hide_toolbar",
+      "hide_window_ui",
+      "minimal_ui",
+      "num_copies",
+      "page_layout",
+      "page_mode",
+      "presentation",
+      "print_scaling",
+      "printing",
+      "reading"
+    ],
+    "Widget": [
+      "__init__"
+    ],
+    "WriterConfig": [
+      "__init__",
+      "compress_streams",
+      "incremental",
+      "incremental_update",
+      "legacy",
+      "modern",
+      "pdf_version",
+      "use_object_streams",
+      "use_xref_streams"
+    ],
+    "XRefEntry": [
+      "__init__",
+      "generation",
+      "in_use",
+      "offset"
+    ],
+    "XRefTable": [
+      "__init__",
+      "__len__",
+      "add_entry",
+      "entries",
+      "get_entry",
+      "is_empty"
+    ],
+    "XmpMetadata": [
+      "__init__",
+      "add_property",
+      "clear",
+      "property_count",
+      "register_namespace",
+      "set_alt",
+      "set_array",
+      "set_bag",
+      "set_date",
+      "set_text",
+      "to_xmp_packet"
+    ],
+    "XmpNamespace": [
+      "DUBLIN_CORE",
+      "PDF",
+      "PHOTOSHOP",
+      "XMP_BASIC",
+      "XMP_MEDIA_MANAGEMENT",
+      "XMP_RIGHTS",
+      "custom",
+      "prefix",
+      "uri"
+    ],
+    "XmpProperty": [
+      "__init__",
+      "name",
+      "namespace"
+    ],
+    "XmpValue": [
+      "alt",
+      "array",
+      "array_struct",
+      "bag",
+      "date",
+      "struct_value",
+      "text",
+      "value_type"
+    ],
+    "__version__": [],
+    "analyze_document_content": [],
+    "analyze_page_content": [],
+    "analyze_pdf_corruption": [],
+    "batch_merge_pdfs": [],
+    "batch_split_pdfs": [],
+    "centered_image_x": [],
+    "compare_pdfs": [],
+    "compare_pdfs_deep_py": [],
+    "complete_signature_slot": [],
+    "compute_pdf_hash_py": [],
+    "create_signature_slot": [],
+    "detect_pdf_corruption": [],
+    "draw_signature_slot": [],
+    "extract_existing_pdf_pages": [],
+    "extract_images_from_pdf": [],
+    "extract_images_in_memory": [],
+    "extract_page_range_to_bytes": [],
+    "extract_page_range_to_file": [],
+    "extract_pages": [],
+    "extract_pages_to_bytes": [],
+    "extract_pdf_differences_py": [],
+    "fit_image_dimensions": [],
+    "has_incremental_update_py": [],
+    "list_signature_slots": [],
+    "measure_char": [],
+    "measure_text": [],
+    "measure_text_block": [],
+    "merge_existing_pdfs": [],
+    "merge_pdfs": [],
+    "merge_pdfs_to_bytes": [],
+    "merge_pdfs_with_inputs": [],
+    "merge_pdfs_with_options": [],
+    "move_pdf_page": [],
+    "mutate_pdf_pages_lossless": [],
+    "overlay_pdf": [],
+    "parse_pkcs7_signature_py": [],
+    "pdfs_structurally_equivalent_py": [],
+    "plan_extract_existing_pdf_pages": [],
+    "plan_merge_existing_pdfs": [],
+    "plan_pdf_page_mutations": [],
+    "plan_split_existing_pdf": [],
+    "prepare_incremental_signature": [],
+    "quick_recover": [],
+    "read_signature_slot": [],
+    "remove_signature_slot": [],
+    "reorder_pdf_pages": [],
+    "repair_pdf": [],
+    "reverse_pdf_pages": [],
+    "rotate_pdf": [],
+    "rotate_pdf_to_bytes": [],
+    "rotate_pdf_with_options": [],
+    "split_existing_pdf": [],
+    "split_pdf": [],
+    "split_pdf_to_bytes": [],
+    "split_pdf_with_mode": [],
+    "split_pdf_with_options": [],
+    "swap_pdf_pages": [],
+    "validate_pdf": [],
+    "validate_pdf_certificate_py": [],
+    "verify_pdf_signature_py": [],
+    "verify_pdf_signatures": []
+  }
+}
