@@ -28,7 +28,7 @@ def geometry_values(g):
     return (g.kind, g.rect, g.vertices, g.start, g.end, g.start_ending, g.end_ending)
 
 
-@pytest.mark.parametrize('index,subtype', enumerate(['Line', 'Square', 'Circle', 'Polygon', 'PolyLine']))
+@pytest.mark.parametrize('index,subtype', list(enumerate(['Line', 'Square', 'Circle', 'Polygon', 'PolyLine'])))
 def test_geometric_shapes_styles_and_readback(tmp_path, index, subtype):
     _, base = fixture_pdf(tmp_path / 'base.pdf')
     editor = E(base)

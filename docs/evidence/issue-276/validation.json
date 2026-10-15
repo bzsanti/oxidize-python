@@ -2,7 +2,7 @@
   "core": "5.4.2",
   "source_sha256": {
     "src/incremental_geometric.rs": "541685b844b4db2e5a40c19452910b0f4e1efefbcf2dea49913199204949f880",
-    "tests/test_incremental_geometric.py": "decabfb951d66383926831597ca8f4132257a934391bba67b573a51a0b524a73",
+    "tests/test_incremental_geometric.py": "91c6ab6318a4931d97c27b8b4785a5bdff8ba71ea7c600851d78ac6cf1d7e62d",
     "tests/test_parity_checker.py": "e54b0bce4d9591ee8004a4015de80555ccde12c83731d5604fbe0610c8fcaa66"
   },
   "mutation": "disposable Rust binding: mutations.into_iter().take(1); 5 expected assertion failures",
@@ -10,5 +10,6 @@
   "pending": [
     "platform CI"
   ],
-  "regression": "2802 passed, 1 skipped, 8 fixture-copy failures; fixed fixture and reran affected 8 + 43 geometric: 51 passed"
+  "regression": "2802 passed, 1 skipped, 8 fixture-copy failures; fixed fixture and reran affected 8 + 43 geometric: 51 passed",
+  "ci_first_run": "38775486246: platform matrix passed; new pytest iterator-parametrize deprecation corrected to list without changing cases; final head CI pending"
 }

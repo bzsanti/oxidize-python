@@ -1229,3 +1229,10 @@ Métricas: 12 archivos de implementación/tipado/contrato/CI/pruebas revisados;
 0 hallazgos de producto confirmados; un fallo de montaje del guard resuelto;
 0 cambios de producto durante la revisión.
 Verificaciones pendientes: matriz remota.
+
+CI inicial 38775486246: 15 combinaciones aprobadas; Linux/Python 3.12 confirma
+43 casos geométricos PASSED y regresión 2808 passed/2 skipped. Pytest nuevo
+avisa del uso de enumerate como iterable en parametrize: corregido a list en
+el test nuevo sin cambiar casos. Aviso previo equivalente en
+test_core_5_1_bindings.py queda fuera de #276 (mantenimiento de tests); no
+bloquea la ejecución actual. CI se repite sobre el head corregido.
