@@ -231,6 +231,35 @@ for i, text in enumerate(reader.extract_text()):
     print(text)
 ```
 
+### Inspect tagged PDF structure
+
+```python
+from pathlib import Path
+from oxidize_pdf import TaggedPdfLimits, TaggedPdfValidationOptions, validate_tagged_pdf
+
+report = validate_tagged_pdf(
+    Path("input.pdf").read_bytes(),
+    TaggedPdfValidationOptions(TaggedPdfLimits(max_depth=64)),
+)
+for finding in report.findings:
+    print(finding.severity, finding.code, finding.path, finding.message)
+```
+
+The report includes structure elements, artifacts, role/class maps, the parent
+number tree and content MCIDs. Original dictionary values remain typed
+`PdfValue` objects, including unknown attributes and reference generations.
+Results are immutable snapshots; returned lists and dictionaries are owned copies.
+
+`valid` means the core validator found no error-level findings. It is **not a
+PDF/UA certificate**: an untagged PDF can have `tagged=False`, `valid=True` and a
+`MissingStructureTree` warning. Malformed input raises `PdfParseError`, locked
+input raises `PdfEncryptionError`, and exceeded validation budgets raise `PdfError`.
+
+`TaggedPdfLimits` bounds visited objects, traversal depth, entries and decoded
+content bytes (defaults: 100,000; 256; 1,000,000; 256 MiB). These are core validator
+budgets, not a process memory or time limit: input copying and initial PDF parsing
+occur before traversal. No PDF bytes are modified.
+
 ### Operations
 
 ```python

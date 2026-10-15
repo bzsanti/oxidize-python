@@ -1,0 +1,23 @@
+## Calidad de Tests (Kripteia)
+
+=== Kripteia Test Quality Report ===
+Overall Score: 100 | Tests: 10 | Files: 1
+
+--- Files ---
+Path                                                          Tests  Score
+--------------------------------------------------------------------------
+tests/test_tagged_validation.py                                  10    100
+
+--- Worst Offenders ---
+  test_complete_report_and_lossless_values (tests/test_tagged_validation.py:38) - Score: 100
+  test_defaults_and_owned_snapshots (tests/test_tagged_validation.py:65) - Score: 100
+  test_each_budget_is_effective (tests/test_tagged_validation.py:89) - Score: 100
+  test_findings_are_typed_and_warnings_do_not_certify (tests/test_tagged_validation.py:96) - Score: 100
+  test_cycles_terminate_with_findings (tests/test_tagged_validation.py:113) - Score: 100
+
+
+## Analisis de Seguridad (Kripteia Security)
+
+=== Kripteia Security Analysis ===
+
+No security issues found.

@@ -966,3 +966,29 @@ __all__ += [
     "GeometricUpdate",
     "IncrementalGeometricEditor",
 ]
+
+# Bounded tagged-PDF inspection.
+from oxidize_pdf._oxidize_pdf import (
+    TaggedPdfFindingSeverity as TaggedPdfFindingSeverity,
+    TaggedPdfFindingCode as TaggedPdfFindingCode,
+    TaggedPdfObjectRef as TaggedPdfObjectRef,
+    TaggedPdfLimits as TaggedPdfLimits,
+    TaggedPdfValidationOptions as TaggedPdfValidationOptions,
+    TaggedPdfFinding as TaggedPdfFinding,
+    TaggedPdfStructureElement as TaggedPdfStructureElement,
+    TaggedPdfArtifact as TaggedPdfArtifact,
+    TaggedPdfValidationReport as TaggedPdfValidationReport,
+    validate_tagged_pdf as validate_tagged_pdf,
+)
+__all__ += [
+    "TaggedPdfFindingSeverity",
+    "TaggedPdfFindingCode",
+    "TaggedPdfObjectRef",
+    "TaggedPdfLimits",
+    "TaggedPdfValidationOptions",
+    "TaggedPdfFinding",
+    "TaggedPdfStructureElement",
+    "TaggedPdfArtifact",
+    "TaggedPdfValidationReport",
+    "validate_tagged_pdf",
+]
