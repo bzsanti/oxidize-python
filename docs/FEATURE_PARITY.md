@@ -1350,3 +1350,19 @@ para redacción irreversible. Este incremento de imágenes no cambia ese contrat
 Entrega aislada de imágenes: 2591 tests de biblioteca GREEN; 486 exports públicos,
 paquete y consumidor estricto tipados; Clippy y build mínimo aprobados. TaggedPdf
 queda fuera de la entrega. CI remota e integración pendientes.
+
+## Incremento #244: contenido marcado de Page (2026-10-16)
+
+| Requisito / fuente | Estado y evidencia | Bloqueante / siguiente acción |
+| --- | --- | --- |
+| Cinco métodos públicos Page del core 5.4.2 | Demostrado localmente | Tests de anidamiento, errores y conexión MCID/árbol |
+| Nombres y texto Unicode seguros | Demostrado localmente | Streams independientes, Poppler, qpdf y mutación discriminante |
+| Consumo y distribución | Demostrado localmente; CI pendiente | Wheel aislado: 2602 tests; tipos, gate y revisión completos |
+
+Alcance: secuencias de contenido en páginas nuevas. No cierra #244, no repara
+el editor incremental bloqueado por core #762 y no certifica PDF/UA. El llamador
+debe cerrar las secuencias y conectar los MCID al árbol de estructura existente.
+
+Evidencia: [revisión](evidence/issue-244-marked/review.md),
+[regresión aislada](evidence/issue-244-marked/regression-isolated.log).
+La matriz remota debe pasar antes de integrar.

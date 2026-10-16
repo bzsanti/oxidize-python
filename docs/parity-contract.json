@@ -522,6 +522,24 @@
       "gray_data",
       "width",
       "height"
+    ],
+    "Page.begin_marked_content": [
+      "self",
+      "tag"
+    ],
+    "Page.begin_marked_content_with_actual_text": [
+      "self",
+      "tag",
+      "actual_text"
+    ],
+    "Page.end_marked_content": [
+      "self"
+    ],
+    "Page.next_mcid": [
+      "self"
+    ],
+    "Page.marked_content_depth": [
+      "self"
     ]
   },
   "properties": {
@@ -1042,6 +1060,14 @@
       "test_invalid_buffers_rejected_before_core",
       "test_unsigned_dimensions",
       "test_poppler_pixels_and_alpha"
+    ],
+    "tests/test_marked_content.py": [
+      "test_nested_marks_and_page_local_ids",
+      "test_tag_is_one_pdf_name",
+      "test_errors_leave_marking_state_unchanged",
+      "test_actual_text_utf16",
+      "test_poppler_uses_logical_text",
+      "test_mcid_connects_to_structure_tree"
     ]
   },
   "typed_dicts": {

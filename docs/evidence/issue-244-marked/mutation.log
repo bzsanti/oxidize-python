@@ -1,0 +1,71 @@
+.FFFF                                                                    [100%]
+=================================== FAILURES ===================================
+___________ test_tag_is_one_pdf_name[a b/#\x00\n-a#20b#2F#23#00#0A] ____________
+
+tag = 'a b/#\x00\n', encoded = b'a#20b#2F#23#00#0A'
+
+    @pytest.mark.parametrize('tag,encoded', [
+        ('P', b'P'), ('a b/#\x00\n', b'a#20b#2F#23#00#0A'),
+        ('é', b'#C3#A9'), ('x> BDC EMC /Injected', b'x#3E#20BDC#20EMC#20#2FInjected'),
+    ])
+    def test_tag_is_one_pdf_name(tag, encoded):
+        page = p.Page.a4()
+        page.begin_marked_content(tag)
+        page.end_marked_content()
+        _, stream = content(page)
+>       assert b'/' + encoded + b' <</MCID 0>> BDC\nEMC' in stream
+E       assert ((b'/' + b'a#20b#2F#23#00#0A') + b' <</MCID 0>> BDC\nEMC') in b'/a b/#\x00\n <</MCID 0>> BDC\nEMC\n\n<?xpacket begin="\xef\xbb\xbf" id="W5M0MpCehiHzreSzNTczkc9d"?>\n<x:xmpmeta xmln...                                                                                                                      '
+
+tests/test_marked_content.py:57: AssertionError
+____________________ test_tag_is_one_pdf_name[\xe9-#C3#A9] _____________________
+
+tag = 'é', encoded = b'#C3#A9'
+
+    @pytest.mark.parametrize('tag,encoded', [
+        ('P', b'P'), ('a b/#\x00\n', b'a#20b#2F#23#00#0A'),
+        ('é', b'#C3#A9'), ('x> BDC EMC /Injected', b'x#3E#20BDC#20EMC#20#2FInjected'),
+    ])
+    def test_tag_is_one_pdf_name(tag, encoded):
+        page = p.Page.a4()
+        page.begin_marked_content(tag)
+        page.end_marked_content()
+        _, stream = content(page)
+>       assert b'/' + encoded + b' <</MCID 0>> BDC\nEMC' in stream
+E       assert ((b'/' + b'#C3#A9') + b' <</MCID 0>> BDC\nEMC') in b'/\xc3\xa9 <</MCID 0>> BDC\nEMC\n\n<?xpacket begin="\xef\xbb\xbf" id="W5M0MpCehiHzreSzNTczkc9d"?>\n<x:xmpmeta xmlns:x...                                                                                                                      '
+
+tests/test_marked_content.py:57: AssertionError
+_ test_tag_is_one_pdf_name[x> BDC EMC /Injected-x#3E#20BDC#20EMC#20#2FInjected] _
+
+tag = 'x> BDC EMC /Injected', encoded = b'x#3E#20BDC#20EMC#20#2FInjected'
+
+    @pytest.mark.parametrize('tag,encoded', [
+        ('P', b'P'), ('a b/#\x00\n', b'a#20b#2F#23#00#0A'),
+        ('é', b'#C3#A9'), ('x> BDC EMC /Injected', b'x#3E#20BDC#20EMC#20#2FInjected'),
+    ])
+    def test_tag_is_one_pdf_name(tag, encoded):
+        page = p.Page.a4()
+        page.begin_marked_content(tag)
+        page.end_marked_content()
+        _, stream = content(page)
+>       assert b'/' + encoded + b' <</MCID 0>> BDC\nEMC' in stream
+E       assert ((b'/' + b'x#3E#20BDC#20EMC#20#2FInjected') + b' <</MCID 0>> BDC\nEMC') in b'/x> BDC EMC /Injected <</MCID 0>> BDC\nEMC\n\n<?xpacket begin="\xef\xbb\xbf" id="W5M0MpCehiHzreSzNTczkc9d"?>\n<x:xmp...                                                                                                                      '
+
+tests/test_marked_content.py:57: AssertionError
+__________________ test_errors_leave_marking_state_unchanged ___________________
+
+    def test_errors_leave_marking_state_unchanged():
+        page = p.Page.a4()
+        with pytest.raises(p.PdfError):
+            page.end_marked_content()
+        for begin in [lambda: page.begin_marked_content(''),
+                      lambda: page.begin_marked_content_with_actual_text('', 'logical')]:
+>           with pytest.raises(ValueError, match='must not be empty'):
+E           Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/test_marked_content.py:66: Failed
+=========================== short test summary info ============================
+FAILED tests/test_marked_content.py::test_tag_is_one_pdf_name[a b/#\x00\n-a#20b#2F#23#00#0A]
+FAILED tests/test_marked_content.py::test_tag_is_one_pdf_name[\xe9-#C3#A9] - ...
+FAILED tests/test_marked_content.py::test_tag_is_one_pdf_name[x> BDC EMC /Injected-x#3E#20BDC#20EMC#20#2FInjected]
+FAILED tests/test_marked_content.py::test_errors_leave_marking_state_unchanged
+4 failed, 1 passed, 6 deselected in 0.19s

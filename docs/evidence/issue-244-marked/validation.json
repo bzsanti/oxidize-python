@@ -1,0 +1,15 @@
+{
+  "base": "9e5b9a622fc840c28aa62d435becbad8d2aca32c",
+  "core": "5.4.2",
+  "isolated_regression_passed": 2602,
+  "focused_passed": 21,
+  "mutation_expected_failures": 4,
+  "sha256": {
+    "src/page.rs": "c1b228beed7d19de8dd360e936fd7eac4e07788537715309cae2d7eaeadb3446",
+    "python/oxidize_pdf/_oxidize_pdf.pyi": "8523d5cec2bd886666bdd87f5b0d9bec083fe3ac4801ee7f335aa9be113c3ddd",
+    "tests/test_marked_content.py": "33fb7204a2ba8991d174c38c81c2e17dce228fe1545947ef57d7fd5960405e7c",
+    "tests/typing/marked_content.py": "d247f74a275d95ec6fe03e4ef3ad2ead8c9f28ce4a958eba27cb907b83a4c967",
+    "docs/parity-contract.json": "bc2bd8d552cdd4fcebe2dac2a40e7e4e025f675340629159121e512a474ae97b",
+    ".github/workflows/test.yml": "d11ce2bc918c9e8ff3b3338dbfbf87a05ada4c40f2a384a433bb7bd270fccc32"
+  }
+}
