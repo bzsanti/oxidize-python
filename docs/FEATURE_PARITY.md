@@ -26,7 +26,7 @@ what an already-published 0.22.0 wheel contains. Cross-bridge status and evidenc
 | Public typing inventory | Integrated via #274 (#265); exports/members covered, not proof of behavioral completeness |
 | Streaming/lazy configuration | Incomplete consumer wiring/audit under #258 |
 | Other incremental annotation/tagged/OCR editors | Geometric editor delivered under #276; remaining editors/OCR tracked by #262 |
-| Revision-aware comparison and irreversible redaction | Missing bindings under #263; structural comparison is not equivalent |
+| Revision-aware comparison and irreversible redaction | Revision-aware comparison delivered by #282; irreversible redaction remains under #263 |
 | Real Tesseract recognition | No recognition binding; enum/mock provider presence is not OCR |
 | AES IV generation | Core 5.4.2 limitation tracked by #253; no security approval inferred from round trips |
 | GIL concurrency evidence | Scheduling-only speedup rejection remains under #247 |
@@ -1312,3 +1312,41 @@ Preparación de entrega aislada: comparación únicamente; TaggedPdf excluido.
 Rueda propia validada con 2559 tests de biblioteca, 484 exports públicos, mypy
 de paquete/consumidor y gate aprobados. CI añade consumidor y herramientas
 independientes obligatorias en Linux 3.12. CI remota/merge aún pendientes.
+
+## Issue #244 — imágenes de píxeles e introspección (2026-10-16)
+
+Incremento independiente sobre core publicado =5.4.2, base 838f6b6. El catálogo
+público Image de graphics/pdf_image.rs incluye from_raw_data/from_rgba_data/
+from_gray_data y data/format/bits_per_component/alpha_data/soft_mask, ausentes en
+Python. No requiere habilitar external-images ni cambios upstream.
+
+| Requisito y fuente | Estado y evidencia | Bloqueante / siguiente acción |
+| --- | --- | --- |
+| Entradas RGB/CMYK/gris y RGBA, con profundidad explícita | Pendiente; métodos publicados de Image | Binding tipado y comprobación de tamaños/filas antes de core |
+| Inspección íntegra de datos y transparencia | Pendiente | Getters bytes propios, formato y máscara independiente |
+| Resultado PDF real | Pendiente | Objetos/streams independientes y lector externo para píxeles/alpha |
+| Errores y límites enteros | Pendiente | Rechazar tamaños incoherentes, cero, overflow y profundidades inválidas sin panic |
+| Tipos, gate, calidad y seguridad | Pendiente | Consumidor estricto, tests discriminantes, revisión y regresión |
+
+Alcance acotado a construcción e inspección. create_mask/with_mask, conversión
+al objeto escritor y from_file_raw son subcontratos separados aún no expuestos;
+no se declara paridad completa de Image ni se cierra #244. La API nueva valida
+entradas antes de las operaciones u32 del core, sin modificar sus fuentes.
+
+### Validación local de imágenes
+
+Construcción e inspección implementadas. 48 pruebas focalizadas aprobadas
+(32 nuevas + ocho Image existentes + ocho gate); 2606 pruebas de biblioteca
+aprobadas. Diez fallos esperados al eliminar el guard de datos raw. Poppler y
+qpdf verifican el PDF final, incluidos alpha parcial y fondo transparente.
+Tipos/gate y consumidor estricto Python 3.10 aprobados; análisis Kripteia de tests
+y seguridad sin hallazgos pendientes. Evidencia en docs/evidence/issue-244-images.
+Se prepara entrega aislada del borrador TaggedPdf y posterior CI/integración.
+
+Comparación de #263 integrada por #282 en 838f6b6 con 26 checks SUCCESS.
+Sus pendientes históricos de CI/merge quedan resueltos; #263 permanece abierta
+para redacción irreversible. Este incremento de imágenes no cambia ese contrato.
+
+Entrega aislada de imágenes: 2591 tests de biblioteca GREEN; 486 exports públicos,
+paquete y consumidor estricto tipados; Clippy y build mínimo aprobados. TaggedPdf
+queda fuera de la entrega. CI remota e integración pendientes.

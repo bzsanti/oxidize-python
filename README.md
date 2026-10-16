@@ -441,3 +441,35 @@ qpdf conversion to object streams can therefore report Structural differences
 at `/UnreachableObjects` and `/Revisions` despite equal text and page content.
 The binding preserves that conservative result; it does not promise equivalence
 across every PDF layout. The existing `compare_pdfs` API remains available.
+
+### Images from pixel buffers
+
+```python
+from oxidize_pdf import Image, ImageColorSpace
+
+rgb = Image.from_raw_data(b'\xff\x00\x00', 1, 1, ImageColorSpace.DeviceRGB)
+gray = Image.from_gray_data(b'\x80', 1, 1)
+rgba = Image.from_rgba_data(b'\xff\x00\x00\x80', 1, 1)
+assert rgba.alpha_data == b'\x80'
+assert rgba.soft_mask.data == b'\x80'
+```
+
+`from_raw_data(data, width, height, color_space, bits_per_component=8)` accepts
+DeviceGray, DeviceRGB and DeviceCMYK. Components are packed in pixel order, most
+significant bits first, with each scanline padded to a whole byte. Supported
+component depths are 1, 2, 4, 8 and 16; 16-bit components use big-endian byte
+order. RGBA and grayscale convenience constructors use 8-bit components.
+
+All three constructors require positive dimensions and an exact buffer length.
+Invalid sizes/depths raise `ValueError`; values outside unsigned argument ranges
+raise `OverflowError`. The RGBA/gray constructors reject products exceeding
+`u32::MAX` before calling the published core's dimension arithmetic. Validation
+happens before copying the pixel buffer.
+
+`data`, `format`, `bits_per_component`, `alpha_data` and `soft_mask` expose owned
+snapshots. `ImageFormat` distinguishes Jpeg, Png, Tiff and Raw. Data is the core's
+image payload: JPEG remains encoded, while PNG/TIFF constructors expose decoded
+pixel data. RGBA separates RGB data from alpha; its soft mask can be inspected
+independently. These APIs use the existing core without `external-images` or
+new dependencies. Explicit mask creation/application and writer-object export
+remain outside this increment.

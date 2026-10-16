@@ -1,0 +1,146 @@
+FFFFFF..FFFF                                                             [100%]
+=================================== FAILURES ===================================
+__________________________ test_invalid_bit_depth[0] ___________________________
+
+bits = 0
+
+    @pytest.mark.parametrize('bits', [0, 3, 7, 12, 32, 255])
+    def test_invalid_bit_depth(bits):
+>       with pytest.raises(ValueError, match='bits_per_component'):
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/test_raw_images.py:105: Failed
+__________________________ test_invalid_bit_depth[3] ___________________________
+
+bits = 3
+
+    @pytest.mark.parametrize('bits', [0, 3, 7, 12, 32, 255])
+    def test_invalid_bit_depth(bits):
+>       with pytest.raises(ValueError, match='bits_per_component'):
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/test_raw_images.py:105: Failed
+__________________________ test_invalid_bit_depth[7] ___________________________
+
+bits = 7
+
+    @pytest.mark.parametrize('bits', [0, 3, 7, 12, 32, 255])
+    def test_invalid_bit_depth(bits):
+>       with pytest.raises(ValueError, match='bits_per_component'):
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/test_raw_images.py:105: Failed
+__________________________ test_invalid_bit_depth[12] __________________________
+
+bits = 12
+
+    @pytest.mark.parametrize('bits', [0, 3, 7, 12, 32, 255])
+    def test_invalid_bit_depth(bits):
+>       with pytest.raises(ValueError, match='bits_per_component'):
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/test_raw_images.py:105: Failed
+__________________________ test_invalid_bit_depth[32] __________________________
+
+bits = 32
+
+    @pytest.mark.parametrize('bits', [0, 3, 7, 12, 32, 255])
+    def test_invalid_bit_depth(bits):
+>       with pytest.raises(ValueError, match='bits_per_component'):
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/test_raw_images.py:105: Failed
+_________________________ test_invalid_bit_depth[255] __________________________
+
+bits = 255
+
+    @pytest.mark.parametrize('bits', [0, 3, 7, 12, 32, 255])
+    def test_invalid_bit_depth(bits):
+>       with pytest.raises(ValueError, match='bits_per_component'):
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/test_raw_images.py:105: Failed
+________ test_invalid_buffers_rejected_before_core[from_raw_data-args2] ________
+
+factory = <built-in method from_raw_data of type object at 0x112c6810>
+args = (b'123', 2, 1, ImageColorSpace.DeviceRGB)
+
+    @pytest.mark.parametrize('factory,args', [
+        (p.Image.from_rgba_data, (b'123', 1, 1)),
+        (p.Image.from_gray_data, (b'12', 1, 1)),
+        (p.Image.from_raw_data, (b'123', 2, 1, CS.DeviceRGB)),
+        (p.Image.from_raw_data, (b'\xa8', 3, 2, CS.DeviceGray, 1)),
+        (p.Image.from_raw_data, (b'', 0, 2, CS.DeviceRGB)),
+        (p.Image.from_raw_data, (b'', 2**32 - 1, 2**32 - 1, CS.DeviceCMYK, 16)),
+    ])
+    def test_invalid_buffers_rejected_before_core(factory, args):
+>       with pytest.raises(ValueError, match='size|dimensions'):
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/test_raw_images.py:118: Failed
+________ test_invalid_buffers_rejected_before_core[from_raw_data-args3] ________
+
+factory = <built-in method from_raw_data of type object at 0x112c6810>
+args = (b'\xa8', 3, 2, ImageColorSpace.DeviceGray, 1)
+
+    @pytest.mark.parametrize('factory,args', [
+        (p.Image.from_rgba_data, (b'123', 1, 1)),
+        (p.Image.from_gray_data, (b'12', 1, 1)),
+        (p.Image.from_raw_data, (b'123', 2, 1, CS.DeviceRGB)),
+        (p.Image.from_raw_data, (b'\xa8', 3, 2, CS.DeviceGray, 1)),
+        (p.Image.from_raw_data, (b'', 0, 2, CS.DeviceRGB)),
+        (p.Image.from_raw_data, (b'', 2**32 - 1, 2**32 - 1, CS.DeviceCMYK, 16)),
+    ])
+    def test_invalid_buffers_rejected_before_core(factory, args):
+>       with pytest.raises(ValueError, match='size|dimensions'):
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/test_raw_images.py:118: Failed
+________ test_invalid_buffers_rejected_before_core[from_raw_data-args4] ________
+
+factory = <built-in method from_raw_data of type object at 0x112c6810>
+args = (b'', 0, 2, ImageColorSpace.DeviceRGB)
+
+    @pytest.mark.parametrize('factory,args', [
+        (p.Image.from_rgba_data, (b'123', 1, 1)),
+        (p.Image.from_gray_data, (b'12', 1, 1)),
+        (p.Image.from_raw_data, (b'123', 2, 1, CS.DeviceRGB)),
+        (p.Image.from_raw_data, (b'\xa8', 3, 2, CS.DeviceGray, 1)),
+        (p.Image.from_raw_data, (b'', 0, 2, CS.DeviceRGB)),
+        (p.Image.from_raw_data, (b'', 2**32 - 1, 2**32 - 1, CS.DeviceCMYK, 16)),
+    ])
+    def test_invalid_buffers_rejected_before_core(factory, args):
+>       with pytest.raises(ValueError, match='size|dimensions'):
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/test_raw_images.py:118: Failed
+________ test_invalid_buffers_rejected_before_core[from_raw_data-args5] ________
+
+factory = <built-in method from_raw_data of type object at 0x112c6810>
+args = (b'', 4294967295, 4294967295, ImageColorSpace.DeviceCMYK, 16)
+
+    @pytest.mark.parametrize('factory,args', [
+        (p.Image.from_rgba_data, (b'123', 1, 1)),
+        (p.Image.from_gray_data, (b'12', 1, 1)),
+        (p.Image.from_raw_data, (b'123', 2, 1, CS.DeviceRGB)),
+        (p.Image.from_raw_data, (b'\xa8', 3, 2, CS.DeviceGray, 1)),
+        (p.Image.from_raw_data, (b'', 0, 2, CS.DeviceRGB)),
+        (p.Image.from_raw_data, (b'', 2**32 - 1, 2**32 - 1, CS.DeviceCMYK, 16)),
+    ])
+    def test_invalid_buffers_rejected_before_core(factory, args):
+>       with pytest.raises(ValueError, match='size|dimensions'):
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/test_raw_images.py:118: Failed
+=========================== short test summary info ============================
+FAILED tests/test_raw_images.py::test_invalid_bit_depth[0] - Failed: DID NOT ...
+FAILED tests/test_raw_images.py::test_invalid_bit_depth[3] - Failed: DID NOT ...
+FAILED tests/test_raw_images.py::test_invalid_bit_depth[7] - Failed: DID NOT ...
+FAILED tests/test_raw_images.py::test_invalid_bit_depth[12] - Failed: DID NOT...
+FAILED tests/test_raw_images.py::test_invalid_bit_depth[32] - Failed: DID NOT...
+FAILED tests/test_raw_images.py::test_invalid_bit_depth[255] - Failed: DID NO...
+FAILED tests/test_raw_images.py::test_invalid_buffers_rejected_before_core[from_raw_data-args2]
+FAILED tests/test_raw_images.py::test_invalid_buffers_rejected_before_core[from_raw_data-args3]
+FAILED tests/test_raw_images.py::test_invalid_buffers_rejected_before_core[from_raw_data-args4]
+FAILED tests/test_raw_images.py::test_invalid_buffers_rejected_before_core[from_raw_data-args5]
+10 failed, 2 passed, 20 deselected in 0.14s
