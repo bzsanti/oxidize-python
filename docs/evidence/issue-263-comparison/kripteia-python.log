@@ -1,0 +1,29 @@
+## Calidad de Tests (Kripteia)
+
+=== Kripteia Test Quality Report ===
+Overall Score: 98 | Tests: 12 | Files: 1
+
+--- Files ---
+Path                                                          Tests  Score
+--------------------------------------------------------------------------
+tests/test_semantic_comparison.py                                12     98
+
+--- Worst Offenders ---
+  test_independent_readers_and_xref_stream (tests/test_semantic_comparison.py:170) - Score: 80
+    - Test 'test_independent_readers_and_xref_stream' is marked as #[ignore]
+  test_identical_complete_owned_result (tests/test_semantic_comparison.py:57) - Score: 100
+  test_normalized_serialization (tests/test_semantic_comparison.py:79) - Score: 100
+  test_changed_domains (tests/test_semantic_comparison.py:94) - Score: 100
+  test_history_detects_restored_metadata (tests/test_semantic_comparison.py:101) - Score: 100
+
+--- Details ---
+tests/test_semantic_comparison.py:
+  test_independent_readers_and_xref_stream (line 170) - Score: 80
+    - Test 'test_independent_readers_and_xref_stream' is marked as #[ignore]
+
+
+## Analisis de Seguridad (Kripteia Security)
+
+=== Kripteia Security Analysis ===
+
+No security issues found.

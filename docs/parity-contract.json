@@ -1,6 +1,6 @@
 {
   "core": "5.4.2",
-  "scope": "existing-document preservation, page mutations and external CMS signing; remaining Rust API pending audit; composed extraction policies; incremental free-text editing; incremental Ink editing; configurable partitioning, element graphs, custom token counting and document export; real page iteration with explicit parser lifetime; lossless incremental event bridge (upstream parser limitations remain); all BatchOptions fields with observable executor limitations; structured SignatureError exceptions; bounded existing-document outline reading; parser and recovery configuration with explicit upstream consumption limits",
+  "scope": "existing-document preservation, page mutations and external CMS signing; remaining Rust API pending audit; composed extraction policies; incremental free-text editing; incremental Ink editing; configurable partitioning, element graphs, custom token counting and document export; real page iteration with explicit parser lifetime; lossless incremental event bridge (upstream parser limitations remain); all BatchOptions fields with observable executor limitations; structured SignatureError exceptions; bounded existing-document outline reading; parser and recovery configuration with explicit upstream consumption limits; bounded semantic comparison with physical revision attribution (core object-stream layout limitation documented)",
   "callables": {
     "ExistingDocumentPolicy.preserve_base": [
       "page_labels_first_input_wins"
@@ -488,6 +488,23 @@
     "TaggedPdfObjectRef": [
       "object_number",
       "generation"
+    ],
+    "SemanticComparisonLimits": [
+      "max_objects",
+      "max_depth",
+      "max_decoded_stream_bytes",
+      "max_canonical_bytes",
+      "max_extracted_text_bytes",
+      "max_unreachable_objects",
+      "max_revisions"
+    ],
+    "SemanticComparisonOptions": [
+      "limits"
+    ],
+    "compare_pdfs_semantically": [
+      "left",
+      "right",
+      "options"
     ]
   },
   "properties": {
@@ -804,6 +821,43 @@
       "artifacts",
       "elements",
       "findings"
+    ],
+    "SemanticComparisonLimits": [
+      "max_objects",
+      "max_depth",
+      "max_decoded_stream_bytes",
+      "max_canonical_bytes",
+      "max_extracted_text_bytes",
+      "max_unreachable_objects",
+      "max_revisions"
+    ],
+    "SemanticComparisonOptions": [
+      "limits"
+    ],
+    "SemanticPdfDifference": [
+      "path",
+      "class_",
+      "description"
+    ],
+    "RevisionObjectChange": [
+      "object_number",
+      "generation",
+      "kind"
+    ],
+    "PdfRevisionSummary": [
+      "index",
+      "xref_offset",
+      "object_changes",
+      "semantic_fingerprint"
+    ],
+    "SemanticComparisonResult": [
+      "semantically_equal",
+      "differences",
+      "left_revisions",
+      "right_revisions",
+      "left_unreachable_objects",
+      "right_unreachable_objects",
+      "semantically_equivalent_objects"
     ]
   },
   "required_tests": [
@@ -937,6 +991,20 @@
       "test_reference_hash_and_generation_boundaries",
       "test_locked_document_is_rejected",
       "test_decoded_byte_limit_boundary"
+    ],
+    "tests/test_semantic_comparison.py": [
+      "test_identical_complete_owned_result",
+      "test_normalized_serialization",
+      "test_changed_domains",
+      "test_history_detects_restored_metadata",
+      "test_unreachable_generations_and_freed_objects",
+      "test_each_limit_is_enforced",
+      "test_operand_errors",
+      "test_defaults_and_unsigned_boundaries",
+      "test_independent_readers_and_xref_stream",
+      "test_right_operand_uses_its_own_limits",
+      "test_security_difference_for_docmdp_policy",
+      "test_decoded_budget_counts_traversal"
     ]
   },
   "typed_dicts": {

@@ -1,0 +1,4 @@
+WARNING: The directory '/home/santi/.cache/pip' or its parent directory is not owned or is not writable by the current user. The cache has been disabled. Check the permissions and owner of that directory. If executing pip with sudo, you should use sudo's -H flag.
+Processing /tmp/oxidize-263-wheel/oxidize_pdf-0.22.0-cp310-abi3-manylinux_2_35_x86_64.whl
+Installing collected packages: oxidize-pdf
+Successfully installed oxidize-pdf-0.22.0

@@ -394,3 +394,50 @@ claude mcp add oxidize-pdf -- uvx --from "oxidize-pdf[mcp]" oxidize-mcp
 ## License
 
 MIT — see [LICENSE](LICENSE) for details.
+
+### Semantic comparison with revision history
+
+```python
+from oxidize_pdf import (
+    compare_pdfs_semantically, SemanticComparisonLimits, SemanticComparisonOptions,
+)
+
+options = SemanticComparisonOptions(SemanticComparisonLimits(
+    max_objects=100_000, max_depth=256,
+    max_decoded_stream_bytes=256 * 1024 * 1024,
+    max_canonical_bytes=256 * 1024 * 1024,
+    max_extracted_text_bytes=64 * 1024 * 1024,
+    max_unreachable_objects=10_000, max_revisions=1024,
+))
+result = compare_pdfs_semantically(original_bytes, revised_bytes, options)
+for difference in result.differences:
+    print(difference.path, difference.class_, difference.description)
+for revision in result.right_revisions:
+    print(revision.index, revision.xref_offset, revision.semantic_fingerprint.hex())
+    for change in revision.object_changes:
+        print(change.object_number, change.generation, change.kind)
+```
+
+The immutable result exposes both revision histories, unreachable object
+identities and pairs of semantically equivalent objects. Collection properties
+return independent snapshots. Revision fingerprints are 32-byte hashes, and
+revisions are ordered oldest first. `class_` is the Python spelling of Rust's
+`class` field. Difference classes are Visual, Textual, Structural, Metadata,
+Security and SerializationOnly. `semantically_equal` may be true when the only
+difference is SerializationOnly; it includes supported historical semantics,
+so restoring the latest state does not erase an intervening semantic change.
+
+Limits apply independently to each document. Decoded/canonical budgets count
+work across repeated traversals, not just unique input bytes. Initial input
+copies, parsing and some extraction allocations precede these checks; the
+options are not process-wide memory/time limits. Malformed input, exceeded
+budgets and unsupported decoding raise PDF errors; encrypted input raises
+`PdfPermissionError` and must be decrypted before comparison.
+
+This API compares the core's supported object/text domains, not rendered pixels,
+and does not certify signatures or irreversible redaction. Core 5.4.2 includes
+physical ObjStm/XRef containers among objects unreachable from Root/Info. A
+qpdf conversion to object streams can therefore report Structural differences
+at `/UnreachableObjects` and `/Revisions` despite equal text and page content.
+The binding preserves that conservative result; it does not promise equivalence
+across every PDF layout. The existing `compare_pdfs` API remains available.

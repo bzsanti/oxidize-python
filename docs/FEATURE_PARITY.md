@@ -1260,3 +1260,55 @@ o tiempo: copia inicial y parsing preceden al recorrido. README documenta esto.
 develop sin código OCR. #262 conserva el editor TaggedPdf pendiente. Pin =5.4.2;
 sin releases ni modificaciones upstream. Siguiente acción: CI del head final,
 merge en develop y cierre de #280 si los checks pasan.
+
+## Issue #263 — comparación semántica independiente (2026-10-16)
+
+Por instrucción del usuario se continúa solo con trabajo que no necesita cambios
+upstream. TaggedPdf queda aparcado bajo upstream #762; se conservan sus fuentes
+y evidencias locales, sin interpretar su presencia como aceptación.
+
+| Requisito y fuente | Estado y evidencia | Bloqueante / siguiente acción |
+| --- | --- | --- |
+| compare_pdfs_semantically completo (#263) | Pendiente; API pública en core =5.4.2 | Binding, siete límites, diferencias, revisiones y correspondencias |
+| Normalización y diferencias reales | Pendiente | PDFs independientes y cambios visuales/textuales/metadatos |
+| Historial, generaciones y objetos fuera de Root/Info | Pendiente | Revisiones sintéticas con xref explícito |
+| Límites y errores | Pendiente | Casos discriminantes por presupuesto y ambos operandos |
+| Tipos, contrato, revisión y regresión | Pendiente | Gate, consumidor estricto, Kripteia y tests |
+
+La redacción irreversible es otro subcontrato de #263, no se cierra con esta
+entrega. No se cambia pin ni repositorios hermanos ni se publica release.
+
+### Resultado local del subcontrato de comparación
+
+Implementado compare_pdfs_semantically con siete límites, seis clases de
+diferencias, revisiones completas y snapshots de objetos/huellas. Tipos públicos,
+contrato y pruebas requeridas incorporados. 33 casos focalizados GREEN (25 nuevos
++ ocho del gate); copia mutante que ignora opciones provoca diez fallos esperados.
+Regresión: 2566 passed y ocho fallos de montaje del gate, resueltos añadiendo el
+nuevo archivo a su fixture; los ocho pasan posteriormente en focused.log.
+Clippy, compilación sin default features, inventario de tipos, mypy estricto
+Python 3.10 y gate aprobados. Revisión y evidencia en
+`docs/evidence/issue-263-comparison/`.
+
+La conversión qpdf a ObjStm/XRef conserva texto según pdftotext, pero core 5.4.2
+atribuye esos contenedores a /UnreachableObjects y /Revisions. Se documenta como
+limitación upstream sin corregir: no bloquea el binding fiel del comparador,
+pero impide afirmar equivalencia universal entre layouts. No hay certificación
+de píxeles, firmas o redacción. Budgets contabilizan recorridos repetidos y no
+limitan todas las asignaciones previas del parser.
+
+Bloqueantes funcionales del binding de comparación: ninguno confirmado.
+Pendientes de entrega: CI remota e integración del incremento independiente,
+sin incorporar el borrador TaggedPdf bloqueado. #263 sigue abierta por redacción
+irreversible. Siguiente trabajo funcional: evaluar sus garantías antes de
+exponerlas; si necesita corrección upstream, mantenerla apartada conforme a la
+instrucción vigente. No se publican releases ni se cambia el pin.
+
+MCP del incremento: 295 passed, 1 skipped (mcp-unsandboxed.log). Evidencia
+reconciliada y hashes funcionales en validation.json. Sin cambios posteriores
+de producto que invaliden esa evidencia.
+
+Preparación de entrega aislada: comparación únicamente; TaggedPdf excluido.
+Rueda propia validada con 2559 tests de biblioteca, 484 exports públicos, mypy
+de paquete/consumidor y gate aprobados. CI añade consumidor y herramientas
+independientes obligatorias en Linux 3.12. CI remota/merge aún pendientes.
