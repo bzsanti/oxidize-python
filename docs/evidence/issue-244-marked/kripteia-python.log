@@ -1,0 +1,29 @@
+## Calidad de Tests (Kripteia)
+
+=== Kripteia Test Quality Report ===
+Overall Score: 98 | Tests: 6 | Files: 1
+
+--- Files ---
+Path                                                          Tests  Score
+--------------------------------------------------------------------------
+tests/test_marked_content.py                                      6     98
+
+--- Worst Offenders ---
+  test_poppler_uses_logical_text (tests/test_marked_content.py:88) - Score: 90
+    - Test 'test_poppler_uses_logical_text' has low assert-to-setup ratio (14%): 2 asserts vs 12 setup lines
+  test_nested_marks_and_page_local_ids (tests/test_marked_content.py:26) - Score: 100
+  test_tag_is_one_pdf_name (tests/test_marked_content.py:52) - Score: 100
+  test_errors_leave_marking_state_unchanged (tests/test_marked_content.py:60) - Score: 100
+  test_actual_text_utf16 (tests/test_marked_content.py:77) - Score: 100
+
+--- Details ---
+tests/test_marked_content.py:
+  test_poppler_uses_logical_text (line 88) - Score: 90
+    - Test 'test_poppler_uses_logical_text' has low assert-to-setup ratio (14%): 2 asserts vs 12 setup lines
+
+
+## Analisis de Seguridad (Kripteia Security)
+
+=== Kripteia Security Analysis ===
+
+No security issues found.

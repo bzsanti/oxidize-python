@@ -32,6 +32,26 @@ fn validate_opacity(opacity: f64) -> PyResult<()> {
     Ok(())
 }
 
+// Core interpolates names directly into the content stream. Encode the UTF-8
+// bytes as one PDF name so caller input cannot introduce PDF operators.
+fn marked_content_name(tag: &str) -> PyResult<String> {
+    if tag.is_empty() {
+        return Err(PyValueError::new_err(
+            "Marked-content tag must not be empty",
+        ));
+    }
+    let mut name = String::new();
+    for byte in tag.bytes() {
+        if (33..=126).contains(&byte) && !b"()<>[]{}/%#".contains(&byte) {
+            name.push(char::from(byte));
+        } else {
+            use std::fmt::Write;
+            write!(name, "#{byte:02X}").expect("writing to String cannot fail");
+        }
+    }
+    Ok(name)
+}
+
 #[pyclass(name = "Page", from_py_object)]
 #[derive(Clone)]
 pub struct PyPage {
@@ -132,6 +152,36 @@ impl PyPage {
 
     fn __repr__(&self) -> String {
         format!("Page({}x{})", self.inner.width(), self.inner.height())
+    }
+
+    /// Open a marked-content sequence and return its page-local MCID.
+    fn begin_marked_content(&mut self, tag: &str) -> PyResult<u32> {
+        self.inner
+            .begin_marked_content(&marked_content_name(tag)?)
+            .map_err(to_py_err)
+    }
+
+    /// Open a sequence with a Unicode logical-text replacement.
+    fn begin_marked_content_with_actual_text(
+        &mut self,
+        tag: &str,
+        actual_text: &str,
+    ) -> PyResult<u32> {
+        self.inner
+            .begin_marked_content_with_actual_text(&marked_content_name(tag)?, actual_text)
+            .map_err(to_py_err)
+    }
+
+    fn end_marked_content(&mut self) -> PyResult<()> {
+        self.inner.end_marked_content().map_err(to_py_err)
+    }
+
+    fn next_mcid(&self) -> u32 {
+        self.inner.next_mcid()
+    }
+
+    fn marked_content_depth(&self) -> usize {
+        self.inner.marked_content_depth()
     }
 
     // ── Text operations ────────────────────────────────────────────────

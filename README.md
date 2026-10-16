@@ -473,3 +473,27 @@ pixel data. RGBA separates RGB data from alpha; its soft mask can be inspected
 independently. These APIs use the existing core without `external-images` or
 new dependencies. Explicit mask creation/application and writer-object export
 remain outside this increment.
+
+### Marked content on new pages
+
+`Page.begin_marked_content(tag)` and
+`Page.begin_marked_content_with_actual_text(tag, actual_text)` return a page-local
+MCID. Pair every begin with `Page.end_marked_content()`; `next_mcid()` and
+`marked_content_depth()` inspect the state. Tags are nonempty literal names
+(UTF-8 bytes are PDF-name escaped, so pass `"Span"`, not `"/Span"`). Empty tags
+raise `ValueError` without changing state; ending an empty stack raises `PdfError`.
+
+```python
+page = Page.a4()
+page.set_font(Font.HELVETICA, 12)
+mcid = page.begin_marked_content_with_actual_text("Span", "café 😀")
+page.text_at(40, 700, "visible glyphs")
+page.end_marked_content()
+```
+
+ActualText is a Unicode logical replacement; copying/extraction depends on the
+viewer honoring it. For tagged structure, attach the returned ID using
+`StructureElement.add_mcid(page_index, mcid)` and install the tree with
+`Document.set_struct_tree(tree)`. These operations alone do not certify PDF/UA.
+The core writes these markers in the text context; they are intended for text
+operations, not as a general scope around separately buffered graphics.
