@@ -1,0 +1,145 @@
+FFFFFFFFFF                                                               [100%]
+=================================== FAILURES ===================================
+___________________ test_each_limit_is_enforced[max_objects] ___________________
+
+field = 'max_objects'
+
+    @pytest.mark.parametrize('field', LIMITS)
+    def test_each_limit_is_enforced(field):
+        source = fixture(orphan=b'unreachable')
+        options = p.SemanticComparisonOptions(p.SemanticComparisonLimits(**{field: 0}))
+        assert getattr(options.limits, field) == 0
+>       with pytest.raises(p.PdfError, match='limit|budget'):
+E       Failed: DID NOT RAISE <class 'oxidize_pdf.PdfError'>
+
+tests/test_semantic_comparison.py:142: Failed
+____________________ test_each_limit_is_enforced[max_depth] ____________________
+
+field = 'max_depth'
+
+    @pytest.mark.parametrize('field', LIMITS)
+    def test_each_limit_is_enforced(field):
+        source = fixture(orphan=b'unreachable')
+        options = p.SemanticComparisonOptions(p.SemanticComparisonLimits(**{field: 0}))
+        assert getattr(options.limits, field) == 0
+>       with pytest.raises(p.PdfError, match='limit|budget'):
+E       Failed: DID NOT RAISE <class 'oxidize_pdf.PdfError'>
+
+tests/test_semantic_comparison.py:142: Failed
+____________ test_each_limit_is_enforced[max_decoded_stream_bytes] _____________
+
+field = 'max_decoded_stream_bytes'
+
+    @pytest.mark.parametrize('field', LIMITS)
+    def test_each_limit_is_enforced(field):
+        source = fixture(orphan=b'unreachable')
+        options = p.SemanticComparisonOptions(p.SemanticComparisonLimits(**{field: 0}))
+        assert getattr(options.limits, field) == 0
+>       with pytest.raises(p.PdfError, match='limit|budget'):
+E       Failed: DID NOT RAISE <class 'oxidize_pdf.PdfError'>
+
+tests/test_semantic_comparison.py:142: Failed
+_______________ test_each_limit_is_enforced[max_canonical_bytes] _______________
+
+field = 'max_canonical_bytes'
+
+    @pytest.mark.parametrize('field', LIMITS)
+    def test_each_limit_is_enforced(field):
+        source = fixture(orphan=b'unreachable')
+        options = p.SemanticComparisonOptions(p.SemanticComparisonLimits(**{field: 0}))
+        assert getattr(options.limits, field) == 0
+>       with pytest.raises(p.PdfError, match='limit|budget'):
+E       Failed: DID NOT RAISE <class 'oxidize_pdf.PdfError'>
+
+tests/test_semantic_comparison.py:142: Failed
+____________ test_each_limit_is_enforced[max_extracted_text_bytes] _____________
+
+field = 'max_extracted_text_bytes'
+
+    @pytest.mark.parametrize('field', LIMITS)
+    def test_each_limit_is_enforced(field):
+        source = fixture(orphan=b'unreachable')
+        options = p.SemanticComparisonOptions(p.SemanticComparisonLimits(**{field: 0}))
+        assert getattr(options.limits, field) == 0
+>       with pytest.raises(p.PdfError, match='limit|budget'):
+E       Failed: DID NOT RAISE <class 'oxidize_pdf.PdfError'>
+
+tests/test_semantic_comparison.py:142: Failed
+_____________ test_each_limit_is_enforced[max_unreachable_objects] _____________
+
+field = 'max_unreachable_objects'
+
+    @pytest.mark.parametrize('field', LIMITS)
+    def test_each_limit_is_enforced(field):
+        source = fixture(orphan=b'unreachable')
+        options = p.SemanticComparisonOptions(p.SemanticComparisonLimits(**{field: 0}))
+        assert getattr(options.limits, field) == 0
+>       with pytest.raises(p.PdfError, match='limit|budget'):
+E       Failed: DID NOT RAISE <class 'oxidize_pdf.PdfError'>
+
+tests/test_semantic_comparison.py:142: Failed
+__________________ test_each_limit_is_enforced[max_revisions] __________________
+
+field = 'max_revisions'
+
+    @pytest.mark.parametrize('field', LIMITS)
+    def test_each_limit_is_enforced(field):
+        source = fixture(orphan=b'unreachable')
+        options = p.SemanticComparisonOptions(p.SemanticComparisonLimits(**{field: 0}))
+        assert getattr(options.limits, field) == 0
+>       with pytest.raises(p.PdfError, match='limit|budget'):
+E       Failed: DID NOT RAISE <class 'oxidize_pdf.PdfError'>
+
+tests/test_semantic_comparison.py:142: Failed
+____________________ test_right_operand_uses_its_own_limits ____________________
+
+    def test_right_operand_uses_its_own_limits():
+        options = p.SemanticComparisonOptions(p.SemanticComparisonLimits(max_unreachable_objects=0))
+>       with pytest.raises(p.PdfError, match='unreachable objects limit'):
+E       Failed: DID NOT RAISE <class 'oxidize_pdf.PdfError'>
+
+tests/test_semantic_comparison.py:191: Failed
+_________________ test_decoded_budget_counts_traversal[False] __________________
+
+compressed = False
+
+    @pytest.mark.parametrize('compressed', [False, True])
+    def test_decoded_budget_counts_traversal(compressed):
+        source = fixture(compressed=compressed)
+        # Core charges repeated semantic traversals, not just unique stream sizes.
+        length = len(b'BT /F1 12 Tf 20 80 Td (Hello) Tj ET')
+        generous = p.SemanticComparisonOptions(p.SemanticComparisonLimits(max_decoded_stream_bytes=4096))
+        short = p.SemanticComparisonOptions(p.SemanticComparisonLimits(max_decoded_stream_bytes=length))
+        assert p.compare_pdfs_semantically(source, source, generous).semantically_equal
+>       with pytest.raises(p.PdfError, match='decoded stream bytes limit'):
+E       Failed: DID NOT RAISE <class 'oxidize_pdf.PdfError'>
+
+tests/test_semantic_comparison.py:215: Failed
+__________________ test_decoded_budget_counts_traversal[True] __________________
+
+compressed = True
+
+    @pytest.mark.parametrize('compressed', [False, True])
+    def test_decoded_budget_counts_traversal(compressed):
+        source = fixture(compressed=compressed)
+        # Core charges repeated semantic traversals, not just unique stream sizes.
+        length = len(b'BT /F1 12 Tf 20 80 Td (Hello) Tj ET')
+        generous = p.SemanticComparisonOptions(p.SemanticComparisonLimits(max_decoded_stream_bytes=4096))
+        short = p.SemanticComparisonOptions(p.SemanticComparisonLimits(max_decoded_stream_bytes=length))
+        assert p.compare_pdfs_semantically(source, source, generous).semantically_equal
+>       with pytest.raises(p.PdfError, match='decoded stream bytes limit'):
+E       Failed: DID NOT RAISE <class 'oxidize_pdf.PdfError'>
+
+tests/test_semantic_comparison.py:215: Failed
+=========================== short test summary info ============================
+FAILED tests/test_semantic_comparison.py::test_each_limit_is_enforced[max_objects]
+FAILED tests/test_semantic_comparison.py::test_each_limit_is_enforced[max_depth]
+FAILED tests/test_semantic_comparison.py::test_each_limit_is_enforced[max_decoded_stream_bytes]
+FAILED tests/test_semantic_comparison.py::test_each_limit_is_enforced[max_canonical_bytes]
+FAILED tests/test_semantic_comparison.py::test_each_limit_is_enforced[max_extracted_text_bytes]
+FAILED tests/test_semantic_comparison.py::test_each_limit_is_enforced[max_unreachable_objects]
+FAILED tests/test_semantic_comparison.py::test_each_limit_is_enforced[max_revisions]
+FAILED tests/test_semantic_comparison.py::test_right_operand_uses_its_own_limits
+FAILED tests/test_semantic_comparison.py::test_decoded_budget_counts_traversal[False]
+FAILED tests/test_semantic_comparison.py::test_decoded_budget_counts_traversal[True]
+10 failed, 15 deselected in 0.57s

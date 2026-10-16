@@ -1,0 +1,33 @@
+{
+  "base": "189acde",
+  "core": "5.4.2",
+  "status": "comparison-only wheel locally validated; remote CI and integration pending",
+  "focused": "33 passed (25 new + 8 gate)",
+  "regression": "2566 passed, 8 fixture failures; fixture corrected and all 8 revalidated in focused.log",
+  "mcp": "295 passed, 1 skipped",
+  "mutation": "10 expected assertion failures; ignoring supplied options",
+  "clippy": "passed",
+  "minimal_features": "passed",
+  "typing": "strict current and Python 3.10 passed",
+  "source_sha256": {
+    "src/semantic_comparison.rs": "3043e194ae739ede4ac045414f602f7a5d4b87960eca9a681885f9ca82ad6a31",
+    "src/lib.rs": "d343671c0a5798c8a92db9a6fda342e99b5a11de16b4ca0e8032e8e847558cb9",
+    "python/oxidize_pdf/__init__.py": "621c65f604447992495c87255803711a8f8e304499904ded16a24db2fdaae16d",
+    "python/oxidize_pdf/__init__.pyi": "71eb2ea6f1c6e40d5ab5515fa8a615d10f237a53af9154008c424a403597637b",
+    "python/oxidize_pdf/_oxidize_pdf.pyi": "cfbb9d8568ccc872014c0153d20404f4c079c52c2635ff54f5a1b94d9e8787ab",
+    "docs/parity-contract.json": "a59406544685004423d78d20198d79638cd2fbbf3cb4dabb19ad075f94f33839",
+    "tests/test_semantic_comparison.py": "a22ea72d96d336a3372f197e36d4a0e191c4831895ecb9ec7a9c7830d8d45ef4",
+    "tests/test_parity_checker.py": "030faf6f903b44ffa03a585e38d2322ed0f81c4938c733be0836d009774a95ce",
+    "tests/typing/semantic_comparison.py": "f2a476131d89012a608c7ad64f0618340057e531f01d3e45fc2315d02572b602",
+    "README.md": "f0dcc9e4f6ef113e828cba8e1e354b5355486faeabadca63da7b59fbb3204cec",
+    ".github/workflows/test.yml": "9eb17636b82043e254bb68d8932a6996409bd17b69d7c6bc4f7f5a951a207ec6"
+  },
+  "historical_evidence": "Original local logs include the separate TaggedPdf draft; isolated delivery logs supersede export counts and full regression.",
+  "delivery": {
+    "regression": "2559 passed",
+    "native_exports": 483,
+    "public_exports": 484,
+    "typing": "26 package files and strict consumer passed",
+    "scope": "excludes blocked TaggedPdf editor"
+  }
+}

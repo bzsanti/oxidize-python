@@ -34,6 +34,7 @@ mod parse_events;
 mod rag_analysis;
 mod security;
 mod semantic;
+mod semantic_comparison;
 mod signing;
 mod signature_errors;
 mod table;
@@ -91,6 +92,7 @@ fn _oxidize_pdf(m: &Bound<'_, PyModule>) -> PyResult<()> {
     xmp_metadata::register(m)?;
     verification::register(m)?;
     semantic::register(m)?;
+    semantic_comparison::register(m)?;
     signing::register(m)?;
     graphics_extraction::register(m)?;
     layout::register(m)?;

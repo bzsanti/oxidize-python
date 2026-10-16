@@ -992,3 +992,16 @@ __all__ += [
     "TaggedPdfValidationReport",
     "validate_tagged_pdf",
 ]
+
+from oxidize_pdf._oxidize_pdf import (
+    SemanticDifferenceClass as SemanticDifferenceClass,
+    RevisionObjectChangeKind as RevisionObjectChangeKind,
+    SemanticComparisonLimits as SemanticComparisonLimits,
+    SemanticComparisonOptions as SemanticComparisonOptions,
+    SemanticPdfDifference as SemanticPdfDifference,
+    RevisionObjectChange as RevisionObjectChange,
+    PdfRevisionSummary as PdfRevisionSummary,
+    SemanticComparisonResult as SemanticComparisonResult,
+    compare_pdfs_semantically as compare_pdfs_semantically,
+)
+__all__ += ['SemanticDifferenceClass', 'RevisionObjectChangeKind', 'SemanticComparisonLimits', 'SemanticComparisonOptions', 'SemanticPdfDifference', 'RevisionObjectChange', 'PdfRevisionSummary', 'SemanticComparisonResult', 'compare_pdfs_semantically']
