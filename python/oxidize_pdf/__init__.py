@@ -1230,3 +1230,9 @@ from oxidize_pdf._oxidize_pdf import (
     compare_pdfs_semantically,
 )
 __all__ += ['SemanticDifferenceClass', 'RevisionObjectChangeKind', 'SemanticComparisonLimits', 'SemanticComparisonOptions', 'SemanticPdfDifference', 'RevisionObjectChange', 'PdfRevisionSummary', 'SemanticComparisonResult', 'compare_pdfs_semantically']
+
+from oxidize_pdf._oxidize_pdf import (
+    ImageColorSpace,
+    ImageFormat,
+)
+__all__ += ["ImageColorSpace", "ImageFormat"]

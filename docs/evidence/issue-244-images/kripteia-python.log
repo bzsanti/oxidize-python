@@ -1,0 +1,29 @@
+## Calidad de Tests (Kripteia)
+
+=== Kripteia Test Quality Report ===
+Overall Score: 98 | Tests: 8 | Files: 1
+
+--- Files ---
+Path                                                          Tests  Score
+--------------------------------------------------------------------------
+tests/test_raw_images.py                                          8     98
+
+--- Worst Offenders ---
+  test_poppler_pixels_and_alpha (tests/test_raw_images.py:133) - Score: 80
+    - Test 'test_poppler_pixels_and_alpha' is marked as #[ignore]
+  test_raw_scanlines_preserve_color_depth_and_bytes (tests/test_raw_images.py:48) - Score: 100
+  test_rgba_split_soft_mask_and_owned_snapshots (tests/test_raw_images.py:60) - Score: 100
+  test_gray_constructor_and_existing_format_getters (tests/test_raw_images.py:82) - Score: 100
+  test_checked_core_dimensions (tests/test_raw_images.py:97) - Score: 100
+
+--- Details ---
+tests/test_raw_images.py:
+  test_poppler_pixels_and_alpha (line 133) - Score: 80
+    - Test 'test_poppler_pixels_and_alpha' is marked as #[ignore]
+
+
+## Analisis de Seguridad (Kripteia Security)
+
+=== Kripteia Security Analysis ===
+
+No security issues found.

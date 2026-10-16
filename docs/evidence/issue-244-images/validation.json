@@ -1,0 +1,24 @@
+{
+  "base": "838f6b60f7a016ca1f672ad410aa067e7c3eedf8",
+  "core": "5.4.2",
+  "status": "comparison-only base plus image constructors/inspection; CI pending",
+  "focused": "48 passed, 32 new image cases",
+  "historical_regression": "2606 passed including preexisting TaggedPdf draft",
+  "isolated_regression": "2591 passed excluding TaggedPdf draft",
+  "typing": "486 public exports; 26 package files; strict image consumer current and Python 3.10",
+  "mutation": "10 expected failures removing raw size/depth guard; 2 unaffected cases pass",
+  "clippy": "passed",
+  "minimal_features": "passed",
+  "source_sha256": {
+    "src/image.rs": "9633a2f7fd3002b67d73c258ad79bbd330cba4efba8483a951a06ed35f37401a",
+    "python/oxidize_pdf/__init__.py": "8729ed8e928071173b46f2c8af08dd8151091ef105cdb6ea92b1c6f45a3b3f03",
+    "python/oxidize_pdf/__init__.pyi": "13fe59877fe055992c38b9490f641daa4fef23c0f25f3ab392fcc1b24fe5aa03",
+    "python/oxidize_pdf/_oxidize_pdf.pyi": "6980cffd99e5d30244613209ea792d8a28144a0999fa55e715601572bf2ccd83",
+    "docs/parity-contract.json": "d3b0c4776490ade2c016bfe4e991a9c6e93026a11edbe941e296dc54e696020c",
+    "tests/test_raw_images.py": "42df51b115f311dea729a4a79b3b9fec1fd07c84a65d35e978e349a938139f0e",
+    "tests/test_parity_checker.py": "8e8cb215f7539e7dfdf5f294818b7587dc4dcb504a44afd56f9e6ce4ea44e6b4",
+    "tests/typing/raw_images.py": "4cad30e1d2d65bea20f726d21a1aac3ceace04b04d3048468800e657272ceed6",
+    ".github/workflows/test.yml": "b8269d0fdc76a471cbc31bc213867c138e922b56988b56f22522cd6be87969a4",
+    "README.md": "697c6b45295fb666c9514e9b9860fcf057eb920527f46dfe5a870464bb55e41f"
+  }
+}

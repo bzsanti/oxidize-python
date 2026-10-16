@@ -1,6 +1,6 @@
 {
   "core": "5.4.2",
-  "scope": "existing-document preservation, page mutations and external CMS signing; remaining Rust API pending audit; composed extraction policies; incremental free-text editing; incremental Ink editing; configurable partitioning, element graphs, custom token counting and document export; real page iteration with explicit parser lifetime; lossless incremental event bridge (upstream parser limitations remain); all BatchOptions fields with observable executor limitations; structured SignatureError exceptions; bounded existing-document outline reading; parser and recovery configuration with explicit upstream consumption limits; bounded semantic comparison with physical revision attribution (core object-stream layout limitation documented)",
+  "scope": "existing-document preservation, page mutations and external CMS signing; remaining Rust API pending audit; composed extraction policies; incremental free-text editing; incremental Ink editing; configurable partitioning, element graphs, custom token counting and document export; real page iteration with explicit parser lifetime; lossless incremental event bridge (upstream parser limitations remain); all BatchOptions fields with observable executor limitations; structured SignatureError exceptions; bounded existing-document outline reading; parser and recovery configuration with explicit upstream consumption limits; bounded semantic comparison with physical revision attribution (core object-stream layout limitation documented); validated packed image pixel constructors and owned image/alpha inspection",
   "callables": {
     "ExistingDocumentPolicy.preserve_base": [
       "page_labels_first_input_wins"
@@ -505,6 +505,23 @@
       "left",
       "right",
       "options"
+    ],
+    "Image.from_raw_data": [
+      "data",
+      "width",
+      "height",
+      "color_space",
+      "bits_per_component"
+    ],
+    "Image.from_rgba_data": [
+      "rgba_data",
+      "width",
+      "height"
+    ],
+    "Image.from_gray_data": [
+      "gray_data",
+      "width",
+      "height"
     ]
   },
   "properties": {
@@ -858,6 +875,16 @@
       "left_unreachable_objects",
       "right_unreachable_objects",
       "semantically_equivalent_objects"
+    ],
+    "Image": [
+      "width",
+      "height",
+      "has_transparency",
+      "data",
+      "format",
+      "bits_per_component",
+      "alpha_data",
+      "soft_mask"
     ]
   },
   "required_tests": [
@@ -1005,6 +1032,16 @@
       "test_right_operand_uses_its_own_limits",
       "test_security_difference_for_docmdp_policy",
       "test_decoded_budget_counts_traversal"
+    ],
+    "tests/test_raw_images.py": [
+      "test_raw_scanlines_preserve_color_depth_and_bytes",
+      "test_rgba_split_soft_mask_and_owned_snapshots",
+      "test_gray_constructor_and_existing_format_getters",
+      "test_checked_core_dimensions",
+      "test_invalid_bit_depth",
+      "test_invalid_buffers_rejected_before_core",
+      "test_unsigned_dimensions",
+      "test_poppler_pixels_and_alpha"
     ]
   },
   "typed_dicts": {
