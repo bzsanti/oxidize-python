@@ -1,0 +1,14 @@
+{
+  "base": "043a7d61a45b2fc692730b746c18ab642eda356e",
+  "tests": 2635,
+  "sha256": {
+    "src/graphics.rs": "d9bc30f92a7cd8ba9135628b5f0fa14b61bbd34fa72c889d960a9ce5786fd27b",
+    "python/oxidize_pdf/_oxidize_pdf.pyi": "204ce074b121cbc017eebfb12d3bbbc35244ce346cde95caeb947768da936f41",
+    "tests/test_dash_patterns.py": "8784c23408648867adbfded7707ee8089a89de6c2ae8d7b649a1c71f283694dd",
+    "tests/typing/dash_patterns.py": "7d8340a34f2efc3b21ff96803781f9dc30b854377e4762de88602409f4fbabe7",
+    "tests/test_parity_checker.py": "1866bb40bdf534c9cd01e4d78844ee42d3d4dc41144d6621e6066c703850dca1",
+    "docs/parity-contract.json": "6ea73f3a41f113cfa07f6bb65a4841b38546e840154df51124b0472f6efb768e",
+    ".github/workflows/test.yml": "5a84b1660032c2427833b0a85e4a4daabfb63c93231eb7a8d61533a2d4c8e3ac",
+    "README.md": "8100aef0151e1bc9cdedc3df4306f06ced18c8fe4227cda40af006e8f6d5aa1f"
+  }
+}

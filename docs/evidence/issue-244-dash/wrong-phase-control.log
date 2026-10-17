@@ -1,0 +1,49 @@
+...F                                                                     [100%]
+=================================== FAILURES ===================================
+____________ test_pattern_reaches_rendered_page[custom-5-expected3] ____________
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-9/test_pattern_reaches_rendered_3')
+factory = 'custom', phase = 5, expected = [False, True, False, True]
+
+    @pytest.mark.parametrize('factory, phase, expected', [
+        ('solid', 0, [True, True, True, True]),
+        ('dashed', 0, [True, False, True, False]),
+        ('dotted', 0, [True, False, True, False]),
+        ('custom', 5, [False, True, False, True]),
+    ])
+    def test_pattern_reaches_rendered_page(tmp_path, factory, phase, expected):
+        if shutil.which('pdftoppm') is None:
+            pytest.skip('independent Poppler renderer unavailable')
+        if factory == 'custom':
+            pattern = LineDashPattern([10, 10], 0)
+        elif factory == 'solid':
+            pattern = LineDashPattern.solid()
+        else:
+            pattern = getattr(LineDashPattern, factory)(10, 10)
+        page = Page(100, 100)
+        page.set_dash_pattern(pattern)
+        pattern.array.clear()  # Inspection cannot alter the installed pattern
+        page.set_stroke_color(Color.blue())
+        page.set_line_width(4)
+        page.move_to(10, 50)
+        page.line_to(90, 50)
+        page.stroke()
+        doc = Document()
+        doc.add_page(page)
+        pdf = tmp_path / 'stroke.pdf'
+        pdf.write_bytes(doc.save_to_bytes())
+        subprocess.run(['pdftoppm', '-r', '72', '-singlefile', str(pdf), str(tmp_path / 'stroke')], check=True, capture_output=True, timeout=30)
+        magic, width, height, maximum, pixels = (tmp_path / 'stroke.ppm').read_bytes().split(None, 4)
+        assert (magic, width, height, maximum) == (b'P6', b'100', b'100', b'255')
+        for x, painted in zip([17, 27, 37, 47], expected):
+            start = (50 * 100 + x) * 3
+>           assert pixels[start:start + 3] == (b'\x00\x00\xff' if painted else b'\xff\xff\xff')
+E           AssertionError: assert b'\x00\x00\xff' == b'\xff\xff\xff'
+E
+E             At index 0 diff: b'\x00' != b'\xff'
+E             Use -v to get more diff
+
+../test_dash_wrong_phase.py:84: AssertionError
+=========================== short test summary info ============================
+FAILED ../test_dash_wrong_phase.py::test_pattern_reaches_rendered_page[custom-5-expected3]
+1 failed, 3 passed, 3 deselected in 0.32s

@@ -566,3 +566,18 @@ space values; callers supply valid finite geometry. `to_pdf_operations()` emits
 the core's clipping operators, including `W`/`W*` and `n`.
 The existing `rect`, `circle`, and `ellipse` factories remain available.
 This API does not expose path intersection, text clipping, or a clipping stack.
+
+### Line dash patterns
+
+`LineDashPattern.dashed(dash_length, gap_length)` and
+`LineDashPattern.dotted(dot_size, gap_size)` create two-length patterns with zero
+phase. Both use the same PDF dash representation; dots depend on length and line
+cap, and the factory does not select a round cap. Pass a pattern to
+`page.set_dash_pattern(pattern)`; use `solid()` to reset to a continuous line.
+
+`array` returns a copied list and `phase` is read-only. `to_pdf_string()` returns
+the core representation (without the `d` operator), rounded to two decimals.
+The core serializes non-finite components as zero and an empty array as `[] 0`,
+regardless of stored phase. Negative values remain unchanged; this API does not
+validate whether an arbitrary pattern is legal PDF. Use nonnegative lengths,
+with at least one positive length for a nonempty pattern, and a nonnegative phase.

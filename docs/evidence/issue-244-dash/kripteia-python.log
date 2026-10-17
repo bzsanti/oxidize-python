@@ -1,0 +1,28 @@
+## Calidad de Tests (Kripteia)
+
+=== Kripteia Test Quality Report ===
+Overall Score: 98 | Tests: 4 | Files: 1
+
+--- Files ---
+Path                                                          Tests  Score
+--------------------------------------------------------------------------
+tests/test_dash_patterns.py                                       4     98
+
+--- Worst Offenders ---
+  test_pattern_reaches_rendered_page (tests/test_dash_patterns.py:58) - Score: 90
+    - Test 'test_pattern_reaches_rendered_page' has low assert-to-setup ratio (8%): 2 asserts vs 22 setup lines
+  test_factories_and_owned_parameters (tests/test_dash_patterns.py:10) - Score: 100
+  test_numeric_serialization_preserves_core_contract (tests/test_dash_patterns.py:30) - Score: 100
+  test_invalid_arguments_do_not_mutate_existing_pattern (tests/test_dash_patterns.py:41) - Score: 100
+
+--- Details ---
+tests/test_dash_patterns.py:
+  test_pattern_reaches_rendered_page (line 58) - Score: 90
+    - Test 'test_pattern_reaches_rendered_page' has low assert-to-setup ratio (8%): 2 asserts vs 22 setup lines
+
+
+## Analisis de Seguridad (Kripteia Security)
+
+=== Kripteia Security Analysis ===
+
+No security issues found.
