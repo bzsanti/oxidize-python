@@ -1244,3 +1244,9 @@ __all__ += ["TransformMatrix"]
 from oxidize_pdf._oxidize_pdf import RenderContext
 
 __all__ += ["RenderContext"]
+
+from oxidize_pdf._oxidize_pdf import (
+    WindingRule,
+    ClippingPathCommand,
+)
+__all__ += ["WindingRule", "ClippingPathCommand"]

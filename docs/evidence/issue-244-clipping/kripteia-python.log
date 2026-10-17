@@ -1,0 +1,23 @@
+## Calidad de Tests (Kripteia)
+
+=== Kripteia Test Quality Report ===
+Overall Score: 100 | Tests: 6 | Files: 1
+
+--- Files ---
+Path                                                          Tests  Score
+--------------------------------------------------------------------------
+tests/test_clipping_paths.py                                      6    100
+
+--- Worst Offenders ---
+  test_free_path_chaining_commands_and_pdf_operators (tests/test_clipping_paths.py:10) - Score: 100
+  test_snapshot_and_winding_builder_independence (tests/test_clipping_paths.py:22) - Score: 100
+  test_polygon_order_empty_and_invalid_input_atomicity (tests/test_clipping_paths.py:43) - Score: 100
+  test_add_rect_and_rounded_rect_radius_cap (tests/test_clipping_paths.py:58) - Score: 100
+  test_curved_shapes_and_existing_factories (tests/test_clipping_paths.py:70) - Score: 100
+
+
+## Analisis de Seguridad (Kripteia Security)
+
+=== Kripteia Security Analysis ===
+
+No security issues found.

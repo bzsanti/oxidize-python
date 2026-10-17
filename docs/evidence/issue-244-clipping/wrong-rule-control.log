@@ -1,0 +1,36 @@
+.F                                                                       [100%]
+=================================== FAILURES ===================================
+_______ test_real_clipping_winding_and_page_snapshot[rule1-\xff\xff\xff] _______
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-7/test_real_clipping_winding_and1')
+rule = WindingRule.NonZero, center = b'\xff\xff\xff'
+
+    @pytest.mark.parametrize('rule, center', [(Rule.NonZero, b'\x00\x00\xff'), (Rule.NonZero, b'\xff\xff\xff')])
+    def test_real_clipping_winding_and_page_snapshot(tmp_path, rule, center):
+        if shutil.which('pdftoppm') is None:
+            pytest.skip('independent Poppler renderer unavailable')
+        path = Path().add_rect(10, 10, 80, 80).add_rect(30, 30, 40, 40).with_winding_rule(rule)
+        page = Page(100, 100)
+        page.set_clipping_path(path)
+        path.clear()  # Page must retain the installed path
+        page.set_fill_color(Color.blue())
+        page.draw_rect(0, 0, 100, 100)
+        page.fill()
+        doc = Document()
+        doc.add_page(page)
+        source = tmp_path / 'clip.pdf'
+        source.write_bytes(doc.save_to_bytes())
+        subprocess.run(['pdftoppm', '-r', '72', '-singlefile', str(source), str(tmp_path / 'raster')], check=True, capture_output=True, timeout=30)
+        magic, width, height, maximum, pixels = (tmp_path / 'raster.ppm').read_bytes().split(None, 4)
+        assert (magic, width, height, maximum) == (b'P6', b'100', b'100', b'255')
+        assert pixels[(20 * 100 + 20) * 3: (20 * 100 + 20) * 3 + 3] == b'\x00\x00\xff'
+>       assert pixels[(50 * 100 + 50) * 3: (50 * 100 + 50) * 3 + 3] == center
+E       AssertionError: assert b'\x00\x00\xff' == b'\xff\xff\xff'
+E
+E         At index 0 diff: b'\x00' != b'\xff'
+E         Use -v to get more diff
+
+../test_clipping_wrong_rule.py:101: AssertionError
+=========================== short test summary info ============================
+FAILED ../test_clipping_wrong_rule.py::test_real_clipping_winding_and_page_snapshot[rule1-\xff\xff\xff]
+1 failed, 1 passed, 6 deselected in 0.77s
