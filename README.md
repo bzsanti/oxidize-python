@@ -540,3 +540,29 @@ current margins and can be negative or inverted when margins exceed page size.
 `Page.effective_width` and `Page.effective_height` reflect rotation: 90°/270° swap
 width and height. They use the full page dimensions, without subtracting margins.
 Setting a coordinate system does not change these geometry properties.
+
+### Custom clipping paths
+
+```python
+from oxidize_pdf import ClippingPath, WindingRule
+
+clip = (ClippingPath().add_rect(10, 10, 80, 80)
+        .add_polygon([(30, 30), (70, 30), (50, 70)])
+        .with_winding_rule(WindingRule.EvenOdd))
+page.set_clipping_path(clip)
+```
+
+`move_to`, `line_to`, `curve_to`, `close_path` and `add_rect`, `add_circle`,
+`add_ellipse`, `add_rounded_rect`, `add_polygon` mutate and return the same path.
+`with_winding_rule` returns an independent copy; the default is `NonZero`.
+`clear()` removes commands while preserving the rule. `is_empty` reports whether
+commands exist. `Page.set_clipping_path` retains a copy.
+
+`commands` returns owned `ClippingPathCommand` snapshots with read-only `kind`
+and copied `coordinates`: move/line use `[x, y]`, cubic curves use two control
+points and an endpoint `[x1, y1, x2, y2, x3, y3]`, rectangles use
+`[x, y, width, height]`, and close has no coordinates. Coordinates are PDF user
+space values; callers supply valid finite geometry. `to_pdf_operations()` emits
+the core's clipping operators, including `W`/`W*` and `n`.
+The existing `rect`, `circle`, and `ellipse` factories remain available.
+This API does not expose path intersection, text clipping, or a clipping stack.

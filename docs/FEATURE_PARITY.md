@@ -1509,3 +1509,29 @@ bloqueo asíncrono del entorno; el diagnóstico pasó 12/12 fuera y luego la sui
 MCP completa. No se cambió código por ello. Se conservan 690 archivos del checkout
 original sin alteración. Evidencia: issue-244-integration/review.md. Pendiente:
 CI de PR e integración remota; #244 continúa abierta.
+
+## #244 — construcción de ClippingPath (2026-10-17)
+
+Base da70c4c: #285 fusionada en develop tras 26 checks correctos. El usuario
+solicita continuar y fusionar la siguiente PR cuando CI esté verde. Core =5.4.2.
+Aplicar scoped-delivery y revisión de calidad/seguridad al conjunto.
+
+Subcontrato: constructor vacío, mutadores de trazado, regla NonZero/EvenOdd,
+inspección propia de comandos, vaciado y serialización de ClippingPath. Se
+conservan las tres factorías y Page.set_clipping_path. Los mutadores retornan
+la misma instancia; with_winding_rule devuelve copia independiente.
+Fuera del incremento: intersect, as_text_clip y ClippingRegion. No se afirma
+paridad completa de clipping: intersect concatena comandos en un único recorte;
+as_text_clip solo cambia un flag no consumido por to_pdf_operations; la pila de
+ClippingRegion no guarda estados vacíos. Requieren contratos/evidencia propios.
+
+| Requisito | Estado | Cierre |
+| --- | --- | --- |
+| Construcción libre y figuras compuestas preservando orden/parámetros | Demostrado | tests/test_clipping_paths.py: comandos y operadores literales |
+| Copias/regla de relleno y errores sin mutación parcial | Demostrado | Copias independientes, entrada mal formada y encadenamiento |
+| Recorte real y copia de Page | Demostrado | Poppler + control negativo de regla incorrecta |
+| Tipos, contratos, compatibilidad, calidad/seguridad | Demostrado | 2628 tests, mypy, guard, Clippy y revisión sin hallazgos pendientes |
+| Entrega | Pendiente | PR, CI completa y merge |
+
+Evidencia: docs/evidence/issue-244-clipping/. No se repite MCP local: el código
+MCP no cambia y su matriz completa se ejecuta en CI antes de fusionar.

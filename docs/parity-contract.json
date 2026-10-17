@@ -1,6 +1,6 @@
 {
   "core": "5.4.2",
-  "scope": "existing-document preservation, page mutations and external CMS signing; remaining Rust API pending audit; composed extraction policies; incremental free-text editing; incremental Ink editing; configurable partitioning, element graphs, custom token counting and document export; real page iteration with explicit parser lifetime; lossless incremental event bridge (upstream parser limitations remain); all BatchOptions fields with observable executor limitations; structured SignatureError exceptions; bounded existing-document outline reading; parser and recovery configuration with explicit upstream consumption limits; bounded semantic comparison with physical revision attribution (core object-stream layout limitation documented); validated packed image pixel constructors and owned image/alpha inspection; affine transform matrices and coordinate conversions (Page stores the system without automatic content transformation); mutable RenderContext with independent stored matrix and live coordinate conversions; Page unrotated content bounds and effective rotated dimensions",
+  "scope": "existing-document preservation, page mutations and external CMS signing; remaining Rust API pending audit; composed extraction policies; incremental free-text editing; incremental Ink editing; configurable partitioning, element graphs, custom token counting and document export; real page iteration with explicit parser lifetime; lossless incremental event bridge (upstream parser limitations remain); all BatchOptions fields with observable executor limitations; structured SignatureError exceptions; bounded existing-document outline reading; parser and recovery configuration with explicit upstream consumption limits; bounded semantic comparison with physical revision attribution (core object-stream layout limitation documented); validated packed image pixel constructors and owned image/alpha inspection; affine transform matrices and coordinate conversions (Page stores the system without automatic content transformation); mutable RenderContext with independent stored matrix and live coordinate conversions; Page unrotated content bounds and effective rotated dimensions; clipping path construction, owned command inspection and winding rules (intersection/text clipping/region stack excluded)",
   "callables": {
     "ExistingDocumentPolicy.preserve_base": [
       "page_labels_first_input_wins"
@@ -606,6 +606,88 @@
     "RenderContext.y_to_pdf": [
       "self",
       "y"
+    ],
+    "ClippingPath": [],
+    "ClippingPath.with_winding_rule": [
+      "self",
+      "rule"
+    ],
+    "ClippingPath.clear": [
+      "self"
+    ],
+    "ClippingPath.to_pdf_operations": [
+      "self"
+    ],
+    "ClippingPath.move_to": [
+      "self",
+      "x",
+      "y"
+    ],
+    "ClippingPath.line_to": [
+      "self",
+      "x",
+      "y"
+    ],
+    "ClippingPath.curve_to": [
+      "self",
+      "x1",
+      "y1",
+      "x2",
+      "y2",
+      "x3",
+      "y3"
+    ],
+    "ClippingPath.add_rect": [
+      "self",
+      "x",
+      "y",
+      "width",
+      "height"
+    ],
+    "ClippingPath.add_circle": [
+      "self",
+      "cx",
+      "cy",
+      "radius"
+    ],
+    "ClippingPath.add_ellipse": [
+      "self",
+      "cx",
+      "cy",
+      "rx",
+      "ry"
+    ],
+    "ClippingPath.add_rounded_rect": [
+      "self",
+      "x",
+      "y",
+      "width",
+      "height",
+      "radius"
+    ],
+    "ClippingPath.close_path": [
+      "self"
+    ],
+    "ClippingPath.add_polygon": [
+      "self",
+      "points"
+    ],
+    "ClippingPath.circle": [
+      "cx",
+      "cy",
+      "radius"
+    ],
+    "ClippingPath.ellipse": [
+      "cx",
+      "cy",
+      "rx",
+      "ry"
+    ],
+    "ClippingPath.rect": [
+      "x",
+      "y",
+      "width",
+      "height"
     ]
   },
   "properties": {
@@ -991,6 +1073,14 @@
       "page_width",
       "page_height",
       "current_transform"
+    ],
+    "ClippingPath": [
+      "is_empty",
+      "commands"
+    ],
+    "ClippingPathCommand": [
+      "kind",
+      "coordinates"
     ]
   },
   "required_tests": [
@@ -1175,6 +1265,14 @@
       "test_rotation_dimensions_match_serialized_page",
       "test_oversized_margins_remain_unclamped_and_coordinates_are_unrotated",
       "test_geometry_is_read_only_and_rejected_rotation_keeps_dimensions"
+    ],
+    "tests/test_clipping_paths.py": [
+      "test_free_path_chaining_commands_and_pdf_operators",
+      "test_snapshot_and_winding_builder_independence",
+      "test_polygon_order_empty_and_invalid_input_atomicity",
+      "test_add_rect_and_rounded_rect_radius_cap",
+      "test_curved_shapes_and_existing_factories",
+      "test_real_clipping_winding_and_page_snapshot"
     ]
   },
   "typed_dicts": {

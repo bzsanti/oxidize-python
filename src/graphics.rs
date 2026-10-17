@@ -185,6 +185,58 @@ impl PyBlendMode {
     }
 }
 
+/// Interior rule for a clipping path.
+#[pyclass(name = "WindingRule", frozen, eq, eq_int, from_py_object)]
+#[derive(Clone, Copy, PartialEq)]
+pub enum PyWindingRule {
+    NonZero,
+    EvenOdd,
+}
+
+/// Owned snapshot of one clipping path command.
+#[pyclass(name = "ClippingPathCommand", frozen, from_py_object)]
+#[derive(Clone)]
+pub struct PyClippingPathCommand {
+    inner: oxidize_pdf::graphics::PathCommand,
+}
+
+#[pymethods]
+impl PyClippingPathCommand {
+    #[getter]
+    fn kind(&self) -> &'static str {
+        use oxidize_pdf::graphics::PathCommand as C;
+        match &self.inner {
+            C::MoveTo { .. } => "move_to",
+            C::LineTo { .. } => "line_to",
+            C::CurveTo { .. } => "curve_to",
+            C::Rectangle { .. } => "rectangle",
+            C::ClosePath => "close_path",
+        }
+    }
+    #[getter]
+    fn coordinates(&self) -> Vec<f64> {
+        use oxidize_pdf::graphics::PathCommand as C;
+        match &self.inner {
+            C::MoveTo { x, y } | C::LineTo { x, y } => vec![*x, *y],
+            C::CurveTo {
+                x1,
+                y1,
+                x2,
+                y2,
+                x3,
+                y3,
+            } => vec![*x1, *y1, *x2, *y2, *x3, *y3],
+            C::Rectangle {
+                x,
+                y,
+                width,
+                height,
+            } => vec![*x, *y, *width, *height],
+            C::ClosePath => vec![],
+        }
+    }
+}
+
 // ── ClippingPath ──────────────────────────────────────────────────────────
 
 #[pyclass(name = "ClippingPath", from_py_object)]
@@ -195,6 +247,125 @@ pub struct PyClippingPath {
 
 #[pymethods]
 impl PyClippingPath {
+    #[new]
+    fn new() -> Self {
+        Self {
+            inner: ClippingPath::new(),
+        }
+    }
+
+    fn with_winding_rule(&self, rule: PyWindingRule) -> Self {
+        let rule = match rule {
+            PyWindingRule::NonZero => oxidize_pdf::graphics::WindingRule::NonZero,
+            PyWindingRule::EvenOdd => oxidize_pdf::graphics::WindingRule::EvenOdd,
+        };
+        Self {
+            inner: self.inner.clone().with_winding_rule(rule),
+        }
+    }
+
+    #[getter]
+    fn is_empty(&self) -> bool {
+        self.inner.is_empty()
+    }
+
+    #[getter]
+    fn commands(&self) -> Vec<PyClippingPathCommand> {
+        self.inner
+            .commands()
+            .iter()
+            .cloned()
+            .map(|inner| PyClippingPathCommand { inner })
+            .collect()
+    }
+
+    fn clear(&mut self) {
+        self.inner.clear();
+    }
+
+    fn to_pdf_operations(&self) -> PyResult<String> {
+        self.inner
+            .to_pdf_operations()
+            .map_err(crate::errors::to_py_err)
+    }
+
+    fn move_to(mut slf: PyRefMut<'_, Self>, x: f64, y: f64) -> PyRefMut<'_, Self> {
+        slf.inner.move_to(x, y);
+        slf
+    }
+
+    fn line_to(mut slf: PyRefMut<'_, Self>, x: f64, y: f64) -> PyRefMut<'_, Self> {
+        slf.inner.line_to(x, y);
+        slf
+    }
+
+    fn curve_to(
+        mut slf: PyRefMut<'_, Self>,
+        x1: f64,
+        y1: f64,
+        x2: f64,
+        y2: f64,
+        x3: f64,
+        y3: f64,
+    ) -> PyRefMut<'_, Self> {
+        slf.inner.curve_to(x1, y1, x2, y2, x3, y3);
+        slf
+    }
+
+    fn add_rect(
+        mut slf: PyRefMut<'_, Self>,
+        x: f64,
+        y: f64,
+        width: f64,
+        height: f64,
+    ) -> PyRefMut<'_, Self> {
+        slf.inner.add_rect(x, y, width, height);
+        slf
+    }
+
+    fn add_circle(
+        mut slf: PyRefMut<'_, Self>,
+        cx: f64,
+        cy: f64,
+        radius: f64,
+    ) -> PyRefMut<'_, Self> {
+        slf.inner.add_circle(cx, cy, radius);
+        slf
+    }
+
+    fn add_ellipse(
+        mut slf: PyRefMut<'_, Self>,
+        cx: f64,
+        cy: f64,
+        rx: f64,
+        ry: f64,
+    ) -> PyRefMut<'_, Self> {
+        slf.inner.add_ellipse(cx, cy, rx, ry);
+        slf
+    }
+
+    fn add_rounded_rect(
+        mut slf: PyRefMut<'_, Self>,
+        x: f64,
+        y: f64,
+        width: f64,
+        height: f64,
+        radius: f64,
+    ) -> PyRefMut<'_, Self> {
+        slf.inner.add_rounded_rect(x, y, width, height, radius);
+        slf
+    }
+
+    fn close_path(mut slf: PyRefMut<'_, Self>) -> PyRefMut<'_, Self> {
+        slf.inner.close_path();
+        slf
+    }
+
+    fn add_polygon(mut slf: PyRefMut<'_, Self>, points: Vec<(f64, f64)>) -> PyRefMut<'_, Self> {
+        slf.inner.add_polygon(&points);
+        slf
+    }
+
     #[staticmethod]
     fn rect(x: f64, y: f64, width: f64, height: f64) -> Self {
         Self {
@@ -805,6 +976,8 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyLineDashPattern>()?;
     m.add_class::<PyBlendMode>()?;
     m.add_class::<PyClippingPath>()?;
+    m.add_class::<PyWindingRule>()?;
+    m.add_class::<PyClippingPathCommand>()?;
     m.add_class::<PyCalGrayColorSpace>()?;
     m.add_class::<PyCalRgbColorSpace>()?;
     m.add_class::<PyCalibratedColor>()?;
