@@ -55,3 +55,13 @@ sin shell, con archivos temporales y timeout. No se certifica todo el core.
 - Archivos de producto modificados durante revisión: 0.
 - Resultados de regresión y Clippy en los logs correspondientes.
 - Pendientes: CI y merge, con reconciliación de cambios concurrentes de #288.
+
+
+## Revisión de integración con #288
+
+Integrado develop 177987c conservando ambas entradas de CI, todos los tests del
+contrato, la sección BlendMode del stub y ambas secciones de documentación.
+Binding y tests de Color idénticos por SHA256 al conjunto revisado; se reutilizan
+sus análisis Kripteia y el control negativo. El binding de BlendMode corresponde
+al PR #288 validado y fusionado. Se repiten build, regresión y tipos sobre el
+conjunto integrado por los cambios del contrato/CI. Resultados integrated-*.log.

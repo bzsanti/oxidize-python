@@ -1560,6 +1560,25 @@ Evidencia local: docs/evidence/issue-244-dash/. MCP no cambia; su validación
 completa se ejecuta en CI antes del merge.
 
 
+## #244 — BlendMode (2026-10-17)
+
+Base oxidize-python develop 2efeec4. Fuente y compilación: crate publicado
+oxidize-pdf =5.4.2, no commits de develop del core.
+Subcontrato: seis variantes restantes y pdf_name; conservar diez variantes
+anteriores y Page.set_blend_mode. Aplicar scoped-delivery y quality-review.
+
+| Requisito | Estado | Evidencia de cierre |
+| --- | --- | --- |
+| 16 variantes, nombres PDF/repr y compatibilidad | Demostrado | Tabla independiente de nombres y stubs |
+| Seis nuevos modos llegan al PDF | Demostrado | ExtGState /BM, seis raster y control negativo |
+| Tipos, regresión y revisión | Demostrado | Regresión, consumidor estricto, paridad, Clippy y Kripteia |
+| Entrega | Pendiente | CI completa y merge autorizado |
+
+No se amplía a otras propiedades de ExtGState ni se afirma paridad global.
+
+Evidencia: docs/evidence/issue-244-blend/. MCP no cambia y se comprueba en CI.
+
+
 ## #244 — conversiones Color (2026-10-17)
 
 Incremento independiente solicitado durante espera de CI de #288. Base 2efeec4,
@@ -1578,3 +1597,12 @@ aproximadas del core. Otras factorías/representaciones de Color quedan fuera.
 | Entrega | Pendiente | CI y merge |
 
 Evidencia: docs/evidence/issue-244-color/. MCP no cambia y se valida en CI.
+
+Integración de #288: 177987c fusionado tras 26/26 checks SUCCESS. Se concilian
+documentación, contrato y listas de tests para conservar ambos incrementos.
+La evidencia original de Color corresponde a 2efeec4 + b752e2a; la nueva
+validación integrada usa las fuentes conciliadas y se registra por separado.
+
+Validación integrada con #288: 2675 tests correctos, inventario de 2565 miembros,
+consumidores de Color/BlendMode estrictos, paridad y Clippy en verde. Revisión
+de conflictos completada; no quedan bloqueantes locales. CI/merge pendientes.

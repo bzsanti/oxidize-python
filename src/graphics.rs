@@ -195,6 +195,35 @@ impl PyBlendMode {
         inner: BlendMode::Lighten,
     };
 
+    #[classattr]
+    const DIFFERENCE: PyBlendMode = PyBlendMode {
+        inner: BlendMode::Difference,
+    };
+    #[classattr]
+    const EXCLUSION: PyBlendMode = PyBlendMode {
+        inner: BlendMode::Exclusion,
+    };
+    #[classattr]
+    const HUE: PyBlendMode = PyBlendMode {
+        inner: BlendMode::Hue,
+    };
+    #[classattr]
+    const SATURATION: PyBlendMode = PyBlendMode {
+        inner: BlendMode::Saturation,
+    };
+    #[classattr]
+    const COLOR: PyBlendMode = PyBlendMode {
+        inner: BlendMode::Color,
+    };
+    #[classattr]
+    const LUMINOSITY: PyBlendMode = PyBlendMode {
+        inner: BlendMode::Luminosity,
+    };
+
+    fn pdf_name(&self) -> &'static str {
+        self.inner.pdf_name()
+    }
+
     fn __repr__(&self) -> String {
         let name = match self.inner {
             BlendMode::Normal => "NORMAL",
@@ -207,7 +236,12 @@ impl PyBlendMode {
             BlendMode::ColorBurn => "COLOR_BURN",
             BlendMode::Darken => "DARKEN",
             BlendMode::Lighten => "LIGHTEN",
-            _ => "OTHER",
+            BlendMode::Difference => "DIFFERENCE",
+            BlendMode::Exclusion => "EXCLUSION",
+            BlendMode::Hue => "HUE",
+            BlendMode::Saturation => "SATURATION",
+            BlendMode::Color => "COLOR",
+            BlendMode::Luminosity => "LUMINOSITY",
         };
         format!("BlendMode.{name}")
     }

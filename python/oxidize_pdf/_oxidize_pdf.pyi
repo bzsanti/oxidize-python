@@ -4851,6 +4851,13 @@ class ClippingPath:
 
 
 class BlendMode:
+    DIFFERENCE: ClassVar[BlendMode]
+    EXCLUSION: ClassVar[BlendMode]
+    HUE: ClassVar[BlendMode]
+    SATURATION: ClassVar[BlendMode]
+    COLOR: ClassVar[BlendMode]
+    LUMINOSITY: ClassVar[BlendMode]
+    def pdf_name(self) -> str: ...
     COLOR_BURN: ClassVar[BlendMode]
     COLOR_DODGE: ClassVar[BlendMode]
     DARKEN: ClassVar[BlendMode]

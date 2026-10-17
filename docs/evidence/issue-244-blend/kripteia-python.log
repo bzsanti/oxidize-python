@@ -1,0 +1,22 @@
+## Calidad de Tests (Kripteia)
+
+=== Kripteia Test Quality Report ===
+Overall Score: 100 | Tests: 4 | Files: 1
+
+--- Files ---
+Path                                                          Tests  Score
+--------------------------------------------------------------------------
+tests/test_blend_modes.py                                         4    100
+
+--- Worst Offenders ---
+  test_all_mode_names_and_immutable_values (tests/test_blend_modes.py:20) - Score: 100
+  test_new_modes_reach_extgstate (tests/test_blend_modes.py:43) - Score: 100
+  test_new_modes_render (tests/test_blend_modes.py:54) - Score: 100
+  test_invalid_mode_rejected (tests/test_blend_modes.py:72) - Score: 100
+
+
+## Analisis de Seguridad (Kripteia Security)
+
+=== Kripteia Security Analysis ===
+
+No security issues found.

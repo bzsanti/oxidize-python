@@ -582,6 +582,15 @@ regardless of stored phase. Negative values remain unchanged; this API does not
 validate whether an arbitrary pattern is legal PDF. Use nonnegative lengths,
 with at least one positive length for a nonempty pattern, and a nonnegative phase.
 
+### Blend modes
+
+All 16 modes from the published core 5.4.2 are available through `BlendMode`.
+Alongside the existing modes, use `DIFFERENCE`, `EXCLUSION`, `HUE`,
+`SATURATION`, `COLOR`, or `LUMINOSITY` with `page.set_blend_mode(mode)` before
+drawing. `mode.pdf_name()` returns the PDF name (for example, `"Color"`), and
+`repr(mode)` uses the Python constant name. These immutable values configure
+the page's extended graphics state; use `BlendMode.NORMAL` to reset blending.
+
 ### Color conversion and inspection
 
 `color.to_rgb()` and `color.to_cmyk()` return independent `Color` values.
