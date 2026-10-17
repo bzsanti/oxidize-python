@@ -1,6 +1,6 @@
 {
   "core": "5.4.2",
-  "scope": "existing-document preservation, page mutations and external CMS signing; remaining Rust API pending audit; composed extraction policies; incremental free-text editing; incremental Ink editing; configurable partitioning, element graphs, custom token counting and document export; real page iteration with explicit parser lifetime; lossless incremental event bridge (upstream parser limitations remain); all BatchOptions fields with observable executor limitations; structured SignatureError exceptions; bounded existing-document outline reading; parser and recovery configuration with explicit upstream consumption limits; bounded semantic comparison with physical revision attribution (core object-stream layout limitation documented); validated packed image pixel constructors and owned image/alpha inspection; affine transform matrices and coordinate conversions (Page stores the system without automatic content transformation); mutable RenderContext with independent stored matrix and live coordinate conversions; Page unrotated content bounds and effective rotated dimensions; clipping path construction, owned command inspection and winding rules (intersection/text clipping/region stack excluded); line dash factories, owned parameters and core serialization; all 16 blend modes and their PDF names",
+  "scope": "existing-document preservation, page mutations and external CMS signing; remaining Rust API pending audit; composed extraction policies; incremental free-text editing; incremental Ink editing; configurable partitioning, element graphs, custom token counting and document export; real page iteration with explicit parser lifetime; lossless incremental event bridge (upstream parser limitations remain); all BatchOptions fields with observable executor limitations; structured SignatureError exceptions; bounded existing-document outline reading; parser and recovery configuration with explicit upstream consumption limits; bounded semantic comparison with physical revision attribution (core object-stream layout limitation documented); validated packed image pixel constructors and owned image/alpha inspection; affine transform matrices and coordinate conversions (Page stores the system without automatic content transformation); mutable RenderContext with independent stored matrix and live coordinate conversions; Page unrotated content bounds and effective rotated dimensions; clipping path construction, owned command inspection and winding rules (intersection/text clipping/region stack excluded); line dash factories, owned parameters and core serialization; all 16 blend modes and their PDF names; approximate RGB/CMYK conversion and color-space inspection",
   "callables": {
     "ExistingDocumentPolicy.preserve_base": [
       "page_labels_first_input_wins"
@@ -707,6 +707,27 @@
     ],
     "BlendMode.pdf_name": [
       "self"
+    ],
+    "Color.to_rgb": [
+      "self"
+    ],
+    "Color.to_cmyk": [
+      "self"
+    ],
+    "Color.cmyk_components": [
+      "self"
+    ],
+    "Color.color_space_name": [
+      "self"
+    ],
+    "Color.is_rgb": [
+      "self"
+    ],
+    "Color.is_cmyk": [
+      "self"
+    ],
+    "Color.is_gray": [
+      "self"
     ]
   },
   "properties": {
@@ -1308,6 +1329,12 @@
       "test_new_modes_reach_extgstate",
       "test_new_modes_render",
       "test_invalid_mode_rejected"
+    ],
+    "tests/test_color_conversions.py": [
+      "test_space_predicates_and_copy_identity",
+      "test_component_conversions",
+      "test_existing_properties_and_numeric_limits",
+      "test_converted_rgb_reaches_page"
     ]
   },
   "typed_dicts": {

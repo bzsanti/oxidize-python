@@ -1,0 +1,28 @@
+## Calidad de Tests (Kripteia)
+
+=== Kripteia Test Quality Report ===
+Overall Score: 98 | Tests: 4 | Files: 1
+
+--- Files ---
+Path                                                          Tests  Score
+--------------------------------------------------------------------------
+tests/test_color_conversions.py                                   4     98
+
+--- Worst Offenders ---
+  test_converted_rgb_reaches_page (tests/test_color_conversions.py:56) - Score: 90
+    - Test 'test_converted_rgb_reaches_page' has low assert-to-setup ratio (14%): 2 asserts vs 12 setup lines
+  test_space_predicates_and_copy_identity (tests/test_color_conversions.py:15) - Score: 100
+  test_component_conversions (tests/test_color_conversions.py:33) - Score: 100
+  test_existing_properties_and_numeric_limits (tests/test_color_conversions.py:42) - Score: 100
+
+--- Details ---
+tests/test_color_conversions.py:
+  test_converted_rgb_reaches_page (line 56) - Score: 90
+    - Test 'test_converted_rgb_reaches_page' has low assert-to-setup ratio (14%): 2 asserts vs 12 setup lines
+
+
+## Analisis de Seguridad (Kripteia Security)
+
+=== Kripteia Security Analysis ===
+
+No security issues found.

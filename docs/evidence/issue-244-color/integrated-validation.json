@@ -1,0 +1,13 @@
+{
+  "merged_develop": "177987cacfc16dc03f0f39dfa53aca507096573b",
+  "sha256": {
+    "src/types.rs": "94ad521a20d13d33eb1b2d83018295181b9730ff902ce4566a5163c72338c0cf",
+    "python/oxidize_pdf/_oxidize_pdf.pyi": "0a4fb4715b238366c9fe3b5ff03773d206765cab89e1888c5dc84a9fe9dfa4b8",
+    "tests/test_color_conversions.py": "197860cf7b9e9244608c9aca79b35e92b8a746aa2863e169a24b1e7b3f9b9702",
+    "tests/typing/color_conversions.py": "74beee5e96decc3053f21ad3fb5d6fc8da75b80b91118166b37ea293565d7d70",
+    "tests/test_parity_checker.py": "558601b65fdf43e29c02f6732bbc6044ea4727658bd5e96f2d6cd9c03cd9e4b9",
+    "docs/parity-contract.json": "fd239634924a6186ef2591b6fa6f30c33e2eebb11491ab939770fcb103f2a980",
+    ".github/workflows/test.yml": "792c56b6b6c1d8245cdd62e5d36d6c828b1aa5cbe3d6375c1fba28861e57e53c",
+    "README.md": "3efc439a2016a0ffe4492d7b600da0a36dc60ba35d978090174dc2eca9cd9f8f"
+  }
+}
