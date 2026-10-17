@@ -1,0 +1,22 @@
+{
+  "base": "333516184c70fe79bab4e9c735ec38fb6e4ebdb6",
+  "core": "5.4.2",
+  "reviewed_files_sha256": {
+    "src/coordinates.rs": "a9f187c6cbb90d8df5b2b033d017d7af382467fe65c8fd96fb0c565127f8b511",
+    "src/tier8.rs": "2a012637562a9236f9176fbcba102aea6b2ba0ccd75de824f111df3026dd191e",
+    "src/types.rs": "1fbe8d8f26f5bfc98253aca2b797bf22932f77818c791cdd0792407cf22afce2",
+    "python/oxidize_pdf/__init__.py": "9c70e176a3c4d4440812f4586392820492f819c2c4c36613b8a76cecd55191bc",
+    "python/oxidize_pdf/__init__.pyi": "e124e5e1235858ce4215322e25c45742c0d76052bf22503461b49075134ceb20",
+    "python/oxidize_pdf/_oxidize_pdf.pyi": "41fea1ee72989eefff067bd0e03316b3d9903ed4ddfa5a35cd9ba06b1ef46d60",
+    "tests/test_render_context.py": "9fd8724c6c20f396454db67873c809a2b04d5e038a05bbadb85f17c14a9185ce",
+    "tests/test_parity_checker.py": "929b0f118b35b7b774ee2ff7ecfcb7a2482d1d86faa5401149f0cdf855ceca7a",
+    "tests/typing/render_context.py": "a02401bf16b33cd6a5cc0b8dd5f067372950f4a9a26bd48a35765c1e9c4b4368",
+    "docs/parity-contract.json": "290f41f3a5304f8351095c0a8965e1f261a3ace912cb159b92e7052bf76672cb",
+    ".github/workflows/test.yml": "9d107d9f10b88d1bf3b0e754f3f2a2057b455195272a4ed07328026d9b081039",
+    "README.md": "4e90b5dcb30f0536ce8aee5ff2db4b59d5ad1d0c671b37d72d3305461f6c7947"
+  },
+  "library_tests": 2628,
+  "focused_tests": 34,
+  "validation": "local editable native build; existing dirty worktree retained",
+  "remote_ci": "not run"
+}

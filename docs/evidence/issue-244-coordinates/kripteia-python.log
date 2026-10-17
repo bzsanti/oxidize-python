@@ -1,0 +1,23 @@
+## Calidad de Tests (Kripteia)
+
+=== Kripteia Test Quality Report ===
+Overall Score: 100 | Tests: 5 | Files: 1
+
+--- Files ---
+Path                                                          Tests  Score
+--------------------------------------------------------------------------
+tests/test_coordinates.py                                         5    100
+
+--- Worst Offenders ---
+  test_components_and_immutable_snapshot (tests/test_coordinates.py:9) - Score: 100
+  test_composition_order_and_factories (tests/test_coordinates.py:19) - Score: 100
+  test_coordinate_conversions_and_custom_semantics (tests/test_coordinates.py:33) - Score: 100
+  test_page_coordinate_system_snapshot (tests/test_coordinates.py:53) - Score: 100
+  test_float_semantics_and_type_errors (tests/test_coordinates.py:65) - Score: 100
+
+
+## Analisis de Seguridad (Kripteia Security)
+
+=== Kripteia Security Analysis ===
+
+No security issues found.

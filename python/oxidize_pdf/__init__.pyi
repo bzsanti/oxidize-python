@@ -1011,3 +1011,11 @@ from oxidize_pdf._oxidize_pdf import (
     ImageFormat as ImageFormat,
 )
 __all__ += ["ImageColorSpace", "ImageFormat"]
+
+from oxidize_pdf._oxidize_pdf import TransformMatrix as TransformMatrix
+
+__all__ += ["TransformMatrix"]
+
+from oxidize_pdf._oxidize_pdf import RenderContext as RenderContext
+
+__all__ += ["RenderContext"]

@@ -138,6 +138,27 @@ pub struct PyCoordinateSystem {
 
 #[pymethods]
 impl PyCoordinateSystem {
+    #[staticmethod]
+    fn custom(matrix: &crate::coordinates::PyTransformMatrix) -> Self {
+        Self { inner: oxidize_pdf::CoordinateSystem::Custom(matrix.inner) }
+    }
+
+    fn to_pdf_standard_matrix(&self, page_height: f64) -> crate::coordinates::PyTransformMatrix {
+        crate::coordinates::PyTransformMatrix { inner: self.inner.to_pdf_standard_matrix(page_height) }
+    }
+
+    fn to_pdf_standard(&self, point: &crate::types::PyPoint, page_height: f64) -> crate::types::PyPoint {
+        crate::types::PyPoint { inner: self.inner.to_pdf_standard(point.inner, page_height) }
+    }
+
+    /// For custom transforms evaluates at x=0, as in the core.
+    fn y_to_pdf_standard(&self, y: f64, page_height: f64) -> f64 {
+        self.inner.y_to_pdf_standard(y, page_height)
+    }
+
+    /// For custom transforms reports whether matrix.d > 0.
+    fn grows_upward(&self) -> bool { self.inner.grows_upward() }
+
     #[classattr]
     const PDF_STANDARD: Self = Self { inner: oxidize_pdf::CoordinateSystem::PdfStandard };
     #[classattr]

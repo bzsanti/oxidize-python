@@ -497,3 +497,46 @@ viewer honoring it. For tagged structure, attach the returned ID using
 `Document.set_struct_tree(tree)`. These operations alone do not certify PDF/UA.
 The core writes these markers in the text context; they are intended for text
 operations, not as a general scope around separately buffered graphics.
+
+### Coordinate transformations
+
+`TransformMatrix(a, b, c, d, e, f)` exposes immutable affine components,
+`IDENTITY`, `translate`, `scale`, `rotate` (radians), `flip_y`, `multiply`,
+`transform_point(Point)` and `to_pdf_ctm()`. Composition `a.multiply(b)` applies
+`b` first, then `a`. Values retain the core's floating-point semantics, including
+singular and nonfinite matrices; validate them before using the CTM in a PDF.
+
+```python
+from oxidize_pdf import CoordinateSystem, Point, TransformMatrix
+
+matrix = TransformMatrix.translate(10, 20).multiply(TransformMatrix.scale(2, 3))
+point = matrix.transform_point(Point(4, 5))  # Point(18, 35)
+custom = CoordinateSystem.custom(matrix)
+pdf_point = custom.to_pdf_standard(Point(4, 5), 800)  # Point(18, 35)
+```
+
+`CoordinateSystem` supports point, Y-only and matrix conversions to PDF
+coordinates, plus `grows_upward()`. For custom systems, Y-only conversion uses
+x=0, orientation tests `d > 0`, and page height is ignored. `Page.coordinate_system`
+returns a snapshot of the stored system. In core 5.4.2, setting this property
+through `set_coordinate_system` does not automatically transform page content;
+convert positions explicitly. `LayoutManager` remains outside this binding increment.
+
+
+`RenderContext(coordinate_system, page_width, page_height)` stores mutable
+`coordinate_system`, `page_width`, `page_height` and `current_transform` fields.
+Its `to_pdf_standard(Point)` and `y_to_pdf(y)` methods use the current system and
+height. The matrix is initialized from the constructor's system and height;
+later field assignments do not recalculate it, and conversions do not read it.
+This preserves core 5.4.2 behavior. Getters return independent value snapshots.
+Use `context.current_transform.transform_point(point)` when you explicitly want
+to apply the stored matrix. Numeric fields retain the core's f64 semantics.
+
+
+`Page.content_width` and `Page.content_height` subtract the page margins.
+`Page.content_area` returns `(left, bottom, right, top)` bounds in unrotated PDF
+coordinates, rather than a position and size. These read-only properties reflect
+current margins and can be negative or inverted when margins exceed page size.
+`Page.effective_width` and `Page.effective_height` reflect rotation: 90°/270° swap
+width and height. They use the full page dimensions, without subtracting margins.
+Setting a coordinate system does not change these geometry properties.

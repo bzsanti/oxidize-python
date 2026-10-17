@@ -1,0 +1,11 @@
+[package]
+name = "layout-manager-probe"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "layout-manager-probe"
+path = "layout_probe.rs"
+
+[dependencies]
+oxidize-pdf = { version = "=5.4.2", default-features = false, features = ["compression", "semantic"] }

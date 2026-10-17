@@ -119,6 +119,36 @@ impl PyPage {
         self.inner.height()
     }
 
+    /// Unrotated width after subtracting left and right margins.
+    #[getter]
+    fn content_width(&self) -> f64 {
+        self.inner.content_width()
+    }
+
+    /// Unrotated height after subtracting top and bottom margins.
+    #[getter]
+    fn content_height(&self) -> f64 {
+        self.inner.content_height()
+    }
+
+    /// Unrotated content bounds (left, bottom, right, top).
+    #[getter]
+    fn content_area(&self) -> (f64, f64, f64, f64) {
+        self.inner.content_area()
+    }
+
+    /// Page width after accounting for a quarter-turn rotation.
+    #[getter]
+    fn effective_width(&self) -> f64 {
+        self.inner.effective_width()
+    }
+
+    /// Page height after accounting for a quarter-turn rotation.
+    #[getter]
+    fn effective_height(&self) -> f64 {
+        self.inner.effective_height()
+    }
+
     #[getter]
     fn margins(&self) -> PyMargins {
         PyMargins {
@@ -573,6 +603,12 @@ impl PyPage {
     /// Set the coordinate system for this page.
     fn set_coordinate_system(&mut self, cs: &crate::tier8::PyCoordinateSystem) {
         self.inner.set_coordinate_system(cs.inner);
+    }
+
+    /// Coordinate system stored on this page; returns an independent snapshot.
+    #[getter]
+    fn coordinate_system(&self) -> crate::tier8::PyCoordinateSystem {
+        crate::tier8::PyCoordinateSystem { inner: self.inner.coordinate_system() }
     }
 
     // ── Annotation operations ─────────────────────────────────────────

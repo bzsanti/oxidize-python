@@ -1,6 +1,6 @@
 {
   "core": "5.4.2",
-  "scope": "existing-document preservation, page mutations and external CMS signing; remaining Rust API pending audit; composed extraction policies; incremental free-text editing; incremental Ink editing; configurable partitioning, element graphs, custom token counting and document export; real page iteration with explicit parser lifetime; lossless incremental event bridge (upstream parser limitations remain); all BatchOptions fields with observable executor limitations; structured SignatureError exceptions; bounded existing-document outline reading; parser and recovery configuration with explicit upstream consumption limits; bounded semantic comparison with physical revision attribution (core object-stream layout limitation documented); validated packed image pixel constructors and owned image/alpha inspection",
+  "scope": "existing-document preservation, page mutations and external CMS signing; remaining Rust API pending audit; composed extraction policies; incremental free-text editing; incremental Ink editing; configurable partitioning, element graphs, custom token counting and document export; real page iteration with explicit parser lifetime; lossless incremental event bridge (upstream parser limitations remain); all BatchOptions fields with observable executor limitations; structured SignatureError exceptions; bounded existing-document outline reading; parser and recovery configuration with explicit upstream consumption limits; bounded semantic comparison with physical revision attribution (core object-stream layout limitation documented); validated packed image pixel constructors and owned image/alpha inspection; affine transform matrices and coordinate conversions (Page stores the system without automatic content transformation); mutable RenderContext with independent stored matrix and live coordinate conversions; Page unrotated content bounds and effective rotated dimensions",
   "callables": {
     "ExistingDocumentPolicy.preserve_base": [
       "page_labels_first_input_wins"
@@ -540,6 +540,72 @@
     ],
     "Page.marked_content_depth": [
       "self"
+    ],
+    "CoordinateSystem.custom": [
+      "matrix"
+    ],
+    "CoordinateSystem.to_pdf_standard_matrix": [
+      "self",
+      "page_height"
+    ],
+    "CoordinateSystem.to_pdf_standard": [
+      "self",
+      "point",
+      "page_height"
+    ],
+    "CoordinateSystem.y_to_pdf_standard": [
+      "self",
+      "y",
+      "page_height"
+    ],
+    "CoordinateSystem.grows_upward": [
+      "self"
+    ],
+    "TransformMatrix": [
+      "a",
+      "b",
+      "c",
+      "d",
+      "e",
+      "f"
+    ],
+    "TransformMatrix.translate": [
+      "tx",
+      "ty"
+    ],
+    "TransformMatrix.scale": [
+      "sx",
+      "sy"
+    ],
+    "TransformMatrix.rotate": [
+      "angle"
+    ],
+    "TransformMatrix.flip_y": [
+      "page_height"
+    ],
+    "TransformMatrix.multiply": [
+      "self",
+      "other"
+    ],
+    "TransformMatrix.transform_point": [
+      "self",
+      "point"
+    ],
+    "TransformMatrix.to_pdf_ctm": [
+      "self"
+    ],
+    "RenderContext": [
+      "coordinate_system",
+      "page_width",
+      "page_height"
+    ],
+    "RenderContext.to_pdf_standard": [
+      "self",
+      "point"
+    ],
+    "RenderContext.y_to_pdf": [
+      "self",
+      "y"
     ]
   },
   "properties": {
@@ -903,6 +969,28 @@
       "bits_per_component",
       "alpha_data",
       "soft_mask"
+    ],
+    "TransformMatrix": [
+      "a",
+      "b",
+      "c",
+      "d",
+      "e",
+      "f"
+    ],
+    "Page": [
+      "coordinate_system",
+      "content_width",
+      "content_height",
+      "content_area",
+      "effective_width",
+      "effective_height"
+    ],
+    "RenderContext": [
+      "coordinate_system",
+      "page_width",
+      "page_height",
+      "current_transform"
     ]
   },
   "required_tests": [
@@ -1068,6 +1156,25 @@
       "test_actual_text_utf16",
       "test_poppler_uses_logical_text",
       "test_mcid_connects_to_structure_tree"
+    ],
+    "tests/test_coordinates.py": [
+      "test_components_and_immutable_snapshot",
+      "test_composition_order_and_factories",
+      "test_coordinate_conversions_and_custom_semantics",
+      "test_page_coordinate_system_snapshot",
+      "test_float_semantics_and_type_errors"
+    ],
+    "tests/test_render_context.py": [
+      "test_initial_context_and_conversions",
+      "test_mutations_use_live_system_and_height_without_refreshing_matrix",
+      "test_custom_context_y_uses_zero_x_and_ignores_cached_transform",
+      "test_invalid_assignments_preserve_context"
+    ],
+    "tests/test_page_geometry.py": [
+      "test_asymmetric_content_bounds_and_live_margins",
+      "test_rotation_dimensions_match_serialized_page",
+      "test_oversized_margins_remain_unclamped_and_coordinates_are_unrotated",
+      "test_geometry_is_read_only_and_rejected_rotation_keeps_dimensions"
     ]
   },
   "typed_dicts": {
