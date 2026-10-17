@@ -108,6 +108,34 @@ impl PyLineDashPattern {
         }
     }
 
+    #[staticmethod]
+    fn dashed(dash_length: f64, gap_length: f64) -> Self {
+        Self {
+            inner: LineDashPattern::dashed(dash_length, gap_length),
+        }
+    }
+
+    #[staticmethod]
+    fn dotted(dot_size: f64, gap_size: f64) -> Self {
+        Self {
+            inner: LineDashPattern::dotted(dot_size, gap_size),
+        }
+    }
+
+    #[getter]
+    fn array(&self) -> Vec<f64> {
+        self.inner.array.clone()
+    }
+
+    #[getter]
+    fn phase(&self) -> f64 {
+        self.inner.phase
+    }
+
+    fn to_pdf_string(&self) -> String {
+        self.inner.to_pdf_string()
+    }
+
     fn __repr__(&self) -> String {
         format!(
             "LineDashPattern(array={:?}, phase={})",

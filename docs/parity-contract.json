@@ -1,6 +1,6 @@
 {
   "core": "5.4.2",
-  "scope": "existing-document preservation, page mutations and external CMS signing; remaining Rust API pending audit; composed extraction policies; incremental free-text editing; incremental Ink editing; configurable partitioning, element graphs, custom token counting and document export; real page iteration with explicit parser lifetime; lossless incremental event bridge (upstream parser limitations remain); all BatchOptions fields with observable executor limitations; structured SignatureError exceptions; bounded existing-document outline reading; parser and recovery configuration with explicit upstream consumption limits; bounded semantic comparison with physical revision attribution (core object-stream layout limitation documented); validated packed image pixel constructors and owned image/alpha inspection; affine transform matrices and coordinate conversions (Page stores the system without automatic content transformation); mutable RenderContext with independent stored matrix and live coordinate conversions; Page unrotated content bounds and effective rotated dimensions; clipping path construction, owned command inspection and winding rules (intersection/text clipping/region stack excluded)",
+  "scope": "existing-document preservation, page mutations and external CMS signing; remaining Rust API pending audit; composed extraction policies; incremental free-text editing; incremental Ink editing; configurable partitioning, element graphs, custom token counting and document export; real page iteration with explicit parser lifetime; lossless incremental event bridge (upstream parser limitations remain); all BatchOptions fields with observable executor limitations; structured SignatureError exceptions; bounded existing-document outline reading; parser and recovery configuration with explicit upstream consumption limits; bounded semantic comparison with physical revision attribution (core object-stream layout limitation documented); validated packed image pixel constructors and owned image/alpha inspection; affine transform matrices and coordinate conversions (Page stores the system without automatic content transformation); mutable RenderContext with independent stored matrix and live coordinate conversions; Page unrotated content bounds and effective rotated dimensions; clipping path construction, owned command inspection and winding rules (intersection/text clipping/region stack excluded); line dash factories, owned parameters and core serialization",
   "callables": {
     "ExistingDocumentPolicy.preserve_base": [
       "page_labels_first_input_wins"
@@ -688,6 +688,22 @@
       "y",
       "width",
       "height"
+    ],
+    "LineDashPattern": [
+      "array",
+      "phase"
+    ],
+    "LineDashPattern.solid": [],
+    "LineDashPattern.dashed": [
+      "dash_length",
+      "gap_length"
+    ],
+    "LineDashPattern.dotted": [
+      "dot_size",
+      "gap_size"
+    ],
+    "LineDashPattern.to_pdf_string": [
+      "self"
     ]
   },
   "properties": {
@@ -1081,6 +1097,10 @@
     "ClippingPathCommand": [
       "kind",
       "coordinates"
+    ],
+    "LineDashPattern": [
+      "array",
+      "phase"
     ]
   },
   "required_tests": [
@@ -1273,6 +1293,12 @@
       "test_add_rect_and_rounded_rect_radius_cap",
       "test_curved_shapes_and_existing_factories",
       "test_real_clipping_winding_and_page_snapshot"
+    ],
+    "tests/test_dash_patterns.py": [
+      "test_factories_and_owned_parameters",
+      "test_numeric_serialization_preserves_core_contract",
+      "test_invalid_arguments_do_not_mutate_existing_pattern",
+      "test_pattern_reaches_rendered_page"
     ]
   },
   "typed_dicts": {

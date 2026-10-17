@@ -1535,3 +1535,26 @@ ClippingRegion no guarda estados vacíos. Requieren contratos/evidencia propios.
 
 Evidencia: docs/evidence/issue-244-clipping/. No se repite MCP local: el código
 MCP no cambia y su matriz completa se ejecuta en CI antes de fusionar.
+
+
+## #244 — LineDashPattern (2026-10-17)
+
+Base 043a7d6: #285 y #286 integradas. Core =5.4.2 sin cambios.
+Subcontrato: factorías dashed/dotted, snapshots array/phase y to_pdf_string;
+conservar constructor/solid y conexión Page.set_dash_pattern.
+
+| Requisito | Estado | Evidencia de cierre |
+| --- | --- | --- |
+| Factorías, parámetros, copias y propiedades de solo lectura | Demostrado | Tests nativos |
+| Serialización y límites numéricos reales del core | Demostrado | Valores literales, vacío, no finitos, negativos |
+| Uso real en Page | Demostrado | Cuatro casos Poppler y control negativo de fase |
+| Tipos, revisión y regresión | Demostrado | 2635 tests, mypy, paridad, Clippy y ambos Kripteia |
+| Entrega | Pendiente | PR, CI y merge autorizado |
+
+No se añade validación geométrica que no exista en el core: negativos se conservan;
+no finitos se serializan como cero; patrón vacío emite fase cero. Estas reglas no
+certifican como válido un patrón arbitrario. El consumidor necesita longitudes
+válidas para PDF. No se amplía a GraphicsState ni se desbloquean OCR/TaggedPdf.
+
+Evidencia local: docs/evidence/issue-244-dash/. MCP no cambia; su validación
+completa se ejecuta en CI antes del merge.
