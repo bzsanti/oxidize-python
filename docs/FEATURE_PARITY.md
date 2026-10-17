@@ -1558,3 +1558,22 @@ válidas para PDF. No se amplía a GraphicsState ni se desbloquean OCR/TaggedPdf
 
 Evidencia local: docs/evidence/issue-244-dash/. MCP no cambia; su validación
 completa se ejecuta en CI antes del merge.
+
+
+## #244 — BlendMode (2026-10-17)
+
+Base oxidize-python develop 2efeec4. Fuente y compilación: crate publicado
+oxidize-pdf =5.4.2, no commits de develop del core.
+Subcontrato: seis variantes restantes y pdf_name; conservar diez variantes
+anteriores y Page.set_blend_mode. Aplicar scoped-delivery y quality-review.
+
+| Requisito | Estado | Evidencia de cierre |
+| --- | --- | --- |
+| 16 variantes, nombres PDF/repr y compatibilidad | Demostrado | Tabla independiente de nombres y stubs |
+| Seis nuevos modos llegan al PDF | Demostrado | ExtGState /BM, seis raster y control negativo |
+| Tipos, regresión y revisión | Demostrado | Regresión, consumidor estricto, paridad, Clippy y Kripteia |
+| Entrega | Pendiente | CI completa y merge autorizado |
+
+No se amplía a otras propiedades de ExtGState ni se afirma paridad global.
+
+Evidencia: docs/evidence/issue-244-blend/. MCP no cambia y se comprueba en CI.
