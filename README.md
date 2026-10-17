@@ -581,3 +581,18 @@ The core serializes non-finite components as zero and an empty array as `[] 0`,
 regardless of stored phase. Negative values remain unchanged; this API does not
 validate whether an arbitrary pattern is legal PDF. Use nonnegative lengths,
 with at least one positive length for a nonempty pattern, and a nonnegative phase.
+
+### Color conversion and inspection
+
+`color.to_rgb()` and `color.to_cmyk()` return independent `Color` values.
+`cmyk_components()` returns four converted components, including for RGB/Gray
+inputs. Existing `c`, `m`, `y`, `k` properties still return zero for non-CMYK
+colors. `is_rgb()`, `is_cmyk()`, `is_gray()` inspect the stored variant, and
+`color_space_name()` returns `DeviceRGB`, `DeviceCMYK`, or `DeviceGray`.
+The existing `color_space` property keeps its shorter names.
+
+Conversions use the published core 5.4.2's approximate formulas, without ICC
+profiles or calibrated color management. Gray becomes equal RGB components or
+CMYK with only black ink. RGB black converts to `(0, 0, 0, 1)`. Constructors
+clamp finite out-of-range values and infinities; NaN may propagate through
+conversion. Callers should supply finite components for predictable colors.

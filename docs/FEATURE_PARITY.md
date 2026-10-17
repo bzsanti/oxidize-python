@@ -1558,3 +1558,23 @@ válidas para PDF. No se amplía a GraphicsState ni se desbloquean OCR/TaggedPdf
 
 Evidencia local: docs/evidence/issue-244-dash/. MCP no cambia; su validación
 completa se ejecuta en CI antes del merge.
+
+
+## #244 — conversiones Color (2026-10-17)
+
+Incremento independiente solicitado durante espera de CI de #288. Base 2efeec4,
+core publicado =5.4.2. Rama independiente; no incorpora cambios de BlendMode.
+Subcontrato: to_rgb/to_cmyk, cmyk_components, color_space_name y tres predicados.
+Conservar propiedades anteriores, especialmente c/m/y/k para colores no CMYK.
+No se afirma gestión ICC ni conversión colorimétrica calibrada; son fórmulas
+aproximadas del core. Otras factorías/representaciones de Color quedan fuera.
+
+| Requisito | Estado | Evidencia de cierre |
+| --- | --- | --- |
+| Conversiones y componentes | Demostrado | Valores esperados independientes, negro/blanco, Gray/RGB/CMYK |
+| Identidad de espacio y copias | Demostrado | Predicados, nombres Device, fuente conservada |
+| Consumo PDF y límites | Demostrado | Render de color convertido, clamp y NaN documentados |
+| Tipos y revisión | Demostrado | 2646 tests, consumidor, paridad, Clippy y ambos Kripteia |
+| Entrega | Pendiente | CI y merge |
+
+Evidencia: docs/evidence/issue-244-color/. MCP no cambia y se valida en CI.

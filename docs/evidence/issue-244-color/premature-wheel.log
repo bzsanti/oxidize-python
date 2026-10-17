@@ -1,0 +1,197 @@
+FFFFFFFFFFF........                                                      [100%]
+=================================== FAILURES ===================================
+____ test_space_predicates_and_copy_identity[color0-DeviceRGB-predicates0] _____
+
+color = Color.rgb(0.2, 0.4, 0.8), space = 'DeviceRGB'
+predicates = (True, False, False)
+
+    @pytest.mark.parametrize('color,space,predicates', [
+        (Color.rgb(.2, .4, .8), 'DeviceRGB', (True, False, False)),
+        (Color.cmyk(.2, .4, .6, .5), 'DeviceCMYK', (False, True, False)),
+        (Color.gray(.25), 'DeviceGray', (False, False, True)),
+    ])
+    def test_space_predicates_and_copy_identity(color, space, predicates):
+>       assert color.color_space_name() == space
+               ^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'builtins.Color' object has no attribute 'color_space_name'. Did you mean: 'color_space'?
+
+tests/test_color_conversions.py:16: AttributeError
+____ test_space_predicates_and_copy_identity[color1-DeviceCMYK-predicates1] ____
+
+color = Color.cmyk(0.2, 0.4, 0.6, 0.5), space = 'DeviceCMYK'
+predicates = (False, True, False)
+
+    @pytest.mark.parametrize('color,space,predicates', [
+        (Color.rgb(.2, .4, .8), 'DeviceRGB', (True, False, False)),
+        (Color.cmyk(.2, .4, .6, .5), 'DeviceCMYK', (False, True, False)),
+        (Color.gray(.25), 'DeviceGray', (False, False, True)),
+    ])
+    def test_space_predicates_and_copy_identity(color, space, predicates):
+>       assert color.color_space_name() == space
+               ^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'builtins.Color' object has no attribute 'color_space_name'. Did you mean: 'color_space'?
+
+tests/test_color_conversions.py:16: AttributeError
+____ test_space_predicates_and_copy_identity[color2-DeviceGray-predicates2] ____
+
+color = Color.gray(0.25), space = 'DeviceGray'
+predicates = (False, False, True)
+
+    @pytest.mark.parametrize('color,space,predicates', [
+        (Color.rgb(.2, .4, .8), 'DeviceRGB', (True, False, False)),
+        (Color.cmyk(.2, .4, .6, .5), 'DeviceCMYK', (False, True, False)),
+        (Color.gray(.25), 'DeviceGray', (False, False, True)),
+    ])
+    def test_space_predicates_and_copy_identity(color, space, predicates):
+>       assert color.color_space_name() == space
+               ^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'builtins.Color' object has no attribute 'color_space_name'. Did you mean: 'color_space'?
+
+tests/test_color_conversions.py:16: AttributeError
+________________ test_component_conversions[color0-rgb0-cmyk0] _________________
+
+color = Color.rgb(0.2, 0.4, 0.8), rgb = (0.2, 0.4, 0.8)
+cmyk = (0.75, 0.5, 0, 0.2)
+
+    @pytest.mark.parametrize('color,rgb,cmyk', [
+        (Color.rgb(.2, .4, .8), (.2, .4, .8), (.75, .5, 0, .2)),
+        (Color.cmyk(.2, .4, .6, .5), (.4, .3, .2), (.2, .4, .6, .5)),
+        (Color.gray(.25), (.25, .25, .25), (0, 0, 0, .75)),
+        (Color.rgb(0, 0, 0), (0, 0, 0), (0, 0, 0, 1)),
+        (Color.rgb(1, 1, 1), (1, 1, 1), (0, 0, 0, 0)),
+        (Color.cmyk(.2, .4, .6, 1), (0, 0, 0), (.2, .4, .6, 1)),
+    ])
+    def test_component_conversions(color, rgb, cmyk):
+>       assert color.cmyk_components() == pytest.approx(cmyk)
+               ^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'builtins.Color' object has no attribute 'cmyk_components'
+
+tests/test_color_conversions.py:34: AttributeError
+________________ test_component_conversions[color1-rgb1-cmyk1] _________________
+
+color = Color.cmyk(0.2, 0.4, 0.6, 0.5), rgb = (0.4, 0.3, 0.2)
+cmyk = (0.2, 0.4, 0.6, 0.5)
+
+    @pytest.mark.parametrize('color,rgb,cmyk', [
+        (Color.rgb(.2, .4, .8), (.2, .4, .8), (.75, .5, 0, .2)),
+        (Color.cmyk(.2, .4, .6, .5), (.4, .3, .2), (.2, .4, .6, .5)),
+        (Color.gray(.25), (.25, .25, .25), (0, 0, 0, .75)),
+        (Color.rgb(0, 0, 0), (0, 0, 0), (0, 0, 0, 1)),
+        (Color.rgb(1, 1, 1), (1, 1, 1), (0, 0, 0, 0)),
+        (Color.cmyk(.2, .4, .6, 1), (0, 0, 0), (.2, .4, .6, 1)),
+    ])
+    def test_component_conversions(color, rgb, cmyk):
+>       assert color.cmyk_components() == pytest.approx(cmyk)
+               ^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'builtins.Color' object has no attribute 'cmyk_components'
+
+tests/test_color_conversions.py:34: AttributeError
+________________ test_component_conversions[color2-rgb2-cmyk2] _________________
+
+color = Color.gray(0.25), rgb = (0.25, 0.25, 0.25), cmyk = (0, 0, 0, 0.75)
+
+    @pytest.mark.parametrize('color,rgb,cmyk', [
+        (Color.rgb(.2, .4, .8), (.2, .4, .8), (.75, .5, 0, .2)),
+        (Color.cmyk(.2, .4, .6, .5), (.4, .3, .2), (.2, .4, .6, .5)),
+        (Color.gray(.25), (.25, .25, .25), (0, 0, 0, .75)),
+        (Color.rgb(0, 0, 0), (0, 0, 0), (0, 0, 0, 1)),
+        (Color.rgb(1, 1, 1), (1, 1, 1), (0, 0, 0, 0)),
+        (Color.cmyk(.2, .4, .6, 1), (0, 0, 0), (.2, .4, .6, 1)),
+    ])
+    def test_component_conversions(color, rgb, cmyk):
+>       assert color.cmyk_components() == pytest.approx(cmyk)
+               ^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'builtins.Color' object has no attribute 'cmyk_components'
+
+tests/test_color_conversions.py:34: AttributeError
+________________ test_component_conversions[color3-rgb3-cmyk3] _________________
+
+color = Color.rgb(0, 0, 0), rgb = (0, 0, 0), cmyk = (0, 0, 0, 1)
+
+    @pytest.mark.parametrize('color,rgb,cmyk', [
+        (Color.rgb(.2, .4, .8), (.2, .4, .8), (.75, .5, 0, .2)),
+        (Color.cmyk(.2, .4, .6, .5), (.4, .3, .2), (.2, .4, .6, .5)),
+        (Color.gray(.25), (.25, .25, .25), (0, 0, 0, .75)),
+        (Color.rgb(0, 0, 0), (0, 0, 0), (0, 0, 0, 1)),
+        (Color.rgb(1, 1, 1), (1, 1, 1), (0, 0, 0, 0)),
+        (Color.cmyk(.2, .4, .6, 1), (0, 0, 0), (.2, .4, .6, 1)),
+    ])
+    def test_component_conversions(color, rgb, cmyk):
+>       assert color.cmyk_components() == pytest.approx(cmyk)
+               ^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'builtins.Color' object has no attribute 'cmyk_components'
+
+tests/test_color_conversions.py:34: AttributeError
+________________ test_component_conversions[color4-rgb4-cmyk4] _________________
+
+color = Color.rgb(1, 1, 1), rgb = (1, 1, 1), cmyk = (0, 0, 0, 0)
+
+    @pytest.mark.parametrize('color,rgb,cmyk', [
+        (Color.rgb(.2, .4, .8), (.2, .4, .8), (.75, .5, 0, .2)),
+        (Color.cmyk(.2, .4, .6, .5), (.4, .3, .2), (.2, .4, .6, .5)),
+        (Color.gray(.25), (.25, .25, .25), (0, 0, 0, .75)),
+        (Color.rgb(0, 0, 0), (0, 0, 0), (0, 0, 0, 1)),
+        (Color.rgb(1, 1, 1), (1, 1, 1), (0, 0, 0, 0)),
+        (Color.cmyk(.2, .4, .6, 1), (0, 0, 0), (.2, .4, .6, 1)),
+    ])
+    def test_component_conversions(color, rgb, cmyk):
+>       assert color.cmyk_components() == pytest.approx(cmyk)
+               ^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'builtins.Color' object has no attribute 'cmyk_components'
+
+tests/test_color_conversions.py:34: AttributeError
+________________ test_component_conversions[color5-rgb5-cmyk5] _________________
+
+color = Color.cmyk(0.2, 0.4, 0.6, 1), rgb = (0, 0, 0), cmyk = (0.2, 0.4, 0.6, 1)
+
+    @pytest.mark.parametrize('color,rgb,cmyk', [
+        (Color.rgb(.2, .4, .8), (.2, .4, .8), (.75, .5, 0, .2)),
+        (Color.cmyk(.2, .4, .6, .5), (.4, .3, .2), (.2, .4, .6, .5)),
+        (Color.gray(.25), (.25, .25, .25), (0, 0, 0, .75)),
+        (Color.rgb(0, 0, 0), (0, 0, 0), (0, 0, 0, 1)),
+        (Color.rgb(1, 1, 1), (1, 1, 1), (0, 0, 0, 0)),
+        (Color.cmyk(.2, .4, .6, 1), (0, 0, 0), (.2, .4, .6, 1)),
+    ])
+    def test_component_conversions(color, rgb, cmyk):
+>       assert color.cmyk_components() == pytest.approx(cmyk)
+               ^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'builtins.Color' object has no attribute 'cmyk_components'
+
+tests/test_color_conversions.py:34: AttributeError
+_________________ test_existing_properties_and_numeric_limits __________________
+
+    def test_existing_properties_and_numeric_limits():
+        rgb = Color.rgb(.2, .4, .8)
+        # Existing channel getters do not convert RGB to CMYK; preserve this API.
+        assert (rgb.c, rgb.m, rgb.y, rgb.k) == (0, 0, 0, 0)
+>       assert rgb.cmyk_components() == pytest.approx((.75, .5, 0, .2))
+               ^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'builtins.Color' object has no attribute 'cmyk_components'
+
+tests/test_color_conversions.py:46: AttributeError
+_______________________ test_converted_rgb_reaches_page ________________________
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-14/test_converted_rgb_reaches_pag0')
+
+    def test_converted_rgb_reaches_page(tmp_path):
+        if shutil.which('pdftoppm') is None:
+            pytest.skip('independent Poppler renderer unavailable')
+        page = Page(100, 100)
+>       page.set_fill_color(Color.cmyk(.2, .4, .6, .5).to_rgb())
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'builtins.Color' object has no attribute 'to_rgb'
+
+tests/test_color_conversions.py:60: AttributeError
+=========================== short test summary info ============================
+FAILED tests/test_color_conversions.py::test_space_predicates_and_copy_identity[color0-DeviceRGB-predicates0]
+FAILED tests/test_color_conversions.py::test_space_predicates_and_copy_identity[color1-DeviceCMYK-predicates1]
+FAILED tests/test_color_conversions.py::test_space_predicates_and_copy_identity[color2-DeviceGray-predicates2]
+FAILED tests/test_color_conversions.py::test_component_conversions[color0-rgb0-cmyk0]
+FAILED tests/test_color_conversions.py::test_component_conversions[color1-rgb1-cmyk1]
+FAILED tests/test_color_conversions.py::test_component_conversions[color2-rgb2-cmyk2]
+FAILED tests/test_color_conversions.py::test_component_conversions[color3-rgb3-cmyk3]
+FAILED tests/test_color_conversions.py::test_component_conversions[color4-rgb4-cmyk4]
+FAILED tests/test_color_conversions.py::test_component_conversions[color5-rgb5-cmyk5]
+FAILED tests/test_color_conversions.py::test_existing_properties_and_numeric_limits
+FAILED tests/test_color_conversions.py::test_converted_rgb_reaches_page - Att...
+11 failed, 8 passed in 6.13s

@@ -1,0 +1,36 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_______________________ test_converted_rgb_reaches_page ________________________
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-16/test_converted_rgb_reaches_pag0')
+
+    def test_converted_rgb_reaches_page(tmp_path):
+        if shutil.which('pdftoppm') is None:
+            pytest.skip('independent Poppler renderer unavailable')
+        page = Page(100, 100)
+        page.set_fill_color(Color.red())
+        page.draw_rect(0, 0, 100, 100)
+        page.fill()
+        doc = Document()
+        doc.add_page(page)
+        pdf = tmp_path / 'color.pdf'
+        pdf.write_bytes(doc.save_to_bytes())
+        subprocess.run(['pdftoppm', '-r', '72', '-singlefile', str(pdf), str(tmp_path / 'color')], check=True, capture_output=True, timeout=30)
+        magic, width, height, maximum, pixels = (tmp_path / 'color.ppm').read_bytes().split(None, 4)
+        assert (magic, width, height, maximum) == (b'P6', b'100', b'100', b'255')
+        start = (50 * 100 + 50) * 3
+>       assert tuple(pixels[start:start + 3]) == pytest.approx((102, 77, 51), abs=1)
+E       assert (255, 0, 0) == approx((102 ±... ± 1, 51 ± 1))
+E
+E         comparison failed. Mismatched elements: 3 / 3:
+E         Max absolute difference: 153
+E         Max relative difference: inf
+E         Index | Obtained | Expected
+E         0     | 255      | 102 ± 1
+E         1     | 0        | 77 ± 1
+E         2     | 0        | 51 ± 1
+
+../test_color_wrong_value.py:71: AssertionError
+=========================== short test summary info ============================
+FAILED ../test_color_wrong_value.py::test_converted_rgb_reaches_page - assert...
+1 failed, 10 deselected in 3.90s
