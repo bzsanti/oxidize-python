@@ -55,15 +55,15 @@ kind = 'option'
 >       assert checker.check_contract(exports) == []
                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-tests/test_parity_checker.py:20: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_parity_checker.py:20:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 scripts/check_parity.py:113: in check_contract
     tree = ast.parse((REPO_ROOT / relative).read_text(encoding="utf-8"))
                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 /usr/lib/python3.12/pathlib.py:1029: in read_text
     with self.open(mode='r', encoding=encoding, errors=errors) as f:
          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
 self = PosixPath('/tmp/pytest-of-santi/pytest-45/test_parity_checker_rejects_co0/tests/test_coordinates.py')
 mode = 'r', buffering = -1, encoding = 'utf-8', errors = None, newline = None
@@ -100,15 +100,15 @@ kind = 'result'
 >       assert checker.check_contract(exports) == []
                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-tests/test_parity_checker.py:20: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_parity_checker.py:20:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 scripts/check_parity.py:113: in check_contract
     tree = ast.parse((REPO_ROOT / relative).read_text(encoding="utf-8"))
                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 /usr/lib/python3.12/pathlib.py:1029: in read_text
     with self.open(mode='r', encoding=encoding, errors=errors) as f:
          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
 self = PosixPath('/tmp/pytest-of-santi/pytest-45/test_parity_checker_rejects_co1/tests/test_coordinates.py')
 mode = 'r', buffering = -1, encoding = 'utf-8', errors = None, newline = None
@@ -145,15 +145,15 @@ kind = 'test'
 >       assert checker.check_contract(exports) == []
                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-tests/test_parity_checker.py:20: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_parity_checker.py:20:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 scripts/check_parity.py:113: in check_contract
     tree = ast.parse((REPO_ROOT / relative).read_text(encoding="utf-8"))
                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 /usr/lib/python3.12/pathlib.py:1029: in read_text
     with self.open(mode='r', encoding=encoding, errors=errors) as f:
          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
 self = PosixPath('/tmp/pytest-of-santi/pytest-45/test_parity_checker_rejects_co2/tests/test_coordinates.py')
 mode = 'r', buffering = -1, encoding = 'utf-8', errors = None, newline = None
@@ -190,15 +190,15 @@ kind = 'export'
 >       assert checker.check_contract(exports) == []
                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-tests/test_parity_checker.py:20: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_parity_checker.py:20:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 scripts/check_parity.py:113: in check_contract
     tree = ast.parse((REPO_ROOT / relative).read_text(encoding="utf-8"))
                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 /usr/lib/python3.12/pathlib.py:1029: in read_text
     with self.open(mode='r', encoding=encoding, errors=errors) as f:
          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
 self = PosixPath('/tmp/pytest-of-santi/pytest-45/test_parity_checker_rejects_co3/tests/test_coordinates.py')
 mode = 'r', buffering = -1, encoding = 'utf-8', errors = None, newline = None
@@ -235,15 +235,15 @@ kind = 'core'
 >       assert checker.check_contract(exports) == []
                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-tests/test_parity_checker.py:20: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_parity_checker.py:20:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 scripts/check_parity.py:113: in check_contract
     tree = ast.parse((REPO_ROOT / relative).read_text(encoding="utf-8"))
                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 /usr/lib/python3.12/pathlib.py:1029: in read_text
     with self.open(mode='r', encoding=encoding, errors=errors) as f:
          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
 self = PosixPath('/tmp/pytest-of-santi/pytest-45/test_parity_checker_rejects_co4/tests/test_coordinates.py')
 mode = 'r', buffering = -1, encoding = 'utf-8', errors = None, newline = None
@@ -280,15 +280,15 @@ kind = 'event-field'
 >       assert checker.check_contract(exports) == []
                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-tests/test_parity_checker.py:20: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_parity_checker.py:20:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 scripts/check_parity.py:113: in check_contract
     tree = ast.parse((REPO_ROOT / relative).read_text(encoding="utf-8"))
                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 /usr/lib/python3.12/pathlib.py:1029: in read_text
     with self.open(mode='r', encoding=encoding, errors=errors) as f:
          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
 self = PosixPath('/tmp/pytest-of-santi/pytest-45/test_parity_checker_rejects_co5/tests/test_coordinates.py')
 mode = 'r', buffering = -1, encoding = 'utf-8', errors = None, newline = None
@@ -325,15 +325,15 @@ kind = 'error-code'
 >       assert checker.check_contract(exports) == []
                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-tests/test_parity_checker.py:20: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_parity_checker.py:20:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 scripts/check_parity.py:113: in check_contract
     tree = ast.parse((REPO_ROOT / relative).read_text(encoding="utf-8"))
                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 /usr/lib/python3.12/pathlib.py:1029: in read_text
     with self.open(mode='r', encoding=encoding, errors=errors) as f:
          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
 self = PosixPath('/tmp/pytest-of-santi/pytest-45/test_parity_checker_rejects_co6/tests/test_coordinates.py')
 mode = 'r', buffering = -1, encoding = 'utf-8', errors = None, newline = None
@@ -370,15 +370,15 @@ kind = 'error-field'
 >       assert checker.check_contract(exports) == []
                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-tests/test_parity_checker.py:20: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_parity_checker.py:20:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 scripts/check_parity.py:113: in check_contract
     tree = ast.parse((REPO_ROOT / relative).read_text(encoding="utf-8"))
                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 /usr/lib/python3.12/pathlib.py:1029: in read_text
     with self.open(mode='r', encoding=encoding, errors=errors) as f:
          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
 self = PosixPath('/tmp/pytest-of-santi/pytest-45/test_parity_checker_rejects_co7/tests/test_coordinates.py')
 mode = 'r', buffering = -1, encoding = 'utf-8', errors = None, newline = None
@@ -412,7 +412,7 @@ _________________________ test_audited_parity_contract _________________________
 >           assert list(inspect.signature(member).parameters) == parameters, path
 E           AssertionError: CoordinateSystem.to_pdf_standard_matrix
 E           assert ['self', 'page_height'] == ['page_height']
-E             
+E
 E             At index 0 diff: 'self' != 'page_height'
 E             Left contains one more item: 'page_height'
 E             Use -v to get more diff

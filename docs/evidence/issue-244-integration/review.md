@@ -67,3 +67,7 @@ los getters/cálculos nuevos; retornos copiados y estado explícito en RenderCon
 - Hallazgos bloqueantes locales: 0.
 - Archivos de producto modificados durante la revisión final: 0.
 - Pendiente: CI remota y merge.
+
+Los logs entregados normalizan únicamente espacios finales y fin de archivo;
+los logs históricos de los incrementos previos se conservan sin normalizar
+en el checkout del usuario.
