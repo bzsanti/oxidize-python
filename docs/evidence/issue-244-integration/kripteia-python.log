@@ -2060,4 +2060,3 @@ tests/test_xmp_metadata.py:
 --- Hardcoded Secrets (1) ---
   tests/test_security.py:184 — hardcoded_assignment:SECRET
     SECRET = "Secret content RT-117"
-
