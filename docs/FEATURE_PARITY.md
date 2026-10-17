@@ -1366,3 +1366,146 @@ debe cerrar las secuencias y conectar los MCID al árbol de estructura existente
 Evidencia: [revisión](evidence/issue-244-marked/review.md),
 [regresión aislada](evidence/issue-244-marked/regression-isolated.log).
 La matriz remota debe pasar antes de integrar.
+
+## Continuación independiente — 2026-10-17
+
+Petición: avanzar una capacidad sin modificar el core publicado =5.4.2.
+Se conservan los cambios preexistentes de TaggedPdf y validación.
+
+| Requisito y fuente | Estado y evidencia | Bloqueante / siguiente acción |
+| --- | --- | --- |
+| #263: eliminación forense antes de ofrecer redacción irreversible | Pendiente: probe directo contra registry 5.4.2, texto sensible también en recurso de fuente | Comprobar que el resultado elimina el dato o rechaza sin salida |
+| #244: alternativa independiente, transformaciones de coordenadas | API publicada en coordinate_system.rs; Python solo expone dos constantes | Si #263 requiere core, exponer matriz y conversiones con tipos, pruebas y revisión |
+
+#263 B1 confirmado: core devuelve `irreversible=true`, `risks=[]`, aunque
+`qpdf --qdf --object-streams=disable` recupera `/Private (SECRET)` en la fuente
+conservada. El texto visible sí desaparece (`pdftotext` vacío). Evidencia y probe:
+`docs/evidence/issue-263-redaction/`. Debe eliminarse/rechazarse el dato residual
+antes de ofrecer esta garantía. No se modifica ni se expone el redactor.
+
+Incremento elegido #244: `TransformMatrix` completo y conversiones de
+`CoordinateSystem`, incluida su variante Custom; consultar el sistema de Page.
+`RenderContext` y `LayoutManager` quedan fuera de este subcontrato, pendientes
+bajo el paraguas #244. No se promete transformación automática del contenido de
+Page: su setter solo almacena el sistema en el core publicado.
+
+| Requisito | Estado | Evidencia de cierre prevista |
+| --- | --- | --- |
+| Seis componentes, constructores, composición, puntos y CTM | Pendiente | Resultados geométricos conocidos, orden no conmutativo y copia independiente |
+| Conversiones PDF/pantalla/custom, orientación y Page getter | Pendiente | Puntos/asimetría, altura, matriz propia y almacenamiento en Page |
+| Tipos, contrato y compatibilidad | Pendiente | Consumidor mypy, guard de paridad y regresión |
+| Revisión y seguridad | Pendiente | Inspección integrada y ambos análisis Kripteia |
+
+### Resultado local del incremento de coordenadas
+
+Demostrados los cuatro requisitos del incremento #244: API nativa completa de
+TransformMatrix, conversiones/custom de CoordinateSystem y snapshot de Page;
+stubs públicos/nativos, consumidor estricto incorporado a CI y contrato de
+paridad. 47 pruebas focalizadas, 15 de contrato, **2622 pruebas de biblioteca**,
+inventario, mypy estricto con disallow-any-expr, Clippy y build sin features
+predeterminadas pasan. Ambos análisis Kripteia y revisión manual completos,
+sin bloqueantes de este incremento. Detalles: `evidence/issue-244-coordinates/review.md`.
+
+Corregidos los dos fallos iniciales del registro de paridad (self y copia del
+nuevo test); el resultado definitivo es regression-final.log. Core sigue =5.4.2.
+Implementación y validación local terminadas; CI multiplataforma e integración
+remota pendientes. No se ha hecho commit, push, PR ni publicación. #244 permanece
+abierta por sus demás subcontratos. #263 queda bloqueada por B1 reproducido;
+no se envió una issue/comentario externo. Próxima acción: integrar el incremento
+de coordenadas con su CI, separándolo de los borradores anteriores de TaggedPdf.
+
+## #244 — RenderContext (2026-10-17)
+
+Continuación autorizada tras el incremento de matrices. Core =5.4.2 sin cambios.
+Fuente: coordinate_system.rs, RenderContext: cuatro campos públicos, constructor
+new y conversiones to_pdf_standard/y_to_pdf. LayoutManager sigue fuera de este
+incremento; la paridad global y la integración remota anterior siguen pendientes.
+
+| Requisito | Estado | Evidencia de cierre |
+| --- | --- | --- |
+| Constructor y cuatro campos, lectura/escritura con copias propias | Pendiente | Inicialización y mutaciones independientes |
+| Conversiones según sistema/altura actuales | Pendiente | PDF, pantalla y custom con puntos asimétricos |
+| current_transform independiente, sin recalculado implícito | Pendiente | Mutar matriz/sistema/altura y verificar consumidores reales |
+| Tipos, guard, regresión y revisión | Pendiente | mypy, inventario, tests y ambos análisis Kripteia |
+
+### Resultado local de RenderContext
+
+Los cuatro requisitos anteriores quedan demostrados: constructor/campos completos,
+conversiones con estado actual, matriz independiente y copias propias; tipos y
+revisión validados. **34 pruebas focalizadas y 2628 pruebas de biblioteca pasan**,
+así como inventario, mypy estricto, paridad, Clippy, build sin features
+predeterminadas y ambos análisis Kripteia. Sin bloqueantes locales del incremento.
+Evidencia: `evidence/issue-244-render-context/review.md` y `validation.json`.
+El primer intento de pytest importó antes de acabar la instalación nativa; se
+corrigió el orden y se conserva focused-final.log como resultado válido.
+
+No hay cambio de core, dependencias ni release. #244 continúa abierta; CI remota
+e integración de ambos incrementos de coordenadas siguen pendientes. No se ha
+hecho commit/push ni se han tocado los borradores previos ajenos al incremento.
+Siguiente capacidad candidata: evaluar LayoutManager; comprobar primero su
+semántica de reserva/posición y agotamiento en sistemas PDF/pantalla/custom,
+sin asumir que los comentarios de core demuestran prevención de solapamientos.
+
+## #244 — geometría de Page (2026-10-17)
+
+LayoutManager se evaluó antes del binding. Probe directo en
+`evidence/issue-244-layout-probe/`: en Custom(identity), cuatro reservas de altura
+80/espaciado 10 devuelven 100, 10, -80, -170; el cursor llega a -260 pero will_fit
+sigue true y remaining_space sigue 100. No cumple la prevención de desbordamiento
+anunciada. Además en PDF estándar, con cursor 190 y altura 40, retorna 180 frente
+a la base geométrica esperada 150; requiere aclarar/corregir el contrato upstream.
+No se expone ni modifica LayoutManager. Destino: pendiente core bajo #244.
+
+Alternativa independiente: cinco getters publicados de Page (content_width,
+content_height, content_area, effective_width, effective_height). content_area
+es (left,bottom,right,top), no (x,y,width,height); las tres métricas de contenido
+son sin rotar. Los márgenes pueden exceder las dimensiones: se preservan valores
+negativos del core, sin introducir clamping ni certificación de área válida.
+
+| Requisito | Estado | Evidencia de cierre |
+| --- | --- | --- |
+| Cinco getters fieles al core actual | Pendiente | Página asimétrica y márgenes distintos en cuatro lados |
+| Cambios de márgenes/rotación observables, sin alterar geometría base | Pendiente | Cuatro rotaciones, cambio de márgenes y lectura PDF serializado |
+| Tipos, guard y compatibilidad | Pendiente | Consumidor estricto, inventario, paridad y regresión |
+| Revisión y seguridad | Pendiente | Inspección y ambos análisis Kripteia |
+
+### Resultado local de geometría Page
+
+Los cuatro requisitos quedan demostrados. Cinco getters implementados con stubs,
+consumidor estricto en CI, contrato y documentación. **41 pruebas focalizadas y
+2635 pruebas de biblioteca pasan**, además de mypy, inventario, paridad y Clippy.
+Ambos análisis Kripteia y revisión manual completos, sin bloqueantes en este
+incremento. Evidencia: `evidence/issue-244-page-geometry/review.md` y validation.json.
+
+LayoutManager sigue pendiente del core por el agotamiento Custom y el contrato
+de posición PDF; probe durable en `evidence/issue-244-layout-probe/`. No se cambia
+core, se publica ni se envía un informe externo. #244 permanece abierta por sus
+otros subcontratos. Integración remota y CI multiplataforma siguen pendientes;
+el incremento está terminado y validado localmente, sin commit/push. Los cambios
+preexistentes se conservan. Siguiente acción de entrega: integrar los incrementos
+independientes acumulados, separándolos de los borradores TaggedPdf bloqueados.
+
+## Integración aislada de coordenadas y geometría — 2026-10-17
+
+Rama feat/244-coordinate-geometry, base develop 3335161 confirmada contra origin.
+Entrega: TransformMatrix, CoordinateSystem/custom, RenderContext y geometría Page,
+con stubs, documentación, pruebas y consumidores CI. Se excluyen editor TaggedPdf,
+sus contratos/exports y los cambios locales de tagged_validation. La evidencia
+histórica anterior describe el checkout mixto; la de issue-244-integration valida
+el conjunto limpio de entrega. Los probes de redacción/LayoutManager quedan como
+evidencia de límites pendientes, sin exponer ni corregir esas APIs.
+
+| Requisito de entrega | Estado | Cierre |
+| --- | --- | --- |
+| Excluir borradores bloqueados sin perder trabajo local | Demostrado por diff del checkout aislado; manifiesto del original conservado | Verificación de hashes antes de cierre |
+| Wheel limpio, APIs y regresión | Pendiente | Build, import del wheel aislado y tests |
+| Revisión vigente del conjunto final | Pendiente | Contrato, tipos, hashes y análisis de calidad/seguridad |
+| Integración remota | Pendiente | PR, CI multiplataforma y merge en develop |
+
+Validación del conjunto aislado completada: wheel independiente, 2620 tests de
+biblioteca y 295 MCP correctos (1 skip legacy), inventario, mypy estricto, paridad,
+Clippy y revisión integrada. MCP requirió salir del sandbox tras reproducir un
+bloqueo asíncrono del entorno; el diagnóstico pasó 12/12 fuera y luego la suite
+MCP completa. No se cambió código por ello. Se conservan 690 archivos del checkout
+original sin alteración. Evidencia: issue-244-integration/review.md. Pendiente:
+CI de PR e integración remota; #244 continúa abierta.

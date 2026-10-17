@@ -1,0 +1,28 @@
+{
+  "base": "333516184c70fe79bab4e9c735ec38fb6e4ebdb6",
+  "core": "5.4.2",
+  "files_sha256": {
+    ".github/workflows/test.yml": "49dddf80bb682b5be89e1625d907d713c2be45221cc4b6d18b5c426f2983dc90",
+    "README.md": "95fd317f35d6bdf2e620b6657f80a47bdb1c81e63cab1e667466fb9cf480a257",
+    "docs/FEATURE_PARITY.md": "16dd954cc2c13cb63dcede074d198fdeee9795d8e045e926e54e8c733eb9ed87",
+    "docs/parity-contract.json": "45b2f84bf63b2d95be89016fbfaf0dc3169e68c6044aa9c6df25f2b01ef12b90",
+    "python/oxidize_pdf/__init__.py": "bcbec72497421aa6d781125aaa755434aabdd8e15300643ea210aed9aaa78223",
+    "python/oxidize_pdf/__init__.pyi": "7049c7ec8c109590fa192146826c0bdd60fb64084cf101dffd01c63c54aa634c",
+    "python/oxidize_pdf/_oxidize_pdf.pyi": "01ebb0235ffe36a9cbc67b557c4664c64472cbcb9f3829a234a20c8f7875806b",
+    "src/lib.rs": "9bd9dbd786418b672a51d0db28708644f5e264efd7a3b3cb9f4927b7c1718065",
+    "src/page.rs": "d90e2b3a91a3d707978fc8b00b5f319e0c75c130c262d8f30234ae66c5a805dd",
+    "src/tier8.rs": "2a012637562a9236f9176fbcba102aea6b2ba0ccd75de824f111df3026dd191e",
+    "tests/test_parity_checker.py": "b9c56e57572c2529da1514a463f1487155dd4afb4e5aa27300f5284de29274cc",
+    "src/coordinates.rs": "a9f187c6cbb90d8df5b2b033d017d7af382467fe65c8fd96fb0c565127f8b511",
+    "tests/test_coordinates.py": "f8c1a62bdc5d1bd9927e3c1066b8933bf94f7203d7bf293f032e477ad3327b59",
+    "tests/test_render_context.py": "9fd8724c6c20f396454db67873c809a2b04d5e038a05bbadb85f17c14a9185ce",
+    "tests/test_page_geometry.py": "ab0fa4f08db8ee8018fa63125ae26d72147a891275bc288df6684aa83afee00b",
+    "tests/typing/coordinates.py": "53b2ae1fe66b03c5105aaa7865fdfbc384202ed0106b60c89054204f021c2e20",
+    "tests/typing/render_context.py": "a02401bf16b33cd6a5cc0b8dd5f067372950f4a9a26bd48a35765c1e9c4b4368",
+    "tests/typing/page_geometry.py": "6db69c23bc75cd312943b369597a60e0b4e06a3b771e46bd05e93621691b69ef"
+  },
+  "library_passed": 2620,
+  "mcp_passed": 295,
+  "mcp_skipped": 1,
+  "original_checkout_verified_files": 690
+}

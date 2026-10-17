@@ -35,6 +35,7 @@ mod rag_analysis;
 mod security;
 mod semantic;
 mod semantic_comparison;
+mod coordinates;
 mod signing;
 mod signature_errors;
 mod table;
@@ -93,6 +94,7 @@ fn _oxidize_pdf(m: &Bound<'_, PyModule>) -> PyResult<()> {
     verification::register(m)?;
     semantic::register(m)?;
     semantic_comparison::register(m)?;
+    coordinates::register(m)?;
     signing::register(m)?;
     graphics_extraction::register(m)?;
     layout::register(m)?;

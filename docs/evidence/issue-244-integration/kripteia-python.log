@@ -1,0 +1,2063 @@
+## Calidad de Tests (Kripteia)
+
+=== Kripteia Test Quality Report ===
+Overall Score: 96 | Tests: 2612 | Files: 134
+
+--- Files ---
+Path                                                          Tests  Score
+--------------------------------------------------------------------------
+tests/mcp_tests/test_config.py                                   18     99
+tests/mcp_tests/test_integration.py                              12     96
+tests/mcp_tests/test_models.py                                   11    100
+tests/mcp_tests/test_prompts.py                                  11     98
+tests/mcp_tests/test_protocol_contract.py                         3    100
+tests/mcp_tests/test_resources.py                                 9    100
+tests/mcp_tests/test_sdk_v2.py                                    2    100
+tests/mcp_tests/test_security.py                                 23     92
+tests/mcp_tests/test_server.py                                    2     90
+tests/mcp_tests/test_sessions.py                                 14     91
+tests/mcp_tests/test_stdio.py                                     3    100
+tests/mcp_tests/test_tool_add_content.py                          8     95
+tests/mcp_tests/test_tool_analyze_pdf.py                         12     98
+tests/mcp_tests/test_tool_annotate_pdf.py                         4     90
+tests/mcp_tests/test_tool_catalog_contract.py                     1     90
+tests/mcp_tests/test_tool_convert_pdf.py                         14     97
+tests/mcp_tests/test_tool_create_pdf.py                           4     95
+tests/mcp_tests/test_tool_definition_quality.py                   8     95
+tests/mcp_tests/test_tool_extract_entities.py                     9     98
+tests/mcp_tests/test_tool_extract_text.py                        13     99
+tests/mcp_tests/test_tool_manage_forms.py                         4     95
+tests/mcp_tests/test_tool_manipulate_pdf.py                       9     90
+tests/mcp_tests/test_tool_read_pdf.py                            17    100
+tests/mcp_tests/test_tool_save_pdf.py                             5     92
+tests/mcp_tests/test_tool_secure_pdf.py                           4     90
+tests/mcp_tests/test_tool_setup.py                               10     95
+tests/test_actions_extended.py                                   16     99
+tests/test_advanced_tables.py                                    82     98
+tests/test_ai_pipeline.py                                        77     97
+tests/test_analysis_pipeline_chunking.py                          6     97
+tests/test_analysis_pipeline_classifier.py                        7     96
+tests/test_analysis_pipeline_enricher.py                          8     99
+tests/test_annotations.py                                        13     98
+tests/test_annotations_deep.py                                  140     96
+tests/test_batch_options.py                                       6     93
+tests/test_batch_recovery_streaming.py                           55     98
+tests/test_bounded_extraction_382.py                              7     99
+tests/test_calibrated_colors.py                                  14     99
+tests/test_certificate_provider_627.py                            3    100
+tests/test_charts.py                                            129     97
+tests/test_chunk_metadata.py                                     11     99
+tests/test_chunk_page.py                                          8    100
+tests/test_content_parser.py                                     60    100
+tests/test_contextual_chunking_376.py                            10     98
+tests/test_coordinates.py                                         5    100
+tests/test_core_4_6_bindings.py                                   4    100
+tests/test_core_5_1_bindings.py                                   6     98
+tests/test_document.py                                           22     97
+tests/test_document_config.py                                    37     95
+tests/test_document_source.py                                    10     99
+tests/test_errors.py                                             12     93
+tests/test_existing_document.py                                   8    100
+tests/test_experimental_spi_exports.py                           10     93
+tests/test_extraction_options_parity.py                           3    100
+tests/test_form_validation.py                                    19     96
+tests/test_forms.py                                              18     95
+tests/test_forms_deep.py                                        167     97
+tests/test_gil_concurrency.py                                     8     86
+tests/test_gradient_render.py                                    12     93
+tests/test_graphics.py                                            9     90
+tests/test_graphics_advanced.py                                 151     98
+tests/test_graphics_extraction.py                                32     97
+tests/test_graphics_tier3.py                                     14     91
+tests/test_header_footer.py                                      10     96
+tests/test_image.py                                               8     99
+tests/test_image_extraction_119.py                                2     95
+tests/test_import.py                                              3     93
+tests/test_incremental_annotations.py                             4    100
+tests/test_incremental_form_fill.py                              10     96
+tests/test_incremental_geometric.py                              10     98
+tests/test_incremental_ink.py                                     5     98
+tests/test_incremental_parser_payloads.py                         6    100
+tests/test_incremental_signing.py                                 7    100
+tests/test_issue_287_glyph_diagnostics.py                        10     98
+tests/test_issue_358_cid_glyph_run.py                            10     97
+tests/test_issue_57_text_fill_color.py                            4     90
+tests/test_issue_58_textflow_winansi.py                           5     86
+tests/test_issue_78_custom_font_metrics.py                        5     92
+tests/test_issue_80_add_page_by_reference.py                      8     94
+tests/test_layout.py                                             36     95
+tests/test_list.py                                               10     87
+tests/test_marked_content.py                                      6     98
+tests/test_merge_with_inputs.py                                  12     94
+tests/test_mesh_conic_shading_407.py                             16     97
+tests/test_metadata_reading.py                                    5     90
+tests/test_metadata_tier5.py                                      8     93
+tests/test_operations.py                                         20     96
+tests/test_operations_advanced.py                                43     96
+tests/test_operations_tier2.py                                   18     95
+tests/test_outline_read.py                                       10     98
+tests/test_outlines.py                                           24     94
+tests/test_page_color_spaces_gfx019.py                           19     95
+tests/test_page_content_streams.py                               14     98
+tests/test_page_geometry.py                                       4    100
+tests/test_page_resources.py                                     31     98
+tests/test_page_streamer.py                                       9    100
+tests/test_page_transitions.py                                   63     97
+tests/test_parity_2_8_0.py                                        8     94
+tests/test_parity_checker.py                                      1    100
+tests/test_parity_contract.py                                     2    100
+tests/test_parse_options.py                                      11     96
+tests/test_parser.py                                             39     95
+tests/test_parser_recovery_options.py                             9     98
+tests/test_quality_fixes.py                                      27     91
+tests/test_rag_chunks_disjoint.py                                 8     94
+tests/test_rag_reader_parity.py                                  13    100
+tests/test_raw_images.py                                          8     98
+tests/test_render_context.py                                      4    100
+tests/test_rich_annotations.py                                   15     93
+tests/test_rich_tables_375.py                                     8     91
+tests/test_security.py                                           20     94
+tests/test_security_tier7.py                                      6     92
+tests/test_semantic.py                                           66     95
+tests/test_semantic_comparison.py                                12     98
+tests/test_signature_errors.py                                    7    100
+tests/test_signatures_deep.py                                    47     94
+tests/test_split_with_options.py                                 12     94
+tests/test_table.py                                              22     91
+tests/test_tagged_validation.py                                  10    100
+tests/test_text.py                                               20     91
+tests/test_text_extraction.py                                    76     98
+tests/test_text_measurement.py                                    9     99
+tests/test_text_tier4.py                                          7     89
+tests/test_tier21.py                                             70     96
+tests/test_tier8.py                                              29     93
+tests/test_types.py                                              21    100
+tests/test_typing_surface.py                                      3    100
+tests/test_upstream_2_13_0.py                                    20    100
+tests/test_upstream_4_3_0.py                                      3     97
+tests/test_upstream_5_4_1.py                                     14    100
+tests/test_verification.py                                       35     93
+tests/test_verify_signatures.py                                   4    100
+tests/test_viewer_preferences.py                                 27     96
+tests/test_xmp_metadata.py                                       35     96
+
+--- Worst Offenders ---
+  TestCheckFileSize::test_passes_within_limit (tests/mcp_tests/test_security.py:94) - Score: 75
+    - Test 'TestCheckFileSize::test_passes_within_limit' executes production code without asserting on its behaviour
+  TestCheckPageCount::test_passes_when_count_equals_max (tests/mcp_tests/test_security.py:131) - Score: 75
+    - Test 'TestCheckPageCount::test_passes_when_count_equals_max' executes production code without asserting on its behaviour
+  TestCheckPageCount::test_passes_when_count_below_max (tests/mcp_tests/test_security.py:136) - Score: 75
+    - Test 'TestCheckPageCount::test_passes_when_count_below_max' executes production code without asserting on its behaviour
+  TestCheckOutputSize::test_passes_when_payload_bytes_equal_max (tests/mcp_tests/test_security.py:159) - Score: 75
+    - Test 'TestCheckOutputSize::test_passes_when_payload_bytes_equal_max' executes production code without asserting on its behaviour
+  TestCheckOutputSize::test_passes_empty_payload (tests/mcp_tests/test_security.py:171) - Score: 75
+    - Test 'TestCheckOutputSize::test_passes_empty_payload' executes production code without asserting on its behaviour
+
+--- Details ---
+tests/mcp_tests/test_config.py:
+  test_config_max_output_bytes_default (line 86) - Score: 90
+    - Test 'test_config_max_output_bytes_default' has identical neighborhood to 'test_config_max_session_bytes_default'
+  test_config_max_session_bytes_default (line 115) - Score: 90
+    - Test 'test_config_max_session_bytes_default' has identical neighborhood to 'test_config_max_output_bytes_default'
+
+tests/mcp_tests/test_integration.py:
+  TestAllToolsRegistered::test_all_12_tools_registered (line 13) - Score: 90
+    - Test 'TestAllToolsRegistered::test_all_12_tools_registered' has low assert-to-setup ratio (11%): 1 asserts vs 8 setup lines
+  TestAllPromptsRegistered::test_all_5_prompts_registered (line 50) - Score: 90
+    - Test 'TestAllPromptsRegistered::test_all_5_prompts_registered' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+  TestFullInvoiceWorkflow::test_create_add_save_workflow (line 65) - Score: 90
+    - Test 'TestFullInvoiceWorkflow::test_create_add_save_workflow' has low assert-to-setup ratio (9%): 3 asserts vs 32 setup lines
+  TestSecurityEdgeCases::test_convert_rejects_unsafe_path (line 162) - Score: 90
+    - Test 'TestSecurityEdgeCases::test_convert_rejects_unsafe_path' has identical neighborhood to 'TestConvertPdfSecurity::test_rejects_unsafe_path'
+  TestSecurityEdgeCases::test_manipulate_rejects_output_outside_workspace (line 169) - Score: 90
+    - Test 'TestSecurityEdgeCases::test_manipulate_rejects_output_outside_workspace' has low assert-to-setup ratio (9%): 1 asserts vs 10 setup lines
+
+tests/mcp_tests/test_prompts.py:
+  TestCompareDocumentsPrompt::test_prompt_content (line 97) - Score: 90
+    - Test 'TestCompareDocumentsPrompt::test_prompt_content' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  TestFillFormPrompt::test_prompt_content (line 116) - Score: 90
+    - Test 'TestFillFormPrompt::test_prompt_content' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+
+tests/mcp_tests/test_security.py:
+  TestValidatePath::test_safe_path_within_workspace (line 7) - Score: 90
+    - Test 'TestValidatePath::test_safe_path_within_workspace' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  TestValidatePath::test_allows_pdf_extension (line 54) - Score: 90
+    - Test 'TestValidatePath::test_allows_pdf_extension' has low assert-to-setup ratio (12%): 1 asserts vs 7 setup lines
+  TestValidatePath::test_legitimate_path_with_dotdot_inside_workspace (line 64) - Score: 90
+    - Test 'TestValidatePath::test_legitimate_path_with_dotdot_inside_workspace' has low assert-to-setup ratio (10%): 1 asserts vs 9 setup lines
+  TestValidatePath::test_allows_extra_allowed_paths (line 76) - Score: 90
+    - Test 'TestValidatePath::test_allows_extra_allowed_paths' has low assert-to-setup ratio (7%): 1 asserts vs 13 setup lines
+  TestCheckFileSize::test_passes_within_limit (line 94) - Score: 75
+    - Test 'TestCheckFileSize::test_passes_within_limit' executes production code without asserting on its behaviour
+  TestCheckPageCount::test_passes_when_count_equals_max (line 131) - Score: 75
+    - Test 'TestCheckPageCount::test_passes_when_count_equals_max' executes production code without asserting on its behaviour
+  TestCheckPageCount::test_passes_when_count_below_max (line 136) - Score: 75
+    - Test 'TestCheckPageCount::test_passes_when_count_below_max' executes production code without asserting on its behaviour
+  TestCheckOutputSize::test_passes_when_payload_bytes_equal_max (line 159) - Score: 75
+    - Test 'TestCheckOutputSize::test_passes_when_payload_bytes_equal_max' executes production code without asserting on its behaviour
+  TestCheckOutputSize::test_passes_empty_payload (line 171) - Score: 75
+    - Test 'TestCheckOutputSize::test_passes_empty_payload' executes production code without asserting on its behaviour
+  TestCheckSessionContentSize::test_passes_when_total_equals_max (line 186) - Score: 75
+    - Test 'TestCheckSessionContentSize::test_passes_when_total_equals_max' executes production code without asserting on its behaviour
+
+tests/mcp_tests/test_server.py:
+  TestToolRegistration::test_all_implemented_tools_registered (line 9) - Score: 90
+    - Test 'TestToolRegistration::test_all_implemented_tools_registered' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+  TestToolRegistration::test_all_tools_have_descriptions (line 20) - Score: 90
+    - Test 'TestToolRegistration::test_all_tools_have_descriptions' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+
+tests/mcp_tests/test_sessions.py:
+  TestSessionStoreCrud::test_get_returns_data (line 15) - Score: 90
+    - Test 'TestSessionStoreCrud::test_get_returns_data' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  TestSessionStoreCrud::test_update_merges_data (line 29) - Score: 90
+    - Test 'TestSessionStoreCrud::test_update_merges_data' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  TestSessionStoreCrud::test_delete_removes_session (line 37) - Score: 90
+    - Test 'TestSessionStoreCrud::test_delete_removes_session' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  TestSessionStoreExpiry::test_session_expires_after_max_age (line 47) - Score: 80
+    - Test 'TestSessionStoreExpiry::test_session_expires_after_max_age' waits with a fixed sleep
+    - Test 'TestSessionStoreExpiry::test_session_expires_after_max_age' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+  TestSessionStoreExpiry::test_count (line 66) - Score: 90
+    - Test 'TestSessionStoreExpiry::test_count' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  TestSessionStoreExpiry::test_purge_returns_count (line 74) - Score: 90
+    - Test 'TestSessionStoreExpiry::test_purge_returns_count' waits with a fixed sleep
+  TestSessionStoreExpiry::test_get_returns_none_for_expired_without_purge (line 85) - Score: 80
+    - Test 'TestSessionStoreExpiry::test_get_returns_none_for_expired_without_purge' waits with a fixed sleep
+    - Test 'TestSessionStoreExpiry::test_get_returns_none_for_expired_without_purge' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+  TestSessionStoreMaxSessions::test_create_succeeds_after_delete_frees_slot (line 107) - Score: 90
+    - Test 'TestSessionStoreMaxSessions::test_create_succeeds_after_delete_frees_slot' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+  TestSessionStoreMaxSessions::test_create_auto_purges_expired_before_checking_limit (line 116) - Score: 90
+    - Test 'TestSessionStoreMaxSessions::test_create_auto_purges_expired_before_checking_limit' waits with a fixed sleep
+  TestSessionStoreMaxSessions::test_no_limit_when_max_sessions_is_zero (line 128) - Score: 90
+    - Test 'TestSessionStoreMaxSessions::test_no_limit_when_max_sessions_is_zero' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+
+tests/mcp_tests/test_tool_add_content.py:
+  TestAddTextContent::test_add_text_content (line 13) - Score: 90
+    - Test 'TestAddTextContent::test_add_text_content' has low assert-to-setup ratio (12%): 2 asserts vs 14 setup lines
+  TestAddNewPage::test_add_text_with_font_and_size (line 54) - Score: 90
+    - Test 'TestAddNewPage::test_add_text_with_font_and_size' has low assert-to-setup ratio (11%): 2 asserts vs 17 setup lines
+  TestAddNewPage::test_missing_session_returns_error (line 80) - Score: 90
+    - Test 'TestAddNewPage::test_missing_session_returns_error' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  TestAddContentSessionByteCap::test_new_page_spam_bounded (line 129) - Score: 90
+    - Test 'TestAddContentSessionByteCap::test_new_page_spam_bounded' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+
+tests/mcp_tests/test_tool_analyze_pdf.py:
+  TestAnalyzePdfCompare::test_compare_returns_difference_count (line 110) - Score: 90
+    - Test 'TestAnalyzePdfCompare::test_compare_returns_difference_count' has low assert-to-setup ratio (18%): 2 asserts vs 9 setup lines
+  TestAnalyzePdfCompare::test_compare_invalid_compare_path_returns_error (line 134) - Score: 90
+    - Test 'TestAnalyzePdfCompare::test_compare_invalid_compare_path_returns_error' has low assert-to-setup ratio (10%): 1 asserts vs 9 setup lines
+
+tests/mcp_tests/test_tool_annotate_pdf.py:
+  TestAnnotateText::test_annotate_add_text (line 13) - Score: 90
+    - Test 'TestAnnotateText::test_annotate_add_text' has low assert-to-setup ratio (18%): 3 asserts vs 14 setup lines
+  TestAnnotateHighlight::test_annotate_highlight (line 39) - Score: 90
+    - Test 'TestAnnotateHighlight::test_annotate_highlight' has low assert-to-setup ratio (6%): 1 asserts vs 15 setup lines
+  TestAnnotateSecurity::test_annotate_rejects_unsafe_input (line 63) - Score: 90
+    - Test 'TestAnnotateSecurity::test_annotate_rejects_unsafe_input' has low assert-to-setup ratio (8%): 1 asserts vs 12 setup lines
+  TestAnnotateSecurity::test_annotate_invalid_type_returns_error (line 78) - Score: 90
+    - Test 'TestAnnotateSecurity::test_annotate_invalid_type_returns_error' has low assert-to-setup ratio (13%): 2 asserts vs 13 setup lines
+
+tests/mcp_tests/test_tool_catalog_contract.py:
+  test_catalog_contract_rejects_metadata_regressions (line 21) - Score: 90
+    - Test 'test_catalog_contract_rejects_metadata_regressions' has low assert-to-setup ratio (8%): 2 asserts vs 22 setup lines
+
+tests/mcp_tests/test_tool_convert_pdf.py:
+  TestConvertToChunks::test_rag_ignores_max_tokens (line 69) - Score: 90
+    - Test 'TestConvertToChunks::test_rag_ignores_max_tokens' has low assert-to-setup ratio (5%): 1 asserts vs 19 setup lines
+  TestConvertPdfSecurity::test_rejects_unsafe_path (line 125) - Score: 90
+    - Test 'TestConvertPdfSecurity::test_rejects_unsafe_path' has identical neighborhood to 'TestSecurityEdgeCases::test_convert_rejects_unsafe_path'
+  TestConvertPdfPageCountCap::test_conversion_never_called_when_over_cap (line 187) - Score: 90
+    - Test 'TestConvertPdfPageCountCap::test_conversion_never_called_when_over_cap' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+  TestConvertPdfOutputCap::test_rejects_when_output_exceeds_cap (line 204) - Score: 90
+    - Test 'TestConvertPdfOutputCap::test_rejects_when_output_exceeds_cap' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+
+tests/mcp_tests/test_tool_create_pdf.py:
+  TestCreatePdf::test_create_pdf_with_metadata (line 22) - Score: 90
+    - Test 'TestCreatePdf::test_create_pdf_with_metadata' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  TestCreatePdfSessionPersists::test_session_is_retrievable_via_resource (line 41) - Score: 90
+    - Test 'TestCreatePdfSessionPersists::test_session_is_retrievable_via_resource' has low assert-to-setup ratio (12%): 1 asserts vs 7 setup lines
+
+tests/mcp_tests/test_tool_definition_quality.py:
+  test_all_expected_tools_present (line 80) - Score: 90
+    - Test 'test_all_expected_tools_present' does not call any production code
+  test_tool_declares_annotations (line 108) - Score: 90
+    - Test 'test_tool_declares_annotations' does not call any production code
+  test_read_only_tools_marked_read_only (line 119) - Score: 90
+    - Test 'test_read_only_tools_marked_read_only' does not call any production code
+  test_write_tools_not_marked_read_only (line 125) - Score: 90
+    - Test 'test_write_tools_not_marked_read_only' does not call any production code
+
+tests/mcp_tests/test_tool_extract_entities.py:
+  TestExtractEntitiesPageCountCap::test_extraction_never_called_when_over_cap (line 110) - Score: 90
+    - Test 'TestExtractEntitiesPageCountCap::test_extraction_never_called_when_over_cap' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+  TestExtractEntitiesOutputCap::test_rejects_when_output_exceeds_cap (line 127) - Score: 90
+    - Test 'TestExtractEntitiesOutputCap::test_rejects_when_output_exceeds_cap' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+
+tests/mcp_tests/test_tool_extract_text.py:
+  TestExtractTextPageCountCap::test_extraction_never_called_when_over_cap (line 118) - Score: 90
+    - Test 'TestExtractTextPageCountCap::test_extraction_never_called_when_over_cap' has low assert-to-setup ratio (12%): 1 asserts vs 7 setup lines
+
+tests/mcp_tests/test_tool_manage_forms.py:
+  TestManageFormsCreate::test_create_text_field (line 13) - Score: 90
+    - Test 'TestManageFormsCreate::test_create_text_field' has low assert-to-setup ratio (14%): 3 asserts vs 19 setup lines
+  TestManageFormsValidate::test_validate_form (line 83) - Score: 90
+    - Test 'TestManageFormsValidate::test_validate_form' has low assert-to-setup ratio (10%): 1 asserts vs 9 setup lines
+
+tests/mcp_tests/test_tool_manipulate_pdf.py:
+  TestManipulateSplit::test_split_returns_ok (line 13) - Score: 90
+    - Test 'TestManipulateSplit::test_split_returns_ok' has low assert-to-setup ratio (15%): 2 asserts vs 11 setup lines
+  TestManipulateMerge::test_merge_returns_ok (line 34) - Score: 90
+    - Test 'TestManipulateMerge::test_merge_returns_ok' has low assert-to-setup ratio (17%): 2 asserts vs 10 setup lines
+  TestManipulateMerge::test_merge_missing_input_paths_returns_error (line 50) - Score: 90
+    - Test 'TestManipulateMerge::test_merge_missing_input_paths_returns_error' has low assert-to-setup ratio (10%): 1 asserts vs 9 setup lines
+  TestManipulateRotate::test_rotate_returns_ok (line 70) - Score: 90
+    - Test 'TestManipulateRotate::test_rotate_returns_ok' has low assert-to-setup ratio (8%): 1 asserts vs 11 setup lines
+  TestManipulateExtractPages::test_extract_pages_returns_ok (line 90) - Score: 90
+    - Test 'TestManipulateExtractPages::test_extract_pages_returns_ok' has low assert-to-setup ratio (8%): 1 asserts vs 11 setup lines
+  TestManipulateInvalidOperation::test_invalid_operation_returns_error (line 112) - Score: 90
+    - Test 'TestManipulateInvalidOperation::test_invalid_operation_returns_error' has low assert-to-setup ratio (17%): 2 asserts vs 10 setup lines
+  TestManipulateReverse::test_reverse_returns_ok (line 135) - Score: 90
+    - Test 'TestManipulateReverse::test_reverse_returns_ok' has low assert-to-setup ratio (9%): 1 asserts vs 10 setup lines
+  TestManipulateOverlay::test_overlay_returns_ok (line 156) - Score: 90
+    - Test 'TestManipulateOverlay::test_overlay_returns_ok' has low assert-to-setup ratio (8%): 1 asserts vs 11 setup lines
+  TestManipulateOverlay::test_overlay_missing_overlay_path_returns_error (line 172) - Score: 90
+    - Test 'TestManipulateOverlay::test_overlay_missing_overlay_path_returns_error' has low assert-to-setup ratio (9%): 1 asserts vs 10 setup lines
+
+tests/mcp_tests/test_tool_save_pdf.py:
+  TestSavePdf::test_save_pdf_creates_file (line 13) - Score: 90
+    - Test 'TestSavePdf::test_save_pdf_creates_file' has low assert-to-setup ratio (13%): 3 asserts vs 20 setup lines
+  TestSavePdfCleanup::test_save_cleans_up_session (line 49) - Score: 90
+    - Test 'TestSavePdfCleanup::test_save_cleans_up_session' has low assert-to-setup ratio (9%): 1 asserts vs 10 setup lines
+  TestSavePdfCleanup::test_save_pdf_with_encryption (line 62) - Score: 90
+    - Test 'TestSavePdfCleanup::test_save_pdf_with_encryption' has low assert-to-setup ratio (11%): 2 asserts vs 16 setup lines
+  TestSavePdfCleanup::test_save_missing_session_returns_error (line 83) - Score: 90
+    - Test 'TestSavePdfCleanup::test_save_missing_session_returns_error' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+
+tests/mcp_tests/test_tool_secure_pdf.py:
+  TestSecurePdfEncrypt::test_encrypt_creates_encrypted_pdf (line 13) - Score: 90
+    - Test 'TestSecurePdfEncrypt::test_encrypt_creates_encrypted_pdf' has low assert-to-setup ratio (18%): 3 asserts vs 14 setup lines
+  TestSecurePdfPermissions::test_check_permissions (line 41) - Score: 90
+    - Test 'TestSecurePdfPermissions::test_check_permissions' has low assert-to-setup ratio (10%): 1 asserts vs 9 setup lines
+  TestSecurePdfVerifySignatures::test_verify_signatures (line 59) - Score: 90
+    - Test 'TestSecurePdfVerifySignatures::test_verify_signatures' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  test_encrypt_text_without_font_name (line 69) - Score: 90
+    - Test 'test_encrypt_text_without_font_name' has low assert-to-setup ratio (7%): 2 asserts vs 25 setup lines
+
+tests/mcp_tests/test_tool_setup.py:
+  TestConfigSingleton::test_get_config_returns_same_instance (line 10) - Score: 80
+    - Test 'TestConfigSingleton::test_get_config_returns_same_instance' has identical neighborhood to 'TestConfigSingleton::test_get_config_reads_env'
+    - Test 'TestConfigSingleton::test_get_config_returns_same_instance' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+  TestConfigSingleton::test_get_config_reads_env (line 19) - Score: 80
+    - Test 'TestConfigSingleton::test_get_config_reads_env' has identical neighborhood to 'TestConfigSingleton::test_get_config_returns_same_instance'
+    - Test 'TestConfigSingleton::test_get_config_reads_env' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  TestSessionStoreSingletonRespectsConfig::test_store_enforces_configured_max_sessions (line 68) - Score: 90
+    - Test 'TestSessionStoreSingletonRespectsConfig::test_store_enforces_configured_max_sessions' has low assert-to-setup ratio (13%): 2 asserts vs 13 setup lines
+
+tests/test_actions_extended.py:
+  test_standard_named_action_constants (line 33) - Score: 90
+    - Test 'test_standard_named_action_constants' does not call any production code
+  test_submit_form_action_builders (line 84) - Score: 90
+    - Test 'test_submit_form_action_builders' has low assert-to-setup ratio (11%): 1 asserts vs 8 setup lines
+
+tests/test_advanced_tables.py:
+  test_cell_border_style_distinct (line 37) - Score: 90
+    - Test 'test_cell_border_style_distinct' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+  test_cell_style_chaining (line 140) - Score: 90
+    - Test 'test_cell_style_chaining' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  test_builder_add_row (line 330) - Score: 90
+    - Test 'test_builder_add_row' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  test_builder_add_data (line 347) - Score: 90
+    - Test 'test_builder_add_data' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  test_builder_set_cell_style (line 460) - Score: 90
+    - Test 'test_builder_set_cell_style' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  test_builder_complex_header (line 469) - Score: 90
+    - Test 'test_builder_complex_header' has low assert-to-setup ratio (11%): 1 asserts vs 8 setup lines
+  test_builder_financial_table (line 481) - Score: 90
+    - Test 'test_builder_financial_table' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  test_builder_minimal_table (line 490) - Score: 90
+    - Test 'test_builder_minimal_table' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  test_advanced_table_column_count (line 515) - Score: 90
+    - Test 'test_advanced_table_column_count' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  test_advanced_table_row_count (line 524) - Score: 90
+    - Test 'test_advanced_table_row_count' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  test_adv_table_renderer_render (line 560) - Score: 90
+    - Test 'test_adv_table_renderer_render' has low assert-to-setup ratio (18%): 2 asserts vs 9 setup lines
+  test_page_add_advanced_table_auto_produces_valid_pdf (line 615) - Score: 90
+    - Test 'test_page_add_advanced_table_auto_produces_valid_pdf' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+  test_page_add_advanced_table_with_header_style (line 625) - Score: 90
+    - Test 'test_page_add_advanced_table_with_header_style' has low assert-to-setup ratio (5%): 1 asserts vs 18 setup lines
+  test_page_add_advanced_table_with_complex_header (line 647) - Score: 90
+    - Test 'test_page_add_advanced_table_with_complex_header' has low assert-to-setup ratio (6%): 1 asserts vs 16 setup lines
+
+tests/test_ai_pipeline.py:
+  TestDocumentChunker::test_default (line 43) - Score: 90
+    - Test 'TestDocumentChunker::test_default' has identical neighborhood to 'TestMarkdownExporter::test_default'
+  TestDocumentChunker::test_chunk_index_sequential (line 77) - Score: 90
+    - Test 'TestDocumentChunker::test_chunk_index_sequential' has identical neighborhood to 'TestDocumentChunker::test_chunk_ids_unique'
+  TestDocumentChunker::test_chunk_ids_unique (line 84) - Score: 90
+    - Test 'TestDocumentChunker::test_chunk_ids_unique' has identical neighborhood to 'TestDocumentChunker::test_chunk_index_sequential'
+  TestMarkdownExporter::test_default (line 107) - Score: 90
+    - Test 'TestMarkdownExporter::test_default' has identical neighborhood to 'TestDocumentChunker::test_default'
+  TestPartitionConfig::test_chaining (line 221) - Score: 90
+    - Test 'TestPartitionConfig::test_chaining' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+  TestPdfReaderChunk::test_returns_list (line 307) - Score: 90
+    - Test 'TestPdfReaderChunk::test_returns_list' has identical neighborhood to 'TestPyDocumentChunkProperties::test_page_numbers_list'
+  TestPdfReaderPartition::test_returns_list (line 330) - Score: 90
+    - Test 'TestPdfReaderPartition::test_returns_list' has identical neighborhood to 'TestPyElementProperties::test_display_text_is_string'
+  TestPdfReaderRagChunks::test_returns_list (line 363) - Score: 90
+    - Test 'TestPdfReaderRagChunks::test_returns_list' has identical neighborhood to 'TestPdfReaderRagChunks::test_chunk_index_sequential'
+  TestPdfReaderRagChunks::test_chunk_index_sequential (line 379) - Score: 90
+    - Test 'TestPdfReaderRagChunks::test_chunk_index_sequential' has identical neighborhood to 'TestPdfReaderRagChunks::test_element_types_strings'
+  TestPdfReaderRagChunks::test_element_types_strings (line 391) - Score: 90
+    - Test 'TestPdfReaderRagChunks::test_element_types_strings' has identical neighborhood to 'TestPdfReaderRagChunks::test_chunk_index_sequential'
+  TestPdfReaderRagChunksWithProfile::test_standard_profile (line 418) - Score: 90
+    - Test 'TestPdfReaderRagChunksWithProfile::test_standard_profile' has identical neighborhood to 'TestPdfReaderRagChunksWithProfile::test_academic_profile'
+  TestPdfReaderRagChunksWithProfile::test_rag_profile (line 422) - Score: 90
+    - Test 'TestPdfReaderRagChunksWithProfile::test_rag_profile' has identical neighborhood to 'TestPdfReaderRagChunksWithProfile::test_academic_profile'
+  TestPdfReaderRagChunksWithProfile::test_academic_profile (line 426) - Score: 90
+    - Test 'TestPdfReaderRagChunksWithProfile::test_academic_profile' has identical neighborhood to 'TestPdfReaderRagChunksWithProfile::test_rag_profile'
+  TestPyElementProperties::test_type_name_is_valid (line 441) - Score: 90
+    - Test 'TestPyElementProperties::test_type_name_is_valid' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+  TestPyElementProperties::test_text_is_string (line 450) - Score: 90
+    - Test 'TestPyElementProperties::test_text_is_string' has identical neighborhood to 'TestPdfReaderPartition::test_returns_list'
+  TestPyElementProperties::test_display_text_is_string (line 455) - Score: 90
+    - Test 'TestPyElementProperties::test_display_text_is_string' has identical neighborhood to 'TestPdfReaderPartition::test_returns_list'
+  TestPyRagChunkProperties::test_all_properties_accessible (line 470) - Score: 75
+    - Test 'TestPyRagChunkProperties::test_all_properties_accessible' executes production code without asserting on its behaviour
+  TestPyRagChunkProperties::test_heading_context_optional (line 482) - Score: 90
+    - Test 'TestPyRagChunkProperties::test_heading_context_optional' has identical neighborhood to 'TestPdfReaderRagChunks::test_chunk_index_sequential'
+  TestPyRagChunkProperties::test_is_oversized_bool (line 487) - Score: 90
+    - Test 'TestPyRagChunkProperties::test_is_oversized_bool' has identical neighborhood to 'TestPdfReaderRagChunks::test_chunk_index_sequential'
+  TestPyDocumentChunkProperties::test_all_properties_accessible (line 496) - Score: 75
+    - Test 'TestPyDocumentChunkProperties::test_all_properties_accessible' executes production code without asserting on its behaviour
+  TestPyDocumentChunkProperties::test_page_numbers_list (line 505) - Score: 90
+    - Test 'TestPyDocumentChunkProperties::test_page_numbers_list' has identical neighborhood to 'TestPdfReaderChunk::test_returns_list'
+
+tests/test_analysis_pipeline_chunking.py:
+  TestCustomChunkingStrategy::test_strategy_emitting_one_group_per_element_produces_n_chunks (line 84) - Score: 90
+    - Test 'TestCustomChunkingStrategy::test_strategy_emitting_one_group_per_element_produces_n_chunks' has low assert-to-setup ratio (8%): 1 asserts vs 12 setup lines
+  TestCustomChunkingStrategy::test_whole_document_strategy_produces_single_chunk (line 102) - Score: 90
+    - Test 'TestCustomChunkingStrategy::test_whole_document_strategy_produces_single_chunk' has low assert-to-setup ratio (8%): 1 asserts vs 12 setup lines
+
+tests/test_analysis_pipeline_classifier.py:
+  TestClassifyContext::test_context_passed_to_classifier_exposes_elements_and_index (line 57) - Score: 90
+    - Test 'TestClassifyContext::test_context_passed_to_classifier_exposes_elements_and_index' has low assert-to-setup ratio (16%): 3 asserts vs 16 setup lines
+  TestClassifierLabelsTravel::test_strategy_sees_class_label_set_by_classifier (line 83) - Score: 90
+    - Test 'TestClassifierLabelsTravel::test_strategy_sees_class_label_set_by_classifier' has low assert-to-setup ratio (14%): 4 asserts vs 25 setup lines
+  TestClassifierReturningNone::test_none_keeps_class_label_unset (line 121) - Score: 90
+    - Test 'TestClassifierReturningNone::test_none_keeps_class_label_unset' has low assert-to-setup ratio (9%): 2 asserts vs 20 setup lines
+
+tests/test_analysis_pipeline_enricher.py:
+  TestPipelineCapstone::test_strategy_classifier_and_enricher_compose_without_interference (line 182) - Score: 90
+    - Test 'TestPipelineCapstone::test_strategy_classifier_and_enricher_compose_without_interference' has low assert-to-setup ratio (15%): 5 asserts vs 29 setup lines
+
+tests/test_annotations.py:
+  TestAnnotationType::test_annotation_type_variants (line 7) - Score: 90
+    - Test 'TestAnnotationType::test_annotation_type_variants' does not call any production code
+  TestAnnotation::test_annotation_builder_chain (line 53) - Score: 90
+    - Test 'TestAnnotation::test_annotation_builder_chain' has low assert-to-setup ratio (10%): 1 asserts vs 9 setup lines
+  TestAnnotationOnPage::test_text_annotation_renders (line 105) - Score: 90
+    - Test 'TestAnnotationOnPage::test_text_annotation_renders' has low assert-to-setup ratio (9%): 1 asserts vs 10 setup lines
+
+tests/test_annotations_deep.py:
+  TestLineEndingStyle::test_all_variants_exist (line 42) - Score: 80
+    - Test 'TestLineEndingStyle::test_all_variants_exist' has identical neighborhood to 'TestBlendMode::test_blend_mode_variants'
+    - Test 'TestLineEndingStyle::test_all_variants_exist' does not call any production code
+  TestBorderEffectStyle::test_variants (line 60) - Score: 80
+    - Test 'TestBorderEffectStyle::test_variants' has identical neighborhood to 'TestCoordinateSystem::test_variants'
+    - Test 'TestBorderEffectStyle::test_variants' does not call any production code
+  TestBorderEffect::test_new_with_style (line 69) - Score: 90
+    - Test 'TestBorderEffect::test_new_with_style' has identical neighborhood to 'TestBorderEffectGetters::test_intensity_getter'
+  TestCircleAnnotation::test_to_annotation (line 100) - Score: 90
+    - Test 'TestCircleAnnotation::test_to_annotation' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+  TestCircleAnnotation::test_builder_chain (line 109) - Score: 90
+    - Test 'TestCircleAnnotation::test_builder_chain' has low assert-to-setup ratio (11%): 1 asserts vs 8 setup lines
+  TestSquareAnnotation::test_builder_chain (line 151) - Score: 90
+    - Test 'TestSquareAnnotation::test_builder_chain' has low assert-to-setup ratio (11%): 1 asserts vs 8 setup lines
+  TestLineAnnotation::test_to_annotation (line 187) - Score: 90
+    - Test 'TestLineAnnotation::test_to_annotation' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+  TestLineAnnotation::test_with_contents (line 196) - Score: 90
+    - Test 'TestLineAnnotation::test_with_contents' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  TestStampName::test_standard_constants (line 214) - Score: 80
+    - Test 'TestStampName::test_standard_constants' has identical neighborhood to 'TestFont::test_standard_fonts_exist'
+    - Test 'TestStampName::test_standard_constants' does not call any production code
+  TestFileAttachmentIcon::test_all_variants (line 265) - Score: 80
+    - Test 'TestFileAttachmentIcon::test_all_variants' has identical neighborhood to 'TestEncryptionStrength::test_encryption_strength_variants'
+    - Test 'TestFileAttachmentIcon::test_all_variants' does not call any production code
+  TestFreeTextAnnotation::test_builder_chain (line 322) - Score: 90
+    - Test 'TestFreeTextAnnotation::test_builder_chain' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+  TestInkAnnotation::test_multiple_strokes (line 350) - Score: 90
+    - Test 'TestInkAnnotation::test_multiple_strokes' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  TestInkAnnotation::test_to_annotation (line 358) - Score: 90
+    - Test 'TestInkAnnotation::test_to_annotation' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  TestPolygonAnnotation::test_to_annotation (line 394) - Score: 90
+    - Test 'TestPolygonAnnotation::test_to_annotation' has low assert-to-setup ratio (11%): 1 asserts vs 8 setup lines
+  TestPolylineAnnotation::test_to_annotation (line 429) - Score: 90
+    - Test 'TestPolylineAnnotation::test_to_annotation' has low assert-to-setup ratio (12%): 1 asserts vs 7 setup lines
+  TestPopupAnnotation::test_to_annotation (line 533) - Score: 90
+    - Test 'TestPopupAnnotation::test_to_annotation' has low assert-to-setup ratio (11%): 1 asserts vs 8 setup lines
+  TestHighlightMode::test_variants (line 555) - Score: 80
+    - Test 'TestHighlightMode::test_variants' has identical neighborhood to 'TestEncryptionStrength::test_encryption_strength_variants'
+    - Test 'TestHighlightMode::test_variants' does not call any production code
+  TestLinkAnnotation::test_with_highlight_mode (line 576) - Score: 90
+    - Test 'TestLinkAnnotation::test_with_highlight_mode' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+  TestAnnotationsDeepOnDocument::test_circle_on_page (line 601) - Score: 90
+    - Test 'TestAnnotationsDeepOnDocument::test_circle_on_page' has low assert-to-setup ratio (9%): 1 asserts vs 10 setup lines
+  TestAnnotationsDeepOnDocument::test_line_annotation_on_page (line 614) - Score: 90
+    - Test 'TestAnnotationsDeepOnDocument::test_line_annotation_on_page' has low assert-to-setup ratio (9%): 1 asserts vs 10 setup lines
+  TestAnnotationsDeepOnDocument::test_stamp_on_page (line 627) - Score: 90
+    - Test 'TestAnnotationsDeepOnDocument::test_stamp_on_page' has low assert-to-setup ratio (11%): 1 asserts vs 8 setup lines
+  TestAnnotationsDeepOnDocument::test_polygon_on_page (line 638) - Score: 90
+    - Test 'TestAnnotationsDeepOnDocument::test_polygon_on_page' has low assert-to-setup ratio (9%): 1 asserts vs 10 setup lines
+  TestAnnotationsDeepOnDocument::test_link_on_page (line 651) - Score: 90
+    - Test 'TestAnnotationsDeepOnDocument::test_link_on_page' has low assert-to-setup ratio (10%): 1 asserts vs 9 setup lines
+  TestAnnotationsDeepOnDocument::test_ink_on_page (line 663) - Score: 90
+    - Test 'TestAnnotationsDeepOnDocument::test_ink_on_page' has low assert-to-setup ratio (9%): 1 asserts vs 10 setup lines
+  TestBorderEffectGetters::test_intensity_getter (line 868) - Score: 90
+    - Test 'TestBorderEffectGetters::test_intensity_getter' has identical neighborhood to 'TestBorderEffect::test_new_with_style'
+  TestEnumEqHash::test_annotation_type_eq (line 883) - Score: 80
+    - Test 'TestEnumEqHash::test_annotation_type_eq' has identical neighborhood to 'TestBorderEffectStyle::test_variants'
+    - Test 'TestEnumEqHash::test_annotation_type_eq' does not call any production code
+  TestEnumEqHash::test_annotation_type_hashable (line 887) - Score: 80
+    - Test 'TestEnumEqHash::test_annotation_type_hashable' has identical neighborhood to 'TestEnumEqHash::test_border_effect_style_hashable'
+    - Test 'TestEnumEqHash::test_annotation_type_hashable' does not call any production code
+  TestEnumEqHash::test_markup_type_eq (line 891) - Score: 80
+    - Test 'TestEnumEqHash::test_markup_type_eq' has identical neighborhood to 'TestBorderEffectStyle::test_variants'
+    - Test 'TestEnumEqHash::test_markup_type_eq' does not call any production code
+  TestEnumEqHash::test_markup_type_hashable (line 895) - Score: 90
+    - Test 'TestEnumEqHash::test_markup_type_hashable' does not call any production code
+  TestEnumEqHash::test_line_ending_style_eq (line 899) - Score: 80
+    - Test 'TestEnumEqHash::test_line_ending_style_eq' has identical neighborhood to 'TestBorderEffectStyle::test_variants'
+    - Test 'TestEnumEqHash::test_line_ending_style_eq' does not call any production code
+  TestEnumEqHash::test_line_ending_style_hashable (line 903) - Score: 80
+    - Test 'TestEnumEqHash::test_line_ending_style_hashable' has identical neighborhood to 'TestEnumEqHash::test_annotation_type_hashable'
+    - Test 'TestEnumEqHash::test_line_ending_style_hashable' does not call any production code
+  TestEnumEqHash::test_border_effect_style_eq (line 907) - Score: 80
+    - Test 'TestEnumEqHash::test_border_effect_style_eq' has identical neighborhood to 'TestBorderEffectStyle::test_variants'
+    - Test 'TestEnumEqHash::test_border_effect_style_eq' does not call any production code
+  TestEnumEqHash::test_border_effect_style_hashable (line 911) - Score: 80
+    - Test 'TestEnumEqHash::test_border_effect_style_hashable' has identical neighborhood to 'TestEnumEqHash::test_annotation_type_hashable'
+    - Test 'TestEnumEqHash::test_border_effect_style_hashable' does not call any production code
+  TestEnumEqHash::test_stamp_name_eq (line 915) - Score: 80
+    - Test 'TestEnumEqHash::test_stamp_name_eq' has identical neighborhood to 'TestBorderEffectStyle::test_variants'
+    - Test 'TestEnumEqHash::test_stamp_name_eq' does not call any production code
+  TestEnumEqHash::test_stamp_name_hashable (line 919) - Score: 80
+    - Test 'TestEnumEqHash::test_stamp_name_hashable' has identical neighborhood to 'TestEnumEqHash::test_annotation_type_hashable'
+    - Test 'TestEnumEqHash::test_stamp_name_hashable' does not call any production code
+  TestEnumEqHash::test_highlight_mode_eq (line 923) - Score: 80
+    - Test 'TestEnumEqHash::test_highlight_mode_eq' has identical neighborhood to 'TestBorderEffectStyle::test_variants'
+    - Test 'TestEnumEqHash::test_highlight_mode_eq' does not call any production code
+  TestEnumEqHash::test_highlight_mode_hashable (line 927) - Score: 90
+    - Test 'TestEnumEqHash::test_highlight_mode_hashable' does not call any production code
+  TestAnnotationDocstrings::test_all_annotation_classes_have_docstrings (line 938) - Score: 90
+    - Test 'TestAnnotationDocstrings::test_all_annotation_classes_have_docstrings' has low assert-to-setup ratio (5%): 1 asserts vs 18 setup lines
+
+tests/test_batch_options.py:
+  test_invalid_counts (line 34) - Score: 90
+    - Test 'test_invalid_counts' has identical neighborhood to 'test_invalid_durations'
+  test_invalid_durations (line 41) - Score: 90
+    - Test 'test_invalid_durations' has identical neighborhood to 'test_invalid_counts'
+  test_executor_callbacks_errors_and_limits (line 51) - Score: 90
+    - Test 'test_executor_callbacks_errors_and_limits' has low assert-to-setup ratio (1%): 1 asserts vs 70 setup lines
+  test_callback_reference_cycles_are_collected (line 128) - Score: 90
+    - Test 'test_callback_reference_cycles_are_collected' has low assert-to-setup ratio (7%): 1 asserts vs 13 setup lines
+
+tests/test_batch_recovery_streaming.py:
+  TestBatchProcessor::test_add_job_and_execute (line 105) - Score: 90
+    - Test 'TestBatchProcessor::test_add_job_and_execute' has low assert-to-setup ratio (9%): 1 asserts vs 10 setup lines
+  TestBatchStandaloneFunctions::test_batch_merge_pdfs_with_group (line 159) - Score: 90
+    - Test 'TestBatchStandaloneFunctions::test_batch_merge_pdfs_with_group' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  TestBatchSplitOutput::test_split_does_not_leak_to_cwd (line 268) - Score: 90
+    - Test 'TestBatchSplitOutput::test_split_does_not_leak_to_cwd' has low assert-to-setup ratio (12%): 1 asserts vs 7 setup lines
+  TestRepairStrategy::test_class_attributes_exist (line 283) - Score: 80
+    - Test 'TestRepairStrategy::test_class_attributes_exist' has identical neighborhood to 'TestEntityType::test_identity_variants'
+    - Test 'TestRepairStrategy::test_class_attributes_exist' does not call any production code
+  TestCorruptionType::test_class_attributes_exist (line 297) - Score: 80
+    - Test 'TestCorruptionType::test_class_attributes_exist' has identical neighborhood to 'TestEntityType::test_financial_variants'
+    - Test 'TestCorruptionType::test_class_attributes_exist' does not call any production code
+  TestRepairDocument::test_repair_all_strategies (line 373) - Score: 90
+    - Test 'TestRepairDocument::test_repair_all_strategies' has low assert-to-setup ratio (8%): 1 asserts vs 12 setup lines
+  TestIncrementalParser::test_is_complete_after_eof (line 494) - Score: 90
+    - Test 'TestIncrementalParser::test_is_complete_after_eof' has low assert-to-setup ratio (12%): 1 asserts vs 7 setup lines
+  TestBatchIntegration::test_batch_and_incremental_parse (line 586) - Score: 90
+    - Test 'TestBatchIntegration::test_batch_and_incremental_parse' has low assert-to-setup ratio (8%): 1 asserts vs 12 setup lines
+
+tests/test_bounded_extraction_382.py:
+  TestMaxExtractedBytesOption::test_default_is_none (line 31) - Score: 90
+    - Test 'TestMaxExtractedBytesOption::test_default_is_none' has identical neighborhood to 'TestExtractionOptions::test_default_constructor'
+
+tests/test_calibrated_colors.py:
+  test_lab_color_delta_e (line 119) - Score: 90
+    - Test 'test_lab_color_delta_e' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  test_calibrated_colors_on_page (line 128) - Score: 90
+    - Test 'test_calibrated_colors_on_page' has low assert-to-setup ratio (3%): 1 asserts vs 28 setup lines
+
+tests/test_charts.py:
+  TestChartType::test_vertical_bar_exists (line 32) - Score: 90
+    - Test 'TestChartType::test_vertical_bar_exists' does not call any production code
+  TestChartType::test_horizontal_bar_exists (line 35) - Score: 90
+    - Test 'TestChartType::test_horizontal_bar_exists' does not call any production code
+  TestChartType::test_pie_exists (line 38) - Score: 90
+    - Test 'TestChartType::test_pie_exists' does not call any production code
+  TestChartType::test_line_exists (line 41) - Score: 90
+    - Test 'TestChartType::test_line_exists' does not call any production code
+  TestChartType::test_area_exists (line 44) - Score: 90
+    - Test 'TestChartType::test_area_exists' does not call any production code
+  TestChartType::test_all_variants_distinct (line 52) - Score: 80
+    - Test 'TestChartType::test_all_variants_distinct' has low assert-to-setup ratio (12%): 1 asserts vs 7 setup lines
+    - Test 'TestChartType::test_all_variants_distinct' does not call any production code
+  TestLegendPosition::test_none_exists (line 64) - Score: 90
+    - Test 'TestLegendPosition::test_none_exists' does not call any production code
+  TestLegendPosition::test_right_exists (line 67) - Score: 90
+    - Test 'TestLegendPosition::test_right_exists' does not call any production code
+  TestLegendPosition::test_bottom_exists (line 70) - Score: 90
+    - Test 'TestLegendPosition::test_bottom_exists' does not call any production code
+  TestLegendPosition::test_top_exists (line 73) - Score: 90
+    - Test 'TestLegendPosition::test_top_exists' does not call any production code
+  TestLegendPosition::test_left_exists (line 76) - Score: 90
+    - Test 'TestLegendPosition::test_left_exists' does not call any production code
+  TestBarOrientation::test_vertical_exists (line 88) - Score: 90
+    - Test 'TestBarOrientation::test_vertical_exists' does not call any production code
+  TestBarOrientation::test_horizontal_exists (line 91) - Score: 90
+    - Test 'TestBarOrientation::test_horizontal_exists' does not call any production code
+  TestBarChartBuilder::test_build_returns_bar_chart (line 138) - Score: 90
+    - Test 'TestBarChartBuilder::test_build_returns_bar_chart' has identical neighborhood to 'TestLineChartBuilder::test_build_returns_line_chart'
+  TestDataSeries::test_chained_builders (line 361) - Score: 90
+    - Test 'TestDataSeries::test_chained_builders' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+  TestLineChartBuilder::test_build_returns_line_chart (line 382) - Score: 90
+    - Test 'TestLineChartBuilder::test_build_returns_line_chart' has identical neighborhood to 'TestBarChartBuilder::test_build_returns_bar_chart'
+  TestLineChartBuilder::test_add_series (line 407) - Score: 90
+    - Test 'TestLineChartBuilder::test_add_series' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+  TestPieSegment::test_chained (line 531) - Score: 90
+    - Test 'TestPieSegment::test_chained' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+  TestPieChartBuilder::test_build_returns_pie_chart (line 553) - Score: 90
+    - Test 'TestPieChartBuilder::test_build_returns_pie_chart' has identical neighborhood to 'TestBarChartBuilder::test_build_returns_bar_chart'
+  TestPieChartBuilder::test_segments_list (line 585) - Score: 90
+    - Test 'TestPieChartBuilder::test_segments_list' has low assert-to-setup ratio (12%): 1 asserts vs 7 setup lines
+  TestPieChartBuilder::test_data_from_chart_data (line 672) - Score: 90
+    - Test 'TestPieChartBuilder::test_data_from_chart_data' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+  TestChartRenderer::test_render_bar_chart_produces_valid_pdf (line 736) - Score: 90
+    - Test 'TestChartRenderer::test_render_bar_chart_produces_valid_pdf' has low assert-to-setup ratio (14%): 2 asserts vs 12 setup lines
+  TestChartRenderer::test_render_pie_chart_produces_valid_pdf (line 752) - Score: 90
+    - Test 'TestChartRenderer::test_render_pie_chart_produces_valid_pdf' has low assert-to-setup ratio (14%): 2 asserts vs 12 setup lines
+  TestChartRenderer::test_render_line_chart_produces_valid_pdf (line 768) - Score: 90
+    - Test 'TestChartRenderer::test_render_line_chart_produces_valid_pdf' has low assert-to-setup ratio (14%): 2 asserts vs 12 setup lines
+  TestPageChartMethods::test_add_bar_chart (line 789) - Score: 90
+    - Test 'TestPageChartMethods::test_add_bar_chart' has low assert-to-setup ratio (15%): 2 asserts vs 11 setup lines
+  TestPageChartMethods::test_add_pie_chart (line 804) - Score: 90
+    - Test 'TestPageChartMethods::test_add_pie_chart' has low assert-to-setup ratio (17%): 2 asserts vs 10 setup lines
+  TestPageChartMethods::test_add_line_chart (line 818) - Score: 90
+    - Test 'TestPageChartMethods::test_add_line_chart' has low assert-to-setup ratio (17%): 2 asserts vs 10 setup lines
+  TestPageChartMethods::test_multiple_charts_on_one_page (line 832) - Score: 90
+    - Test 'TestPageChartMethods::test_multiple_charts_on_one_page' has low assert-to-setup ratio (6%): 1 asserts vs 15 setup lines
+  TestPageChartMethods::test_bar_chart_with_all_styles (line 850) - Score: 90
+    - Test 'TestPageChartMethods::test_bar_chart_with_all_styles' has low assert-to-setup ratio (6%): 1 asserts vs 16 setup lines
+  TestPageChartMethods::test_line_chart_multi_series (line 869) - Score: 90
+    - Test 'TestPageChartMethods::test_line_chart_multi_series' has low assert-to-setup ratio (6%): 1 asserts vs 16 setup lines
+  TestDashboardCharts::test_dashboard_line_chart_constructor (line 935) - Score: 90
+    - Test 'TestDashboardCharts::test_dashboard_line_chart_constructor' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  TestDashboardCharts::test_all_span_values (line 957) - Score: 90
+    - Test 'TestDashboardCharts::test_all_span_values' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+
+tests/test_chunk_metadata.py:
+  TestPageSpanMultiPage::test_each_chunk_page_span_lo_le_hi (line 243) - Score: 90
+    - Test 'TestPageSpanMultiPage::test_each_chunk_page_span_lo_le_hi' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+
+tests/test_content_parser.py:
+  TestContentOperation::test_type_exists (line 19) - Score: 90
+    - Test 'TestContentOperation::test_type_exists' does not call any production code
+  TestTextElement::test_type_exists (line 293) - Score: 90
+    - Test 'TestTextElement::test_type_exists' does not call any production code
+
+tests/test_contextual_chunking_376.py:
+  TestContextFormat::test_variants_distinct (line 37) - Score: 90
+    - Test 'TestContextFormat::test_variants_distinct' does not call any production code
+  TestContextFormat::test_variant_equality (line 40) - Score: 90
+    - Test 'TestContextFormat::test_variant_equality' does not call any production code
+
+tests/test_core_5_1_bindings.py:
+  test_link_budget_counts_utf8_text_and_separator (line 87) - Score: 90
+    - Test 'test_link_budget_counts_utf8_text_and_separator' has low assert-to-setup ratio (15%): 4 asserts vs 23 setup lines
+
+tests/test_document.py:
+  TestDocument::test_set_metadata (line 17) - Score: 75
+    - Test 'TestDocument::test_set_metadata' executes production code without asserting on its behaviour
+  TestDocument::test_add_multiple_pages (line 35) - Score: 90
+    - Test 'TestDocument::test_add_multiple_pages' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+  TestDocument::test_save_empty_document (line 65) - Score: 90
+    - Test 'TestDocument::test_save_empty_document' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  TestDocument::test_page_reuse (line 82) - Score: 90
+    - Test 'TestDocument::test_page_reuse' has low assert-to-setup ratio (12%): 1 asserts vs 7 setup lines
+  TestPage::test_a4_dimensions (line 150) - Score: 90
+    - Test 'TestPage::test_a4_dimensions' has identical neighborhood to 'TestPageConfig::test_a4_returns_a4_dimensions'
+  TestPage::test_margins_default (line 189) - Score: 90
+    - Test 'TestPage::test_margins_default' has identical neighborhood to 'TestPageConfig::test_a4_default_margins'
+
+tests/test_document_config.py:
+  test_set_open_action_goto_renders_pdf (line 7) - Score: 90
+    - Test 'test_set_open_action_goto_renders_pdf' has low assert-to-setup ratio (17%): 2 asserts vs 10 setup lines
+  test_set_open_action_uri_renders_pdf (line 22) - Score: 90
+    - Test 'test_set_open_action_uri_renders_pdf' has low assert-to-setup ratio (17%): 2 asserts vs 10 setup lines
+  test_set_open_action_goto_xyz (line 37) - Score: 90
+    - Test 'test_set_open_action_goto_xyz' has low assert-to-setup ratio (9%): 1 asserts vs 10 setup lines
+  test_set_open_action_uri_web (line 51) - Score: 90
+    - Test 'test_set_open_action_uri_web' has low assert-to-setup ratio (9%): 1 asserts vs 10 setup lines
+  test_writer_config_default (line 117) - Score: 90
+    - Test 'test_writer_config_default' has identical neighborhood to 'TestWriterConfigKwargs::test_all_keyword_args'
+  test_set_compress_true (line 160) - Score: 90
+    - Test 'test_set_compress_true' has low assert-to-setup ratio (12%): 1 asserts vs 7 setup lines
+  test_set_compress_false (line 171) - Score: 90
+    - Test 'test_set_compress_false' has low assert-to-setup ratio (12%): 1 asserts vs 7 setup lines
+  test_enable_xref_streams (line 182) - Score: 90
+    - Test 'test_enable_xref_streams' has low assert-to-setup ratio (12%): 1 asserts vs 7 setup lines
+  test_save_with_config (line 193) - Score: 90
+    - Test 'test_save_with_config' has low assert-to-setup ratio (14%): 2 asserts vs 12 setup lines
+  test_save_with_config_legacy (line 210) - Score: 90
+    - Test 'test_save_with_config_legacy' has low assert-to-setup ratio (8%): 1 asserts vs 12 setup lines
+  test_save_to_bytes_with_config_writes_requested_pdf_version_header (line 294) - Score: 90
+    - Test 'test_save_to_bytes_with_config_writes_requested_pdf_version_header' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  test_save_to_bytes_with_config_modern_header_matches_preset_version (line 303) - Score: 90
+    - Test 'test_save_to_bytes_with_config_modern_header_matches_preset_version' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  test_save_to_bytes_with_config_legacy_header_matches_preset_version (line 312) - Score: 90
+    - Test 'test_save_to_bytes_with_config_legacy_header_matches_preset_version' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  test_save_to_bytes_with_config_modern_differs_from_legacy (line 321) - Score: 90
+    - Test 'test_save_to_bytes_with_config_modern_differs_from_legacy' has low assert-to-setup ratio (19%): 3 asserts vs 13 setup lines
+  test_font_encoding_variants (line 344) - Score: 80
+    - Test 'test_font_encoding_variants' has identical neighborhood to 'TestEncryptionStrength::test_encryption_strength_variants'
+    - Test 'test_font_encoding_variants' does not call any production code
+  test_set_default_font_encoding (line 362) - Score: 80
+    - Test 'test_set_default_font_encoding' has identical neighborhood to 'test_set_default_font_encoding_mac_roman'
+    - Test 'test_set_default_font_encoding' has low assert-to-setup ratio (12%): 1 asserts vs 7 setup lines
+  test_set_default_font_encoding_mac_roman (line 373) - Score: 80
+    - Test 'test_set_default_font_encoding_mac_roman' has identical neighborhood to 'test_set_default_font_encoding'
+    - Test 'test_set_default_font_encoding_mac_roman' has low assert-to-setup ratio (12%): 1 asserts vs 7 setup lines
+
+tests/test_document_source.py:
+  TestRagChunksWithSourceAndConfig::test_smaller_token_budget_yields_more_chunks_than_default (line 154) - Score: 90
+    - Test 'TestRagChunksWithSourceAndConfig::test_smaller_token_budget_yields_more_chunks_than_default' has low assert-to-setup ratio (9%): 1 asserts vs 10 setup lines
+
+tests/test_errors.py:
+  TestPdfErrorBase::test_pdf_error_exists (line 9) - Score: 90
+    - Test 'TestPdfErrorBase::test_pdf_error_exists' does not call any production code
+  TestPdfErrorBase::test_pdf_error_is_exception (line 14) - Score: 90
+    - Test 'TestPdfErrorBase::test_pdf_error_is_exception' has identical neighborhood to 'TestErrorSubclasses::test_encryption_error_is_subclass_of_pdf_error'
+  TestPdfErrorBase::test_pdf_error_message (line 25) - Score: 90
+    - Test 'TestPdfErrorBase::test_pdf_error_message' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  TestErrorSubclasses::test_parse_error_exists (line 44) - Score: 90
+    - Test 'TestErrorSubclasses::test_parse_error_exists' has identical neighborhood to 'TestErrorSubclasses::test_encryption_error_is_subclass_of_pdf_error'
+  TestErrorSubclasses::test_parse_error_is_subclass_of_pdf_error (line 49) - Score: 90
+    - Test 'TestErrorSubclasses::test_parse_error_is_subclass_of_pdf_error' has identical neighborhood to 'TestErrorSubclasses::test_encryption_error_is_subclass_of_pdf_error'
+  TestErrorSubclasses::test_io_error_is_subclass_of_pdf_error (line 54) - Score: 90
+    - Test 'TestErrorSubclasses::test_io_error_is_subclass_of_pdf_error' has identical neighborhood to 'TestErrorSubclasses::test_encryption_error_is_subclass_of_pdf_error'
+  TestErrorSubclasses::test_encryption_error_is_subclass_of_pdf_error (line 59) - Score: 90
+    - Test 'TestErrorSubclasses::test_encryption_error_is_subclass_of_pdf_error' has identical neighborhood to 'TestErrorSubclasses::test_io_error_is_subclass_of_pdf_error'
+  TestErrorSubclasses::test_permission_error_is_subclass_of_pdf_error (line 64) - Score: 90
+    - Test 'TestErrorSubclasses::test_permission_error_is_subclass_of_pdf_error' has identical neighborhood to 'TestErrorSubclasses::test_encryption_error_is_subclass_of_pdf_error'
+
+tests/test_experimental_spi_exports.py:
+  TestConvenienceReExports::test_element_is_reexported_and_identical_to_root (line 30) - Score: 90
+    - Test 'TestConvenienceReExports::test_element_is_reexported_and_identical_to_root' does not call any production code
+  TestConvenienceReExports::test_document_source_is_reexported_and_identical_to_root (line 33) - Score: 90
+    - Test 'TestConvenienceReExports::test_document_source_is_reexported_and_identical_to_root' does not call any production code
+  TestConvenienceReExports::test_value_types_listed_in_all (line 36) - Score: 90
+    - Test 'TestConvenienceReExports::test_value_types_listed_in_all' does not call any production code
+  TestChunkingStrategyProtocol::test_typo_in_method_name_fails_protocol (line 49) - Score: 90
+    - Test 'TestChunkingStrategyProtocol::test_typo_in_method_name_fails_protocol' has identical neighborhood to 'TestElementClassifierProtocol::test_missing_method_fails_protocol'
+  TestElementClassifierProtocol::test_missing_method_fails_protocol (line 65) - Score: 90
+    - Test 'TestElementClassifierProtocol::test_missing_method_fails_protocol' has identical neighborhood to 'TestChunkingStrategyProtocol::test_typo_in_method_name_fails_protocol'
+  TestMetadataEnricherProtocol::test_missing_method_fails_protocol (line 81) - Score: 90
+    - Test 'TestMetadataEnricherProtocol::test_missing_method_fails_protocol' has identical neighborhood to 'TestChunkingStrategyProtocol::test_typo_in_method_name_fails_protocol'
+  TestProtocolsExported::test_protocols_listed_in_all (line 90) - Score: 90
+    - Test 'TestProtocolsExported::test_protocols_listed_in_all' does not call any production code
+
+tests/test_form_validation.py:
+  test_validation_rule_range (line 49) - Score: 90
+    - Test 'test_validation_rule_range' does not call any production code
+  test_validation_rule_range_open (line 56) - Score: 90
+    - Test 'test_validation_rule_range_open' does not call any production code
+  test_field_validator_add_rule (line 101) - Score: 75
+    - Test 'test_field_validator_add_rule' executes production code without asserting on its behaviour
+  test_form_validation_system_add_validator (line 116) - Score: 75
+    - Test 'test_form_validation_system_add_validator' executes production code without asserting on its behaviour
+
+tests/test_forms.py:
+  TestRadioButton::test_radio_with_selected (line 54) - Score: 90
+    - Test 'TestRadioButton::test_radio_with_selected' has low assert-to-setup ratio (11%): 1 asserts vs 8 setup lines
+  TestDocumentEnableForms::test_enable_forms (line 100) - Score: 75
+    - Test 'TestDocumentEnableForms::test_enable_forms' executes production code without asserting on its behaviour
+  TestDocumentEnableForms::test_add_text_field_renders (line 106) - Score: 90
+    - Test 'TestDocumentEnableForms::test_add_text_field_renders' has low assert-to-setup ratio (12%): 2 asserts vs 15 setup lines
+  TestDocumentEnableForms::test_add_checkbox_renders (line 125) - Score: 90
+    - Test 'TestDocumentEnableForms::test_add_checkbox_renders' has low assert-to-setup ratio (12%): 2 asserts vs 15 setup lines
+  TestDocumentEnableForms::test_add_combo_box_renders (line 144) - Score: 90
+    - Test 'TestDocumentEnableForms::test_add_combo_box_renders' has low assert-to-setup ratio (6%): 1 asserts vs 15 setup lines
+  TestDocumentEnableForms::test_add_list_box_renders (line 162) - Score: 90
+    - Test 'TestDocumentEnableForms::test_add_list_box_renders' has low assert-to-setup ratio (6%): 1 asserts vs 15 setup lines
+  TestDocumentEnableForms::test_add_radio_button_renders (line 180) - Score: 90
+    - Test 'TestDocumentEnableForms::test_add_radio_button_renders' has low assert-to-setup ratio (6%): 1 asserts vs 15 setup lines
+
+tests/test_forms_deep.py:
+  TestFieldOptions::test_read_only (line 86) - Score: 90
+    - Test 'TestFieldOptions::test_read_only' has identical neighborhood to 'TestFieldOptions::test_no_export'
+  TestFieldOptions::test_required (line 90) - Score: 90
+    - Test 'TestFieldOptions::test_required' has identical neighborhood to 'TestFieldOptions::test_no_export'
+  TestFieldOptions::test_no_export (line 94) - Score: 90
+    - Test 'TestFieldOptions::test_no_export' has identical neighborhood to 'TestFieldOptions::test_read_only'
+  TestAcroForm::test_create (line 126) - Score: 90
+    - Test 'TestAcroForm::test_create' has identical neighborhood to 'TestAcroForm::test_sig_flags_default'
+  TestAcroForm::test_sig_flags_default (line 134) - Score: 90
+    - Test 'TestAcroForm::test_sig_flags_default' has identical neighborhood to 'TestAcroForm::test_create'
+  TestFormManager::test_add_duplicate_field_names (line 214) - Score: 90
+    - Test 'TestFormManager::test_add_duplicate_field_names' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  TestSpecialFormatType::test_zip_code (line 317) - Score: 90
+    - Test 'TestSpecialFormatType::test_zip_code' does not call any production code
+  TestSpecialFormatType::test_zip_plus_4 (line 320) - Score: 90
+    - Test 'TestSpecialFormatType::test_zip_plus_4' does not call any production code
+  TestSpecialFormatType::test_phone (line 323) - Score: 90
+    - Test 'TestSpecialFormatType::test_phone' does not call any production code
+  TestSpecialFormatType::test_ssn (line 326) - Score: 90
+    - Test 'TestSpecialFormatType::test_ssn' does not call any production code
+  TestFieldActions::test_with_multiple_slots (line 426) - Score: 90
+    - Test 'TestFieldActions::test_with_multiple_slots' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  TestFieldActionSystem::test_blur (line 507) - Score: 90
+    - Test 'TestFieldActionSystem::test_blur' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  TestSimpleOperation::test_sum (line 592) - Score: 90
+    - Test 'TestSimpleOperation::test_sum' does not call any production code
+  TestSimpleOperation::test_product (line 595) - Score: 90
+    - Test 'TestSimpleOperation::test_product' does not call any production code
+  TestSimpleOperation::test_average (line 598) - Score: 90
+    - Test 'TestSimpleOperation::test_average' does not call any production code
+  TestSimpleOperation::test_minimum (line 601) - Score: 90
+    - Test 'TestSimpleOperation::test_minimum' does not call any production code
+  TestSimpleOperation::test_maximum (line 604) - Score: 90
+    - Test 'TestSimpleOperation::test_maximum' does not call any production code
+  TestPercentMode::test_percent_of (line 609) - Score: 90
+    - Test 'TestPercentMode::test_percent_of' does not call any production code
+  TestPercentMode::test_percentage_of (line 612) - Score: 90
+    - Test 'TestPercentMode::test_percentage_of' does not call any production code
+  TestPercentMode::test_add_percent (line 615) - Score: 90
+    - Test 'TestPercentMode::test_add_percent' does not call any production code
+  TestPercentMode::test_subtract_percent (line 618) - Score: 90
+    - Test 'TestPercentMode::test_subtract_percent' does not call any production code
+  TestSeparatorStyle::test_comma_period (line 623) - Score: 90
+    - Test 'TestSeparatorStyle::test_comma_period' does not call any production code
+  TestSeparatorStyle::test_period_comma (line 626) - Score: 90
+    - Test 'TestSeparatorStyle::test_period_comma' does not call any production code
+  TestSeparatorStyle::test_space_period (line 629) - Score: 90
+    - Test 'TestSeparatorStyle::test_space_period' does not call any production code
+  TestSeparatorStyle::test_apostrophe_period (line 632) - Score: 90
+    - Test 'TestSeparatorStyle::test_apostrophe_period' does not call any production code
+  TestSeparatorStyle::test_none (line 635) - Score: 90
+    - Test 'TestSeparatorStyle::test_none' does not call any production code
+  TestNegativeStyle::test_minus_black (line 640) - Score: 90
+    - Test 'TestNegativeStyle::test_minus_black' does not call any production code
+  TestNegativeStyle::test_red_parentheses (line 643) - Score: 90
+    - Test 'TestNegativeStyle::test_red_parentheses' does not call any production code
+  TestNegativeStyle::test_black_parentheses (line 646) - Score: 90
+    - Test 'TestNegativeStyle::test_black_parentheses' does not call any production code
+  TestNegativeStyle::test_minus_red (line 649) - Score: 90
+    - Test 'TestNegativeStyle::test_minus_red' does not call any production code
+  TestSpecialFormat::test_zip_code (line 654) - Score: 90
+    - Test 'TestSpecialFormat::test_zip_code' does not call any production code
+  TestSpecialFormat::test_zip_code_plus_4 (line 657) - Score: 90
+    - Test 'TestSpecialFormat::test_zip_code_plus_4' does not call any production code
+  TestSpecialFormat::test_phone_number (line 660) - Score: 90
+    - Test 'TestSpecialFormat::test_phone_number' does not call any production code
+  TestSpecialFormat::test_ssn (line 663) - Score: 90
+    - Test 'TestSpecialFormat::test_ssn' does not call any production code
+  TestJavaScriptCalculation::test_range (line 744) - Score: 90
+    - Test 'TestJavaScriptCalculation::test_range' does not call any production code
+  TestCalculationSettings::test_custom (line 770) - Score: 90
+    - Test 'TestCalculationSettings::test_custom' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+  TestCalculationEngine::test_recalculate_all (line 803) - Score: 75
+    - Test 'TestCalculationEngine::test_recalculate_all' executes production code without asserting on its behaviour
+  TestFormCalculationSystem::test_set_field_value (line 837) - Score: 75
+    - Test 'TestFormCalculationSystem::test_set_field_value' executes production code without asserting on its behaviour
+  TestFormCalculationSystem::test_add_js_calculation (line 841) - Score: 75
+    - Test 'TestFormCalculationSystem::test_add_js_calculation' executes production code without asserting on its behaviour
+  TestFormCalculationSystem::test_set_field_format (line 848) - Score: 75
+    - Test 'TestFormCalculationSystem::test_set_field_format' executes production code without asserting on its behaviour
+  TestAppearanceState::test_normal (line 884) - Score: 90
+    - Test 'TestAppearanceState::test_normal' does not call any production code
+  TestAppearanceState::test_rollover (line 887) - Score: 90
+    - Test 'TestAppearanceState::test_rollover' does not call any production code
+  TestAppearanceState::test_down (line 890) - Score: 90
+    - Test 'TestAppearanceState::test_down' does not call any production code
+  TestAppearanceState::test_pdf_name_normal (line 893) - Score: 90
+    - Test 'TestAppearanceState::test_pdf_name_normal' does not call any production code
+  TestAppearanceState::test_pdf_name_rollover (line 896) - Score: 90
+    - Test 'TestAppearanceState::test_pdf_name_rollover' does not call any production code
+  TestAppearanceState::test_pdf_name_down (line 899) - Score: 90
+    - Test 'TestAppearanceState::test_pdf_name_down' does not call any production code
+
+tests/test_gil_concurrency.py:
+  test_validate_pdf_releases_gil (line 100) - Score: 75
+    - Test 'test_validate_pdf_releases_gil' executes production code without asserting on its behaviour
+  test_detect_corruption_releases_gil (line 106) - Score: 75
+    - Test 'test_detect_corruption_releases_gil' executes production code without asserting on its behaviour
+  test_extract_text_releases_gil (line 112) - Score: 75
+    - Test 'test_extract_text_releases_gil' executes production code without asserting on its behaviour
+  test_speedup_guard_retries_only_noisy_samples (line 128) - Score: 90
+    - Test 'test_speedup_guard_retries_only_noisy_samples' has low assert-to-setup ratio (6%): 1 asserts vs 16 setup lines
+  test_speedup_guard_rejects_real_gil_bound_work (line 173) - Score: 80
+    - Test 'test_speedup_guard_rejects_real_gil_bound_work' is marked as #[ignore]
+  test_speedup_guard_rejects_wall_only_speedup (line 184) - Score: 90
+    - Test 'test_speedup_guard_rejects_wall_only_speedup' does not call any production code
+
+tests/test_gradient_render.py:
+  test_end_path_emits_n_operator (line 66) - Score: 80
+    - Setup helper '_content' is duplicated in 1 other file(s)
+    - Test 'test_end_path_emits_n_operator' has low assert-to-setup ratio (11%): 1 asserts vs 8 setup lines
+  test_clip_emits_W_operator (line 81) - Score: 90
+    - Test 'test_clip_emits_W_operator' has low assert-to-setup ratio (11%): 1 asserts vs 8 setup lines
+  test_clip_even_odd_emits_W_star_operator (line 93) - Score: 90
+    - Test 'test_clip_even_odd_emits_W_star_operator' has low assert-to-setup ratio (11%): 1 asserts vs 8 setup lines
+  test_paint_shading_emits_sh_operator (line 108) - Score: 90
+    - Test 'test_paint_shading_emits_sh_operator' has low assert-to-setup ratio (12%): 1 asserts vs 7 setup lines
+  test_paint_shading_without_registration_writes_no_shading_resource (line 119) - Score: 90
+    - Test 'test_paint_shading_without_registration_writes_no_shading_resource' has low assert-to-setup ratio (17%): 2 asserts vs 10 setup lines
+  test_axial_gradient_full_workflow_stream_and_resources (line 177) - Score: 90
+    - Setup helper '_pos' is duplicated in 1 other file(s)
+  test_radial_gradient_full_workflow_registers_shading_type_3 (line 211) - Score: 90
+    - Test 'test_radial_gradient_full_workflow_registers_shading_type_3' has low assert-to-setup ratio (18%): 3 asserts vs 14 setup lines
+  test_two_shadings_on_same_page_coexist (line 231) - Score: 90
+    - Test 'test_two_shadings_on_same_page_coexist' has low assert-to-setup ratio (19%): 4 asserts vs 17 setup lines
+
+tests/test_graphics.py:
+  TestGraphicsPrimitives::test_draw_rect_and_fill (line 9) - Score: 90
+    - Test 'TestGraphicsPrimitives::test_draw_rect_and_fill' has low assert-to-setup ratio (9%): 1 asserts vs 10 setup lines
+  TestGraphicsPrimitives::test_draw_circle_and_stroke (line 22) - Score: 90
+    - Test 'TestGraphicsPrimitives::test_draw_circle_and_stroke' has low assert-to-setup ratio (9%): 1 asserts vs 10 setup lines
+  TestGraphicsPrimitives::test_draw_line (line 35) - Score: 90
+    - Test 'TestGraphicsPrimitives::test_draw_line' has low assert-to-setup ratio (8%): 1 asserts vs 11 setup lines
+  TestGraphicsPath::test_triangle_path (line 53) - Score: 90
+    - Test 'TestGraphicsPath::test_triangle_path' has low assert-to-setup ratio (7%): 1 asserts vs 13 setup lines
+  TestGraphicsPath::test_curve_to (line 69) - Score: 90
+    - Test 'TestGraphicsPath::test_curve_to' has low assert-to-setup ratio (9%): 1 asserts vs 10 setup lines
+  TestGraphicsPath::test_fill_and_stroke (line 82) - Score: 90
+    - Test 'TestGraphicsPath::test_fill_and_stroke' has low assert-to-setup ratio (8%): 1 asserts vs 12 setup lines
+  TestGraphicsState::test_fill_opacity (line 101) - Score: 90
+    - Test 'TestGraphicsState::test_fill_opacity' has low assert-to-setup ratio (8%): 1 asserts vs 11 setup lines
+  TestGraphicsState::test_stroke_opacity (line 115) - Score: 90
+    - Test 'TestGraphicsState::test_stroke_opacity' has low assert-to-setup ratio (8%): 1 asserts vs 11 setup lines
+  TestGraphicsState::test_combined_text_and_graphics (line 129) - Score: 90
+    - Test 'TestGraphicsState::test_combined_text_and_graphics' has low assert-to-setup ratio (8%): 2 asserts vs 24 setup lines
+
+tests/test_graphics_advanced.py:
+  TestShadingType::test_variants_exist (line 11) - Score: 80
+    - Test 'TestShadingType::test_variants_exist' has identical neighborhood to 'test_annotation_icon_constants'
+    - Test 'TestShadingType::test_variants_exist' does not call any production code
+  TestAxialShading::test_validate_valid (line 76) - Score: 75
+    - Test 'TestAxialShading::test_validate_valid' executes production code without asserting on its behaviour
+  TestRadialShading::test_validate_valid (line 116) - Score: 75
+    - Test 'TestRadialShading::test_validate_valid' executes production code without asserting on its behaviour
+  TestFreeFormGouraudShading::test_creation_defaults_to_16_8_8_bits (line 228) - Score: 90
+    - Test 'TestFreeFormGouraudShading::test_creation_defaults_to_16_8_8_bits' does not call any production code
+  TestFreeFormGouraudShading::test_creation_stores_name_and_color_space (line 234) - Score: 90
+    - Test 'TestFreeFormGouraudShading::test_creation_stores_name_and_color_space' does not call any production code
+  TestFreeFormGouraudShading::test_creation_stores_vertex_count (line 239) - Score: 90
+    - Test 'TestFreeFormGouraudShading::test_creation_stores_vertex_count' does not call any production code
+  TestFreeFormGouraudShading::test_validate_rejects_flag_greater_than_two (line 274) - Score: 90
+    - Test 'TestFreeFormGouraudShading::test_validate_rejects_flag_greater_than_two' has low assert-to-setup ratio (17%): 2 asserts vs 10 setup lines
+  TestConicShading::test_creation_stores_name_domain_and_no_matrix (line 334) - Score: 80
+    - Setup helper '_conic' is duplicated in 1 other file(s)
+    - Test 'TestConicShading::test_creation_stores_name_domain_and_no_matrix' does not call any production code
+  TestPaintType::test_variants (line 398) - Score: 80
+    - Test 'TestPaintType::test_variants' has identical neighborhood to 'TestBorderEffectStyle::test_variants'
+    - Test 'TestPaintType::test_variants' does not call any production code
+  TestTilingType::test_variants (line 407) - Score: 80
+    - Test 'TestTilingType::test_variants' has identical neighborhood to 'TestExportFormat::test_variants'
+    - Test 'TestTilingType::test_variants' does not call any production code
+  TestTilingPattern::test_add_operations (line 467) - Score: 75
+    - Test 'TestTilingPattern::test_add_operations' executes production code without asserting on its behaviour
+  TestFormXObjectBuilder::test_basic_build (line 537) - Score: 90
+    - Test 'TestFormXObjectBuilder::test_basic_build' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+  TestFormXObjectBuilder::test_chain_operations (line 546) - Score: 90
+    - Test 'TestFormXObjectBuilder::test_chain_operations' has low assert-to-setup ratio (9%): 1 asserts vs 10 setup lines
+  TestFormXObjectManager::test_clear (line 626) - Score: 90
+    - Test 'TestFormXObjectManager::test_clear' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  TestRenderingIntent::test_variants (line 639) - Score: 80
+    - Test 'TestRenderingIntent::test_variants' has identical neighborhood to 'TestEncryptionStrength::test_encryption_strength_variants'
+    - Test 'TestRenderingIntent::test_variants' does not call any production code
+  TestSoftMaskType::test_variants (line 729) - Score: 80
+    - Test 'TestSoftMaskType::test_variants' has identical neighborhood to 'TestBorderEffectStyle::test_variants'
+    - Test 'TestSoftMaskType::test_variants' does not call any production code
+  TestIccColorSpace::test_variants (line 828) - Score: 80
+    - Test 'TestIccColorSpace::test_variants' has identical neighborhood to 'TestEncryptionStrength::test_encryption_strength_variants'
+    - Test 'TestIccColorSpace::test_variants' does not call any production code
+  TestStandardIccProfile::test_all_variants (line 840) - Score: 80
+    - Test 'TestStandardIccProfile::test_all_variants' has low assert-to-setup ratio (9%): 1 asserts vs 10 setup lines
+    - Test 'TestStandardIccProfile::test_all_variants' does not call any production code
+  TestIccProfile::test_all_standard_profiles_work (line 875) - Score: 90
+    - Test 'TestIccProfile::test_all_standard_profiles_work' has low assert-to-setup ratio (8%): 1 asserts vs 11 setup lines
+  TestIccProfile::test_validate (line 895) - Score: 75
+    - Test 'TestIccProfile::test_validate' executes production code without asserting on its behaviour
+
+tests/test_graphics_extraction.py:
+  TestLineOrientation::test_variants (line 21) - Score: 80
+    - Test 'TestLineOrientation::test_variants' has identical neighborhood to 'TestExportFormat::test_variants'
+    - Test 'TestLineOrientation::test_variants' does not call any production code
+  TestLineOrientation::test_equality (line 26) - Score: 80
+    - Test 'TestLineOrientation::test_equality' has identical neighborhood to 'TestBorderEffectStyle::test_variants'
+    - Test 'TestLineOrientation::test_equality' does not call any production code
+  TestVectorLine::test_create_vertical (line 45) - Score: 90
+    - Test 'TestVectorLine::test_create_vertical' has identical neighborhood to 'TestVectorLine::test_create_diagonal'
+  TestVectorLine::test_create_diagonal (line 49) - Score: 90
+    - Test 'TestVectorLine::test_create_diagonal' has identical neighborhood to 'TestVectorLine::test_create_vertical'
+  TestExtractedGraphics::test_horizontal_lines (line 111) - Score: 90
+    - Test 'TestExtractedGraphics::test_horizontal_lines' has identical neighborhood to 'TestExtractedGraphics::test_vertical_lines'
+  TestExtractedGraphics::test_vertical_lines (line 118) - Score: 90
+    - Test 'TestExtractedGraphics::test_vertical_lines' has identical neighborhood to 'TestExtractedGraphics::test_horizontal_lines'
+  TestGraphicsExtractor::test_extract_from_bytes (line 197) - Score: 90
+    - Test 'TestGraphicsExtractor::test_extract_from_bytes' has low assert-to-setup ratio (11%): 1 asserts vs 8 setup lines
+
+tests/test_graphics_tier3.py:
+  TestLineCap::test_line_cap_variants (line 10) - Score: 80
+    - Test 'TestLineCap::test_line_cap_variants' has identical neighborhood to 'TestExportFormat::test_variants'
+    - Test 'TestLineCap::test_line_cap_variants' does not call any production code
+  TestLineCap::test_set_line_cap_renders (line 17) - Score: 90
+    - Test 'TestLineCap::test_set_line_cap_renders' has low assert-to-setup ratio (8%): 1 asserts vs 12 setup lines
+  TestLineJoin::test_line_join_variants (line 34) - Score: 80
+    - Test 'TestLineJoin::test_line_join_variants' has identical neighborhood to 'TestExportFormat::test_variants'
+    - Test 'TestLineJoin::test_line_join_variants' does not call any production code
+  TestLineJoin::test_set_line_join_renders (line 41) - Score: 90
+    - Test 'TestLineJoin::test_set_line_join_renders' has low assert-to-setup ratio (7%): 1 asserts vs 13 setup lines
+  TestMiterLimit::test_set_miter_limit (line 59) - Score: 90
+    - Test 'TestMiterLimit::test_set_miter_limit' has low assert-to-setup ratio (8%): 1 asserts vs 11 setup lines
+  TestDashPattern::test_set_dash_pattern_renders (line 90) - Score: 90
+    - Test 'TestDashPattern::test_set_dash_pattern_renders' has low assert-to-setup ratio (8%): 1 asserts vs 12 setup lines
+  TestGraphicsSaveRestore::test_save_restore_state (line 110) - Score: 90
+    - Test 'TestGraphicsSaveRestore::test_save_restore_state' has low assert-to-setup ratio (6%): 1 asserts vs 15 setup lines
+  TestClippingPath::test_set_clipping_path_renders (line 145) - Score: 90
+    - Test 'TestClippingPath::test_set_clipping_path_renders' has low assert-to-setup ratio (8%): 1 asserts vs 12 setup lines
+  TestBlendMode::test_blend_mode_variants (line 165) - Score: 80
+    - Test 'TestBlendMode::test_blend_mode_variants' has identical neighborhood to 'TestLineEndingStyle::test_all_variants_exist'
+    - Test 'TestBlendMode::test_blend_mode_variants' does not call any production code
+  TestBlendMode::test_set_blend_mode_renders (line 179) - Score: 90
+    - Test 'TestBlendMode::test_set_blend_mode_renders' has low assert-to-setup ratio (8%): 1 asserts vs 11 setup lines
+
+tests/test_header_footer.py:
+  TestHeaderFooterOnPage::test_page_set_header_renders (line 52) - Score: 90
+    - Test 'TestHeaderFooterOnPage::test_page_set_header_renders' has low assert-to-setup ratio (13%): 2 asserts vs 13 setup lines
+  TestHeaderFooterOnPage::test_page_set_footer_renders (line 69) - Score: 90
+    - Test 'TestHeaderFooterOnPage::test_page_set_footer_renders' has low assert-to-setup ratio (13%): 2 asserts vs 13 setup lines
+  TestHeaderFooterOnPage::test_page_header_and_footer_together (line 86) - Score: 90
+    - Test 'TestHeaderFooterOnPage::test_page_header_and_footer_together' has low assert-to-setup ratio (10%): 2 asserts vs 19 setup lines
+  TestHeaderFooterOnPage::test_header_builder_chain (line 109) - Score: 90
+    - Test 'TestHeaderFooterOnPage::test_header_builder_chain' has low assert-to-setup ratio (11%): 1 asserts vs 8 setup lines
+
+tests/test_image.py:
+  TestImageConstruction::test_image_from_file (line 23) - Score: 90
+    - Test 'TestImageConstruction::test_image_from_file' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+
+tests/test_image_extraction_119.py:
+  test_extracted_jpeg_is_byte_identical_to_embedded_stream (line 89) - Score: 90
+    - Test 'test_extracted_jpeg_is_byte_identical_to_embedded_stream' has low assert-to-setup ratio (17%): 3 asserts vs 15 setup lines
+
+tests/test_import.py:
+  test_module_imports (line 4) - Score: 90
+    - Test 'test_module_imports' does not call any production code
+  test_has_version (line 10) - Score: 90
+    - Test 'test_has_version' does not call any production code
+
+tests/test_incremental_form_fill.py:
+  TestFillSingleField::test_value_written_into_appended_revision (line 59) - Score: 90
+    - Test 'TestFillSingleField::test_value_written_into_appended_revision' has low assert-to-setup ratio (11%): 1 asserts vs 8 setup lines
+  TestFillSingleField::test_value_with_pdf_special_chars_is_encoded_safely (line 70) - Score: 90
+    - Test 'TestFillSingleField::test_value_with_pdf_special_chars_is_encoded_safely' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+  TestFillSingleField::test_incremental_revision_has_its_own_xref (line 79) - Score: 90
+    - Test 'TestFillSingleField::test_incremental_revision_has_its_own_xref' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  TestFillMany::test_fill_many_single_appended_revision (line 100) - Score: 90
+    - Test 'TestFillMany::test_fill_many_single_appended_revision' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+
+tests/test_incremental_geometric.py:
+  test_geometric_style_validation (line 112) - Score: 90
+    - Test 'test_geometric_style_validation' has identical neighborhood to 'test_geometric_unsigned_boundaries'
+  test_geometric_unsigned_boundaries (line 201) - Score: 90
+    - Test 'test_geometric_unsigned_boundaries' has identical neighborhood to 'test_geometric_style_validation'
+
+tests/test_incremental_ink.py:
+  test_ink_validation_rejects_invalid_values (line 68) - Score: 90
+    - Test 'test_ink_validation_rejects_invalid_values' has identical neighborhood to 'test_geometric_style_validation'
+
+tests/test_issue_287_glyph_diagnostics.py:
+  test_has_glyph_rejects_multichar_string (line 84) - Score: 75
+    - Test 'test_has_glyph_rejects_multichar_string' executes production code without asserting on its behaviour
+
+tests/test_issue_358_cid_glyph_run.py:
+  test_cid_mapping_max_cid_autoderived_from_all_keys (line 69) - Score: 90
+    - Test 'test_cid_mapping_max_cid_autoderived_from_all_keys' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+  test_glyph_run_emits_type0_cidfonttype2_identity_h (line 142) - Score: 90
+    - Test 'test_glyph_run_emits_type0_cidfonttype2_identity_h' does not call any production code
+  test_glyph_run_extracts_component_characters_via_tounicode (line 162) - Score: 90
+    - Test 'test_glyph_run_extracts_component_characters_via_tounicode' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+
+tests/test_issue_57_text_fill_color.py:
+  test_white_fill_color_is_emitted_before_text (line 75) - Score: 90
+    - Test 'test_white_fill_color_is_emitted_before_text' has low assert-to-setup ratio (8%): 1 asserts vs 11 setup lines
+  test_white_fill_color_appears_after_magenta_rect_fill (line 96) - Score: 90
+    - Test 'test_white_fill_color_appears_after_magenta_rect_fill' has low assert-to-setup ratio (11%): 3 asserts vs 24 setup lines
+  test_two_distinct_rg_operators_emitted (line 129) - Score: 80
+    - Test 'test_two_distinct_rg_operators_emitted' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+    - Test 'test_two_distinct_rg_operators_emitted' does not call any production code
+
+tests/test_issue_58_textflow_winansi.py:
+  test_text_flow_emits_win_ansi_byte_for_euro (line 73) - Score: 80
+    - Test 'test_text_flow_emits_win_ansi_byte_for_euro' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+    - Test 'test_text_flow_emits_win_ansi_byte_for_euro' does not call any production code
+  test_text_flow_emits_win_ansi_byte_for_em_dash (line 87) - Score: 90
+    - Test 'test_text_flow_emits_win_ansi_byte_for_em_dash' does not call any production code
+  test_text_flow_does_not_emit_raw_utf8_euro (line 99) - Score: 80
+    - Test 'test_text_flow_does_not_emit_raw_utf8_euro' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+    - Test 'test_text_flow_does_not_emit_raw_utf8_euro' does not call any production code
+  test_text_flow_does_not_emit_raw_utf8_em_dash (line 111) - Score: 90
+    - Test 'test_text_flow_does_not_emit_raw_utf8_em_dash' does not call any production code
+  test_text_flow_matches_text_at_encoding (line 122) - Score: 90
+    - Test 'test_text_flow_matches_text_at_encoding' has low assert-to-setup ratio (6%): 2 asserts vs 33 setup lines
+
+tests/test_issue_78_custom_font_metrics.py:
+  test_add_font_path_registers_same_metrics_as_add_font_from_bytes (line 38) - Score: 90
+    - Test 'test_add_font_path_registers_same_metrics_as_add_font_from_bytes' has low assert-to-setup ratio (8%): 1 asserts vs 12 setup lines
+  test_document_measure_char_uses_embedded_metrics (line 67) - Score: 90
+    - Test 'test_document_measure_char_uses_embedded_metrics' has low assert-to-setup ratio (11%): 1 asserts vs 8 setup lines
+  test_document_measure_text_scales_with_size (line 79) - Score: 90
+    - Test 'test_document_measure_text_scales_with_size' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+  test_document_measure_text_builtin_font_matches_free_function (line 89) - Score: 90
+    - Test 'test_document_measure_text_builtin_font_matches_free_function' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+
+tests/test_issue_80_add_page_by_reference.py:
+  test_draw_after_add_page_appears_in_output (line 27) - Score: 90
+    - Test 'test_draw_after_add_page_appears_in_output' has low assert-to-setup ratio (11%): 1 asserts vs 8 setup lines
+  test_draw_before_add_page_still_works (line 39) - Score: 90
+    - Test 'test_draw_before_add_page_still_works' has low assert-to-setup ratio (11%): 1 asserts vs 8 setup lines
+  test_draws_both_before_and_after_add_page (line 51) - Score: 90
+    - Test 'test_draws_both_before_and_after_add_page' has low assert-to-setup ratio (18%): 2 asserts vs 9 setup lines
+  test_save_with_config_captures_post_add_draws (line 90) - Score: 90
+    - Test 'test_save_with_config_captures_post_add_draws' has low assert-to-setup ratio (10%): 1 asserts vs 9 setup lines
+  test_pages_added_between_saves_are_all_present (line 103) - Score: 90
+    - Test 'test_pages_added_between_saves_are_all_present' has low assert-to-setup ratio (16%): 3 asserts vs 16 setup lines
+
+tests/test_layout.py:
+  TestPageConfig::test_a4_returns_a4_dimensions (line 12) - Score: 90
+    - Test 'TestPageConfig::test_a4_returns_a4_dimensions' has identical neighborhood to 'TestPage::test_a4_dimensions'
+  TestPageConfig::test_a4_default_margins (line 19) - Score: 90
+    - Test 'TestPageConfig::test_a4_default_margins' has identical neighborhood to 'TestPage::test_margins_default'
+  TestFitImageDimensions::test_width_constrained (line 64) - Score: 90
+    - Test 'TestFitImageDimensions::test_width_constrained' has identical neighborhood to 'TestFitImageDimensions::test_height_constrained'
+  TestFitImageDimensions::test_height_constrained (line 72) - Score: 90
+    - Test 'TestFitImageDimensions::test_height_constrained' has identical neighborhood to 'TestFitImageDimensions::test_width_constrained'
+  TestFitImageDimensions::test_zero_width_returns_zero (line 80) - Score: 90
+    - Test 'TestFitImageDimensions::test_zero_width_returns_zero' has identical neighborhood to 'TestFitImageDimensions::test_zero_height_returns_zero'
+  TestFitImageDimensions::test_zero_height_returns_zero (line 87) - Score: 90
+    - Test 'TestFitImageDimensions::test_zero_height_returns_zero' has identical neighborhood to 'TestFitImageDimensions::test_zero_width_returns_zero'
+  TestMeasureTextBlock::test_width_does_not_exceed_max_width (line 168) - Score: 90
+    - Test 'TestMeasureTextBlock::test_width_does_not_exceed_max_width' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  TestRichText::test_new_with_spans (line 212) - Score: 90
+    - Test 'TestRichText::test_new_with_spans' has low assert-to-setup ratio (12%): 1 asserts vs 7 setup lines
+  TestRichText::test_total_width_is_sum_of_spans (line 222) - Score: 90
+    - Test 'TestRichText::test_total_width_is_sum_of_spans' has low assert-to-setup ratio (12%): 1 asserts vs 7 setup lines
+  TestRichText::test_max_font_size_returns_largest (line 232) - Score: 90
+    - Test 'TestRichText::test_max_font_size_returns_largest' has low assert-to-setup ratio (12%): 1 asserts vs 7 setup lines
+  TestFlowLayout::test_single_page_for_short_content (line 267) - Score: 90
+    - Test 'TestFlowLayout::test_single_page_for_short_content' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+  TestFlowLayout::test_add_spacer (line 276) - Score: 90
+    - Test 'TestFlowLayout::test_add_spacer' has low assert-to-setup ratio (11%): 1 asserts vs 8 setup lines
+  TestFlowLayout::test_add_table (line 287) - Score: 90
+    - Test 'TestFlowLayout::test_add_table' has low assert-to-setup ratio (9%): 1 asserts vs 10 setup lines
+  TestFlowLayout::test_page_break_for_tall_content (line 300) - Score: 90
+    - Test 'TestFlowLayout::test_page_break_for_tall_content' has low assert-to-setup ratio (8%): 1 asserts vs 12 setup lines
+  TestFlowLayout::test_add_rich_text (line 315) - Score: 90
+    - Test 'TestFlowLayout::test_add_rich_text' has low assert-to-setup ratio (8%): 1 asserts vs 11 setup lines
+  TestFlowLayout::test_add_text_with_line_height (line 329) - Score: 90
+    - Test 'TestFlowLayout::test_add_text_with_line_height' has low assert-to-setup ratio (12%): 1 asserts vs 7 setup lines
+  TestFlowLayout::test_multiple_elements_combined (line 339) - Score: 90
+    - Test 'TestFlowLayout::test_multiple_elements_combined' has low assert-to-setup ratio (8%): 2 asserts vs 22 setup lines
+
+tests/test_list.py:
+  TestOrderedList::test_ordered_list_add_items (line 15) - Score: 75
+    - Test 'TestOrderedList::test_ordered_list_add_items' executes production code without asserting on its behaviour
+  TestOrderedList::test_ordered_list_styles (line 23) - Score: 80
+    - Test 'TestOrderedList::test_ordered_list_styles' has identical neighborhood to 'TestOverlayPdf::test_overlay_position_variants'
+    - Test 'TestOrderedList::test_ordered_list_styles' does not call any production code
+  TestUnorderedList::test_unordered_list_add_items (line 42) - Score: 75
+    - Test 'TestUnorderedList::test_unordered_list_add_items' executes production code without asserting on its behaviour
+  TestUnorderedList::test_bullet_styles (line 49) - Score: 80
+    - Test 'TestUnorderedList::test_bullet_styles' has identical neighborhood to 'TestEncryptionStrength::test_encryption_strength_variants'
+    - Test 'TestUnorderedList::test_bullet_styles' does not call any production code
+  TestListOnPage::test_page_add_ordered_list (line 61) - Score: 90
+    - Test 'TestListOnPage::test_page_add_ordered_list' has low assert-to-setup ratio (7%): 1 asserts vs 14 setup lines
+  TestListOnPage::test_page_add_unordered_list (line 78) - Score: 90
+    - Test 'TestListOnPage::test_page_add_unordered_list' has low assert-to-setup ratio (7%): 1 asserts vs 13 setup lines
+  TestListOnPage::test_page_add_quick_ordered_list (line 94) - Score: 90
+    - Test 'TestListOnPage::test_page_add_quick_ordered_list' has low assert-to-setup ratio (9%): 1 asserts vs 10 setup lines
+  TestListOnPage::test_page_add_quick_unordered_list (line 107) - Score: 90
+    - Test 'TestListOnPage::test_page_add_quick_unordered_list' has low assert-to-setup ratio (9%): 1 asserts vs 10 setup lines
+
+tests/test_marked_content.py:
+  test_poppler_uses_logical_text (line 88) - Score: 90
+    - Test 'test_poppler_uses_logical_text' has low assert-to-setup ratio (14%): 2 asserts vs 12 setup lines
+
+tests/test_merge_with_inputs.py:
+  TestMergeInputConstruction::test_repr_includes_path_basename (line 51) - Score: 90
+    - Test 'TestMergeInputConstruction::test_repr_includes_path_basename' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  TestMergeInputConstruction::test_repr_indicates_page_range_when_set (line 59) - Score: 90
+    - Test 'TestMergeInputConstruction::test_repr_indicates_page_range_when_set' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  TestMergePdfsWithInputs::test_two_full_inputs_concatenate_all_pages (line 78) - Score: 90
+    - Test 'TestMergePdfsWithInputs::test_two_full_inputs_concatenate_all_pages' has low assert-to-setup ratio (6%): 1 asserts vs 15 setup lines
+  TestMergePdfsWithInputs::test_per_input_page_range_selects_subset (line 96) - Score: 90
+    - Test 'TestMergePdfsWithInputs::test_per_input_page_range_selects_subset' has low assert-to-setup ratio (17%): 4 asserts vs 20 setup lines
+  TestMergePdfsWithInputs::test_with_pages_static_constructor_works_with_merger (line 124) - Score: 90
+    - Test 'TestMergePdfsWithInputs::test_with_pages_static_constructor_works_with_merger' has low assert-to-setup ratio (6%): 1 asserts vs 16 setup lines
+  TestMergePdfsWithInputs::test_options_none_uses_defaults (line 143) - Score: 90
+    - Test 'TestMergePdfsWithInputs::test_options_none_uses_defaults' has low assert-to-setup ratio (6%): 1 asserts vs 17 setup lines
+  TestMergePdfsWithInputs::test_options_passed_explicitly (line 163) - Score: 90
+    - Test 'TestMergePdfsWithInputs::test_options_passed_explicitly' has low assert-to-setup ratio (5%): 1 asserts vs 19 setup lines
+
+tests/test_mesh_conic_shading_407.py:
+  TestAddConicShading::test_registers_shading_type_1_with_postscript_function (line 132) - Score: 90
+    - Setup helper '_conic' is duplicated in 1 other file(s)
+  TestPaintAdvancedShadings::test_paint_mesh_shading_emits_sh_operator (line 178) - Score: 80
+    - Setup helper '_content' is duplicated in 1 other file(s)
+    - Test 'TestPaintAdvancedShadings::test_paint_mesh_shading_emits_sh_operator' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  TestPaintAdvancedShadings::test_paint_conic_shading_emits_sh_operator (line 186) - Score: 90
+    - Test 'TestPaintAdvancedShadings::test_paint_conic_shading_emits_sh_operator' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  TestExports::test_new_shading_types_in_all (line 229) - Score: 90
+    - Test 'TestExports::test_new_shading_types_in_all' does not call any production code
+
+tests/test_metadata_reading.py:
+  TestReaderMetadata::test_metadata_returns_object (line 7) - Score: 90
+    - Test 'TestReaderMetadata::test_metadata_returns_object' has low assert-to-setup ratio (19%): 3 asserts vs 13 setup lines
+  TestReaderMetadata::test_metadata_subject_keywords (line 25) - Score: 90
+    - Test 'TestReaderMetadata::test_metadata_subject_keywords' has low assert-to-setup ratio (13%): 2 asserts vs 13 setup lines
+  TestReaderMetadata::test_metadata_producer_creator (line 42) - Score: 90
+    - Test 'TestReaderMetadata::test_metadata_producer_creator' has low assert-to-setup ratio (13%): 2 asserts vs 13 setup lines
+  TestReaderMetadata::test_metadata_empty_document (line 59) - Score: 90
+    - Test 'TestReaderMetadata::test_metadata_empty_document' has low assert-to-setup ratio (8%): 1 asserts vs 12 setup lines
+  TestReaderMetadata::test_metadata_version_and_page_count (line 74) - Score: 90
+    - Test 'TestReaderMetadata::test_metadata_version_and_page_count' has low assert-to-setup ratio (14%): 2 asserts vs 12 setup lines
+
+tests/test_metadata_tier5.py:
+  TestProducerMetadata::test_set_producer (line 7) - Score: 90
+    - Test 'TestProducerMetadata::test_set_producer' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+  TestProducerMetadata::test_set_producer_empty (line 16) - Score: 90
+    - Test 'TestProducerMetadata::test_set_producer_empty' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+  TestDocumentDates::test_set_creation_date (line 27) - Score: 90
+    - Test 'TestDocumentDates::test_set_creation_date' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+  TestDocumentDates::test_set_modification_date (line 36) - Score: 90
+    - Test 'TestDocumentDates::test_set_modification_date' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+  TestDocumentDates::test_set_both_dates (line 45) - Score: 90
+    - Test 'TestDocumentDates::test_set_both_dates' has low assert-to-setup ratio (12%): 1 asserts vs 7 setup lines
+  TestDocumentDates::test_date_with_timezone_offset (line 69) - Score: 90
+    - Test 'TestDocumentDates::test_date_with_timezone_offset' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+
+tests/test_operations.py:
+  TestSplitPdf::test_split_output_files_are_valid_pdfs (line 92) - Score: 90
+    - Test 'TestSplitPdf::test_split_output_files_are_valid_pdfs' has low assert-to-setup ratio (11%): 1 asserts vs 8 setup lines
+  TestSplitPdf::test_split_three_pages (line 103) - Score: 90
+    - Test 'TestSplitPdf::test_split_three_pages' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+  TestMergePdfs::test_merge_two_pdfs (line 128) - Score: 90
+    - Test 'TestMergePdfs::test_merge_two_pdfs' has low assert-to-setup ratio (12%): 1 asserts vs 7 setup lines
+  TestMergePdfs::test_merge_result_has_correct_page_count (line 138) - Score: 90
+    - Test 'TestMergePdfs::test_merge_result_has_correct_page_count' has low assert-to-setup ratio (11%): 1 asserts vs 8 setup lines
+  TestMergePdfs::test_merge_three_pdfs (line 151) - Score: 90
+    - Test 'TestMergePdfs::test_merge_three_pdfs' has low assert-to-setup ratio (11%): 1 asserts vs 8 setup lines
+  TestRotatePdf::test_rotate_preserves_page_count (line 230) - Score: 90
+    - Test 'TestRotatePdf::test_rotate_preserves_page_count' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+  TestExtractPages::test_extract_single_page (line 246) - Score: 90
+    - Test 'TestExtractPages::test_extract_single_page' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+  TestExtractPages::test_extract_multiple_pages (line 255) - Score: 90
+    - Test 'TestExtractPages::test_extract_multiple_pages' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+  TestExtractPages::test_extract_all_pages (line 264) - Score: 90
+    - Test 'TestExtractPages::test_extract_all_pages' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+
+tests/test_operations_advanced.py:
+  TestPageRange::test_range_variant (line 44) - Score: 90
+    - Test 'TestPageRange::test_range_variant' does not call any production code
+  TestPageRange::test_list_variant (line 50) - Score: 90
+    - Test 'TestPageRange::test_list_variant' does not call any production code
+  TestSplitPdfWithMode::test_split_with_split_at_mode (line 111) - Score: 90
+    - Test 'TestSplitPdfWithMode::test_split_with_split_at_mode' has low assert-to-setup ratio (11%): 1 asserts vs 8 setup lines
+  TestMergeOptions::test_merge_pdfs_with_options (line 153) - Score: 90
+    - Test 'TestMergeOptions::test_merge_pdfs_with_options' has low assert-to-setup ratio (10%): 1 asserts vs 9 setup lines
+  TestMergeOptions::test_merge_with_optimize_flag (line 165) - Score: 90
+    - Test 'TestMergeOptions::test_merge_with_optimize_flag' has low assert-to-setup ratio (10%): 1 asserts vs 9 setup lines
+  TestRotationAngle::test_none_variant (line 203) - Score: 90
+    - Test 'TestRotationAngle::test_none_variant' does not call any production code
+  TestRotationAngle::test_clockwise_90_variant (line 208) - Score: 90
+    - Test 'TestRotationAngle::test_clockwise_90_variant' does not call any production code
+  TestRotationAngle::test_rotate_180_variant (line 213) - Score: 90
+    - Test 'TestRotationAngle::test_rotate_180_variant' does not call any production code
+  TestRotationAngle::test_clockwise_270_variant (line 218) - Score: 90
+    - Test 'TestRotationAngle::test_clockwise_270_variant' does not call any production code
+  TestRotatePdfWithOptions::test_rotate_all_pages (line 254) - Score: 90
+    - Test 'TestRotatePdfWithOptions::test_rotate_all_pages' has low assert-to-setup ratio (11%): 1 asserts vs 8 setup lines
+  TestRotatePdfWithOptions::test_rotate_single_page (line 265) - Score: 90
+    - Test 'TestRotatePdfWithOptions::test_rotate_single_page' has low assert-to-setup ratio (6%): 1 asserts vs 15 setup lines
+  TestExtractPageRange::test_extract_range_to_bytes_correct_page_count (line 311) - Score: 90
+    - Test 'TestExtractPageRange::test_extract_range_to_bytes_correct_page_count' has low assert-to-setup ratio (7%): 1 asserts vs 13 setup lines
+  TestExtractPageRange::test_extract_range_single_page (line 339) - Score: 90
+    - Test 'TestExtractPageRange::test_extract_range_single_page' has low assert-to-setup ratio (11%): 1 asserts vs 8 setup lines
+  TestPageType::test_scanned_variant (line 357) - Score: 90
+    - Test 'TestPageType::test_scanned_variant' does not call any production code
+  TestPageType::test_text_variant (line 362) - Score: 90
+    - Test 'TestPageType::test_text_variant' does not call any production code
+  TestPageType::test_mixed_variant (line 367) - Score: 90
+    - Test 'TestPageType::test_mixed_variant' does not call any production code
+  TestContentAnalysis::test_analyze_page_content_returns_analysis (line 381) - Score: 90
+    - Test 'TestContentAnalysis::test_analyze_page_content_returns_analysis' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  TestAnalyzeDocumentContent::test_returns_one_analysis_per_page (line 422) - Score: 90
+    - Test 'TestAnalyzeDocumentContent::test_returns_one_analysis_per_page' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+
+tests/test_operations_tier2.py:
+  TestReorderPdfPages::test_reorder_pdf_pages (line 44) - Score: 90
+    - Test 'TestReorderPdfPages::test_reorder_pdf_pages' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  TestReorderPdfPages::test_swap_pdf_pages (line 52) - Score: 90
+    - Test 'TestReorderPdfPages::test_swap_pdf_pages' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  TestReorderPdfPages::test_move_pdf_page (line 60) - Score: 90
+    - Test 'TestReorderPdfPages::test_move_pdf_page' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  TestReorderPdfPages::test_reverse_pdf_pages (line 68) - Score: 90
+    - Test 'TestReorderPdfPages::test_reverse_pdf_pages' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  TestOverlayPdf::test_overlay_position_variants (line 90) - Score: 80
+    - Test 'TestOverlayPdf::test_overlay_position_variants' has identical neighborhood to 'TestOrderedList::test_ordered_list_styles'
+    - Test 'TestOverlayPdf::test_overlay_position_variants' does not call any production code
+  TestOverlayPdf::test_overlay_options_custom (line 105) - Score: 90
+    - Test 'TestOverlayPdf::test_overlay_options_custom' has low assert-to-setup ratio (12%): 1 asserts vs 7 setup lines
+  TestOverlayPdf::test_overlay_pdf (line 115) - Score: 90
+    - Test 'TestOverlayPdf::test_overlay_pdf' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  TestPageRotation::test_page_rotation_in_saved_pdf (line 165) - Score: 90
+    - Test 'TestPageRotation::test_page_rotation_in_saved_pdf' has low assert-to-setup ratio (18%): 2 asserts vs 9 setup lines
+
+tests/test_outline_read.py:
+  test_malformed_outline_is_an_error_not_partial_success (line 127) - Score: 90
+    - Test 'test_malformed_outline_is_an_error_not_partial_success' has identical neighborhood to 'test_named_destination_and_name_tree_cycles_are_rejected'
+  test_named_destination_and_name_tree_cycles_are_rejected (line 150) - Score: 90
+    - Test 'test_named_destination_and_name_tree_cycles_are_rejected' has identical neighborhood to 'test_malformed_outline_is_an_error_not_partial_success'
+
+tests/test_outlines.py:
+  TestOutlineItem::test_outline_item_add_child (line 34) - Score: 75
+    - Test 'TestOutlineItem::test_outline_item_add_child' executes production code without asserting on its behaviour
+  TestOutlineTree::test_outline_tree_add_items (line 49) - Score: 75
+    - Test 'TestOutlineTree::test_outline_tree_add_items' executes production code without asserting on its behaviour
+  TestDocumentOutline::test_document_set_outline_renders (line 58) - Score: 90
+    - Test 'TestDocumentOutline::test_document_set_outline_renders' has low assert-to-setup ratio (8%): 2 asserts vs 22 setup lines
+  TestNamedDestinations::test_named_destinations_add (line 130) - Score: 75
+    - Test 'TestNamedDestinations::test_named_destinations_add' executes production code without asserting on its behaviour
+  TestNamedDestinations::test_document_set_named_destinations_renders (line 137) - Score: 90
+    - Test 'TestNamedDestinations::test_document_set_named_destinations_renders' has low assert-to-setup ratio (9%): 2 asserts vs 21 setup lines
+  TestPageLabelStyle::test_page_label_style_variants (line 167) - Score: 80
+    - Test 'TestPageLabelStyle::test_page_label_style_variants' has identical neighborhood to 'TestEntityType::test_identity_variants'
+    - Test 'TestPageLabelStyle::test_page_label_style_variants' does not call any production code
+  TestPageLabelTree::test_page_label_tree_add_range (line 211) - Score: 75
+    - Test 'TestPageLabelTree::test_page_label_tree_add_range' executes production code without asserting on its behaviour
+  TestDocumentPageLabels::test_document_set_page_labels (line 220) - Score: 90
+    - Test 'TestDocumentPageLabels::test_document_set_page_labels' has low assert-to-setup ratio (6%): 1 asserts vs 15 setup lines
+
+tests/test_page_color_spaces_gfx019.py:
+  test_icc_fill_emits_named_space_then_components_in_order (line 55) - Score: 80
+    - Setup helper '_pos' is duplicated in 1 other file(s)
+    - Test 'test_icc_fill_emits_named_space_then_components_in_order' has low assert-to-setup ratio (18%): 2 asserts vs 9 setup lines
+  test_icc_stroke_emits_named_space_then_components_in_order (line 70) - Score: 90
+    - Test 'test_icc_stroke_emits_named_space_then_components_in_order' has low assert-to-setup ratio (18%): 2 asserts vs 9 setup lines
+  test_icc_resource_registered_as_iccbased (line 95) - Score: 90
+    - Test 'test_icc_resource_registered_as_iccbased' has low assert-to-setup ratio (18%): 2 asserts vs 9 setup lines
+  test_two_named_calibrated_spaces_coexist_on_one_page (line 128) - Score: 90
+    - Test 'test_two_named_calibrated_spaces_coexist_on_one_page' has low assert-to-setup ratio (18%): 4 asserts vs 18 setup lines
+  test_calibrated_stroke_named (line 152) - Score: 90
+    - Test 'test_calibrated_stroke_named' has low assert-to-setup ratio (15%): 2 asserts vs 11 setup lines
+  test_lab_fill_named (line 167) - Score: 90
+    - Test 'test_lab_fill_named' has low assert-to-setup ratio (12%): 2 asserts vs 14 setup lines
+  test_lab_stroke_named (line 187) - Score: 90
+    - Test 'test_lab_stroke_named' has low assert-to-setup ratio (13%): 2 asserts vs 13 setup lines
+  test_parameterised_escape_hatch_builds_family_array (line 220) - Score: 90
+    - Test 'test_parameterised_escape_hatch_builds_family_array' has low assert-to-setup ratio (12%): 2 asserts vs 14 setup lines
+  test_legacy_calibrated_method_still_emits_default_name (line 294) - Score: 90
+    - Test 'test_legacy_calibrated_method_still_emits_default_name' has low assert-to-setup ratio (17%): 2 asserts vs 10 setup lines
+
+tests/test_page_content_streams.py:
+  TestTextStream::test_stream_contains_tf_font_selector (line 153) - Score: 90
+    - Test 'TestTextStream::test_stream_contains_tf_font_selector' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+  TestTextStream::test_stream_is_already_decoded (line 162) - Score: 90
+    - Test 'TestTextStream::test_stream_is_already_decoded' has low assert-to-setup ratio (10%): 1 asserts vs 9 setup lines
+  TestGraphicsStream::test_rectangle_page_contains_fill_operator (line 186) - Score: 90
+    - Test 'TestGraphicsStream::test_rectangle_page_contains_fill_operator' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+
+tests/test_page_resources.py:
+  TestFontResource::test_standard_font_is_not_embedded (line 271) - Score: 90
+    - Test 'TestFontResource::test_standard_font_is_not_embedded' has identical neighborhood to 'TestFontResource::test_standard_font_is_not_subset'
+  TestFontResource::test_standard_font_is_not_subset (line 280) - Score: 90
+    - Test 'TestFontResource::test_standard_font_is_not_subset' has identical neighborhood to 'TestFontResource::test_standard_font_is_not_embedded'
+  TestBoundsAndIndexing::test_zero_index_works_on_single_page_doc (line 377) - Score: 90
+    - Test 'TestBoundsAndIndexing::test_zero_index_works_on_single_page_doc' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  TestType0CompositeFont::test_type0_subset_flag_detected_from_basefont (line 460) - Score: 90
+    - Test 'TestType0CompositeFont::test_type0_subset_flag_detected_from_basefont' has identical neighborhood to 'TestType0CompositeFont::test_type0_is_embedded_via_descendant_font_descriptor'
+  TestType0CompositeFont::test_type0_is_embedded_via_descendant_font_descriptor (line 468) - Score: 90
+    - Test 'TestType0CompositeFont::test_type0_is_embedded_via_descendant_font_descriptor' has identical neighborhood to 'TestType0CompositeFont::test_type0_subset_flag_detected_from_basefont'
+  TestExtGStateRecursionGuard::test_deeply_nested_extgstate_does_not_overflow (line 502) - Score: 80
+    - Setup helper '_assemble_raw_pdf' is duplicated in 1 other file(s)
+    - Test 'TestExtGStateRecursionGuard::test_deeply_nested_extgstate_does_not_overflow' has low assert-to-setup ratio (12%): 3 asserts vs 22 setup lines
+
+tests/test_page_transitions.py:
+  TestTransitionStyle::test_all_twelve_variants_exist (line 17) - Score: 80
+    - Test 'TestTransitionStyle::test_all_twelve_variants_exist' has low assert-to-setup ratio (7%): 1 asserts vs 14 setup lines
+    - Test 'TestTransitionStyle::test_all_twelve_variants_exist' does not call any production code
+  TestTransitionDimension::test_horizontal_exists (line 75) - Score: 90
+    - Test 'TestTransitionDimension::test_horizontal_exists' does not call any production code
+  TestTransitionDimension::test_vertical_exists (line 78) - Score: 90
+    - Test 'TestTransitionDimension::test_vertical_exists' does not call any production code
+  TestTransitionMotion::test_inward_exists (line 92) - Score: 90
+    - Test 'TestTransitionMotion::test_inward_exists' does not call any production code
+  TestTransitionMotion::test_outward_exists (line 95) - Score: 90
+    - Test 'TestTransitionMotion::test_outward_exists' does not call any production code
+  TestTransitionDirection::test_left_to_right_exists (line 109) - Score: 90
+    - Test 'TestTransitionDirection::test_left_to_right_exists' does not call any production code
+  TestTransitionDirection::test_bottom_to_top_exists (line 112) - Score: 90
+    - Test 'TestTransitionDirection::test_bottom_to_top_exists' does not call any production code
+  TestTransitionDirection::test_right_to_left_exists (line 115) - Score: 90
+    - Test 'TestTransitionDirection::test_right_to_left_exists' does not call any production code
+  TestTransitionDirection::test_top_to_bottom_exists (line 118) - Score: 90
+    - Test 'TestTransitionDirection::test_top_to_bottom_exists' does not call any production code
+  TestTransitionDirection::test_top_left_to_bottom_right_exists (line 121) - Score: 90
+    - Test 'TestTransitionDirection::test_top_left_to_bottom_right_exists' does not call any production code
+  TestPageTransitionNew::test_new_with_style (line 155) - Score: 90
+    - Test 'TestPageTransitionNew::test_new_with_style' has identical neighborhood to 'TestPageTransitionNew::test_new_with_each_style'
+  TestPageTransitionNew::test_new_with_each_style (line 163) - Score: 80
+    - Test 'TestPageTransitionNew::test_new_with_each_style' has identical neighborhood to 'TestPageTransitionNew::test_new_with_style'
+    - Test 'TestPageTransitionNew::test_new_with_each_style' has low assert-to-setup ratio (6%): 1 asserts vs 15 setup lines
+  TestPageTransitionBuilders::test_chained_builders (line 214) - Score: 90
+    - Test 'TestPageTransitionBuilders::test_chained_builders' has low assert-to-setup ratio (12%): 1 asserts vs 7 setup lines
+  TestPageTransitionConvenienceConstructors::test_fly_with_all_options (line 296) - Score: 90
+    - Test 'TestPageTransitionConvenienceConstructors::test_fly_with_all_options' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+
+tests/test_parity_2_8_0.py:
+  test_new_page_a4_with_custom_font_round_trip (line 81) - Score: 90
+    - Test 'test_new_page_a4_with_custom_font_round_trip' has low assert-to-setup ratio (17%): 3 asserts vs 15 setup lines
+  test_new_page_letter_round_trip (line 107) - Score: 90
+    - Test 'test_new_page_letter_round_trip' has low assert-to-setup ratio (18%): 2 asserts vs 9 setup lines
+  test_new_page_with_custom_dimensions_round_trip (line 122) - Score: 90
+    - Test 'test_new_page_with_custom_dimensions_round_trip' has low assert-to-setup ratio (18%): 2 asserts vs 9 setup lines
+  test_textfield_default_appearance_reaches_acroform_da (line 140) - Score: 90
+    - Test 'test_textfield_default_appearance_reaches_acroform_da' has low assert-to-setup ratio (9%): 2 asserts vs 20 setup lines
+  test_combobox_default_appearance_reaches_acroform_da (line 170) - Score: 90
+    - Test 'test_combobox_default_appearance_reaches_acroform_da' has low assert-to-setup ratio (9%): 2 asserts vs 20 setup lines
+
+tests/test_parse_options.py:
+  TestReaderWithOptions::test_reader_open_with_strict (line 62) - Score: 90
+    - Test 'TestReaderWithOptions::test_reader_open_with_strict' has low assert-to-setup ratio (8%): 1 asserts vs 12 setup lines
+  TestReaderWithOptions::test_reader_open_with_tolerant (line 77) - Score: 90
+    - Test 'TestReaderWithOptions::test_reader_open_with_tolerant' has low assert-to-setup ratio (8%): 1 asserts vs 11 setup lines
+  TestReaderWithOptions::test_reader_open_without_options (line 91) - Score: 90
+    - Test 'TestReaderWithOptions::test_reader_open_without_options' has low assert-to-setup ratio (8%): 1 asserts vs 11 setup lines
+  TestReaderWithOptions::test_reader_from_bytes_with_options (line 105) - Score: 90
+    - Test 'TestReaderWithOptions::test_reader_from_bytes_with_options' has low assert-to-setup ratio (9%): 1 asserts vs 10 setup lines
+
+tests/test_parser.py:
+  TestPdfReaderOpen::test_page_count (line 52) - Score: 90
+    - Test 'TestPdfReaderOpen::test_page_count' has identical neighborhood to 'TestReaderLen::test_len'
+  TestReaderLen::test_len (line 123) - Score: 90
+    - Test 'TestReaderLen::test_len' has identical neighborhood to 'TestPdfReaderOpen::test_page_count'
+  TestPdfReaderFromBytes::test_from_bytes_page_count (line 164) - Score: 90
+    - Test 'TestPdfReaderFromBytes::test_from_bytes_page_count' has identical neighborhood to 'TestPdfReaderFromBytes::test_from_bytes_len'
+  TestPdfReaderFromBytes::test_from_bytes_len (line 197) - Score: 90
+    - Test 'TestPdfReaderFromBytes::test_from_bytes_len' has identical neighborhood to 'TestPdfReaderFromBytes::test_from_bytes_page_count'
+  TestPdfReaderFromStream::test_from_bytesio_page_count (line 244) - Score: 80
+    - Test 'TestPdfReaderFromStream::test_from_bytesio_page_count' has identical neighborhood to 'TestPdfReaderFromStream::test_from_bytesio_len'
+    - Test 'TestPdfReaderFromStream::test_from_bytesio_page_count' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+  TestPdfReaderFromStream::test_from_bytesio_extract_text (line 253) - Score: 90
+    - Test 'TestPdfReaderFromStream::test_from_bytesio_extract_text' has low assert-to-setup ratio (12%): 1 asserts vs 7 setup lines
+  TestPdfReaderFromStream::test_from_bytesio_version (line 263) - Score: 90
+    - Test 'TestPdfReaderFromStream::test_from_bytesio_version' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+  TestPdfReaderFromStream::test_from_bytesio_len (line 272) - Score: 80
+    - Test 'TestPdfReaderFromStream::test_from_bytesio_len' has identical neighborhood to 'TestPdfReaderFromStream::test_from_bytesio_page_count'
+    - Test 'TestPdfReaderFromStream::test_from_bytesio_len' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+  TestPdfReaderFromStream::test_from_bytesio_get_page_dimensions (line 281) - Score: 90
+    - Test 'TestPdfReaderFromStream::test_from_bytesio_get_page_dimensions' has low assert-to-setup ratio (12%): 1 asserts vs 7 setup lines
+  TestPdfReaderFromStream::test_from_stream_with_tolerant_options (line 303) - Score: 90
+    - Test 'TestPdfReaderFromStream::test_from_stream_with_tolerant_options' has low assert-to-setup ratio (12%): 1 asserts vs 7 setup lines
+  TestPdfReaderFromStream::test_from_stream_honors_cursor_position (line 313) - Score: 90
+    - Test 'TestPdfReaderFromStream::test_from_stream_honors_cursor_position' has low assert-to-setup ratio (14%): 2 asserts vs 12 setup lines
+  TestPdfReaderFromStream::test_from_stream_consumes_stream (line 353) - Score: 90
+    - Test 'TestPdfReaderFromStream::test_from_stream_consumes_stream' has low assert-to-setup ratio (12%): 1 asserts vs 7 setup lines
+  TestTextChunking::test_extract_text_chunks_returns_list (line 381) - Score: 90
+    - Test 'TestTextChunking::test_extract_text_chunks_returns_list' has identical neighborhood to 'TestTextChunking::test_text_chunk_has_coordinates'
+  TestTextChunking::test_text_chunk_has_text (line 389) - Score: 90
+    - Test 'TestTextChunking::test_text_chunk_has_text' has identical neighborhood to 'TestTextChunking::test_extract_text_chunks_returns_list'
+  TestTextChunking::test_text_chunk_has_coordinates (line 398) - Score: 90
+    - Test 'TestTextChunking::test_text_chunk_has_coordinates' has identical neighborhood to 'TestTextChunking::test_extract_text_chunks_returns_list'
+  TestTextChunking::test_text_chunk_has_font_size (line 407) - Score: 90
+    - Test 'TestTextChunking::test_text_chunk_has_font_size' has identical neighborhood to 'TestTextChunking::test_extract_text_chunks_returns_list'
+  TestTextChunking::test_text_chunk_font_name_is_optional (line 416) - Score: 90
+    - Test 'TestTextChunking::test_text_chunk_font_name_is_optional' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+
+tests/test_parser_recovery_options.py:
+  test_inert_recovery_fields_do_not_enforce_limits (line 92) - Score: 90
+    - Test 'test_inert_recovery_fields_do_not_enforce_limits' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+  test_parser_options_reach_each_reader_entrypoint (line 117) - Score: 90
+    - Test 'test_parser_options_reach_each_reader_entrypoint' has low assert-to-setup ratio (11%): 2 asserts vs 17 setup lines
+
+tests/test_quality_fixes.py:
+  TestFontRepr::test_standard_font_reprs (line 10) - Score: 90
+    - Test 'TestFontRepr::test_standard_font_reprs' has low assert-to-setup ratio (8%): 1 asserts vs 11 setup lines
+  TestFormMethodSignatures::test_add_text_field_two_args (line 39) - Score: 90
+    - Test 'TestFormMethodSignatures::test_add_text_field_two_args' has low assert-to-setup ratio (8%): 1 asserts vs 12 setup lines
+  TestFormMethodSignatures::test_add_checkbox_two_args (line 54) - Score: 75
+    - Test 'TestFormMethodSignatures::test_add_checkbox_two_args' executes production code without asserting on its behaviour
+  TestFormMethodSignatures::test_add_combo_box_two_args (line 62) - Score: 75
+    - Test 'TestFormMethodSignatures::test_add_combo_box_two_args' executes production code without asserting on its behaviour
+  TestFormMethodSignatures::test_add_list_box_two_args (line 73) - Score: 75
+    - Test 'TestFormMethodSignatures::test_add_list_box_two_args' executes production code without asserting on its behaviour
+  TestFormMethodSignatures::test_add_radio_button_two_args (line 84) - Score: 75
+    - Test 'TestFormMethodSignatures::test_add_radio_button_two_args' executes production code without asserting on its behaviour
+  TestSetOpenActionUriIsMap::test_default_is_map_false (line 123) - Score: 90
+    - Test 'TestSetOpenActionUriIsMap::test_default_is_map_false' has low assert-to-setup ratio (11%): 1 asserts vs 8 setup lines
+  TestSetOpenActionUriIsMap::test_explicit_is_map_true (line 134) - Score: 90
+    - Test 'TestSetOpenActionUriIsMap::test_explicit_is_map_true' has low assert-to-setup ratio (11%): 1 asserts vs 8 setup lines
+  TestWriterConfigKwargs::test_all_keyword_args (line 157) - Score: 90
+    - Test 'TestWriterConfigKwargs::test_all_keyword_args' has identical neighborhood to 'test_writer_config_default'
+  TestMissingExports::test_parsed_page_importable (line 180) - Score: 90
+    - Test 'TestMissingExports::test_parsed_page_importable' does not call any production code
+  TestMissingExports::test_text_chunk_importable (line 185) - Score: 90
+    - Test 'TestMissingExports::test_text_chunk_importable' does not call any production code
+  TestMissingExports::test_in_all (line 190) - Score: 90
+    - Test 'TestMissingExports::test_in_all' does not call any production code
+  TestPageRotationValidation::test_valid_rotations (line 231) - Score: 90
+    - Test 'TestPageRotationValidation::test_valid_rotations' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  TestOpacityValidation::test_valid_fill_opacity (line 252) - Score: 75
+    - Test 'TestOpacityValidation::test_valid_fill_opacity' executes production code without asserting on its behaviour
+  TestOpacityValidation::test_valid_stroke_opacity (line 272) - Score: 75
+    - Test 'TestOpacityValidation::test_valid_stroke_opacity' executes production code without asserting on its behaviour
+
+tests/test_rag_chunks_disjoint.py:
+  TestRagChunksDisjointness::test_each_paragraph_marker_appears_in_exactly_one_chunk (line 131) - Score: 90
+    - Test 'TestRagChunksDisjointness::test_each_paragraph_marker_appears_in_exactly_one_chunk' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+  TestRagChunksDisjointness::test_chunk_count_bounded_by_source_elements (line 140) - Score: 90
+    - Test 'TestRagChunksDisjointness::test_chunk_count_bounded_by_source_elements' has low assert-to-setup ratio (7%): 1 asserts vs 14 setup lines
+  TestRagChunksDisjointness::test_multi_section_each_marker_appears_once (line 169) - Score: 90
+    - Test 'TestRagChunksDisjointness::test_multi_section_each_marker_appears_once' has low assert-to-setup ratio (11%): 1 asserts vs 8 setup lines
+  TestRagChunksDisjointness::test_multi_section_chunk_count_bounded (line 180) - Score: 90
+    - Test 'TestRagChunksDisjointness::test_multi_section_chunk_count_bounded' has low assert-to-setup ratio (11%): 1 asserts vs 8 setup lines
+  TestRagChunksDisjointnessAcrossProfiles::test_profile_marker_uniqueness (line 223) - Score: 90
+    - Test 'TestRagChunksDisjointnessAcrossProfiles::test_profile_marker_uniqueness' has low assert-to-setup ratio (11%): 1 asserts vs 8 setup lines
+
+tests/test_raw_images.py:
+  test_poppler_pixels_and_alpha (line 133) - Score: 80
+    - Test 'test_poppler_pixels_and_alpha' is marked as #[ignore]
+
+tests/test_rich_annotations.py:
+  test_markup_type_constants (line 5) - Score: 80
+    - Test 'test_markup_type_constants' has identical neighborhood to 'TestEncryptionStrength::test_encryption_strength_variants'
+    - Test 'test_markup_type_constants' does not call any production code
+  test_markup_annotation_builders (line 46) - Score: 90
+    - Test 'test_markup_annotation_builders' has low assert-to-setup ratio (10%): 1 asserts vs 9 setup lines
+  test_markup_annotation_to_annotation (line 59) - Score: 90
+    - Test 'test_markup_annotation_to_annotation' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  test_annotation_icon_constants (line 68) - Score: 80
+    - Test 'test_annotation_icon_constants' has identical neighborhood to 'TestShadingType::test_variants_exist'
+    - Test 'test_annotation_icon_constants' does not call any production code
+  test_text_annotation_builders (line 88) - Score: 90
+    - Test 'test_text_annotation_builders' has low assert-to-setup ratio (10%): 1 asserts vs 9 setup lines
+  test_text_annotation_to_annotation (line 101) - Score: 90
+    - Test 'test_text_annotation_to_annotation' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  test_border_style_type_constants (line 110) - Score: 80
+    - Test 'test_border_style_type_constants' has identical neighborhood to 'TestOrderedList::test_ordered_list_styles'
+    - Test 'test_border_style_type_constants' does not call any production code
+  test_annotation_with_border (line 134) - Score: 90
+    - Test 'test_annotation_with_border' has low assert-to-setup ratio (12%): 1 asserts vs 7 setup lines
+
+tests/test_rich_tables_375.py:
+  TestTableStructure::test_structure_present (line 55) - Score: 90
+    - Test 'TestTableStructure::test_structure_present' does not call any production code
+  TestTableStructure::test_grid_dimensions (line 58) - Score: 90
+    - Test 'TestTableStructure::test_grid_dimensions' does not call any production code
+  TestTableStructure::test_merged_header_cell_spans_two_columns (line 63) - Score: 90
+    - Test 'TestTableStructure::test_merged_header_cell_spans_two_columns' does not call any production code
+  TestTableStructure::test_merged_cell_omits_interior_position (line 70) - Score: 90
+    - Test 'TestTableStructure::test_merged_cell_omits_interior_position' does not call any production code
+  TestTableStructure::test_bottom_row_has_two_single_cells (line 74) - Score: 90
+    - Test 'TestTableStructure::test_bottom_row_has_two_single_cells' does not call any production code
+  TestTableStructure::test_header_rows_counted (line 81) - Score: 90
+    - Test 'TestTableStructure::test_header_rows_counted' does not call any production code
+  TestNonTableElement::test_paragraph_has_no_structure (line 90) - Score: 90
+    - Test 'TestNonTableElement::test_paragraph_has_no_structure' has low assert-to-setup ratio (12%): 1 asserts vs 7 setup lines
+
+tests/test_security.py:
+  TestPermissions::test_default_accessibility (line 55) - Score: 90
+    - Test 'TestPermissions::test_default_accessibility' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  TestDocumentEncryption::test_is_encrypted_after_encrypt (line 77) - Score: 80
+    - Test 'TestDocumentEncryption::test_is_encrypted_after_encrypt' has identical neighborhood to 'TestDocumentEncryption::test_encrypt_without_permissions_defaults_to_all'
+    - Test 'TestDocumentEncryption::test_is_encrypted_after_encrypt' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  TestDocumentEncryption::test_encrypt_with_passwords_produces_output (line 85) - Score: 90
+    - Test 'TestDocumentEncryption::test_encrypt_with_passwords_produces_output' has low assert-to-setup ratio (15%): 2 asserts vs 11 setup lines
+  TestDocumentEncryption::test_encrypt_to_bytes (line 100) - Score: 90
+    - Test 'TestDocumentEncryption::test_encrypt_to_bytes' has low assert-to-setup ratio (17%): 2 asserts vs 10 setup lines
+  TestDocumentEncryption::test_encrypt_with_permissions (line 114) - Score: 90
+    - Test 'TestDocumentEncryption::test_encrypt_with_permissions' has low assert-to-setup ratio (12%): 1 asserts vs 7 setup lines
+  TestDocumentEncryption::test_encrypt_without_permissions_defaults_to_all (line 124) - Score: 80
+    - Test 'TestDocumentEncryption::test_encrypt_without_permissions_defaults_to_all' has identical neighborhood to 'TestDocumentEncryption::test_is_encrypted_after_encrypt'
+    - Test 'TestDocumentEncryption::test_encrypt_without_permissions_defaults_to_all' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  TestPdfReaderEncryption::test_unencrypted_pdf_not_flagged (line 139) - Score: 90
+    - Test 'TestPdfReaderEncryption::test_unencrypted_pdf_not_flagged' has low assert-to-setup ratio (8%): 1 asserts vs 11 setup lines
+  TestPdfReaderEncryption::test_unlock_on_unencrypted_is_noop (line 153) - Score: 90
+    - Test 'TestPdfReaderEncryption::test_unlock_on_unencrypted_is_noop' has low assert-to-setup ratio (7%): 1 asserts vs 13 setup lines
+  TestEncryptionRoundTrip::test_plaintext_absent_from_encrypted_bytes (line 201) - Score: 90
+    - Test 'TestEncryptionRoundTrip::test_plaintext_absent_from_encrypted_bytes' has low assert-to-setup ratio (14%): 2 asserts vs 12 setup lines
+  TestEncryptionRoundTrip::test_user_password_recovers_content (line 244) - Score: 90
+    - Test 'TestEncryptionRoundTrip::test_user_password_recovers_content' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+  TestEncryptionRoundTrip::test_owner_password_recovers_content (line 253) - Score: 90
+    - Test 'TestEncryptionRoundTrip::test_owner_password_recovers_content' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+
+tests/test_security_tier7.py:
+  TestEncryptionStrength::test_encryption_strength_variants (line 10) - Score: 80
+    - Test 'TestEncryptionStrength::test_encryption_strength_variants' has identical neighborhood to 'TestEntityType::test_dates_numbers_variants'
+    - Test 'TestEncryptionStrength::test_encryption_strength_variants' does not call any production code
+  TestEncryptionStrength::test_encrypt_aes128 (line 34) - Score: 90
+    - Test 'TestEncryptionStrength::test_encrypt_aes128' has identical neighborhood to 'TestEncryptionStrength::test_encrypt_default_remains_rc4_128'
+  TestEncryptionStrength::test_encrypt_default_remains_rc4_128 (line 45) - Score: 90
+    - Test 'TestEncryptionStrength::test_encrypt_default_remains_rc4_128' has identical neighborhood to 'TestEncryptionStrength::test_encrypt_aes128'
+  TestSignatureDetection::test_detect_signatures_unsigned (line 61) - Score: 90
+    - Test 'TestSignatureDetection::test_detect_signatures_unsigned' has low assert-to-setup ratio (14%): 2 asserts vs 12 setup lines
+
+tests/test_semantic.py:
+  TestEntityType::test_document_structure_variants (line 22) - Score: 90
+    - Test 'TestEntityType::test_document_structure_variants' does not call any production code
+  TestEntityType::test_financial_variants (line 33) - Score: 80
+    - Test 'TestEntityType::test_financial_variants' has identical neighborhood to 'TestCorruptionType::test_class_attributes_exist'
+    - Test 'TestEntityType::test_financial_variants' does not call any production code
+  TestEntityType::test_identity_variants (line 43) - Score: 80
+    - Test 'TestEntityType::test_identity_variants' has identical neighborhood to 'TestEntityType::test_legal_variants'
+    - Test 'TestEntityType::test_identity_variants' does not call any production code
+  TestEntityType::test_legal_variants (line 51) - Score: 80
+    - Test 'TestEntityType::test_legal_variants' has identical neighborhood to 'TestEntityType::test_identity_variants'
+    - Test 'TestEntityType::test_legal_variants' does not call any production code
+  TestEntityType::test_dates_numbers_variants (line 59) - Score: 80
+    - Test 'TestEntityType::test_dates_numbers_variants' has identical neighborhood to 'TestEncryptionStrength::test_encryption_strength_variants'
+    - Test 'TestEntityType::test_dates_numbers_variants' does not call any production code
+  TestEntityType::test_equality (line 72) - Score: 80
+    - Test 'TestEntityType::test_equality' has identical neighborhood to 'TestBorderEffectStyle::test_variants'
+    - Test 'TestEntityType::test_equality' does not call any production code
+  TestEntityType::test_custom_empty_name_raises (line 77) - Score: 90
+    - Test 'TestEntityType::test_custom_empty_name_raises' has identical neighborhood to 'TestRelationType::test_custom_empty_name_raises'
+  TestEntityType::test_custom_whitespace_only_raises (line 81) - Score: 90
+    - Test 'TestEntityType::test_custom_whitespace_only_raises' has identical neighborhood to 'TestRelationType::test_custom_whitespace_only_raises'
+  TestEntityType::test_name_property_standard (line 85) - Score: 90
+    - Test 'TestEntityType::test_name_property_standard' does not call any production code
+  TestRelationType::test_variants (line 101) - Score: 80
+    - Test 'TestRelationType::test_variants' has identical neighborhood to 'TestOrderedList::test_ordered_list_styles'
+    - Test 'TestRelationType::test_variants' does not call any production code
+  TestRelationType::test_custom (line 108) - Score: 90
+    - Test 'TestRelationType::test_custom' has identical neighborhood to 'TestRelationType::test_name_property_custom'
+  TestRelationType::test_custom_empty_name_raises (line 116) - Score: 90
+    - Test 'TestRelationType::test_custom_empty_name_raises' has identical neighborhood to 'TestEntityType::test_custom_empty_name_raises'
+  TestRelationType::test_custom_whitespace_only_raises (line 120) - Score: 90
+    - Test 'TestRelationType::test_custom_whitespace_only_raises' has identical neighborhood to 'TestEntityType::test_custom_whitespace_only_raises'
+  TestRelationType::test_name_property_standard (line 124) - Score: 90
+    - Test 'TestRelationType::test_name_property_standard' does not call any production code
+  TestRelationType::test_name_property_custom (line 128) - Score: 90
+    - Test 'TestRelationType::test_name_property_custom' has identical neighborhood to 'TestRelationType::test_custom'
+  TestExportFormat::test_variants (line 139) - Score: 80
+    - Test 'TestExportFormat::test_variants' has identical neighborhood to 'TestLineCap::test_line_cap_variants'
+    - Test 'TestExportFormat::test_variants' does not call any production code
+  TestBoundingBox::test_negative_width_raises (line 198) - Score: 90
+    - Test 'TestBoundingBox::test_negative_width_raises' has identical neighborhood to 'TestBoundingBox::test_negative_height_raises'
+  TestBoundingBox::test_negative_height_raises (line 202) - Score: 90
+    - Test 'TestBoundingBox::test_negative_height_raises' has identical neighborhood to 'TestBoundingBox::test_negative_width_raises'
+  TestBoundingBox::test_zero_width_allowed (line 206) - Score: 90
+    - Test 'TestBoundingBox::test_zero_width_allowed' has identical neighborhood to 'TestBoundingBox::test_zero_height_allowed'
+  TestBoundingBox::test_zero_height_allowed (line 210) - Score: 90
+    - Test 'TestBoundingBox::test_zero_height_allowed' has identical neighborhood to 'TestBoundingBox::test_zero_width_allowed'
+  TestSemanticEntity::test_create (line 268) - Score: 90
+    - Test 'TestSemanticEntity::test_create' has identical neighborhood to 'TestSemanticEntity::test_entity_type_getter'
+  TestSemanticEntity::test_entity_type_getter (line 302) - Score: 90
+    - Test 'TestSemanticEntity::test_entity_type_getter' has identical neighborhood to 'TestSemanticEntity::test_create'
+  TestEntityMap::test_add_entity (line 343) - Score: 75
+    - Test 'TestEntityMap::test_add_entity' executes production code without asserting on its behaviour
+  TestEntityMap::test_entities_by_type (line 348) - Score: 90
+    - Test 'TestEntityMap::test_entities_by_type' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  TestEntityMap::test_entities_by_type_returns_correct_ids (line 379) - Score: 90
+    - Test 'TestEntityMap::test_entities_by_type_returns_correct_ids' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+  TestEntityMap::test_to_format_json (line 404) - Score: 90
+    - Test 'TestEntityMap::test_to_format_json' has identical neighborhood to 'TestEntityMap::test_to_format_json_ld'
+  TestEntityMap::test_to_format_json_ld (line 411) - Score: 90
+    - Test 'TestEntityMap::test_to_format_json_ld' has identical neighborhood to 'TestEntityMap::test_to_format_json'
+
+tests/test_semantic_comparison.py:
+  test_independent_readers_and_xref_stream (line 170) - Score: 80
+    - Test 'test_independent_readers_and_xref_stream' is marked as #[ignore]
+
+tests/test_signatures_deep.py:
+  TestDigestAlgorithm::test_sha256 (line 32) - Score: 90
+    - Test 'TestDigestAlgorithm::test_sha256' does not call any production code
+  TestDigestAlgorithm::test_sha384 (line 35) - Score: 90
+    - Test 'TestDigestAlgorithm::test_sha384' does not call any production code
+  TestDigestAlgorithm::test_sha512 (line 38) - Score: 90
+    - Test 'TestDigestAlgorithm::test_sha512' does not call any production code
+  TestDigestAlgorithm::test_name (line 41) - Score: 90
+    - Test 'TestDigestAlgorithm::test_name' does not call any production code
+  TestDigestAlgorithm::test_oid (line 44) - Score: 90
+    - Test 'TestDigestAlgorithm::test_oid' does not call any production code
+  TestSignatureAlgorithm::test_rsa_sha256 (line 51) - Score: 90
+    - Test 'TestSignatureAlgorithm::test_rsa_sha256' does not call any production code
+  TestSignatureAlgorithm::test_rsa_sha384 (line 54) - Score: 90
+    - Test 'TestSignatureAlgorithm::test_rsa_sha384' does not call any production code
+  TestSignatureAlgorithm::test_rsa_sha512 (line 57) - Score: 90
+    - Test 'TestSignatureAlgorithm::test_rsa_sha512' does not call any production code
+  TestSignatureAlgorithm::test_ecdsa_sha256 (line 60) - Score: 90
+    - Test 'TestSignatureAlgorithm::test_ecdsa_sha256' does not call any production code
+  TestSignatureAlgorithm::test_ecdsa_sha384 (line 63) - Score: 90
+    - Test 'TestSignatureAlgorithm::test_ecdsa_sha384' does not call any production code
+  TestSignatureAlgorithm::test_name (line 66) - Score: 90
+    - Test 'TestSignatureAlgorithm::test_name' does not call any production code
+  TestSignatureAlgorithm::test_digest_algorithm (line 69) - Score: 90
+    - Test 'TestSignatureAlgorithm::test_digest_algorithm' does not call any production code
+  TestSignatureField::test_is_pkcs7_detached (line 157) - Score: 90
+    - Test 'TestSignatureField::test_is_pkcs7_detached' has identical neighborhood to 'TestSignatureField::test_is_pades'
+  TestSignatureField::test_is_pades (line 163) - Score: 90
+    - Test 'TestSignatureField::test_is_pades' has identical neighborhood to 'TestSignatureField::test_is_pkcs7_detached'
+  TestHashVerificationResult::test_type_exists (line 187) - Score: 90
+    - Test 'TestHashVerificationResult::test_type_exists' does not call any production code
+  TestSignatureVerificationResult::test_type_exists (line 201) - Score: 90
+    - Test 'TestSignatureVerificationResult::test_type_exists' does not call any production code
+  TestSignatureVerificationResult::test_has_expected_getters (line 204) - Score: 90
+    - Test 'TestSignatureVerificationResult::test_has_expected_getters' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  TestCertificateValidationResult::test_type_exists (line 218) - Score: 90
+    - Test 'TestCertificateValidationResult::test_type_exists' does not call any production code
+  TestCertificateValidationResult::test_has_expected_getters (line 221) - Score: 90
+    - Test 'TestCertificateValidationResult::test_has_expected_getters' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  TestFullSignatureValidationResult::test_type_exists (line 235) - Score: 90
+    - Test 'TestFullSignatureValidationResult::test_type_exists' does not call any production code
+  TestFullSignatureValidationResult::test_has_expected_getters (line 238) - Score: 90
+    - Test 'TestFullSignatureValidationResult::test_has_expected_getters' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+  TestComputePdfHash::test_function_exists (line 256) - Score: 90
+    - Test 'TestComputePdfHash::test_function_exists' has identical neighborhood to 'TestExtractPdfDifferences::test_function_exists'
+  TestParsePkcs7Signature::test_function_exists (line 266) - Score: 90
+    - Test 'TestParsePkcs7Signature::test_function_exists' has identical neighborhood to 'TestComputePdfHash::test_function_exists'
+  TestVerifyPdfSignature::test_function_exists (line 275) - Score: 90
+    - Test 'TestVerifyPdfSignature::test_function_exists' has identical neighborhood to 'TestComputePdfHash::test_function_exists'
+  TestValidatePdfCertificate::test_function_exists (line 280) - Score: 90
+    - Test 'TestValidatePdfCertificate::test_function_exists' has identical neighborhood to 'TestComputePdfHash::test_function_exists'
+  TestHasIncrementalUpdate::test_function_exists (line 290) - Score: 90
+    - Test 'TestHasIncrementalUpdate::test_function_exists' has identical neighborhood to 'TestComputePdfHash::test_function_exists'
+
+tests/test_split_with_options.py:
+  TestSplitModeRanges::test_ranges_constructor_multiple_ranges (line 38) - Score: 90
+    - Test 'TestSplitModeRanges::test_ranges_constructor_multiple_ranges' has low assert-to-setup ratio (10%): 1 asserts vs 9 setup lines
+  TestSplitPdfWithOptions::test_single_pages_produces_one_file_per_page (line 85) - Score: 90
+    - Test 'TestSplitPdfWithOptions::test_single_pages_produces_one_file_per_page' has low assert-to-setup ratio (11%): 2 asserts vs 17 setup lines
+  TestSplitPdfWithOptions::test_chunk_size_groups_pages (line 108) - Score: 90
+    - Test 'TestSplitPdfWithOptions::test_chunk_size_groups_pages' has low assert-to-setup ratio (11%): 2 asserts vs 17 setup lines
+  TestSplitPdfWithOptions::test_ranges_mode_produces_one_file_per_range (line 134) - Score: 90
+    - Test 'TestSplitPdfWithOptions::test_ranges_mode_produces_one_file_per_range' has low assert-to-setup ratio (17%): 4 asserts vs 20 setup lines
+  TestSplitPdfWithOptions::test_ranges_mode_preserves_text_content (line 163) - Score: 90
+    - Test 'TestSplitPdfWithOptions::test_ranges_mode_preserves_text_content' has low assert-to-setup ratio (10%): 2 asserts vs 18 setup lines
+  TestSplitPdfWithOptions::test_output_pattern_is_honoured (line 187) - Score: 90
+    - Test 'TestSplitPdfWithOptions::test_output_pattern_is_honoured' has low assert-to-setup ratio (12%): 2 asserts vs 15 setup lines
+  TestSplitPdfWithOptions::test_split_at_mode (line 206) - Score: 90
+    - Test 'TestSplitPdfWithOptions::test_split_at_mode' has low assert-to-setup ratio (14%): 3 asserts vs 18 setup lines
+
+tests/test_table.py:
+  TestTableConstruction::test_table_options_custom (line 27) - Score: 90
+    - Test 'TestTableConstruction::test_table_options_custom' has low assert-to-setup ratio (12%): 1 asserts vs 7 setup lines
+  TestTableConstruction::test_header_style (line 37) - Score: 90
+    - Test 'TestTableConstruction::test_header_style' has low assert-to-setup ratio (11%): 1 asserts vs 8 setup lines
+  TestTableConstruction::test_grid_style_variants (line 48) - Score: 80
+    - Test 'TestTableConstruction::test_grid_style_variants' has identical neighborhood to 'TestOrderedList::test_ordered_list_styles'
+    - Test 'TestTableConstruction::test_grid_style_variants' does not call any production code
+  TestTableRows::test_add_row (line 61) - Score: 75
+    - Test 'TestTableRows::test_add_row' executes production code without asserting on its behaviour
+  TestTableRows::test_add_header_row (line 67) - Score: 75
+    - Test 'TestTableRows::test_add_header_row' executes production code without asserting on its behaviour
+  TestTableCell::test_cell_with_background (line 103) - Score: 75
+    - Test 'TestTableCell::test_cell_with_background' executes production code without asserting on its behaviour
+  TestTableCell::test_add_custom_row (line 109) - Score: 75
+    - Test 'TestTableCell::test_add_custom_row' executes production code without asserting on its behaviour
+  TestTableOnPage::test_page_add_simple_table (line 120) - Score: 90
+    - Test 'TestTableOnPage::test_page_add_simple_table' has low assert-to-setup ratio (12%): 2 asserts vs 14 setup lines
+  TestTableOnPage::test_page_add_quick_table (line 138) - Score: 90
+    - Test 'TestTableOnPage::test_page_add_quick_table' has low assert-to-setup ratio (7%): 1 asserts vs 14 setup lines
+  TestTableOnPage::test_page_add_styled_table (line 155) - Score: 90
+    - Test 'TestTableOnPage::test_page_add_styled_table' has low assert-to-setup ratio (7%): 1 asserts vs 13 setup lines
+  TestTableOnPage::test_table_with_options (line 171) - Score: 90
+    - Test 'TestTableOnPage::test_table_with_options' has low assert-to-setup ratio (3%): 1 asserts vs 36 setup lines
+  TestTableStyle::test_style_colorful (line 232) - Score: 90
+    - Test 'TestTableStyle::test_style_colorful' has identical neighborhood to 'TestDashboardThemeDeep::test_colorful_theme'
+
+tests/test_text.py:
+  TestFont::test_standard_fonts_exist (line 9) - Score: 80
+    - Test 'TestFont::test_standard_fonts_exist' has identical neighborhood to 'TestStampName::test_standard_constants'
+    - Test 'TestFont::test_standard_fonts_exist' does not call any production code
+  TestTextAlign::test_variants_exist (line 36) - Score: 80
+    - Test 'TestTextAlign::test_variants_exist' has identical neighborhood to 'TestEncryptionStrength::test_encryption_strength_variants'
+    - Test 'TestTextAlign::test_variants_exist' does not call any production code
+  TestTextWriting::test_write_text_basic (line 48) - Score: 90
+    - Test 'TestTextWriting::test_write_text_basic' has low assert-to-setup ratio (10%): 1 asserts vs 9 setup lines
+  TestTextWriting::test_write_text_with_color (line 60) - Score: 90
+    - Test 'TestTextWriting::test_write_text_with_color' has low assert-to-setup ratio (9%): 1 asserts vs 10 setup lines
+  TestTextWriting::test_write_multiple_lines (line 73) - Score: 90
+    - Test 'TestTextWriting::test_write_multiple_lines' has low assert-to-setup ratio (8%): 1 asserts vs 11 setup lines
+  TestTextWriting::test_different_fonts (line 87) - Score: 90
+    - Test 'TestTextWriting::test_different_fonts' has low assert-to-setup ratio (6%): 1 asserts vs 16 setup lines
+  TestTextWriting::test_font_size_variation (line 106) - Score: 90
+    - Test 'TestTextWriting::test_font_size_variation' has low assert-to-setup ratio (9%): 1 asserts vs 10 setup lines
+  TestTextWriting::test_character_spacing (line 119) - Score: 90
+    - Test 'TestTextWriting::test_character_spacing' has low assert-to-setup ratio (9%): 1 asserts vs 10 setup lines
+  TestTextWriting::test_word_spacing (line 132) - Score: 90
+    - Test 'TestTextWriting::test_word_spacing' has low assert-to-setup ratio (9%): 1 asserts vs 10 setup lines
+  TestCustomFont::test_custom_font_usable_in_set_font (line 162) - Score: 75
+    - Test 'TestCustomFont::test_custom_font_usable_in_set_font' executes production code without asserting on its behaviour
+  TestTextFlowAt::test_text_flow_at_basic (line 186) - Score: 90
+    - Test 'TestTextFlowAt::test_text_flow_at_basic' has low assert-to-setup ratio (10%): 1 asserts vs 9 setup lines
+  TestTextFlowAt::test_text_flow_at_align_center (line 198) - Score: 90
+    - Test 'TestTextFlowAt::test_text_flow_at_align_center' has low assert-to-setup ratio (7%): 1 asserts vs 13 setup lines
+  TestTextFlowAt::test_text_flow_at_align_right (line 214) - Score: 90
+    - Test 'TestTextFlowAt::test_text_flow_at_align_right' has low assert-to-setup ratio (10%): 1 asserts vs 9 setup lines
+  TestTextFlowAt::test_text_flow_at_align_justified (line 226) - Score: 90
+    - Test 'TestTextFlowAt::test_text_flow_at_align_justified' has low assert-to-setup ratio (7%): 1 asserts vs 13 setup lines
+  TestTextFlowAt::test_text_flow_at_default_align_is_left (line 242) - Score: 90
+    - Test 'TestTextFlowAt::test_text_flow_at_default_align_is_left' has low assert-to-setup ratio (9%): 1 asserts vs 10 setup lines
+
+tests/test_text_extraction.py:
+  TestExtractionOptions::test_default_constructor (line 36) - Score: 90
+    - Test 'TestExtractionOptions::test_default_constructor' has identical neighborhood to 'TestMaxExtractedBytesOption::test_default_is_none'
+  TestPlainTextResult::test_extract_plain_text_returns_result (line 170) - Score: 90
+    - Test 'TestPlainTextResult::test_extract_plain_text_returns_result' has identical neighborhood to 'TestPdfReaderTextExtraction::test_extract_plain_text_char_count_consistent'
+  TestPlainTextResult::test_text_property (line 174) - Score: 90
+    - Test 'TestPlainTextResult::test_text_property' has identical neighborhood to 'TestPdfReaderTextExtraction::test_extract_plain_text_char_count_consistent'
+  TestPlainTextResult::test_line_count_property (line 178) - Score: 90
+    - Test 'TestPlainTextResult::test_line_count_property' has identical neighborhood to 'TestPdfReaderTextExtraction::test_extract_plain_text_no_config'
+  TestPlainTextResult::test_char_count_property (line 183) - Score: 90
+    - Test 'TestPlainTextResult::test_char_count_property' has identical neighborhood to 'TestPdfReaderTextExtraction::test_extract_plain_text_no_config'
+  TestColumnLayout::test_constructor (line 201) - Score: 90
+    - Test 'TestColumnLayout::test_constructor' has identical neighborhood to 'TestColumnLayout::test_total_width'
+  TestColumnLayout::test_total_width (line 209) - Score: 90
+    - Test 'TestColumnLayout::test_total_width' has identical neighborhood to 'TestColumnLayout::test_constructor'
+  TestColumnOptions::test_with_kwargs (line 247) - Score: 90
+    - Test 'TestColumnOptions::test_with_kwargs' has low assert-to-setup ratio (12%): 1 asserts vs 7 setup lines
+  TestTextValidationResult::test_found_property (line 390) - Score: 90
+    - Test 'TestTextValidationResult::test_found_property' has identical neighborhood to 'TestTextValidationResult::test_matches_property'
+  TestTextValidationResult::test_matches_property (line 395) - Score: 90
+    - Test 'TestTextValidationResult::test_matches_property' has identical neighborhood to 'TestTextValidationResult::test_found_property'
+  TestPdfReaderTextExtraction::test_extract_plain_text_no_config (line 445) - Score: 90
+    - Test 'TestPdfReaderTextExtraction::test_extract_plain_text_no_config' has identical neighborhood to 'TestPlainTextResult::test_char_count_property'
+  TestPdfReaderTextExtraction::test_extract_plain_text_char_count_consistent (line 466) - Score: 90
+    - Test 'TestPdfReaderTextExtraction::test_extract_plain_text_char_count_consistent' has identical neighborhood to 'TestPlainTextResult::test_extract_plain_text_returns_result'
+  TestTextFragmentExtraction::test_fragment_mcid_and_struct_tag_none_for_untagged_pdf (line 529) - Score: 90
+    - Test 'TestTextFragmentExtraction::test_fragment_mcid_and_struct_tag_none_for_untagged_pdf' has low assert-to-setup ratio (18%): 2 asserts vs 9 setup lines
+  TestTextFragmentExtraction::test_extract_fragments_without_preserve_layout_yields_empty (line 554) - Score: 90
+    - Test 'TestTextFragmentExtraction::test_extract_fragments_without_preserve_layout_yields_empty' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+  TestTextFragmentExtraction::test_space_decisions_returns_list_with_or_without_flag (line 593) - Score: 90
+    - Test 'TestTextFragmentExtraction::test_space_decisions_returns_list_with_or_without_flag' has low assert-to-setup ratio (14%): 3 asserts vs 19 setup lines
+  TestTextFragmentExtraction::test_fragment_color_reflects_set_fill_color (line 627) - Score: 90
+    - Test 'TestTextFragmentExtraction::test_fragment_color_reflects_set_fill_color' has low assert-to-setup ratio (12%): 4 asserts vs 30 setup lines
+
+tests/test_text_measurement.py:
+  TestMeasureText::test_measure_text_different_fonts (line 36) - Score: 90
+    - Test 'TestMeasureText::test_measure_text_different_fonts' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+
+tests/test_text_tier4.py:
+  TestHorizontalScaling::test_set_horizontal_scaling (line 7) - Score: 90
+    - Test 'TestHorizontalScaling::test_set_horizontal_scaling' has low assert-to-setup ratio (9%): 1 asserts vs 10 setup lines
+  TestHorizontalScaling::test_horizontal_scaling_100_is_normal (line 20) - Score: 90
+    - Test 'TestHorizontalScaling::test_horizontal_scaling_100_is_normal' has low assert-to-setup ratio (9%): 1 asserts vs 10 setup lines
+  TestTextRise::test_set_text_rise (line 35) - Score: 90
+    - Test 'TestTextRise::test_set_text_rise' has low assert-to-setup ratio (9%): 1 asserts vs 10 setup lines
+  TestTextRise::test_text_rise_negative (line 48) - Score: 90
+    - Test 'TestTextRise::test_text_rise_negative' has low assert-to-setup ratio (9%): 1 asserts vs 10 setup lines
+  TestTextRenderingMode::test_rendering_mode_variants (line 63) - Score: 80
+    - Test 'TestTextRenderingMode::test_rendering_mode_variants' has identical neighborhood to 'TestCorruptionType::test_class_attributes_exist'
+    - Test 'TestTextRenderingMode::test_rendering_mode_variants' does not call any production code
+  TestTextRenderingMode::test_set_rendering_mode_stroke (line 75) - Score: 90
+    - Test 'TestTextRenderingMode::test_set_rendering_mode_stroke' has low assert-to-setup ratio (9%): 1 asserts vs 10 setup lines
+  TestTextRenderingMode::test_set_rendering_mode_fill_stroke (line 88) - Score: 90
+    - Test 'TestTextRenderingMode::test_set_rendering_mode_fill_stroke' has low assert-to-setup ratio (9%): 1 asserts vs 10 setup lines
+
+tests/test_tier21.py:
+  TestTemplateRendererDeep::test_validate_template_ok (line 80) - Score: 75
+    - Test 'TestTemplateRendererDeep::test_validate_template_ok' executes production code without asserting on its behaviour
+  TestPdfALevelDeep::test_all_8_variants (line 165) - Score: 80
+    - Test 'TestPdfALevelDeep::test_all_8_variants' has identical neighborhood to 'TestCorruptionType::test_class_attributes_exist'
+    - Test 'TestPdfALevelDeep::test_all_8_variants' does not call any production code
+  TestPdfAConformance::test_variants (line 182) - Score: 80
+    - Test 'TestPdfAConformance::test_variants' has identical neighborhood to 'TestExportFormat::test_variants'
+    - Test 'TestPdfAConformance::test_variants' does not call any production code
+  TestPdfAValidationResult::test_errors_are_strings (line 207) - Score: 90
+    - Test 'TestPdfAValidationResult::test_errors_are_strings' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+  TestPdfAValidationResult::test_repr (line 216) - Score: 90
+    - Test 'TestPdfAValidationResult::test_repr' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  TestPdfAValidatorDeep::test_level_getter (line 230) - Score: 90
+    - Test 'TestPdfAValidatorDeep::test_level_getter' has identical neighborhood to 'TestPdfAValidation::test_pdfa_validator'
+  TestTrendDirection::test_variants (line 242) - Score: 80
+    - Test 'TestTrendDirection::test_variants' has identical neighborhood to 'TestExportFormat::test_variants'
+    - Test 'TestTrendDirection::test_variants' does not call any production code
+  TestDashboardThemeDeep::test_colorful_theme (line 277) - Score: 90
+    - Test 'TestDashboardThemeDeep::test_colorful_theme' has identical neighborhood to 'TestTableStyle::test_style_colorful'
+  TestDashboardBuilderDeep::test_build_to_page (line 307) - Score: 90
+    - Test 'TestDashboardBuilderDeep::test_build_to_page' has low assert-to-setup ratio (12%): 1 asserts vs 7 setup lines
+  TestDashboardBuilderGetters::test_get_title_none_by_default (line 325) - Score: 90
+    - Test 'TestDashboardBuilderGetters::test_get_title_none_by_default' has identical neighborhood to 'TestDashboard::test_dashboard_builder'
+  TestDashboardBuilderMultiRow::test_multiple_kpi_rows_accumulate (line 352) - Score: 90
+    - Test 'TestDashboardBuilderMultiRow::test_multiple_kpi_rows_accumulate' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+  TestTier8EnumEqHash::test_pdf_a_level_eq (line 366) - Score: 80
+    - Test 'TestTier8EnumEqHash::test_pdf_a_level_eq' has identical neighborhood to 'TestBorderEffectStyle::test_variants'
+    - Test 'TestTier8EnumEqHash::test_pdf_a_level_eq' does not call any production code
+  TestTier8EnumEqHash::test_pdf_a_level_hashable (line 370) - Score: 80
+    - Test 'TestTier8EnumEqHash::test_pdf_a_level_hashable' has identical neighborhood to 'TestEnumEqHash::test_annotation_type_hashable'
+    - Test 'TestTier8EnumEqHash::test_pdf_a_level_hashable' does not call any production code
+  TestTier8EnumEqHash::test_pdf_a_conformance_eq (line 374) - Score: 80
+    - Test 'TestTier8EnumEqHash::test_pdf_a_conformance_eq' has identical neighborhood to 'TestBorderEffectStyle::test_variants'
+    - Test 'TestTier8EnumEqHash::test_pdf_a_conformance_eq' does not call any production code
+  TestTier8EnumEqHash::test_pdf_a_conformance_hashable (line 378) - Score: 90
+    - Test 'TestTier8EnumEqHash::test_pdf_a_conformance_hashable' does not call any production code
+  TestTier8EnumEqHash::test_trend_direction_eq (line 382) - Score: 80
+    - Test 'TestTier8EnumEqHash::test_trend_direction_eq' has identical neighborhood to 'TestBorderEffectStyle::test_variants'
+    - Test 'TestTier8EnumEqHash::test_trend_direction_eq' does not call any production code
+  TestTier8EnumEqHash::test_trend_direction_hashable (line 386) - Score: 90
+    - Test 'TestTier8EnumEqHash::test_trend_direction_hashable' does not call any production code
+  TestPlaceholdersCrossCheck::test_agree_with_placeholders (line 428) - Score: 90
+    - Test 'TestPlaceholdersCrossCheck::test_agree_with_placeholders' has low assert-to-setup ratio (10%): 1 asserts vs 9 setup lines
+
+tests/test_tier8.py:
+  TestStandardStructureType::test_key_variants (line 10) - Score: 90
+    - Test 'TestStandardStructureType::test_key_variants' does not call any production code
+  TestStructureElement::test_builder (line 40) - Score: 90
+    - Test 'TestStructureElement::test_builder' has low assert-to-setup ratio (12%): 1 asserts vs 7 setup lines
+  TestStructureElement::test_add_mcid (line 50) - Score: 75
+    - Test 'TestStructureElement::test_add_mcid' executes production code without asserting on its behaviour
+  TestStructTree::test_create_and_set_root (line 58) - Score: 90
+    - Test 'TestStructTree::test_create_and_set_root' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  TestStructTree::test_add_child (line 66) - Score: 90
+    - Test 'TestStructTree::test_add_child' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  TestStructTree::test_document_set_struct_tree (line 81) - Score: 90
+    - Test 'TestStructTree::test_document_set_struct_tree' has low assert-to-setup ratio (6%): 1 asserts vs 16 setup lines
+  TestCoordinateSystem::test_variants (line 105) - Score: 80
+    - Test 'TestCoordinateSystem::test_variants' has identical neighborhood to 'TestBorderEffectStyle::test_variants'
+    - Test 'TestCoordinateSystem::test_variants' does not call any production code
+  TestCoordinateSystem::test_set_coordinate_system (line 111) - Score: 90
+    - Test 'TestCoordinateSystem::test_set_coordinate_system' has low assert-to-setup ratio (9%): 1 asserts vs 10 setup lines
+  TestTemplates::test_template_renderer (line 153) - Score: 90
+    - Test 'TestTemplates::test_template_renderer' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+  TestOcr::test_ocr_engine_variants (line 173) - Score: 80
+    - Test 'TestOcr::test_ocr_engine_variants' has identical neighborhood to 'TestBorderEffectStyle::test_variants'
+    - Test 'TestOcr::test_ocr_engine_variants' does not call any production code
+  TestStreaming::test_lazy_document (line 207) - Score: 90
+    - Test 'TestStreaming::test_lazy_document' has low assert-to-setup ratio (8%): 1 asserts vs 12 setup lines
+  TestPdfRecovery::test_validate_pdf (line 227) - Score: 90
+    - Test 'TestPdfRecovery::test_validate_pdf' has low assert-to-setup ratio (8%): 1 asserts vs 11 setup lines
+  TestPdfAValidation::test_pdfa_level_variants (line 246) - Score: 80
+    - Test 'TestPdfAValidation::test_pdfa_level_variants' has identical neighborhood to 'TestExportFormat::test_variants'
+    - Test 'TestPdfAValidation::test_pdfa_level_variants' does not call any production code
+  TestPdfAValidation::test_pdfa_validator (line 253) - Score: 90
+    - Test 'TestPdfAValidation::test_pdfa_validator' has identical neighborhood to 'TestPdfAValidatorDeep::test_level_getter'
+  TestPdfComparison::test_compare_identical (line 264) - Score: 90
+    - Test 'TestPdfComparison::test_compare_identical' has low assert-to-setup ratio (17%): 2 asserts vs 10 setup lines
+  TestSemanticMarking::test_entity_type_variants (line 283) - Score: 90
+    - Test 'TestSemanticMarking::test_entity_type_variants' does not call any production code
+  TestDashboard::test_dashboard_builder (line 294) - Score: 90
+    - Test 'TestDashboard::test_dashboard_builder' has identical neighborhood to 'TestDashboardBuilderGetters::test_get_title_none_by_default'
+
+tests/test_upstream_2_13_0.py:
+  TestPartitionConfigRulingTables::test_without_ruling_tables_chains (line 166) - Score: 90
+    - Test 'TestPartitionConfigRulingTables::test_without_ruling_tables_chains' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+
+tests/test_upstream_4_3_0.py:
+  test_text_streamer_honors_td_tstar_and_tm_positioning (line 73) - Score: 90
+    - Test 'test_text_streamer_honors_td_tstar_and_tm_positioning' has low assert-to-setup ratio (11%): 2 asserts vs 17 setup lines
+
+tests/test_verification.py:
+  TestVerificationLevel::test_not_implemented (line 22) - Score: 90
+    - Test 'TestVerificationLevel::test_not_implemented' does not call any production code
+  TestVerificationLevel::test_code_exists (line 25) - Score: 90
+    - Test 'TestVerificationLevel::test_code_exists' does not call any production code
+  TestVerificationLevel::test_generates_pdf (line 28) - Score: 90
+    - Test 'TestVerificationLevel::test_generates_pdf' does not call any production code
+  TestVerificationLevel::test_content_verified (line 31) - Score: 90
+    - Test 'TestVerificationLevel::test_content_verified' does not call any production code
+  TestVerificationLevel::test_iso_compliant (line 34) - Score: 90
+    - Test 'TestVerificationLevel::test_iso_compliant' does not call any production code
+  TestVerificationLevel::test_as_percentage (line 37) - Score: 90
+    - Test 'TestVerificationLevel::test_as_percentage' does not call any production code
+  TestComplianceStats::test_type_exists (line 49) - Score: 90
+    - Test 'TestComplianceStats::test_type_exists' does not call any production code
+  TestComplianceStats::test_has_expected_getters (line 52) - Score: 90
+    - Test 'TestComplianceStats::test_has_expected_getters' has low assert-to-setup ratio (8%): 1 asserts vs 11 setup lines
+  TestIsoRequirement::test_type_exists (line 70) - Score: 90
+    - Test 'TestIsoRequirement::test_type_exists' does not call any production code
+  TestIsoRequirement::test_has_expected_getters (line 73) - Score: 90
+    - Test 'TestIsoRequirement::test_has_expected_getters' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  TestRequirementInfo::test_type_exists (line 85) - Score: 90
+    - Test 'TestRequirementInfo::test_type_exists' does not call any production code
+  TestRequirementInfo::test_has_expected_getters (line 88) - Score: 90
+    - Test 'TestRequirementInfo::test_has_expected_getters' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+  TestComplianceSystem::test_type_exists (line 101) - Score: 90
+    - Test 'TestComplianceSystem::test_type_exists' does not call any production code
+  TestDifferenceSeverity::test_critical (line 120) - Score: 90
+    - Test 'TestDifferenceSeverity::test_critical' does not call any production code
+  TestDifferenceSeverity::test_important (line 123) - Score: 90
+    - Test 'TestDifferenceSeverity::test_important' does not call any production code
+  TestDifferenceSeverity::test_minor (line 126) - Score: 90
+    - Test 'TestDifferenceSeverity::test_minor' does not call any production code
+  TestDifferenceSeverity::test_cosmetic (line 129) - Score: 90
+    - Test 'TestDifferenceSeverity::test_cosmetic' does not call any production code
+  TestPdfDifference::test_type_exists (line 137) - Score: 90
+    - Test 'TestPdfDifference::test_type_exists' does not call any production code
+  TestPdfDifference::test_properties_from_comparison (line 147) - Score: 90
+    - Test 'TestPdfDifference::test_properties_from_comparison' has low assert-to-setup ratio (17%): 4 asserts vs 20 setup lines
+  TestComparisonResult::test_type_exists (line 175) - Score: 90
+    - Test 'TestComparisonResult::test_type_exists' does not call any production code
+  TestComparisonResult::test_has_expected_getters (line 178) - Score: 90
+    - Test 'TestComparisonResult::test_has_expected_getters' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  TestExtractPdfDifferences::test_function_exists (line 259) - Score: 90
+    - Test 'TestExtractPdfDifferences::test_function_exists' has identical neighborhood to 'TestComputePdfHash::test_function_exists'
+  TestPdfsStructurallyEquivalent::test_function_exists (line 284) - Score: 90
+    - Test 'TestPdfsStructurallyEquivalent::test_function_exists' has identical neighborhood to 'TestComputePdfHash::test_function_exists'
+
+tests/test_viewer_preferences.py:
+  test_page_layout_variants (line 4) - Score: 80
+    - Test 'test_page_layout_variants' has identical neighborhood to 'TestEntityType::test_identity_variants'
+    - Test 'test_page_layout_variants' does not call any production code
+  test_page_mode_variants (line 26) - Score: 80
+    - Test 'test_page_mode_variants' has identical neighborhood to 'TestEntityType::test_identity_variants'
+    - Test 'test_page_mode_variants' does not call any production code
+  test_print_scaling_variants (line 48) - Score: 80
+    - Test 'test_print_scaling_variants' has identical neighborhood to 'TestBorderEffectStyle::test_variants'
+    - Test 'test_print_scaling_variants' does not call any production code
+  test_duplex_variants (line 62) - Score: 80
+    - Test 'test_duplex_variants' has identical neighborhood to 'TestExportFormat::test_variants'
+    - Test 'test_duplex_variants' does not call any production code
+  test_viewer_preferences_chaining (line 162) - Score: 90
+    - Test 'test_viewer_preferences_chaining' has low assert-to-setup ratio (6%): 1 asserts vs 15 setup lines
+  test_viewer_preferences_set_on_document (line 209) - Score: 90
+    - Test 'test_viewer_preferences_set_on_document' has low assert-to-setup ratio (17%): 2 asserts vs 10 setup lines
+  test_viewer_preferences_presentation_renders_pdf (line 224) - Score: 90
+    - Test 'test_viewer_preferences_presentation_renders_pdf' has low assert-to-setup ratio (17%): 2 asserts vs 10 setup lines
+
+tests/test_xmp_metadata.py:
+  TestXmpNamespace::test_dublin_core (line 19) - Score: 90
+    - Test 'TestXmpNamespace::test_dublin_core' does not call any production code
+  TestXmpNamespace::test_xmp_basic (line 24) - Score: 90
+    - Test 'TestXmpNamespace::test_xmp_basic' does not call any production code
+  TestXmpNamespace::test_xmp_rights (line 28) - Score: 90
+    - Test 'TestXmpNamespace::test_xmp_rights' does not call any production code
+  TestXmpNamespace::test_xmp_media_management (line 32) - Score: 90
+    - Test 'TestXmpNamespace::test_xmp_media_management' does not call any production code
+  TestXmpNamespace::test_pdf (line 36) - Score: 90
+    - Test 'TestXmpNamespace::test_pdf' does not call any production code
+  TestXmpNamespace::test_photoshop (line 40) - Score: 90
+    - Test 'TestXmpNamespace::test_photoshop' does not call any production code
+  TestXmpProperty::test_create (line 106) - Score: 90
+    - Test 'TestXmpProperty::test_create' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  TestXmpProperty::test_repr (line 123) - Score: 90
+    - Test 'TestXmpProperty::test_repr' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+  TestXmpMetadata::test_add_property (line 167) - Score: 90
+    - Test 'TestXmpMetadata::test_add_property' has low assert-to-setup ratio (12%): 1 asserts vs 7 setup lines
+  TestXmpMetadata::test_register_namespace (line 184) - Score: 75
+    - Test 'TestXmpMetadata::test_register_namespace' executes production code without asserting on its behaviour
+  TestXmpMetadata::test_clear_allows_reuse (line 215) - Score: 90
+    - Test 'TestXmpMetadata::test_clear_allows_reuse' has low assert-to-setup ratio (17%): 1 asserts vs 5 setup lines
+
+
+## Analisis de Seguridad (Kripteia Security)
+
+=== Kripteia Security Analysis ===
+
+--- Hardcoded Secrets (1) ---
+  tests/test_security.py:184 — hardcoded_assignment:SECRET
+    SECRET = "Secret content RT-117"
+

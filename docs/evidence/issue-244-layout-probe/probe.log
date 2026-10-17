@@ -1,0 +1,9 @@
+   Compiling redaction-probe v0.1.0 (/tmp/oxidize-redaction-probe)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.45s
+     Running `/tmp/oxidize-redaction-probe/target/debug/layout_probe`
+PDF: before=190 height=40 spacing=10
+PDF: returned=Some(180.0) after=140
+custom 0: position=Some(100.0) current_y=10 remaining=100
+custom 1: position=Some(10.0) current_y=-80 remaining=100
+custom 2: position=Some(-80.0) current_y=-170 remaining=100
+custom 3: position=Some(-170.0) current_y=-260 remaining=100

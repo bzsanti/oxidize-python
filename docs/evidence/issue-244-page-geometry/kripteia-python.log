@@ -1,0 +1,22 @@
+## Calidad de Tests (Kripteia)
+
+=== Kripteia Test Quality Report ===
+Overall Score: 100 | Tests: 4 | Files: 1
+
+--- Files ---
+Path                                                          Tests  Score
+--------------------------------------------------------------------------
+tests/test_page_geometry.py                                       4    100
+
+--- Worst Offenders ---
+  test_asymmetric_content_bounds_and_live_margins (tests/test_page_geometry.py:9) - Score: 100
+  test_rotation_dimensions_match_serialized_page (tests/test_page_geometry.py:23) - Score: 100
+  test_oversized_margins_remain_unclamped_and_coordinates_are_unrotated (tests/test_page_geometry.py:41) - Score: 100
+  test_geometry_is_read_only_and_rejected_rotation_keeps_dimensions (tests/test_page_geometry.py:51) - Score: 100
+
+
+## Analisis de Seguridad (Kripteia Security)
+
+=== Kripteia Security Analysis ===
+
+No security issues found.

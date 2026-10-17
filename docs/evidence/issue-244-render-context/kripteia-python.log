@@ -1,0 +1,22 @@
+## Calidad de Tests (Kripteia)
+
+=== Kripteia Test Quality Report ===
+Overall Score: 100 | Tests: 4 | Files: 1
+
+--- Files ---
+Path                                                          Tests  Score
+--------------------------------------------------------------------------
+tests/test_render_context.py                                      4    100
+
+--- Worst Offenders ---
+  test_initial_context_and_conversions (tests/test_render_context.py:8) - Score: 100
+  test_mutations_use_live_system_and_height_without_refreshing_matrix (tests/test_render_context.py:16) - Score: 100
+  test_custom_context_y_uses_zero_x_and_ignores_cached_transform (tests/test_render_context.py:36) - Score: 100
+  test_invalid_assignments_preserve_context (tests/test_render_context.py:46) - Score: 100
+
+
+## Analisis de Seguridad (Kripteia Security)
+
+=== Kripteia Security Analysis ===
+
+No security issues found.

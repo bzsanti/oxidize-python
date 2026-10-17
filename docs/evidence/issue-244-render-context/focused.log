@@ -1,0 +1,57 @@
+
+==================================== ERRORS ====================================
+________________ ERROR collecting tests/test_render_context.py _________________
+ImportError while importing test module '/home/santi/repos/BelowZero/oxidizePdf/oxidize-python/tests/test_render_context.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_render_context.py:4: in <module>
+    from oxidize_pdf import CoordinateSystem as C, Point, RenderContext, TransformMatrix as M
+python/oxidize_pdf/__init__.py:1254: in <module>
+    from oxidize_pdf._oxidize_pdf import RenderContext
+E   ImportError: cannot import name 'RenderContext' from 'oxidize_pdf._oxidize_pdf' (/home/santi/repos/BelowZero/oxidizePdf/oxidize-python/python/oxidize_pdf/_oxidize_pdf.abi3.so)
+__________________ ERROR collecting tests/test_coordinates.py __________________
+ImportError while importing test module '/home/santi/repos/BelowZero/oxidizePdf/oxidize-python/tests/test_coordinates.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_coordinates.py:6: in <module>
+    from oxidize_pdf import CoordinateSystem as C, Page, Point, TransformMatrix as M
+python/oxidize_pdf/__init__.py:1254: in <module>
+    from oxidize_pdf._oxidize_pdf import RenderContext
+E   ImportError: cannot import name 'RenderContext' from 'oxidize_pdf._oxidize_pdf' (/home/santi/repos/BelowZero/oxidizePdf/oxidize-python/python/oxidize_pdf/_oxidize_pdf.abi3.so)
+________________ ERROR collecting tests/test_parity_contract.py ________________
+ImportError while importing test module '/home/santi/repos/BelowZero/oxidizePdf/oxidize-python/tests/test_parity_contract.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_parity_contract.py:8: in <module>
+    import oxidize_pdf as pdf
+python/oxidize_pdf/__init__.py:1254: in <module>
+    from oxidize_pdf._oxidize_pdf import RenderContext
+E   ImportError: cannot import name 'RenderContext' from 'oxidize_pdf._oxidize_pdf' (/home/santi/repos/BelowZero/oxidizePdf/oxidize-python/python/oxidize_pdf/_oxidize_pdf.abi3.so)
+________________ ERROR collecting tests/test_typing_surface.py _________________
+ImportError while importing test module '/home/santi/repos/BelowZero/oxidizePdf/oxidize-python/tests/test_typing_surface.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_typing_surface.py:5: in <module>
+    import oxidize_pdf
+python/oxidize_pdf/__init__.py:1254: in <module>
+    from oxidize_pdf._oxidize_pdf import RenderContext
+E   ImportError: cannot import name 'RenderContext' from 'oxidize_pdf._oxidize_pdf' (/home/santi/repos/BelowZero/oxidizePdf/oxidize-python/python/oxidize_pdf/_oxidize_pdf.abi3.so)
+=========================== short test summary info ============================
+ERROR tests/test_render_context.py
+ERROR tests/test_coordinates.py
+ERROR tests/test_parity_contract.py
+ERROR tests/test_typing_surface.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 4 errors during collection !!!!!!!!!!!!!!!!!!!!
+4 errors in 5.74s
