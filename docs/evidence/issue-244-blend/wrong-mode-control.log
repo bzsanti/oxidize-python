@@ -1,0 +1,321 @@
+FFFFFFFFFFFF                                                             [100%]
+=================================== FAILURES ===================================
+____________ test_new_modes_reach_extgstate[DIFFERENCE-Difference] _____________
+
+name = 'DIFFERENCE', pdf_name = 'Difference'
+
+    @pytest.mark.parametrize('name,pdf_name', NAMES[10:])
+    def test_new_modes_reach_extgstate(name, pdf_name):
+        data = make_pdf(getattr(BlendMode, name))
+>       assert re.search(rb'/BM\s*/' + pdf_name.encode() + rb'(?=[\s/>])', data)
+E       AssertionError: assert None
+E        +  where None = <function search at 0x79150a21e660>(((b'/BM\\s*/' + b'Difference') + b'(?=[\\s/>])'), b'%PDF-1.7\n%\xe2\xe3\xcf\xd3\n2 0 obj\n<<\n/Count 1\n/Kids [4 0 R]\n/Type /Pages\n>>\nendobj\n4 0 obj\n<<\n/Contents ...0000001471 00000 n \n0000001609 00000 n \ntrailer\n<<\n/Info 3 0 R\n/Root 1 0 R\n/Size 7\n>>\nstartxref\n4670\n%%EOF\n')
+E        +    where <function search at 0x79150a21e660> = re.search
+E        +    and   b'Difference' = <built-in method encode of str object at 0x791508d880f0>()
+E        +      where <built-in method encode of str object at 0x791508d880f0> = 'Difference'.encode
+
+../test_blend_wrong_mode.py:45: AssertionError
+_____________ test_new_modes_reach_extgstate[EXCLUSION-Exclusion] ______________
+
+name = 'EXCLUSION', pdf_name = 'Exclusion'
+
+    @pytest.mark.parametrize('name,pdf_name', NAMES[10:])
+    def test_new_modes_reach_extgstate(name, pdf_name):
+        data = make_pdf(getattr(BlendMode, name))
+>       assert re.search(rb'/BM\s*/' + pdf_name.encode() + rb'(?=[\s/>])', data)
+E       AssertionError: assert None
+E        +  where None = <function search at 0x79150a21e660>(((b'/BM\\s*/' + b'Exclusion') + b'(?=[\\s/>])'), b'%PDF-1.7\n%\xe2\xe3\xcf\xd3\n2 0 obj\n<<\n/Count 1\n/Kids [4 0 R]\n/Type /Pages\n>>\nendobj\n4 0 obj\n<<\n/Contents ...0000001471 00000 n \n0000001609 00000 n \ntrailer\n<<\n/Info 3 0 R\n/Root 1 0 R\n/Size 7\n>>\nstartxref\n4670\n%%EOF\n')
+E        +    where <function search at 0x79150a21e660> = re.search
+E        +    and   b'Exclusion' = <built-in method encode of str object at 0x791508d88170>()
+E        +      where <built-in method encode of str object at 0x791508d88170> = 'Exclusion'.encode
+
+../test_blend_wrong_mode.py:45: AssertionError
+___________________ test_new_modes_reach_extgstate[HUE-Hue] ____________________
+
+name = 'HUE', pdf_name = 'Hue'
+
+    @pytest.mark.parametrize('name,pdf_name', NAMES[10:])
+    def test_new_modes_reach_extgstate(name, pdf_name):
+        data = make_pdf(getattr(BlendMode, name))
+>       assert re.search(rb'/BM\s*/' + pdf_name.encode() + rb'(?=[\s/>])', data)
+E       AssertionError: assert None
+E        +  where None = <function search at 0x79150a21e660>(((b'/BM\\s*/' + b'Hue') + b'(?=[\\s/>])'), b'%PDF-1.7\n%\xe2\xe3\xcf\xd3\n2 0 obj\n<<\n/Count 1\n/Kids [4 0 R]\n/Type /Pages\n>>\nendobj\n4 0 obj\n<<\n/Contents ...0000001471 00000 n \n0000001609 00000 n \ntrailer\n<<\n/Info 3 0 R\n/Root 1 0 R\n/Size 7\n>>\nstartxref\n4670\n%%EOF\n')
+E        +    where <function search at 0x79150a21e660> = re.search
+E        +    and   b'Hue' = <built-in method encode of str object at 0x791508d84630>()
+E        +      where <built-in method encode of str object at 0x791508d84630> = 'Hue'.encode
+
+../test_blend_wrong_mode.py:45: AssertionError
+____________ test_new_modes_reach_extgstate[SATURATION-Saturation] _____________
+
+name = 'SATURATION', pdf_name = 'Saturation'
+
+    @pytest.mark.parametrize('name,pdf_name', NAMES[10:])
+    def test_new_modes_reach_extgstate(name, pdf_name):
+        data = make_pdf(getattr(BlendMode, name))
+>       assert re.search(rb'/BM\s*/' + pdf_name.encode() + rb'(?=[\s/>])', data)
+E       AssertionError: assert None
+E        +  where None = <function search at 0x79150a21e660>(((b'/BM\\s*/' + b'Saturation') + b'(?=[\\s/>])'), b'%PDF-1.7\n%\xe2\xe3\xcf\xd3\n2 0 obj\n<<\n/Count 1\n/Kids [4 0 R]\n/Type /Pages\n>>\nendobj\n4 0 obj\n<<\n/Contents ...0000001471 00000 n \n0000001609 00000 n \ntrailer\n<<\n/Info 3 0 R\n/Root 1 0 R\n/Size 7\n>>\nstartxref\n4670\n%%EOF\n')
+E        +    where <function search at 0x79150a21e660> = re.search
+E        +    and   b'Saturation' = <built-in method encode of str object at 0x791508d881f0>()
+E        +      where <built-in method encode of str object at 0x791508d881f0> = 'Saturation'.encode
+
+../test_blend_wrong_mode.py:45: AssertionError
+_________________ test_new_modes_reach_extgstate[COLOR-Color] __________________
+
+name = 'COLOR', pdf_name = 'Color'
+
+    @pytest.mark.parametrize('name,pdf_name', NAMES[10:])
+    def test_new_modes_reach_extgstate(name, pdf_name):
+        data = make_pdf(getattr(BlendMode, name))
+>       assert re.search(rb'/BM\s*/' + pdf_name.encode() + rb'(?=[\s/>])', data)
+E       AssertionError: assert None
+E        +  where None = <function search at 0x79150a21e660>(((b'/BM\\s*/' + b'Color') + b'(?=[\\s/>])'), b'%PDF-1.7\n%\xe2\xe3\xcf\xd3\n2 0 obj\n<<\n/Count 1\n/Kids [4 0 R]\n/Type /Pages\n>>\nendobj\n4 0 obj\n<<\n/Contents ...0000001471 00000 n \n0000001609 00000 n \ntrailer\n<<\n/Info 3 0 R\n/Root 1 0 R\n/Size 7\n>>\nstartxref\n4670\n%%EOF\n')
+E        +    where <function search at 0x79150a21e660> = re.search
+E        +    and   b'Color' = <built-in method encode of str object at 0x791508d6bde0>()
+E        +      where <built-in method encode of str object at 0x791508d6bde0> = 'Color'.encode
+
+../test_blend_wrong_mode.py:45: AssertionError
+____________ test_new_modes_reach_extgstate[LUMINOSITY-Luminosity] _____________
+
+name = 'LUMINOSITY', pdf_name = 'Luminosity'
+
+    @pytest.mark.parametrize('name,pdf_name', NAMES[10:])
+    def test_new_modes_reach_extgstate(name, pdf_name):
+        data = make_pdf(getattr(BlendMode, name))
+>       assert re.search(rb'/BM\s*/' + pdf_name.encode() + rb'(?=[\s/>])', data)
+E       AssertionError: assert None
+E        +  where None = <function search at 0x79150a21e660>(((b'/BM\\s*/' + b'Luminosity') + b'(?=[\\s/>])'), b'%PDF-1.7\n%\xe2\xe3\xcf\xd3\n2 0 obj\n<<\n/Count 1\n/Kids [4 0 R]\n/Type /Pages\n>>\nendobj\n4 0 obj\n<<\n/Contents ...0000001471 00000 n \n0000001609 00000 n \ntrailer\n<<\n/Info 3 0 R\n/Root 1 0 R\n/Size 7\n>>\nstartxref\n4670\n%%EOF\n')
+E        +    where <function search at 0x79150a21e660> = re.search
+E        +    and   b'Luminosity' = <built-in method encode of str object at 0x791508d88270>()
+E        +      where <built-in method encode of str object at 0x791508d88270> = 'Luminosity'.encode
+
+../test_blend_wrong_mode.py:45: AssertionError
+_________________ test_new_modes_render[DIFFERENCE-expected0] __________________
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-12/test_new_modes_render_DIFFEREN0')
+name = 'DIFFERENCE', expected = (128, 128, 128)
+
+    @pytest.mark.parametrize('name,expected', [
+        ('DIFFERENCE', (128, 128, 128)), ('EXCLUSION', (128, 128, 128)),
+        ('HUE', (128, 128, 128)), ('SATURATION', (128, 128, 128)),
+        ('COLOR', (255, 73, 73)), ('LUMINOSITY', (77, 77, 77)),
+    ])
+    def test_new_modes_render(tmp_path, name, expected):
+        if shutil.which('pdftoppm') is None:
+            pytest.skip('independent Poppler renderer unavailable')
+        # Gray backdrop + red source: Difference/Exclusion = 0.5 per channel;
+        # Hue/Saturation retain gray; red luminosity is 0.3. Color preserves
+        # backdrop luminosity 0.5, clipping red to (1, 2/7, 2/7).
+        pdf = tmp_path / 'blend.pdf'
+        pdf.write_bytes(make_pdf(getattr(BlendMode, name)))
+        subprocess.run(['pdftoppm', '-r', '72', '-singlefile', str(pdf), str(tmp_path / 'blend')], check=True, capture_output=True, timeout=30)
+        magic, width, height, maximum, pixels = (tmp_path / 'blend.ppm').read_bytes().split(None, 4)
+        assert (magic, width, height, maximum) == (b'P6', b'100', b'100', b'255')
+        def pixel(x, y):
+            start = (y * 100 + x) * 3
+            return tuple(pixels[start:start + 3])
+>       assert pixel(50, 50) == pytest.approx(expected, abs=2)
+E       assert (255, 0, 0) == approx((128 ±...± 2, 128 ± 2))
+E
+E         comparison failed. Mismatched elements: 3 / 3:
+E         Max absolute difference: 128
+E         Max relative difference: inf
+E         Index | Obtained | Expected
+E         0     | 255      | 128 ± 2
+E         1     | 0        | 128 ± 2
+E         2     | 0        | 128 ± 2
+
+../test_blend_wrong_mode.py:68: AssertionError
+__________________ test_new_modes_render[EXCLUSION-expected1] __________________
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-12/test_new_modes_render_EXCLUSIO0')
+name = 'EXCLUSION', expected = (128, 128, 128)
+
+    @pytest.mark.parametrize('name,expected', [
+        ('DIFFERENCE', (128, 128, 128)), ('EXCLUSION', (128, 128, 128)),
+        ('HUE', (128, 128, 128)), ('SATURATION', (128, 128, 128)),
+        ('COLOR', (255, 73, 73)), ('LUMINOSITY', (77, 77, 77)),
+    ])
+    def test_new_modes_render(tmp_path, name, expected):
+        if shutil.which('pdftoppm') is None:
+            pytest.skip('independent Poppler renderer unavailable')
+        # Gray backdrop + red source: Difference/Exclusion = 0.5 per channel;
+        # Hue/Saturation retain gray; red luminosity is 0.3. Color preserves
+        # backdrop luminosity 0.5, clipping red to (1, 2/7, 2/7).
+        pdf = tmp_path / 'blend.pdf'
+        pdf.write_bytes(make_pdf(getattr(BlendMode, name)))
+        subprocess.run(['pdftoppm', '-r', '72', '-singlefile', str(pdf), str(tmp_path / 'blend')], check=True, capture_output=True, timeout=30)
+        magic, width, height, maximum, pixels = (tmp_path / 'blend.ppm').read_bytes().split(None, 4)
+        assert (magic, width, height, maximum) == (b'P6', b'100', b'100', b'255')
+        def pixel(x, y):
+            start = (y * 100 + x) * 3
+            return tuple(pixels[start:start + 3])
+>       assert pixel(50, 50) == pytest.approx(expected, abs=2)
+E       assert (255, 0, 0) == approx((128 ±...± 2, 128 ± 2))
+E
+E         comparison failed. Mismatched elements: 3 / 3:
+E         Max absolute difference: 128
+E         Max relative difference: inf
+E         Index | Obtained | Expected
+E         0     | 255      | 128 ± 2
+E         1     | 0        | 128 ± 2
+E         2     | 0        | 128 ± 2
+
+../test_blend_wrong_mode.py:68: AssertionError
+_____________________ test_new_modes_render[HUE-expected2] _____________________
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-12/test_new_modes_render_HUE_expe0')
+name = 'HUE', expected = (128, 128, 128)
+
+    @pytest.mark.parametrize('name,expected', [
+        ('DIFFERENCE', (128, 128, 128)), ('EXCLUSION', (128, 128, 128)),
+        ('HUE', (128, 128, 128)), ('SATURATION', (128, 128, 128)),
+        ('COLOR', (255, 73, 73)), ('LUMINOSITY', (77, 77, 77)),
+    ])
+    def test_new_modes_render(tmp_path, name, expected):
+        if shutil.which('pdftoppm') is None:
+            pytest.skip('independent Poppler renderer unavailable')
+        # Gray backdrop + red source: Difference/Exclusion = 0.5 per channel;
+        # Hue/Saturation retain gray; red luminosity is 0.3. Color preserves
+        # backdrop luminosity 0.5, clipping red to (1, 2/7, 2/7).
+        pdf = tmp_path / 'blend.pdf'
+        pdf.write_bytes(make_pdf(getattr(BlendMode, name)))
+        subprocess.run(['pdftoppm', '-r', '72', '-singlefile', str(pdf), str(tmp_path / 'blend')], check=True, capture_output=True, timeout=30)
+        magic, width, height, maximum, pixels = (tmp_path / 'blend.ppm').read_bytes().split(None, 4)
+        assert (magic, width, height, maximum) == (b'P6', b'100', b'100', b'255')
+        def pixel(x, y):
+            start = (y * 100 + x) * 3
+            return tuple(pixels[start:start + 3])
+>       assert pixel(50, 50) == pytest.approx(expected, abs=2)
+E       assert (255, 0, 0) == approx((128 ±...± 2, 128 ± 2))
+E
+E         comparison failed. Mismatched elements: 3 / 3:
+E         Max absolute difference: 128
+E         Max relative difference: inf
+E         Index | Obtained | Expected
+E         0     | 255      | 128 ± 2
+E         1     | 0        | 128 ± 2
+E         2     | 0        | 128 ± 2
+
+../test_blend_wrong_mode.py:68: AssertionError
+_________________ test_new_modes_render[SATURATION-expected3] __________________
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-12/test_new_modes_render_SATURATI0')
+name = 'SATURATION', expected = (128, 128, 128)
+
+    @pytest.mark.parametrize('name,expected', [
+        ('DIFFERENCE', (128, 128, 128)), ('EXCLUSION', (128, 128, 128)),
+        ('HUE', (128, 128, 128)), ('SATURATION', (128, 128, 128)),
+        ('COLOR', (255, 73, 73)), ('LUMINOSITY', (77, 77, 77)),
+    ])
+    def test_new_modes_render(tmp_path, name, expected):
+        if shutil.which('pdftoppm') is None:
+            pytest.skip('independent Poppler renderer unavailable')
+        # Gray backdrop + red source: Difference/Exclusion = 0.5 per channel;
+        # Hue/Saturation retain gray; red luminosity is 0.3. Color preserves
+        # backdrop luminosity 0.5, clipping red to (1, 2/7, 2/7).
+        pdf = tmp_path / 'blend.pdf'
+        pdf.write_bytes(make_pdf(getattr(BlendMode, name)))
+        subprocess.run(['pdftoppm', '-r', '72', '-singlefile', str(pdf), str(tmp_path / 'blend')], check=True, capture_output=True, timeout=30)
+        magic, width, height, maximum, pixels = (tmp_path / 'blend.ppm').read_bytes().split(None, 4)
+        assert (magic, width, height, maximum) == (b'P6', b'100', b'100', b'255')
+        def pixel(x, y):
+            start = (y * 100 + x) * 3
+            return tuple(pixels[start:start + 3])
+>       assert pixel(50, 50) == pytest.approx(expected, abs=2)
+E       assert (255, 0, 0) == approx((128 ±...± 2, 128 ± 2))
+E
+E         comparison failed. Mismatched elements: 3 / 3:
+E         Max absolute difference: 128
+E         Max relative difference: inf
+E         Index | Obtained | Expected
+E         0     | 255      | 128 ± 2
+E         1     | 0        | 128 ± 2
+E         2     | 0        | 128 ± 2
+
+../test_blend_wrong_mode.py:68: AssertionError
+____________________ test_new_modes_render[COLOR-expected4] ____________________
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-12/test_new_modes_render_COLOR_ex0')
+name = 'COLOR', expected = (255, 73, 73)
+
+    @pytest.mark.parametrize('name,expected', [
+        ('DIFFERENCE', (128, 128, 128)), ('EXCLUSION', (128, 128, 128)),
+        ('HUE', (128, 128, 128)), ('SATURATION', (128, 128, 128)),
+        ('COLOR', (255, 73, 73)), ('LUMINOSITY', (77, 77, 77)),
+    ])
+    def test_new_modes_render(tmp_path, name, expected):
+        if shutil.which('pdftoppm') is None:
+            pytest.skip('independent Poppler renderer unavailable')
+        # Gray backdrop + red source: Difference/Exclusion = 0.5 per channel;
+        # Hue/Saturation retain gray; red luminosity is 0.3. Color preserves
+        # backdrop luminosity 0.5, clipping red to (1, 2/7, 2/7).
+        pdf = tmp_path / 'blend.pdf'
+        pdf.write_bytes(make_pdf(getattr(BlendMode, name)))
+        subprocess.run(['pdftoppm', '-r', '72', '-singlefile', str(pdf), str(tmp_path / 'blend')], check=True, capture_output=True, timeout=30)
+        magic, width, height, maximum, pixels = (tmp_path / 'blend.ppm').read_bytes().split(None, 4)
+        assert (magic, width, height, maximum) == (b'P6', b'100', b'100', b'255')
+        def pixel(x, y):
+            start = (y * 100 + x) * 3
+            return tuple(pixels[start:start + 3])
+>       assert pixel(50, 50) == pytest.approx(expected, abs=2)
+E       assert (255, 0, 0) == approx((255 ±... ± 2, 73 ± 2))
+E
+E         comparison failed. Mismatched elements: 2 / 3:
+E         Max absolute difference: 73
+E         Max relative difference: inf
+E         Index | Obtained | Expected
+E         1     | 0        | 73 ± 2
+E         2     | 0        | 73 ± 2
+
+../test_blend_wrong_mode.py:68: AssertionError
+_________________ test_new_modes_render[LUMINOSITY-expected5] __________________
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-12/test_new_modes_render_LUMINOSI0')
+name = 'LUMINOSITY', expected = (77, 77, 77)
+
+    @pytest.mark.parametrize('name,expected', [
+        ('DIFFERENCE', (128, 128, 128)), ('EXCLUSION', (128, 128, 128)),
+        ('HUE', (128, 128, 128)), ('SATURATION', (128, 128, 128)),
+        ('COLOR', (255, 73, 73)), ('LUMINOSITY', (77, 77, 77)),
+    ])
+    def test_new_modes_render(tmp_path, name, expected):
+        if shutil.which('pdftoppm') is None:
+            pytest.skip('independent Poppler renderer unavailable')
+        # Gray backdrop + red source: Difference/Exclusion = 0.5 per channel;
+        # Hue/Saturation retain gray; red luminosity is 0.3. Color preserves
+        # backdrop luminosity 0.5, clipping red to (1, 2/7, 2/7).
+        pdf = tmp_path / 'blend.pdf'
+        pdf.write_bytes(make_pdf(getattr(BlendMode, name)))
+        subprocess.run(['pdftoppm', '-r', '72', '-singlefile', str(pdf), str(tmp_path / 'blend')], check=True, capture_output=True, timeout=30)
+        magic, width, height, maximum, pixels = (tmp_path / 'blend.ppm').read_bytes().split(None, 4)
+        assert (magic, width, height, maximum) == (b'P6', b'100', b'100', b'255')
+        def pixel(x, y):
+            start = (y * 100 + x) * 3
+            return tuple(pixels[start:start + 3])
+>       assert pixel(50, 50) == pytest.approx(expected, abs=2)
+E       assert (255, 0, 0) == approx((77 ± ... ± 2, 77 ± 2))
+E
+E         comparison failed. Mismatched elements: 3 / 3:
+E         Max absolute difference: 178
+E         Max relative difference: inf
+E         Index | Obtained | Expected
+E         0     | 255      | 77 ± 2
+E         1     | 0        | 77 ± 2
+E         2     | 0        | 77 ± 2
+
+../test_blend_wrong_mode.py:68: AssertionError
+=========================== short test summary info ============================
+FAILED ../test_blend_wrong_mode.py::test_new_modes_reach_extgstate[DIFFERENCE-Difference]
+FAILED ../test_blend_wrong_mode.py::test_new_modes_reach_extgstate[EXCLUSION-Exclusion]
+FAILED ../test_blend_wrong_mode.py::test_new_modes_reach_extgstate[HUE-Hue]
+FAILED ../test_blend_wrong_mode.py::test_new_modes_reach_extgstate[SATURATION-Saturation]
+FAILED ../test_blend_wrong_mode.py::test_new_modes_reach_extgstate[COLOR-Color]
+FAILED ../test_blend_wrong_mode.py::test_new_modes_reach_extgstate[LUMINOSITY-Luminosity]
+FAILED ../test_blend_wrong_mode.py::test_new_modes_render[DIFFERENCE-expected0]
+FAILED ../test_blend_wrong_mode.py::test_new_modes_render[EXCLUSION-expected1]
+FAILED ../test_blend_wrong_mode.py::test_new_modes_render[HUE-expected2] - as...
+FAILED ../test_blend_wrong_mode.py::test_new_modes_render[SATURATION-expected3]
+FAILED ../test_blend_wrong_mode.py::test_new_modes_render[COLOR-expected4] - ...
+FAILED ../test_blend_wrong_mode.py::test_new_modes_render[LUMINOSITY-expected5]
+12 failed, 17 deselected in 0.29s
