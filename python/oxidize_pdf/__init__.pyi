@@ -1039,3 +1039,13 @@ from oxidize_pdf._oxidize_pdf import (
     ClippingPathCommand as ClippingPathCommand,
 )
 __all__ += ["WindingRule", "ClippingPathCommand"]
+
+from oxidize_pdf._oxidize_pdf import (
+    TaggedPdfMutation as TaggedPdfMutation,
+    TaggedPdfChangedObjectKind as TaggedPdfChangedObjectKind,
+    TaggedPdfChangedObject as TaggedPdfChangedObject,
+    TaggedPdfEditPlan as TaggedPdfEditPlan,
+    TaggedPdfMutationReport as TaggedPdfMutationReport,
+    IncrementalTaggedPdfEditor as IncrementalTaggedPdfEditor,
+)
+__all__ += ['TaggedPdfMutation', 'TaggedPdfChangedObjectKind', 'TaggedPdfChangedObject', 'TaggedPdfEditPlan', 'TaggedPdfMutationReport', 'IncrementalTaggedPdfEditor']

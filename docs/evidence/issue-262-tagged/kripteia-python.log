@@ -1,0 +1,29 @@
+## Calidad de Tests (Kripteia)
+
+=== Kripteia Test Quality Report ===
+Overall Score: 99 | Tests: 15 | Files: 1
+
+--- Files ---
+Path                                                          Tests  Score
+--------------------------------------------------------------------------
+tests/test_incremental_tagged.py                                 15     99
+
+--- Worst Offenders ---
+  test_external_qpdf (tests/test_incremental_tagged.py:148) - Score: 80
+    - Test 'test_external_qpdf' is marked as #[ignore]
+  test_identity_plan_and_snapshots (tests/test_incremental_tagged.py:16) - Score: 100
+  test_attribute_preservation_and_external_reader (tests/test_incremental_tagged.py:29) - Score: 100
+  test_create_reparent_and_mutation_fields (tests/test_incremental_tagged.py:55) - Score: 100
+  test_parent_tree_add_remove_and_mcid (tests/test_incremental_tagged.py:73) - Score: 100
+
+--- Details ---
+tests/test_incremental_tagged.py:
+  test_external_qpdf (line 148) - Score: 80
+    - Test 'test_external_qpdf' is marked as #[ignore]
+
+
+## Analisis de Seguridad (Kripteia Security)
+
+=== Kripteia Security Analysis ===
+
+No security issues found.

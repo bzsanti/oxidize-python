@@ -1669,3 +1669,28 @@ Requisito pendiente: regresión y CI sobre este conjunto antes de integrar.
 Validación actual de #289: 2711 tests de biblioteca pasan, incluidos Color y su
 render independiente; Clippy, inventario/typing estricto y gate de paridad pasan.
 Revisión de integración sin bloqueantes; pendiente CI del nuevo head y merge.
+
+
+## #262 — editor TaggedPdf sobre core 5.5.0
+
+Base develop 1b80158; se recupera el borrador sin incorporar otros cambios locales.
+#289 integrada con 26 checks SUCCESS. Core #762 ya corregido/publicado.
+
+| Requisito | Estado | Bloqueante / evidencia de cierre |
+| --- | --- | --- |
+| Mutaciones, opciones, planes y reportes completos | Demostrado | Tipos/contrato y consumo real pasan |
+| Identidad, prefijo, orden y atomicidad | Demostrado | Regresión #762, qpdf y control negativo |
+| Preparación, recuperación, xref streams | Demostrado | Ocho combinaciones y qpdf sin skips |
+| Permisos/encriptación y límites | Demostrado | Rechazos en todas las entradas; control DocMDP |
+| Revisión/CI/integración | Revisión local completa | CI e integración pendientes |
+
+Este incremento entrega TaggedPdf. #262 permanece abierta para TextNote/Highlight,
+OCR real, OcrLayer #278 y auditoría de capacidades opcionales.
+
+Aceptación local TaggedPdf: 56 focalizadas finales sin skips, 2746 biblioteca,
+295 MCP/1 skip previo, tipos/paridad/Clippy/no-default aprobados. Recuperación,
+xref, metadatos explícitos, permisos y orden demostrados. Control negativo:
+4 fallos esperados al ignorar mutaciones y omitir DocMDP; entrega GREEN.
+Revisión y ambos Kripteia completos, sin bloqueantes funcionales. Evidencia:
+[evidence/issue-262-tagged/review.md](evidence/issue-262-tagged/review.md).
+Pendiente únicamente CI del head e integración; #262 conserva los demás frentes.

@@ -90,7 +90,7 @@ impl From<core::TaggedPdfFindingCode> for PyTaggedPdfFindingCode {
 #[pyclass(name = "TaggedPdfObjectRef", frozen, from_py_object, eq, hash)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash)]
 pub struct PyTaggedPdfObjectRef {
-    inner: core::TaggedPdfObjectRef,
+    pub(crate) inner: core::TaggedPdfObjectRef,
 }
 #[pymethods]
 impl PyTaggedPdfObjectRef {
@@ -156,7 +156,7 @@ impl PyTaggedPdfLimits {
 #[pyclass(name = "TaggedPdfValidationOptions", frozen, from_py_object)]
 #[derive(Clone)]
 pub struct PyTaggedPdfValidationOptions {
-    inner: core::TaggedPdfValidationOptions,
+    pub(crate) inner: core::TaggedPdfValidationOptions,
 }
 #[pymethods]
 impl PyTaggedPdfValidationOptions {
@@ -287,7 +287,7 @@ impl PyTaggedPdfArtifact {
 #[pyclass(name = "TaggedPdfValidationReport", frozen, from_py_object)]
 #[derive(Clone)]
 pub struct PyTaggedPdfValidationReport {
-    inner: core::TaggedPdfValidationReport,
+    pub(crate) inner: core::TaggedPdfValidationReport,
 }
 #[pymethods]
 impl PyTaggedPdfValidationReport {

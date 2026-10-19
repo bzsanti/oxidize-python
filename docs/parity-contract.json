@@ -1,6 +1,6 @@
 {
   "core": "5.5.0",
-  "scope": "existing-document preservation, page mutations and external CMS signing; remaining Rust API pending audit; composed extraction policies; incremental free-text editing; incremental Ink editing; configurable partitioning, element graphs, custom token counting and document export; real page iteration with explicit parser lifetime; lossless incremental event bridge (upstream parser limitations remain); all BatchOptions fields with observable executor limitations; structured SignatureError exceptions; bounded existing-document outline reading; parser and recovery configuration with explicit upstream consumption limits; bounded semantic comparison with physical revision attribution (core object-stream layout limitation documented); validated packed image pixel constructors and owned image/alpha inspection; affine transform matrices and coordinate conversions (Page stores the system without automatic content transformation); mutable RenderContext with independent stored matrix and live coordinate conversions; Page unrotated content bounds and effective rotated dimensions; clipping path construction, owned command inspection and winding rules (intersection/text clipping/region stack excluded); line dash factories, owned parameters and core serialization; all 16 blend modes and their PDF names; effective streaming and lazy-document options with requested/effective/unsupported configurations and adapter-scoped cache budgets; Color conversions and space inspection",
+  "scope": "existing-document preservation, page mutations and external CMS signing; remaining Rust API pending audit; composed extraction policies; incremental free-text editing; incremental Ink editing; configurable partitioning, element graphs, custom token counting and document export; real page iteration with explicit parser lifetime; lossless incremental event bridge (upstream parser limitations remain); all BatchOptions fields with observable executor limitations; structured SignatureError exceptions; bounded existing-document outline reading; parser and recovery configuration with explicit upstream consumption limits; bounded semantic comparison with physical revision attribution (core object-stream layout limitation documented); validated packed image pixel constructors and owned image/alpha inspection; affine transform matrices and coordinate conversions (Page stores the system without automatic content transformation); mutable RenderContext with independent stored matrix and live coordinate conversions; Page unrotated content bounds and effective rotated dimensions; clipping path construction, owned command inspection and winding rules (intersection/text clipping/region stack excluded); line dash factories, owned parameters and core serialization; all 16 blend modes and their PDF names; effective streaming and lazy-document options with requested/effective/unsupported configurations and adapter-scoped cache budgets; Color conversions and space inspection; incremental tagged structure editor with preparation and sequential mutations",
   "callables": {
     "ExistingDocumentPolicy.preserve_base": [
       "page_labels_first_input_wins"
@@ -844,6 +844,59 @@
     ],
     "Color.is_gray": [
       "self"
+    ],
+    "TaggedPdfMutation.create_element": [
+      "parent",
+      "structure_type",
+      "attributes",
+      "index"
+    ],
+    "TaggedPdfMutation.set_element_attribute": [
+      "element",
+      "key",
+      "value"
+    ],
+    "TaggedPdfMutation.reparent_element": [
+      "element",
+      "new_parent",
+      "index"
+    ],
+    "TaggedPdfMutation.associate_mcid": [
+      "element",
+      "page",
+      "mcid"
+    ],
+    "TaggedPdfMutation.set_parent_tree_entry": [
+      "key",
+      "value"
+    ],
+    "IncrementalTaggedPdfEditor": [
+      "pdf"
+    ],
+    "IncrementalTaggedPdfEditor.with_validation_options": [
+      "self",
+      "options"
+    ],
+    "IncrementalTaggedPdfEditor.with_recovered_indexes": [
+      "self"
+    ],
+    "IncrementalTaggedPdfEditor.with_document_language": [
+      "self",
+      "language"
+    ],
+    "IncrementalTaggedPdfEditor.preparation_objects": [
+      "self"
+    ],
+    "IncrementalTaggedPdfEditor.preflight": [
+      "self"
+    ],
+    "IncrementalTaggedPdfEditor.plan": [
+      "self",
+      "mutations"
+    ],
+    "IncrementalTaggedPdfEditor.apply": [
+      "self",
+      "mutations"
     ]
   },
   "properties": {
@@ -1277,6 +1330,34 @@
     ],
     "LazyDocument": [
       "page_count"
+    ],
+    "TaggedPdfMutation": [
+      "kind",
+      "parent",
+      "element",
+      "new_parent",
+      "page",
+      "structure_type",
+      "index",
+      "mcid",
+      "attribute_key",
+      "parent_tree_key",
+      "value",
+      "attributes"
+    ],
+    "TaggedPdfChangedObject": [
+      "object",
+      "kind"
+    ],
+    "TaggedPdfEditPlan": [
+      "changed_objects",
+      "mutations"
+    ],
+    "TaggedPdfMutationReport": [
+      "pdf_bytes",
+      "plan",
+      "validation_before",
+      "validation_after"
     ]
   },
   "required_tests": [
@@ -1505,6 +1586,23 @@
       "test_component_conversions",
       "test_existing_properties_and_numeric_limits",
       "test_converted_rgb_reaches_page"
+    ],
+    "tests/test_incremental_tagged.py": [
+      "test_identity_plan_and_snapshots",
+      "test_attribute_preservation_and_external_reader",
+      "test_create_reparent_and_mutation_fields",
+      "test_parent_tree_add_remove_and_mcid",
+      "test_language_preparation_and_recovery",
+      "test_invalid_batch_is_atomic",
+      "test_docmdp_rejects_structure_edits",
+      "test_limits_and_input_errors",
+      "test_external_qpdf",
+      "test_repeated_attribute_mutations_observe_batch_order",
+      "test_recovery_preparation_matrix_and_xref_inventory",
+      "test_preparation_requires_explicit_metadata_and_preserves_existing_descriptions",
+      "test_all_preparation_entry_points_enforce_docmdp",
+      "test_encrypted_source_rejected_by_all_editor_operations",
+      "test_editor_validation_budgets_reach_plan_apply_and_preflight"
     ]
   },
   "typed_dicts": {

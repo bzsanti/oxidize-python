@@ -9,8 +9,10 @@ from oxidize_pdf import (
 )
 
 
-def tagged_pdf(*, owner=6, language=True, tagged=True, cycle=False, compressed=False):
+def tagged_pdf(*, owner=6, language=True, tagged=True, cycle=False, compressed=False, unassociated=False):
     content = b'/CustomP <</MCID 0>> BDC EMC\n/Artifact <</Subtype /Pagination>> BDC EMC'
+    if unassociated:
+        content += b'\n/P <</MCID 1>> BDC EMC'
     if compressed:
         content = zlib.compress(content)
     objects = [

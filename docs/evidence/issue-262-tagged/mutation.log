@@ -1,0 +1,72 @@
+FFFF                                                                     [100%]
+=================================== FAILURES ===================================
+_______________ test_attribute_preservation_and_external_reader ________________
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-47/test_attribute_preservation_an0')
+
+    def test_attribute_preservation_and_external_reader(tmp_path):
+        source = tagged_pdf()
+        mutation = M.set_element_attribute(ELEMENT, 'T', V.string(b'new title'))
+        editor = E(source)
+        plan = editor.plan([mutation])
+>       assert [(v.object, v.kind) for v in plan.changed_objects] == [(ELEMENT, p.TaggedPdfChangedObjectKind.StructureElement)]
+E       assert [] == [(<builtins.T...ctureElement)]
+E         
+E         Right contains one more item: (<builtins.TaggedPdfObjectRef object at 0x7f81c2d0b390>, TaggedPdfChangedObjectKind.StructureElement)
+E         Use -v to get more diff
+
+tests/test_incremental_tagged.py:34: AssertionError
+_____________ test_all_preparation_entry_points_enforce_docmdp[1] ______________
+
+permission = 1
+
+    @pytest.mark.parametrize('permission', [1, 2, 3])
+    def test_all_preparation_entry_points_enforce_docmdp(permission):
+        # Independently serialized policy fixture, not a cryptographic signature.
+        source = prepared_fixture(language=False, permission=permission)
+        editor = E(source)
+        for operation in [editor.preflight, editor.with_recovered_indexes,
+                          lambda: editor.with_document_language('es'),
+                          lambda: editor.plan([]), lambda: editor.apply([])]:
+>           with pytest.raises(p.PdfPermissionError, match='DocMDP'):
+E           Failed: DID NOT RAISE <class 'oxidize_pdf.PdfPermissionError'>
+
+tests/test_incremental_tagged.py:286: Failed
+_____________ test_all_preparation_entry_points_enforce_docmdp[2] ______________
+
+permission = 2
+
+    @pytest.mark.parametrize('permission', [1, 2, 3])
+    def test_all_preparation_entry_points_enforce_docmdp(permission):
+        # Independently serialized policy fixture, not a cryptographic signature.
+        source = prepared_fixture(language=False, permission=permission)
+        editor = E(source)
+        for operation in [editor.preflight, editor.with_recovered_indexes,
+                          lambda: editor.with_document_language('es'),
+                          lambda: editor.plan([]), lambda: editor.apply([])]:
+>           with pytest.raises(p.PdfPermissionError, match='DocMDP'):
+E           Failed: DID NOT RAISE <class 'oxidize_pdf.PdfPermissionError'>
+
+tests/test_incremental_tagged.py:286: Failed
+_____________ test_all_preparation_entry_points_enforce_docmdp[3] ______________
+
+permission = 3
+
+    @pytest.mark.parametrize('permission', [1, 2, 3])
+    def test_all_preparation_entry_points_enforce_docmdp(permission):
+        # Independently serialized policy fixture, not a cryptographic signature.
+        source = prepared_fixture(language=False, permission=permission)
+        editor = E(source)
+        for operation in [editor.preflight, editor.with_recovered_indexes,
+                          lambda: editor.with_document_language('es'),
+                          lambda: editor.plan([]), lambda: editor.apply([])]:
+>           with pytest.raises(p.PdfPermissionError, match='DocMDP'):
+E           Failed: DID NOT RAISE <class 'oxidize_pdf.PdfPermissionError'>
+
+tests/test_incremental_tagged.py:286: Failed
+=========================== short test summary info ============================
+FAILED tests/test_incremental_tagged.py::test_attribute_preservation_and_external_reader
+FAILED tests/test_incremental_tagged.py::test_all_preparation_entry_points_enforce_docmdp[1]
+FAILED tests/test_incremental_tagged.py::test_all_preparation_entry_points_enforce_docmdp[2]
+FAILED tests/test_incremental_tagged.py::test_all_preparation_entry_points_enforce_docmdp[3]
+4 failed, 31 deselected in 0.17s

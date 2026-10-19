@@ -664,3 +664,49 @@ to a different API. `LazyDocument.get_page()` returns `ParsedPage` with effectiv
 rotation. Pages and snapshots remain usable after closing either document;
 operations requiring the closed document raise `ValueError`. Both consumers
 reject encrypted documents; unlock through the reader API where needed.
+
+### Incremental tagged structure editing
+
+`IncrementalTaggedPdfEditor(pdf)` owns an immutable byte snapshot.
+`TaggedPdfMutation` supports `create_element`, `set_element_attribute` (omit the
+value to remove it), `reparent_element`, `associate_mcid`, and
+`set_parent_tree_entry`. Inputs use `TaggedPdfObjectRef` (number and generation)
+and lossless `PdfValue` objects. `plan(mutations)` returns effective mutations and
+changed object identities; `apply(mutations)` returns `pdf_bytes`, the plan, and
+validation reports before and after the revision. Both evaluate mutations in
+order. A change followed by a restoration retains both effective operations.
+
+```python
+from oxidize_pdf import IncrementalTaggedPdfEditor, TaggedPdfMutation, TaggedPdfObjectRef, PdfValue
+
+editor = IncrementalTaggedPdfEditor(source_bytes)
+mutation = TaggedPdfMutation.set_element_attribute(
+    TaggedPdfObjectRef(6, 7), "T", PdfValue.string(b"New title"))
+result = editor.apply([mutation])
+assert result.pdf_bytes.startswith(source_bytes)
+```
+
+Object references must identify structure elements in the actual source PDF.
+Editors and returned snapshots are independent; a failed batch leaves the editor
+unchanged. Empty/no-op ordinary edits preserve source bytes exactly. Applied
+revisions preserve the exact source prefix, including for xref-stream sources.
+
+`with_validation_options()` accepts `TaggedPdfValidationOptions` and its limits.
+`preflight()` performs unambiguous derived-index recovery for inspection;
+it does not prepare or mutate the editor. `with_recovered_indexes()` prepares an
+independent editor with recovered indexes/page keys. `with_document_language()`
+supplies a missing language; it rejects blank values and existing nonempty
+languages. Recovery does not invent accessibility descriptions or language.
+
+Preparation builders are replayed in order for each operation.
+`preparation_objects()` inventories their changes, including xref-stream objects,
+separately from `plan().changed_objects`. Prepared editors return bytes only when
+the full result validates, including empty mutation batches. Missing descriptions
+must be supplied explicitly; preparation refuses to overwrite existing ones.
+Ordinary editors return diagnostic reports and may return structurally invalid
+results. Reports do not certify PDF/UA conformance.
+
+Encrypted inputs and DocMDP P1/P2/P3 restrictions are enforced by the core in
+planning, application and preparation. Validation limits bound the validation
+work they describe, not all parsing, copying or preparation work. No signature
+verification, OCR recognition, or global memory cap is implied by this editor.
