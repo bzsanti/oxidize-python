@@ -67,10 +67,16 @@ jobs:
         if: matrix.python-version == '3.12' && matrix.os == 'ubuntu-latest'
         run: |
           sudo apt-get update
-          sudo apt-get install -y qpdf poppler-utils
+          sudo apt-get install -y qpdf poppler-utils libseccomp2
           command -v qpdf
           command -v pdftotext
           command -v pdftoppm
+
+      - name: Require AES independent reader and entropy fault injection
+        if: matrix.python-version == '3.12' && matrix.os == 'ubuntu-latest'
+        run: |
+          .venv/bin/python -c "import ctypes.util, shutil; assert ctypes.util.find_library('seccomp'); assert shutil.which('qpdf')"
+          .venv/bin/pytest tests/test_aes_entropy.py -v -rA
 
       - name: Run tests (Unix)
         if: runner.os != 'Windows'

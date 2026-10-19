@@ -1454,9 +1454,9 @@ class AnalysisPipeline:
 class BatchOptions:
     """Batch options (immutable). Memory is bytes; durations are positive seconds.
 
-    Defaults: parallelism=min(CPU count, 8), stop_on_error=False, memory=512 MiB,
+    Defaults: parallelism=min(CPU count, 8), stop_on_error=False, memory=0 (no cap),
     progress_interval=0.1, callback=None, job_timeout=300. None disables timeout.
-    Core 5.4.2 stores but DOES NOT ENFORCE memory and timeout limits.
+    Core 5.5.0 rejects nonzero memory caps; timeouts report failure after completion without interruption.
     Callbacks receive owned ProgressInfo snapshots on native execution threads;
     they must return promptly. Empty batches do not call back. The first callback
     exception is re-raised by execute AFTER jobs finish; outputs may already exist.
@@ -1468,7 +1468,7 @@ class BatchOptions:
         parallelism: Optional[int] = ...,
         stop_on_error: Optional[bool] = ...,
         *,
-        memory_limit_per_worker: int = 536870912,
+        memory_limit_per_worker: int = 0,
         progress_interval: float = 0.1,
         progress_callback: Optional[Callable[[ProgressInfo], None]] = None,
         job_timeout: Optional[float] = 300.0,

@@ -1063,8 +1063,8 @@ impl PyIncrementalParser {
         Self { inner: IncrementalParser::new() }
     }
 
-    /// Feed the core's line-oriented parser. Core 5.4.2 normalizes UTF-8 and
-    /// whitespace; this is not a binary-safe PDF stream parser.
+    /// Feed PDF bytes incrementally. Core 5.5.0 preserves binary stream payloads
+    /// and requires valid PDF syntax, including a header and stream dictionary.
     fn feed(&mut self, data: &[u8]) -> PyResult<()> {
         self.inner.feed(data).map_err(to_py_err)
     }
@@ -1072,8 +1072,7 @@ impl PyIncrementalParser {
     /// Return and clear all pending parse events as dicts.
     ///
     /// Each dict has a ``type`` key and retains the complete core event payload.
-    /// Core 5.4.2 supplies placeholder Null objects and does not yet emit xref
-    /// or trailer events. Stream bytes reflect core normalization, not raw input.
+    /// Core 5.5.0 emits parsed objects, binary stream data, xref and trailer events.
     fn take_events<'py>(&mut self, py: Python<'py>) -> PyResult<Vec<Bound<'py, PyDict>>> {
         self.inner.take_events().into_iter()
             .map(|event| crate::parse_events::event_to_dict(py, event))

@@ -10,7 +10,7 @@ def test_defaults_and_explicit_options():
     default = op.BatchOptions()
     assert 1 <= default.parallelism <= 8
     assert default.stop_on_error is False
-    assert default.memory_limit_per_worker == 512 * 1024 * 1024
+    assert default.memory_limit_per_worker == 0
     assert default.progress_interval == 0.1
     assert default.job_timeout == 300.0
     assert default.progress_callback is None
@@ -29,8 +29,7 @@ def test_defaults_and_explicit_options():
         custom.parallelism = 3
 
 
-@pytest.mark.parametrize('field', ['parallelism', 'memory_limit_per_worker'])
-@pytest.mark.parametrize('value', [0, -1, 2**100])
+@pytest.mark.parametrize('field,value', [('parallelism', 0), ('parallelism', -1), ('parallelism', 2**100), ('memory_limit_per_worker', -1), ('memory_limit_per_worker', 2**100)])
 def test_invalid_counts(field, value):
     with pytest.raises((ValueError, OverflowError)):
         op.BatchOptions(**{field: value})
@@ -67,15 +66,15 @@ seen = []
 def callback(info):
     assert isinstance(info, op.ProgressInfo)
     seen.append(info)
-options = op.BatchOptions(1, False, memory_limit_per_worker=1,
-    job_timeout=1e-9, progress_interval=0.001, progress_callback=callback)
+options = op.BatchOptions(1, False, memory_limit_per_worker=0,
+    job_timeout=None, progress_interval=0.001, progress_callback=callback)
 processor = op.BatchProcessor(options)
 processor.add_job(op.BatchJob.split(str(source), str(root / 'part_{n}.pdf'), 1))
 processor.add_job(op.BatchJob.split(str(root / 'missing.pdf'), str(root / 'bad_{n}.pdf'), 1))
 summary = processor.execute()
 assert (summary.total_jobs, summary.successful, summary.failed) == (2, 1, 1)
 assert (root / 'part_1.pdf').read_bytes().startswith(b'%PDF-')
-assert summary.results[0].duration_secs > options.job_timeout
+assert summary.results[0].duration_secs > 0
 assert summary.results[1].error
 assert seen[-1].is_complete()
 assert (seen[-1].total_jobs, seen[-1].completed_jobs, seen[-1].failed_jobs) == (2, 1, 1)
@@ -140,3 +139,22 @@ def test_callback_reference_cycles_are_collected(with_processor):
     del callback, options
     gc.collect()
     assert reference() is None
+
+
+def test_unsupported_memory_limit_is_rejected():
+    with pytest.raises(op.PdfError, match='memory limits are unsupported'):
+        op.BatchProcessor(op.BatchOptions(memory_limit_per_worker=1)).execute()
+
+
+def test_timeout_reports_failure_after_job_completion(tmp_path):
+    doc = op.Document()
+    doc.add_page(op.Page.a4())
+    source = tmp_path / 'timeout-source.pdf'
+    doc.save(str(source))
+    processor = op.BatchProcessor(op.BatchOptions(parallelism=1, job_timeout=1e-9))
+    processor.add_job(op.BatchJob.split(str(source), str(tmp_path / 'timeout_{n}.pdf'), 1))
+    result = processor.execute()
+    assert result.failed == 1 and result.successful == 0
+    assert 'timeout exceeded after completion' in result.results[0].error
+    assert 'not interrupted' in result.results[0].error
+    assert (tmp_path / 'timeout_1.pdf').read_bytes().startswith(b'%PDF-')
