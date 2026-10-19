@@ -1,6 +1,6 @@
 {
   "core": "5.5.0",
-  "scope": "existing-document preservation, page mutations and external CMS signing; remaining Rust API pending audit; composed extraction policies; incremental free-text editing; incremental Ink editing; configurable partitioning, element graphs, custom token counting and document export; real page iteration with explicit parser lifetime; lossless incremental event bridge (upstream parser limitations remain); all BatchOptions fields with observable executor limitations; structured SignatureError exceptions; bounded existing-document outline reading; parser and recovery configuration with explicit upstream consumption limits; bounded semantic comparison with physical revision attribution (core object-stream layout limitation documented); validated packed image pixel constructors and owned image/alpha inspection; affine transform matrices and coordinate conversions (Page stores the system without automatic content transformation); mutable RenderContext with independent stored matrix and live coordinate conversions; Page unrotated content bounds and effective rotated dimensions; clipping path construction, owned command inspection and winding rules (intersection/text clipping/region stack excluded); line dash factories, owned parameters and core serialization; all 16 blend modes and their PDF names; effective streaming and lazy-document options with requested/effective/unsupported configurations and adapter-scoped cache budgets; Color conversions and space inspection; incremental tagged structure editor with preparation and sequential mutations",
+  "scope": "existing-document preservation, page mutations and external CMS signing; remaining Rust API pending audit; composed extraction policies; incremental free-text editing; incremental Ink editing; configurable partitioning, element graphs, custom token counting and document export; real page iteration with explicit parser lifetime; lossless incremental event bridge (upstream parser limitations remain); all BatchOptions fields with observable executor limitations; structured SignatureError exceptions; bounded existing-document outline reading; parser and recovery configuration with explicit upstream consumption limits; bounded semantic comparison with physical revision attribution (core object-stream layout limitation documented); validated packed image pixel constructors and owned image/alpha inspection; affine transform matrices and coordinate conversions (Page stores the system without automatic content transformation); mutable RenderContext with independent stored matrix and live coordinate conversions; Page unrotated content bounds and effective rotated dimensions; clipping path construction, owned command inspection and winding rules (intersection/text clipping/region stack excluded); line dash factories, owned parameters and core serialization; all 16 blend modes and their PDF names; effective streaming and lazy-document options with requested/effective/unsupported configurations and adapter-scoped cache budgets; Color conversions and space inspection; incremental tagged structure editor with preparation and sequential mutations; incremental TextNote and Highlight editors with typed identities, geometry, RGB/opacity and native DocMDP policy",
   "callables": {
     "ExistingDocumentPolicy.preserve_base": [
       "page_labels_first_input_wins"
@@ -897,6 +897,66 @@
     "IncrementalTaggedPdfEditor.apply": [
       "self",
       "mutations"
+    ],
+    "TextNoteId": [
+      "object_number",
+      "generation_number"
+    ],
+    "HighlightId": [
+      "object_number",
+      "generation_number"
+    ],
+    "HighlightQuad": [
+      "points"
+    ],
+    "HighlightColor": [
+      "components"
+    ],
+    "HighlightOpacity": [
+      "value"
+    ],
+    "TextNoteMutation.add": [
+      "page_index",
+      "position",
+      "contents"
+    ],
+    "TextNoteMutation.update": [
+      "id",
+      "position",
+      "contents"
+    ],
+    "TextNoteMutation.remove": [
+      "id"
+    ],
+    "HighlightMutation.add": [
+      "page_index",
+      "quadrilaterals",
+      "color",
+      "opacity",
+      "contents"
+    ],
+    "HighlightMutation.remove": [
+      "id"
+    ],
+    "IncrementalTextNoteEditor": [
+      "pdf"
+    ],
+    "IncrementalTextNoteEditor.notes": [
+      "self"
+    ],
+    "IncrementalTextNoteEditor.apply": [
+      "self",
+      "mutations"
+    ],
+    "IncrementalHighlightEditor": [
+      "pdf"
+    ],
+    "IncrementalHighlightEditor.highlights": [
+      "self"
+    ],
+    "IncrementalHighlightEditor.apply": [
+      "self",
+      "mutations"
     ]
   },
   "properties": {
@@ -1358,6 +1418,62 @@
       "plan",
       "validation_before",
       "validation_after"
+    ],
+    "TextNoteId": [
+      "object_number",
+      "generation_number"
+    ],
+    "HighlightId": [
+      "object_number",
+      "generation_number"
+    ],
+    "HighlightQuad": [
+      "points"
+    ],
+    "HighlightColor": [
+      "components"
+    ],
+    "HighlightOpacity": [
+      "value"
+    ],
+    "TextNote": [
+      "id",
+      "page_index",
+      "position",
+      "contents"
+    ],
+    "Highlight": [
+      "id",
+      "page_index",
+      "rect",
+      "quadrilaterals",
+      "color",
+      "opacity",
+      "contents"
+    ],
+    "TextNoteMutation": [
+      "kind",
+      "id",
+      "page_index",
+      "position",
+      "contents"
+    ],
+    "HighlightMutation": [
+      "kind",
+      "id",
+      "page_index",
+      "quadrilaterals",
+      "color",
+      "opacity",
+      "contents"
+    ],
+    "TextNoteUpdate": [
+      "pdf_bytes",
+      "added_notes"
+    ],
+    "HighlightUpdate": [
+      "pdf_bytes",
+      "highlights"
     ]
   },
   "required_tests": [
@@ -1603,6 +1719,20 @@
       "test_all_preparation_entry_points_enforce_docmdp",
       "test_encrypted_source_rejected_by_all_editor_operations",
       "test_editor_validation_budgets_reach_plan_apply_and_preflight"
+    ],
+    "tests/test_notes_highlights.py": [
+      "test_note_full_lifecycle_identity_and_order",
+      "test_highlight_full_results_geometry_and_optional_fields",
+      "test_owned_values_mutations_and_input_validation",
+      "test_highlight_validated_values_reject_invalid_inputs",
+      "test_note_invalid_batch_is_atomic_and_retryable",
+      "test_highlight_invalid_batch_is_atomic_and_retryable",
+      "test_conflicting_targets_and_wrong_mutation_types",
+      "test_docmdp_preserves_read_noop_and_enforces_mutations",
+      "test_original_certification_fixture_rejects_p2",
+      "test_unsupported_annotation_identity_rejected",
+      "test_encrypted_and_malformed_input_rejected",
+      "test_external_objects_unicode_metadata_and_content_preserved"
     ]
   },
   "typed_dicts": {

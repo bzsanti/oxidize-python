@@ -1694,3 +1694,23 @@ xref, metadatos explícitos, permisos y orden demostrados. Control negativo:
 Revisión y ambos Kripteia completos, sin bloqueantes funcionales. Evidencia:
 [evidence/issue-262-tagged/review.md](evidence/issue-262-tagged/review.md).
 Pendiente únicamente CI del head e integración; #262 conserva los demás frentes.
+
+## #262 — TextNote y Highlight sobre core 5.5.0
+
+Base develop d253efa. #712 permanece abierta, pero ambos apply publicados ya
+invocan validate_annotation_policy para batches no vacíos. No modificar core.
+
+| Requisito | Estado | Evidencia necesaria |
+| --- | --- | --- |
+| API completa, opciones/resultados y stubs | Demostrado localmente | 13 tipos, cinco operaciones y consumidor estricto |
+| Identidad, prefijo, metadatos y atomicidad | Demostrado | qpdf/Poppler, gen 9/4, xref streams, batches y reintento; control de bytes |
+| DocMDP P1/P2/P3, cifrado y límites | Demostrado | 17 casos de permisos; mutación produce 12 fallos esperados y 5 P3 pasan |
+| Revisión y entrega | Aceptación local completa | 2821 biblioteca, 295 MCP/1 skip, ambos Kripteia; pendiente CI/merge |
+
+OCR #278/reconocimiento y capacidades opcionales quedan en #262; no se cierra
+el paraguas ni se publica release con este incremento.
+
+Evidencia: [review.md](evidence/issue-262-notes-highlights/review.md).
+75 focalizadas sin skips; tipos/paridad, Clippy y sin default features pasan.
+Sin bloqueantes funcionales locales. Control de artefacto: cuatro fallos qpdf
+esperados al devolver bytes originales con reports actualizados.

@@ -1049,3 +1049,20 @@ from oxidize_pdf._oxidize_pdf import (
     IncrementalTaggedPdfEditor as IncrementalTaggedPdfEditor,
 )
 __all__ += ['TaggedPdfMutation', 'TaggedPdfChangedObjectKind', 'TaggedPdfChangedObject', 'TaggedPdfEditPlan', 'TaggedPdfMutationReport', 'IncrementalTaggedPdfEditor']
+
+from oxidize_pdf._oxidize_pdf import (
+    TextNoteId as TextNoteId,
+    HighlightId as HighlightId,
+    HighlightQuad as HighlightQuad,
+    HighlightColor as HighlightColor,
+    HighlightOpacity as HighlightOpacity,
+    TextNote as TextNote,
+    Highlight as Highlight,
+    TextNoteMutation as TextNoteMutation,
+    HighlightMutation as HighlightMutation,
+    TextNoteUpdate as TextNoteUpdate,
+    IncrementalTextNoteEditor as IncrementalTextNoteEditor,
+    HighlightUpdate as HighlightUpdate,
+    IncrementalHighlightEditor as IncrementalHighlightEditor,
+)
+__all__ += ['TextNoteId', 'HighlightId', 'HighlightQuad', 'HighlightColor', 'HighlightOpacity', 'TextNote', 'Highlight', 'TextNoteMutation', 'HighlightMutation', 'TextNoteUpdate', 'IncrementalTextNoteEditor', 'HighlightUpdate', 'IncrementalHighlightEditor']

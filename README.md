@@ -710,3 +710,66 @@ Encrypted inputs and DocMDP P1/P2/P3 restrictions are enforced by the core in
 planning, application and preparation. Validation limits bound the validation
 work they describe, not all parsing, copying or preparation work. No signature
 verification, OCR recognition, or global memory cap is implied by this editor.
+
+### Incremental text notes and highlights
+
+`IncrementalTextNoteEditor(pdf)` reads `notes()` and applies batches of
+`TextNoteMutation.add(page_index, position, contents)`, `.update(id, position,
+contents)`, and `.remove(id)`. `position` is an `(x, y)` pair in PDF coordinates.
+New notes have a 20 × 20 point rectangle; updates preserve the existing rectangle's
+width, height and other dictionary keys. Contents must contain non-whitespace
+text and support Unicode. `TextNoteUpdate.added_notes` contains only newly added
+notes, in request order; reread the result to obtain the complete note set.
+
+`IncrementalHighlightEditor(pdf)` reads `highlights()` and accepts
+`HighlightMutation.add(page_index, quadrilaterals, color, opacity=None,
+contents=None)` and `.remove(id)`. `HighlightUpdate.highlights` contains the
+complete current set, ordered by page and identity. The native API has no
+highlight update operation.
+
+```python
+from oxidize_pdf import (
+    IncrementalTextNoteEditor, TextNoteMutation,
+    IncrementalHighlightEditor, HighlightMutation,
+    HighlightQuad, HighlightColor, HighlightOpacity,
+)
+
+notes = IncrementalTextNoteEditor(source_bytes).apply([
+    TextNoteMutation.add(0, (40., 50.), "Revisar: café 世界"),
+])
+quad = HighlightQuad([(40., 90.), (100., 90.), (40., 70.), (100., 70.)])
+result = IncrementalHighlightEditor(notes.pdf_bytes).apply([
+    HighlightMutation.add(0, [quad], HighlightColor([1., 1., 0.]),
+                          HighlightOpacity(.5), "Revisar"),
+])
+output_bytes = result.pdf_bytes
+```
+
+`HighlightQuad` takes exactly four `(x, y)` pairs in PDF QuadPoints order: start
+and end of one edge, followed by start and end of the opposite edge. The core
+rejects non-finite, repeated, crossed, concave and degenerate geometry.
+`HighlightColor` accepts exactly three finite DeviceRGB components in `[0, 1]`;
+`HighlightOpacity` accepts a finite value in `[0, 1]`. Their properties return
+owned values. A highlight requires at least one quad. Optional contents preserve
+`None` versus an empty string; opacity omission differs from explicit zero.
+
+Page indices are zero-based. Coordinates must fit the page's effective CropBox
+(or MediaBox if absent) in unrotated PDF space; inherited bounds are respected.
+Identities are `TextNoteId`/`HighlightId` with object and generation numbers.
+Targeting another subtype, a nonexistent identity or one target twice in a batch
+raises a PDF error. Direct target annotation dictionaries and annotations shared
+across pages are unsupported because they lack an unambiguous stable identity.
+
+Editors own immutable source snapshots. Results preserve the source as an exact
+byte prefix, with one appended revision for a successful nonempty batch; failed
+batches leave the source/editor unchanged. Empty batches preserve bytes exactly.
+Notes, highlights, mutations and result snapshots expose read-only properties.
+These APIs append revisions in memory; removal detaches references, so historical
+annotation bytes remain in the file. They do not provide irreversible redaction.
+
+Core 5.5.0 enforces DocMDP for nonempty batches: P1/P2 reject edits and P3 permits
+these annotation operations. Reads and empty batches remain available on those
+certified inputs; encrypted inputs are rejected. This permission check does not
+verify signature authenticity. These editors preserve or emit native annotation
+dictionaries; they do not promise a generated appearance stream or identical
+annotation rendering in every viewer, nor impose a global memory limit.
