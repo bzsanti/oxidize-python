@@ -48,6 +48,7 @@ mod upstream;
 mod verification;
 mod tagged_validation;
 mod incremental_tagged;
+mod incremental_notes_highlights;
 mod viewer_preferences;
 mod xmp_metadata;
 
@@ -60,6 +61,7 @@ fn _oxidize_pdf(m: &Bound<'_, PyModule>) -> PyResult<()> {
     errors::register(m)?;
     tagged_validation::register(m)?;
     incremental_tagged::register(m)?;
+    incremental_notes_highlights::register(m)?;
     existing_document::register(m)?;
     incremental_annotations::register(m)?;
     incremental_ink::register(m)?;
