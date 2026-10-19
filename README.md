@@ -2,7 +2,7 @@
 
 # oxidize-pdf
 
-> Rust core pinned to **5.4.2**. See [compatibility and validation](docs/UPSTREAM-5.4.2.md).
+> Rust core pinned to **5.5.0**. See [compatibility and validation](docs/UPSTREAM-5.5.0.md).
 
 <!-- mcp-name: io.github.bzsanti/oxidize-pdf-mcp -->
 
@@ -29,7 +29,7 @@ pip install "oxidize-pdf[mcp]"     # + MCP server for AI agents
 **Platforms:** Linux (x86_64, aarch64) | macOS (x86_64, Apple Silicon) | Windows (x86_64)
 **Requires:** Python 3.10+
 
-Version 0.22.0 pins Rust core **5.4.2**, using the MIT-licensed `oxidize-webpki`
+Version 0.22.0 pins Rust core **5.5.0**, using the MIT-licensed `oxidize-webpki`
 RustCrypto provider for certificate verification. See the
 [dependency policy](docs/NO-NATIVE-CRYPTO.md) for supported builds and limits.
 New APIs include explicit text recovery, non-breaking-space normalization,
@@ -600,8 +600,67 @@ colors. `is_rgb()`, `is_cmyk()`, `is_gray()` inspect the stored variant, and
 `color_space_name()` returns `DeviceRGB`, `DeviceCMYK`, or `DeviceGray`.
 The existing `color_space` property keeps its shorter names.
 
-Conversions use the published core 5.4.2's approximate formulas, without ICC
+Conversions use the published core 5.5.0's approximate formulas, without ICC
 profiles or calibrated color management. Gray becomes equal RGB components or
 CMYK with only black ink. RGB black converts to `(0, 0, 0, 1)`. Constructors
 clamp finite out-of-range values and infinities; NaN may propagate through
 conversion. Callers should supply finite components for predictable colors.
+
+### Streaming and lazy document options
+
+Core 5.5.0 exposes two separate consumers with immutable options and configuration
+snapshots. Existing calls such as `LazyDocument.open(path)` remain valid.
+
+```python
+from oxidize_pdf import LazyDocument, MemoryOptions, StreamingDocument, StreamingOptions
+
+options = StreamingOptions(page_cache_size=2, memory_limit=2 * 1024 * 1024,
+                           max_content_stream_size=1024 * 1024)
+with StreamingDocument.open("input.pdf", options) as document:
+    configuration = document.configuration()
+    while (page := document.next_page()) is not None:
+        print(page.number, page.extract_text_streaming())
+    print(document.cached_pages(), document.memory_usage())
+    document.clear_cache()
+
+with LazyDocument.open("input.pdf", MemoryOptions(cache_size=20)) as document:
+    page = document.get_page(0)
+    print(page.width, document.memory_stats().cached_objects)
+    print(document.configuration().unsupported)
+```
+
+`StreamingOptions` accepts `buffer_size`, `page_cache_size`,
+`max_content_stream_size`, `progressive_hints`, and `memory_limit` as keyword
+arguments. Its `minimal_memory()` and `fast_processing()` presets and
+`with_buffer_size()`, `with_page_cache_size()`, and `with_memory_limit()` builders
+return independent values. `MemoryOptions` accepts `lazy_loading`,
+`memory_mapping`, `cache_size`, `streaming`, `buffer_size`, and `mmap_threshold`;
+use `small_file()`/`large_file()` or its `with_lazy_loading()`,
+`with_memory_mapping()`, `with_cache_size()`, and `with_streaming()` builders.
+All fields are readable properties.
+
+| Consumer | Effective contract |
+| --- | --- |
+| `StreamingDocument` | `buffer_size` configures input buffering. `page_cache_size` bounds retained pages; `memory_limit` bounds retained decoded-content plus UTF-8 text bytes. Either cache bound set to zero disables retention. `memory_usage()` reports this payload only. `max_content_stream_size` limits the combined decoded page content, including separators between streams, and raises a PDF error without advancing the cursor. |
+| `LazyDocument` | `lazy_loading=False` eagerly reads indexed objects. `cache_size` bounds objects in the adapter LRU cache; zero disables it. `get_object(number, generation=0)`, `get_page(index)`, and `preload_page(index)` use the native consumer. `buffer_size` configures input buffering. |
+
+`configuration()` returns owned `requested` and `effective` snapshots. A zero
+buffer is normalized to one byte. Streaming progressive hints are reserved:
+`effective.progressive_hints` is false and `progressive_hints_unsupported` reports
+a requested hint. Lazy memory mapping and streaming are unsupported in this
+adapter: `unsupported` lists `UnsupportedMemoryOption.MemoryMapping` and/or
+`.Streaming`, effective flags are false, and the effective mapping threshold is
+the platform's maximum `usize`. These flags do not enable those modes.
+
+These limits do **not** cap total RAM, parser caches, extraction working memory,
+caller-retained values, or peak allocations. Lazy `memory_stats()` reports
+adapter cache hits, misses, and retained object count; `allocated_bytes`,
+`lazy_loads`, and `mapped_regions` are uninstrumented counters, not measurements
+of process memory. `clear_cache()` clears adapter retention, not caller values.
+
+Native `StreamingDocument` pages use unrotated MediaBox geometry. The existing
+`PageStreamer` retains its rotated geometry and seek behavior; its options belong
+to a different API. `LazyDocument.get_page()` returns `ParsedPage` with effective
+rotation. Pages and snapshots remain usable after closing either document;
+operations requiring the closed document raise `ValueError`. Both consumers
+reject encrypted documents; unlock through the reader API where needed.

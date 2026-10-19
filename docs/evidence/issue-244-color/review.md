@@ -65,3 +65,16 @@ Binding y tests de Color idénticos por SHA256 al conjunto revisado; se reutiliz
 sus análisis Kripteia y el control negativo. El binding de BlendMode corresponde
 al PR #288 validado y fusionado. Se repiten build, regresión y tipos sobre el
 conjunto integrado por los cambios del contrato/CI. Resultados integrated-*.log.
+
+## Integración con core 5.5.0 y #258
+
+Base actual 51fb2a1. Los conflictos afectan documentación y listas de contratos,
+fixtures y consumidores de typing; se conservan Color, AES y streaming/lazy.
+El binding src/types.rs y tests/test_color_conversions.py son idénticos a e628bfd.
+El módulo graphics/color.rs del core publicado 5.4.2 y 5.5.0 es idéntico (diff
+vacío). Se reutilizan la revisión, ambos Kripteia y el control negativo de Color;
+se repiten build, regresión y typing por el conjunto integrado. README actualizado
+para identificar el core vigente. Resultados en core550-*.log; CI aún pendiente.
+
+Resultado integrado: 2711 tests pasan; Clippy, paridad e inventario/tipos pasan.
+No quedan hallazgos locales; la aceptación remota se valida sobre el nuevo head.

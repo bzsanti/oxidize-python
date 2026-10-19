@@ -1,0 +1,121 @@
+FFFFFF.                                                                  [100%]
+=================================== FAILURES ===================================
+__________ test_decoded_content_limit_boundary_and_retry[False-False] __________
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-36/test_decoded_content_limit_bou0')
+compressed = False, split = False
+
+    @pytest.mark.parametrize('compressed', [False, True])
+    @pytest.mark.parametrize('split', [False, True])
+    def test_decoded_content_limit_boundary_and_retry(tmp_path, compressed, split):
+        path, contents, _ = fixture(tmp_path, texts=('LIMIT-' * 100,), compressed=compressed, split=split)
+        limit = len(contents[0])
+        for budget in [0, limit - 1]:
+            with p.StreamingDocument.open(path, p.StreamingOptions(max_content_stream_size=budget)) as doc:
+                for _ in range(2):
+>                   with pytest.raises(p.PdfError):
+E                   Failed: DID NOT RAISE <class 'oxidize_pdf.PdfError'>
+
+tests/test_streaming_memory_options.py:86: Failed
+__________ test_decoded_content_limit_boundary_and_retry[False-True] ___________
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-36/test_decoded_content_limit_bou1')
+compressed = True, split = False
+
+    @pytest.mark.parametrize('compressed', [False, True])
+    @pytest.mark.parametrize('split', [False, True])
+    def test_decoded_content_limit_boundary_and_retry(tmp_path, compressed, split):
+        path, contents, _ = fixture(tmp_path, texts=('LIMIT-' * 100,), compressed=compressed, split=split)
+        limit = len(contents[0])
+        for budget in [0, limit - 1]:
+            with p.StreamingDocument.open(path, p.StreamingOptions(max_content_stream_size=budget)) as doc:
+                for _ in range(2):
+>                   with pytest.raises(p.PdfError):
+E                   Failed: DID NOT RAISE <class 'oxidize_pdf.PdfError'>
+
+tests/test_streaming_memory_options.py:86: Failed
+__________ test_decoded_content_limit_boundary_and_retry[True-False] ___________
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-36/test_decoded_content_limit_bou2')
+compressed = False, split = True
+
+    @pytest.mark.parametrize('compressed', [False, True])
+    @pytest.mark.parametrize('split', [False, True])
+    def test_decoded_content_limit_boundary_and_retry(tmp_path, compressed, split):
+        path, contents, _ = fixture(tmp_path, texts=('LIMIT-' * 100,), compressed=compressed, split=split)
+        limit = len(contents[0])
+        for budget in [0, limit - 1]:
+            with p.StreamingDocument.open(path, p.StreamingOptions(max_content_stream_size=budget)) as doc:
+                for _ in range(2):
+>                   with pytest.raises(p.PdfError):
+E                   Failed: DID NOT RAISE <class 'oxidize_pdf.PdfError'>
+
+tests/test_streaming_memory_options.py:86: Failed
+___________ test_decoded_content_limit_boundary_and_retry[True-True] ___________
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-36/test_decoded_content_limit_bou3')
+compressed = True, split = True
+
+    @pytest.mark.parametrize('compressed', [False, True])
+    @pytest.mark.parametrize('split', [False, True])
+    def test_decoded_content_limit_boundary_and_retry(tmp_path, compressed, split):
+        path, contents, _ = fixture(tmp_path, texts=('LIMIT-' * 100,), compressed=compressed, split=split)
+        limit = len(contents[0])
+        for budget in [0, limit - 1]:
+            with p.StreamingDocument.open(path, p.StreamingOptions(max_content_stream_size=budget)) as doc:
+                for _ in range(2):
+>                   with pytest.raises(p.PdfError):
+E                   Failed: DID NOT RAISE <class 'oxidize_pdf.PdfError'>
+
+tests/test_streaming_memory_options.py:86: Failed
+________________ test_lazy_cache_loading_eviction_and_clear[0] _________________
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-36/test_lazy_cache_loading_evicti0')
+capacity = 0
+
+    @pytest.mark.parametrize('capacity', [0, 1, 2])
+    def test_lazy_cache_loading_eviction_and_clear(tmp_path, capacity):
+        path, _, _ = fixture(tmp_path)
+        doc = p.LazyDocument.open(path, p.MemoryOptions(cache_size=capacity))
+        assert doc.page_count == 2
+        first = doc.get_object(1)
+        assert first.value['Type'].value == 'Catalog'
+        doc.get_object(1)
+>       assert doc.memory_stats().cache_hits == (1 if capacity else 0)
+E       assert 1 == 0
+E        +  where 1 = <builtins.MemoryStats object at 0x716b3269e530>.cache_hits
+E        +    where <builtins.MemoryStats object at 0x716b3269e530> = <built-in method memory_stats of builtins.LazyDocument object at 0x716b3273ee20>()
+E        +      where <built-in method memory_stats of builtins.LazyDocument object at 0x716b3273ee20> = LazyDocument(pages=2).memory_stats
+
+tests/test_streaming_memory_options.py:137: AssertionError
+________________ test_lazy_cache_loading_eviction_and_clear[1] _________________
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-36/test_lazy_cache_loading_evicti1')
+capacity = 1
+
+    @pytest.mark.parametrize('capacity', [0, 1, 2])
+    def test_lazy_cache_loading_eviction_and_clear(tmp_path, capacity):
+        path, _, _ = fixture(tmp_path)
+        doc = p.LazyDocument.open(path, p.MemoryOptions(cache_size=capacity))
+        assert doc.page_count == 2
+        first = doc.get_object(1)
+        assert first.value['Type'].value == 'Catalog'
+        doc.get_object(1)
+        assert doc.memory_stats().cache_hits == (1 if capacity else 0)
+        doc.get_object(2)
+        doc.get_object(1)
+        stats = doc.memory_stats()
+>       assert stats.cached_objects == min(capacity, 2)
+E       assert 2 == 1
+E        +  where 2 = <builtins.MemoryStats object at 0x716b2f47a0b0>.cached_objects
+E        +  and   1 = min(1, 2)
+
+tests/test_streaming_memory_options.py:141: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_streaming_memory_options.py::test_decoded_content_limit_boundary_and_retry[False-False]
+FAILED tests/test_streaming_memory_options.py::test_decoded_content_limit_boundary_and_retry[False-True]
+FAILED tests/test_streaming_memory_options.py::test_decoded_content_limit_boundary_and_retry[True-False]
+FAILED tests/test_streaming_memory_options.py::test_decoded_content_limit_boundary_and_retry[True-True]
+FAILED tests/test_streaming_memory_options.py::test_lazy_cache_loading_eviction_and_clear[0]
+FAILED tests/test_streaming_memory_options.py::test_lazy_cache_loading_eviction_and_clear[1]
+6 failed, 1 passed, 17 deselected in 0.21s

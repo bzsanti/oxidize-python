@@ -1,0 +1,27 @@
+## Calidad de Tests (Kripteia)
+
+=== Kripteia Test Quality Report ===
+Overall Score: 93 | Tests: 3 | Files: 1
+
+--- Files ---
+Path                                                          Tests  Score
+--------------------------------------------------------------------------
+tests/test_aes_entropy.py                                         3     93
+
+--- Worst Offenders ---
+  test_aes_entropy_failure_is_python_error_without_valid_output (tests/test_aes_entropy.py:36) - Score: 80
+    - Test 'test_aes_entropy_failure_is_python_error_without_valid_output' is marked as #[ignore]
+  test_aes_ciphertext_and_independent_decryption (tests/test_aes_entropy.py:13) - Score: 100
+  test_aes_round_trip_on_each_platform (tests/test_aes_entropy.py:54) - Score: 100
+
+--- Details ---
+tests/test_aes_entropy.py:
+  test_aes_entropy_failure_is_python_error_without_valid_output (line 36) - Score: 80
+    - Test 'test_aes_entropy_failure_is_python_error_without_valid_output' is marked as #[ignore]
+
+
+## Analisis de Seguridad (Kripteia Security)
+
+=== Kripteia Security Analysis ===
+
+No security issues found.

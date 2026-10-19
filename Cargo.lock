@@ -720,9 +720,9 @@ checksum = "9f7c3e4beb33f85d45ae3e3a1792185706c8e16d043238c593331cc7cd313b50"
 
 [[package]]
 name = "oxidize-pdf"
-version = "5.4.2"
+version = "5.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "eb85baf2cf24b9ba56fface490e5d04bb9827ed33ce21e9f8f5e028d6ee34713"
+checksum = "b10d71fadd841b51fc1f7549d946831afc56ec1fa5de7fcaf3c100a134bed9a8"
 dependencies = [
  "aes",
  "bitflags",
@@ -745,6 +745,7 @@ dependencies = [
  "quick-xml",
  "rand 0.10.0",
  "regex",
+ "roxmltree",
  "rsa",
  "rustls-pki-types",
  "rustls-webpki",
@@ -1081,6 +1082,15 @@ dependencies = [
  "libc",
  "untrusted",
  "windows-sys 0.52.0",
+]
+
+[[package]]
+name = "roxmltree"
+version = "0.21.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f1964b10c76125c36f8afe190065a4bf9a87bf324842c05701330bba9f1cacbb"
+dependencies = [
+ "memchr",
 ]
 
 [[package]]

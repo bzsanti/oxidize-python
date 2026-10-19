@@ -52,6 +52,8 @@ def main() -> None:
             raise SystemExit(f'Required native contract test missing: {name}')
     if 'signature_errors::tests::preserves_all_signature_variants_and_fields: test' not in listing:
         raise SystemExit('Required native signature-error contract test missing')
+    if 'streaming_options::tests::configured_buffers_and_eager_loading_change_real_io: test' not in listing:
+        raise SystemExit('Required native streaming/memory contract test missing')
     subprocess.run([executables[0], '--nocapture'], env=env, check=True)
 
 

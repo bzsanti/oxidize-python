@@ -1,0 +1,108 @@
+FFFF                                                                     [100%]
+=================================== FAILURES ===================================
+_ test_aes_entropy_failure_is_python_error_without_valid_output[bytes-AES_128] _
+
+strength = 'AES_128', output = 'bytes'
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-28/test_aes_entropy_failure_is_py0')
+
+    @pytest.mark.skipif(sys.platform != 'linux' or not ctypes.util.find_library('seccomp'), reason='fault injection requires Linux libseccomp')
+    @pytest.mark.parametrize('strength', ['AES_128', 'AES_256'])
+    @pytest.mark.parametrize('output', ['bytes', 'file'])
+    def test_aes_entropy_failure_is_python_error_without_valid_output(strength, output, tmp_path):
+        """Deny OS entropy only in a child; exercise the actual native extension."""
+        path = tmp_path / 'failed.pdf'
+        command = [sys.executable, str(Path(__file__).parent / 'helpers/aes_entropy_failure.py'), strength]
+        if output == 'file':
+            command.append(str(path))
+        result = subprocess.run(command, capture_output=True, text=True, timeout=30)
+>       assert result.returncode == 0, result.stdout + result.stderr
+E       AssertionError: Traceback (most recent call last):
+E           File "/tmp/oxidize-253-delivery/tests/helpers/aes_entropy_failure.py", line 39, in <module>
+E             raise AssertionError('Encryption succeeded without OS entropy')
+E         AssertionError: Encryption succeeded without OS entropy
+E         
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['/home/santi/repos/BelowZero/oxidizePdf/oxidize-python/.venv/bin/python', '/tmp/oxidize-253-del...ssertionError(\'Encryption succeeded without OS entropy\')\nAssertionError: Encryption succeeded without OS entropy\n').returncode
+
+tests/test_aes_entropy.py:43: AssertionError
+_ test_aes_entropy_failure_is_python_error_without_valid_output[bytes-AES_256] _
+
+strength = 'AES_256', output = 'bytes'
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-28/test_aes_entropy_failure_is_py1')
+
+    @pytest.mark.skipif(sys.platform != 'linux' or not ctypes.util.find_library('seccomp'), reason='fault injection requires Linux libseccomp')
+    @pytest.mark.parametrize('strength', ['AES_128', 'AES_256'])
+    @pytest.mark.parametrize('output', ['bytes', 'file'])
+    def test_aes_entropy_failure_is_python_error_without_valid_output(strength, output, tmp_path):
+        """Deny OS entropy only in a child; exercise the actual native extension."""
+        path = tmp_path / 'failed.pdf'
+        command = [sys.executable, str(Path(__file__).parent / 'helpers/aes_entropy_failure.py'), strength]
+        if output == 'file':
+            command.append(str(path))
+        result = subprocess.run(command, capture_output=True, text=True, timeout=30)
+>       assert result.returncode == 0, result.stdout + result.stderr
+E       AssertionError: Traceback (most recent call last):
+E           File "/tmp/oxidize-253-delivery/tests/helpers/aes_entropy_failure.py", line 39, in <module>
+E             raise AssertionError('Encryption succeeded without OS entropy')
+E         AssertionError: Encryption succeeded without OS entropy
+E         
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['/home/santi/repos/BelowZero/oxidizePdf/oxidize-python/.venv/bin/python', '/tmp/oxidize-253-del...ssertionError(\'Encryption succeeded without OS entropy\')\nAssertionError: Encryption succeeded without OS entropy\n').returncode
+
+tests/test_aes_entropy.py:43: AssertionError
+_ test_aes_entropy_failure_is_python_error_without_valid_output[file-AES_128] __
+
+strength = 'AES_128', output = 'file'
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-28/test_aes_entropy_failure_is_py2')
+
+    @pytest.mark.skipif(sys.platform != 'linux' or not ctypes.util.find_library('seccomp'), reason='fault injection requires Linux libseccomp')
+    @pytest.mark.parametrize('strength', ['AES_128', 'AES_256'])
+    @pytest.mark.parametrize('output', ['bytes', 'file'])
+    def test_aes_entropy_failure_is_python_error_without_valid_output(strength, output, tmp_path):
+        """Deny OS entropy only in a child; exercise the actual native extension."""
+        path = tmp_path / 'failed.pdf'
+        command = [sys.executable, str(Path(__file__).parent / 'helpers/aes_entropy_failure.py'), strength]
+        if output == 'file':
+            command.append(str(path))
+        result = subprocess.run(command, capture_output=True, text=True, timeout=30)
+>       assert result.returncode == 0, result.stdout + result.stderr
+E       AssertionError: Traceback (most recent call last):
+E           File "/tmp/oxidize-253-delivery/tests/helpers/aes_entropy_failure.py", line 39, in <module>
+E             raise AssertionError('Encryption succeeded without OS entropy')
+E         AssertionError: Encryption succeeded without OS entropy
+E         
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['/home/santi/repos/BelowZero/oxidizePdf/oxidize-python/.venv/bin/python', '/tmp/oxidize-253-del...ssertionError(\'Encryption succeeded without OS entropy\')\nAssertionError: Encryption succeeded without OS entropy\n').returncode
+
+tests/test_aes_entropy.py:43: AssertionError
+_ test_aes_entropy_failure_is_python_error_without_valid_output[file-AES_256] __
+
+strength = 'AES_256', output = 'file'
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-28/test_aes_entropy_failure_is_py3')
+
+    @pytest.mark.skipif(sys.platform != 'linux' or not ctypes.util.find_library('seccomp'), reason='fault injection requires Linux libseccomp')
+    @pytest.mark.parametrize('strength', ['AES_128', 'AES_256'])
+    @pytest.mark.parametrize('output', ['bytes', 'file'])
+    def test_aes_entropy_failure_is_python_error_without_valid_output(strength, output, tmp_path):
+        """Deny OS entropy only in a child; exercise the actual native extension."""
+        path = tmp_path / 'failed.pdf'
+        command = [sys.executable, str(Path(__file__).parent / 'helpers/aes_entropy_failure.py'), strength]
+        if output == 'file':
+            command.append(str(path))
+        result = subprocess.run(command, capture_output=True, text=True, timeout=30)
+>       assert result.returncode == 0, result.stdout + result.stderr
+E       AssertionError: Traceback (most recent call last):
+E           File "/tmp/oxidize-253-delivery/tests/helpers/aes_entropy_failure.py", line 39, in <module>
+E             raise AssertionError('Encryption succeeded without OS entropy')
+E         AssertionError: Encryption succeeded without OS entropy
+E         
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['/home/santi/repos/BelowZero/oxidizePdf/oxidize-python/.venv/bin/python', '/tmp/oxidize-253-del...ssertionError(\'Encryption succeeded without OS entropy\')\nAssertionError: Encryption succeeded without OS entropy\n').returncode
+
+tests/test_aes_entropy.py:43: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_aes_entropy.py::test_aes_entropy_failure_is_python_error_without_valid_output[bytes-AES_128]
+FAILED tests/test_aes_entropy.py::test_aes_entropy_failure_is_python_error_without_valid_output[bytes-AES_256]
+FAILED tests/test_aes_entropy.py::test_aes_entropy_failure_is_python_error_without_valid_output[file-AES_128]
+FAILED tests/test_aes_entropy.py::test_aes_entropy_failure_is_python_error_without_valid_output[file-AES_256]
+4 failed, 4 deselected in 0.38s

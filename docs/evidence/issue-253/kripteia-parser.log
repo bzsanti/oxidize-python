@@ -1,0 +1,23 @@
+## Calidad de Tests (Kripteia)
+
+=== Kripteia Test Quality Report ===
+Overall Score: 100 | Tests: 6 | Files: 1
+
+--- Files ---
+Path                                                          Tests  Score
+--------------------------------------------------------------------------
+tests/test_incremental_parser_payloads.py                         6    100
+
+--- Worst Offenders ---
+  test_stream_payload_and_legacy_fields_survive_drain (tests/test_incremental_parser_payloads.py:25) - Score: 100
+  test_chunked_feed_retains_binary_stream (tests/test_incremental_parser_payloads.py:41) - Score: 100
+  test_real_objects_xref_and_trailer_are_emitted (tests/test_incremental_parser_payloads.py:51) - Score: 100
+  test_pdf_value_scalar_inspection (tests/test_incremental_parser_payloads.py:79) - Score: 100
+  test_nested_pdf_values_are_owned_and_inspectable (tests/test_incremental_parser_payloads.py:87) - Score: 100
+
+
+## Analisis de Seguridad (Kripteia Security)
+
+=== Kripteia Security Analysis ===
+
+No security issues found.

@@ -1,12 +1,12 @@
-# Current parity target — Rust 5.4.2
+# Current parity target — Rust 5.5.0
 
 The bridge target is **all functional capabilities of Rust**, including options,
 results and errors. Pinning the same core version is not proof of API parity.
 Tracking: [#244](https://github.com/bzsanti/oxidize-python/issues/244), coordinated
 by [core #710](https://github.com/bzsanti/oxidizePdf/issues/710).
 
-Current source checkpoint: Python manifest 0.22.0, core =5.4.2, develop
-55c3528 (2026-10-15). Post-release changes in develop are not a promise about
+Current source checkpoint: Python manifest 0.22.0, core =5.5.0, adoption
+for #253 (2026-10-19). Post-release changes in develop are not a promise about
 what an already-published 0.22.0 wheel contains. Cross-bridge status and evidence:
 [PARITY_SPEC.md](PARITY_SPEC.md). This is a partial inventory.
 
@@ -18,8 +18,8 @@ what an already-published 0.22.0 wheel contains. Cross-bridge status and evidenc
 | Incremental FreeText and Ink editing | Integrated via #249/#250; independent APIs for existing PDFs |
 | RAG configs, element graphs, token counters and document exports | Integrated via #267 (#260); semantic tests and types recorded below |
 | File page iteration and positional text extraction | Integrated via #268 (#254/#255); not a general bounded-memory streaming claim |
-| Incremental parser event payloads | Integrated via #269 (#256); core payload/normalization limitations remain |
-| BatchOptions | Integrated via #270 (#257); core does not enforce timeout/memory options |
+| Incremental parser event payloads | Integrated via #269 (#256); 5.5.0 preserves binary payloads and emits parsed objects/xref/trailer |
+| BatchOptions | Integrated via #270 (#257); 5.5.0 rejects memory caps and reports timeout after completion |
 | Structured signature errors | Integrated via #271 (#264); verification limitations remain explicit |
 | Existing-outline reading | Integrated via #272 (#261); bounded reading distinct from OutlineTree writing |
 | Parser/recovery options | Integrated via #273 (#259); inert options, unbounded memory and repair fidelity limits documented |
@@ -28,7 +28,7 @@ what an already-published 0.22.0 wheel contains. Cross-bridge status and evidenc
 | Other incremental annotation/tagged/OCR editors | Geometric editor delivered under #276; remaining editors/OCR tracked by #262 |
 | Revision-aware comparison and irreversible redaction | Revision-aware comparison delivered by #282; irreversible redaction remains under #263 |
 | Real Tesseract recognition | No recognition binding; enum/mock provider presence is not OCR |
-| AES IV generation | Core 5.4.2 limitation tracked by #253; no security approval inferred from round trips |
+| AES IV generation | Core 5.5.0 adopted under #253; real entropy failure tested, delivery tracked below |
 | GIL concurrency evidence | Scheduling-only speedup rejection remains under #247 |
 | Remaining core capabilities and optional production features | Complete functional inventory/audit pending under #244 |
 
@@ -1606,3 +1606,66 @@ validación integrada usa las fuentes conciliadas y se registra por separado.
 Validación integrada con #288: 2675 tests correctos, inventario de 2565 miembros,
 consumidores de Color/BlendMode estrictos, paridad y Clippy en verde. Revisión
 de conflictos completada; no quedan bloqueantes locales. CI/merge pendientes.
+
+## #253 — adopción de AES seguro en core 5.5.0 (2026-10-19)
+
+Entrega aislada sobre develop 177987c. Conserva los borradores TaggedPdf y
+otros incrementos del checkout original fuera de este alcance. Adopta el pin
+registry 5.5.0 y las adaptaciones necesarias para mantener la suite del binding.
+
+| Requisito | Estado y evidencia | Bloqueante / siguiente acción |
+| --- | --- | --- |
+| Core publicado con IV CSPRNG falible | Demostrado: 5.5.0, checksum en Cargo.lock | Ninguno |
+| AES-128/256, fallo de entropía sin PDF válido | RED con wheel 5.4.2; GREEN local 5.5.0 | Revalidar wheel aislado y gate Linux obligatorio |
+| Compatibilidad, versión/checksum y CI multiplataforma | Adaptados batch/parser y lector cifrado | CI e integración de esta rama pendientes |
+
+Batch pasa a memoria=0 (sin cap); rechaza caps no cero y reporta timeout después
+de terminar sin interrupción. El parser incremental conserva bytes binarios y
+emite objetos/xref/trailer. El lector cifrado conserva su estado tras una lectura
+rechazada y permite unlock posterior. Son correcciones necesarias por el pin,
+no capacidades nuevas de las otras issues.
+
+Core #792 (redacción) y #793 (LayoutManager) siguen fuera del alcance y bloquean
+sus respectivos subcontratos de #263/#244. #258/#262/#278 no se cierran aquí.
+Compatibilidad y fuentes: [UPSTREAM-5.5.0.md](UPSTREAM-5.5.0.md).
+
+Aceptación local del wheel aislado: 2668 tests de biblioteca pasan; ocho fallos
+de montaje del control negativo de paridad corregidos y revalidados (18 tests
+focalizados pasan). MCP 295 passed/1 skipped, Clippy, sin default features,
+paridad y tipos pasan. Revisión con ambos Kripteia: sin bloqueantes de #253.
+Evidencia: [evidence/issue-253/review.md](evidence/issue-253/review.md).
+Pendiente: CI multiplataforma sobre el head de entrega e integración.
+
+## #258 — configuración efectiva sobre core 5.5.0 (2026-10-19)
+
+Base develop 91261a4 (#253), entrega aislada. Core #725/#758 ya publicados.
+
+| Requisito | Estado / evidencia | Bloqueante y cierre |
+| --- | --- | --- |
+| Configurar/consultar opciones y presets | Demostrado localmente | Constructores completos, snapshots y stubs; typing/contrato pasan |
+| Consumidores correctos | Demostrado localmente | StreamingDocument nativo y LazyDocument(options); mutación de ambos consumidores detectada |
+| Efectos y límites observables | Demostrado localmente | PDFs independientes: cache/evicción/clear, lazy/eager, límite decodificado; prueba nativa de I/O |
+| Garantías y revisión | Revisión local completada; CI pendiente | Solicitado/efectivo/unsupported documentados; revisión y ambos Kripteia sin bloqueantes |
+
+PageStreamer conserva reapertura por página, seek y geometría rotada. El nuevo
+StreamingDocument expone el consumidor de StreamingOptions del core (caché
+persistente; geometría nativa sin aplicar rotación). LazyDocument expone
+páginas/objetos para demostrar carga y caché. Mapping/streaming no soportados y
+progressive_hints se informan explícitamente; continúan fuera del contrato global
+de paridad #244. No se modifica el core.
+
+Aceptación local: 2700 tests de biblioteca, 295 MCP (1 skip previo), 5 nativos;
+Clippy, sin default features, contrato y tipos pasan. Mutación que ignora ambas
+opciones: 6 fallos esperados/1 pasa. Evidencia: [review.md](evidence/issue-258/review.md).
+Pendiente únicamente CI multiplataforma e integración del head de entrega.
+
+### #289 — integración de Color sobre develop 51fb2a1
+
+Se resuelven conflictos de documentación, contrato, fixtures del gate y lista de
+typing conservando las aportaciones de #253/#258. Binding/pruebas de Color y
+fuente Rust de sus conversiones sin cambios semánticos; revisión previa vigente.
+Requisito pendiente: regresión y CI sobre este conjunto antes de integrar.
+
+Validación actual de #289: 2711 tests de biblioteca pasan, incluidos Color y su
+render independiente; Clippy, inventario/typing estricto y gate de paridad pasan.
+Revisión de integración sin bloqueantes; pendiente CI del nuevo head y merge.

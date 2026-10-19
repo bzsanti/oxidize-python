@@ -229,6 +229,9 @@ class TestEncryptionRoundTrip:
         reader = PdfReader.open(str(path))
         with pytest.raises(PdfEncryptionError):
             reader.extract_text()
+        # A refused read must preserve the raw reader for a later unlock.
+        reader.unlock("user-rt")
+        assert self.SECRET in "".join(reader.extract_text())
 
     def test_wrong_password_rejected(self, tmp_dir):
         """``unlock`` signals a wrong password by raising ``PdfEncryptionError``

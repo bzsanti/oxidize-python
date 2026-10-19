@@ -268,6 +268,13 @@ from oxidize_pdf._oxidize_pdf import (
     # Feature 36: Streaming/Lazy
     LazyDocument,
     StreamingOptions,
+    MemoryOptions,
+    UnsupportedMemoryOption,
+    MemoryConfiguration,
+    StreamingConfiguration,
+    MemoryStats,
+    StreamingDocument,
+
     # Feature 37: PDF Recovery
     validate_pdf,
     # Feature 38: PDF/A Validation
@@ -815,6 +822,13 @@ __all__ = [
     "BatchOptions",
     "LazyDocument",
     "StreamingOptions",
+    "MemoryOptions",
+    "UnsupportedMemoryOption",
+    "MemoryConfiguration",
+    "StreamingConfiguration",
+    "MemoryStats",
+    "StreamingDocument",
+
     "validate_pdf",
     "compare_pdfs",
     # F84: Templates Deep

@@ -349,13 +349,17 @@ impl PyPdfReader {
     }
 
     /// Ensure the reader is in a Document state.
-    fn ensure_document(&mut self) {
+    fn ensure_document(&mut self) -> PyResult<()> {
         if matches!(
             self.state,
             ReaderState::RawFile(_) | ReaderState::RawCursor(_)
         ) {
+            if self.encrypted {
+                return Err(errors::PdfEncryptionError::new_err("PDF is encrypted; unlock it before reading"));
+            }
             self.promote();
         }
+        Ok(())
     }
 }
 
@@ -485,21 +489,21 @@ impl PyPdfReader {
     /// ``reader.page_count()`` — calling a property raises ``TypeError``.
     #[getter]
     fn page_count(&mut self) -> PyResult<u32> {
-        self.ensure_document();
+        self.ensure_document()?;
         with_document!(self, doc => doc.page_count().map_err(parse_err_to_py))
     }
 
     /// PDF version string (e.g. ``"1.4"``).
     #[getter]
     fn version(&mut self) -> PyResult<String> {
-        self.ensure_document();
+        self.ensure_document()?;
         with_document!(self, doc => doc.version().map_err(parse_err_to_py))
     }
 
     /// Effective PDF version, including a catalog Version override.
     #[getter]
     fn effective_version(&mut self) -> PyResult<String> {
-        self.ensure_document();
+        self.ensure_document()?;
         with_document!(self, doc => doc.effective_version().map(|v| v.to_string()).map_err(parse_err_to_py))
     }
 
@@ -512,7 +516,7 @@ impl PyPdfReader {
         max_stream_bytes: usize,
         options: Option<&PyExtractionOptions>,
     ) -> PyResult<crate::upstream::PyRecoveredText> {
-        self.ensure_document();
+        self.ensure_document()?;
         let mut extractor = options
             .map(PyExtractionOptions::extractor)
             .unwrap_or_default();
@@ -534,7 +538,7 @@ impl PyPdfReader {
         max_stream_bytes: usize,
         options: Option<&PyExtractionOptions>,
     ) -> PyResult<Vec<crate::upstream::PyRecoveredText>> {
-        self.ensure_document();
+        self.ensure_document()?;
         let results = py.detach(|| with_document_mut!(self, doc => {
             let mut extractor = options.map(PyExtractionOptions::extractor).unwrap_or_default();
             (0..doc.page_count()?).map(|index|
@@ -549,7 +553,7 @@ impl PyPdfReader {
 
     /// Return the parsed page at the given 0-based index.
     fn get_page(&mut self, py: Python<'_>, index: u32) -> PyResult<PyParsedPage> {
-        self.ensure_document();
+        self.ensure_document()?;
         // #115 Capa C: release the GIL during the parse.
         let page = py
             .detach(|| with_document_mut!(self, doc => doc.get_page(index)))
@@ -559,7 +563,7 @@ impl PyPdfReader {
 
     /// Extract text from a single page (0-based index).
     fn extract_text_from_page(&mut self, py: Python<'_>, index: u32) -> PyResult<String> {
-        self.ensure_document();
+        self.ensure_document()?;
         let extracted = py
             .detach(|| with_document_mut!(self, doc => doc.extract_text_from_page(index)))
             .map_err(parse_err_to_py)?;
@@ -568,7 +572,7 @@ impl PyPdfReader {
 
     /// Extract text from all pages, returning a list of strings.
     fn extract_text(&mut self, py: Python<'_>) -> PyResult<Vec<String>> {
-        self.ensure_document();
+        self.ensure_document()?;
         let texts = py
             .detach(|| with_document_mut!(self, doc => doc.extract_text()))
             .map_err(parse_err_to_py)?;
@@ -587,7 +591,7 @@ impl PyPdfReader {
         py: Python<'_>,
         index: u32,
     ) -> PyResult<String> {
-        self.ensure_document();
+        self.ensure_document()?;
         let extracted = py
             .detach(|| {
                 with_document_mut!(self, doc => {
@@ -607,7 +611,7 @@ impl PyPdfReader {
     ///
     /// New in oxidize-pdf 4.3.0 (issue #448).
     fn extract_text_with_reading_order(&mut self, py: Python<'_>) -> PyResult<Vec<String>> {
-        self.ensure_document();
+        self.ensure_document()?;
         let texts = py
             .detach(|| {
                 with_document_mut!(self, doc => {
@@ -625,7 +629,7 @@ impl PyPdfReader {
     /// Returns a list of ``TextChunk`` objects, each with ``text``, ``x``,
     /// ``y``, ``font_size``, and ``font_name`` attributes.
     fn extract_text_chunks(&mut self, py: Python<'_>, index: u32) -> PyResult<Vec<PyTextChunk>> {
-        self.ensure_document();
+        self.ensure_document()?;
 
         // #115 Capa C: get the page, its content streams, and run the text
         // streamer without holding the GIL. Errors are unified to String inside
@@ -662,7 +666,7 @@ impl PyPdfReader {
 
     /// Get document metadata (title, author, subject, etc.).
     fn metadata(&mut self, py: Python<'_>) -> PyResult<PyDocumentMetadata> {
-        self.ensure_document();
+        self.ensure_document()?;
         let meta = py
             .detach(|| with_document_mut!(self, doc => doc.metadata()))
             .map_err(parse_err_to_py)?;
@@ -681,14 +685,14 @@ impl PyPdfReader {
     }
 
     fn __len__(&mut self) -> PyResult<usize> {
-        self.ensure_document();
+        self.ensure_document()?;
         let count = with_document!(self, doc => doc.page_count().map_err(parse_err_to_py))?;
         Ok(count as usize)
     }
 
     /// Read existing bookmarks with the core's default traversal budgets.
     fn outline(&mut self, py: Python<'_>) -> PyResult<Option<crate::outline_read::PyReadOutline>> {
-        self.ensure_document();
+        self.ensure_document()?;
         let result = py.detach(|| with_document_mut!(self, doc => doc.outline()))
             .map_err(parse_err_to_py)?;
         Ok(result.map(|inner| crate::outline_read::PyReadOutline { inner }))
@@ -697,7 +701,7 @@ impl PyPdfReader {
     /// Read existing bookmarks with explicit budgets; malformed trees raise PdfParseError.
     fn outline_with_options(&mut self, py: Python<'_>, options: &crate::outline_read::PyOutlineReadOptions) -> PyResult<Option<crate::outline_read::PyReadOutline>> {
         let options = options.inner.clone();
-        self.ensure_document();
+        self.ensure_document()?;
         let result = py.detach(|| with_document_mut!(self, doc => doc.outline_with_options(&options)))
             .map_err(parse_err_to_py)?;
         Ok(result.map(|inner| crate::outline_read::PyReadOutline { inner }))
@@ -741,7 +745,7 @@ impl PyPdfReader {
     /// Export document as Markdown.
     #[allow(deprecated, clippy::wrong_self_convention)]
     fn to_markdown(&mut self, py: Python<'_>) -> PyResult<String> {
-        self.ensure_document();
+        self.ensure_document()?;
         py.detach(|| with_document_mut!(self, doc => doc.to_markdown()))
             .map_err(pdf_err_to_py)
     }
@@ -749,7 +753,7 @@ impl PyPdfReader {
     /// Export document in contextual format (for LLM prompts).
     #[allow(deprecated, clippy::wrong_self_convention)]
     fn to_contextual(&mut self, py: Python<'_>) -> PyResult<String> {
-        self.ensure_document();
+        self.ensure_document()?;
         py.detach(|| with_document_mut!(self, doc => doc.to_contextual()))
             .map_err(pdf_err_to_py)
     }
@@ -762,7 +766,7 @@ impl PyPdfReader {
         chunk_size: usize,
         overlap: usize,
     ) -> PyResult<Vec<PyDocumentChunk>> {
-        self.ensure_document();
+        self.ensure_document()?;
         let chunks = py
             .detach(|| with_document_mut!(self, doc => doc.chunk_with(chunk_size, overlap)))
             .map_err(pdf_err_to_py)?;
@@ -800,7 +804,7 @@ impl PyPdfReader {
                 "overlap ({overlap}) must be < chunk_size ({chunk_size})"
             )));
         }
-        self.ensure_document();
+        self.ensure_document()?;
         let extracted = py
             .detach(|| with_document_mut!(self, doc => doc.extract_text_from_page(page_index)))
             .map_err(parse_err_to_py)?;
@@ -820,7 +824,7 @@ impl PyPdfReader {
 
     /// Partition document into semantic elements.
     fn partition(&mut self, py: Python<'_>) -> PyResult<Vec<PyElement>> {
-        self.ensure_document();
+        self.ensure_document()?;
         let elements = py
             .detach(|| with_document_mut!(self, doc => doc.partition()))
             .map_err(parse_err_to_py)?;
@@ -833,7 +837,7 @@ impl PyPdfReader {
         py: Python<'_>,
         config: &PyPartitionConfig,
     ) -> PyResult<Vec<PyElement>> {
-        self.ensure_document();
+        self.ensure_document()?;
         let config = config.inner.clone();
         let elements = py
             .detach(|| with_document_mut!(self, doc => doc.partition_with(config)))
@@ -850,7 +854,7 @@ impl PyPdfReader {
         py: Python<'_>,
         profile: &PyExtractionProfile,
     ) -> PyResult<Vec<PyElement>> {
-        self.ensure_document();
+        self.ensure_document()?;
         let profile = profile.inner.clone();
         let elements = py
             .detach(|| with_document_mut!(self, doc => doc.partition_with_profile(profile)))
@@ -867,7 +871,7 @@ impl PyPdfReader {
         py: Python<'_>,
         config: &PyPartitionConfig,
     ) -> PyResult<(Vec<PyElement>, PyElementGraph)> {
-        self.ensure_document();
+        self.ensure_document()?;
         let config = config.inner.clone();
         let (elements, inner) = py
             .detach(|| with_document_mut!(self, doc => doc.partition_graph(config)))
@@ -887,7 +891,7 @@ impl PyPdfReader {
         py: Python<'_>,
         config: &PyHybridChunkConfig,
     ) -> PyResult<Vec<PyRagChunk>> {
-        self.ensure_document();
+        self.ensure_document()?;
         let config = config.inner.clone();
         let chunks = py
             .detach(|| with_document_mut!(self, doc => doc.rag_chunks_with(config)))
@@ -912,7 +916,7 @@ impl PyPdfReader {
                 "counter must be callable",
             ));
         }
-        self.ensure_document();
+        self.ensure_document()?;
         let config = config.inner.clone();
         let counter = Arc::new(CallbackCounter::new(counter));
         let adapter = counter.clone();
@@ -932,7 +936,7 @@ impl PyPdfReader {
     /// Structured document JSON, distinct from EntityMap's entity JSON.
     #[allow(deprecated, clippy::wrong_self_convention)]
     fn to_json(&mut self, py: Python<'_>) -> PyResult<String> {
-        self.ensure_document();
+        self.ensure_document()?;
         py.detach(|| with_document_mut!(self, doc => doc.to_json()))
             .map_err(pdf_err_to_py)
     }
@@ -940,14 +944,14 @@ impl PyPdfReader {
     /// Markdown rendered from classified document elements.
     #[allow(clippy::wrong_self_convention)]
     fn to_element_markdown(&mut self, py: Python<'_>) -> PyResult<String> {
-        self.ensure_document();
+        self.ensure_document()?;
         py.detach(|| with_document_mut!(self, doc => doc.to_element_markdown()))
             .map_err(parse_err_to_py)
     }
 
     /// Get RAG-ready chunks with default configuration.
     fn rag_chunks(&mut self, py: Python<'_>) -> PyResult<Vec<PyRagChunk>> {
-        self.ensure_document();
+        self.ensure_document()?;
         let chunks = py
             .detach(|| with_document_mut!(self, doc => doc.rag_chunks()))
             .map_err(parse_err_to_py)?;
@@ -960,7 +964,7 @@ impl PyPdfReader {
         py: Python<'_>,
         profile: &PyExtractionProfile,
     ) -> PyResult<Vec<PyRagChunk>> {
-        self.ensure_document();
+        self.ensure_document()?;
         let profile = profile.inner.clone();
         let chunks = py
             .detach(|| with_document_mut!(self, doc => doc.rag_chunks_with_profile(profile)))
@@ -981,7 +985,7 @@ impl PyPdfReader {
         py: Python<'_>,
         source: &PyDocumentSource,
     ) -> PyResult<Vec<PyRagChunk>> {
-        self.ensure_document();
+        self.ensure_document()?;
         let source = source.inner.clone();
         let chunks = py
             .detach(|| with_document_mut!(self, doc => doc.rag_chunks_with_source(source)))
@@ -1000,7 +1004,7 @@ impl PyPdfReader {
         source: &PyDocumentSource,
         config: &PyHybridChunkConfig,
     ) -> PyResult<Vec<PyRagChunk>> {
-        self.ensure_document();
+        self.ensure_document()?;
         let source = source.inner.clone();
         let config = config.inner.clone();
         let chunks = py
@@ -1028,7 +1032,7 @@ impl PyPdfReader {
         py: Python<'_>,
         pipeline: &PyAnalysisPipeline,
     ) -> PyResult<Vec<PyRagChunk>> {
-        self.ensure_document();
+        self.ensure_document()?;
         let (analysis, err_slot) = pipeline.build(py);
         let result = with_document!(self, doc =>
             doc.rag_chunks_with_pipeline(&analysis)
@@ -1054,7 +1058,7 @@ impl PyPdfReader {
         py: Python<'_>,
         options: &PyExtractionOptions,
     ) -> PyResult<Vec<String>> {
-        self.ensure_document();
+        self.ensure_document()?;
         let options = options.clone();
         let texts = py
             .detach(
@@ -1082,7 +1086,7 @@ impl PyPdfReader {
         py: Python<'_>,
         options: &PyExtractionOptions,
     ) -> PyResult<Vec<Vec<PyTextFragment>>> {
-        self.ensure_document();
+        self.ensure_document()?;
         let options = options.clone();
         let pages = py
             .detach(
@@ -1111,7 +1115,7 @@ impl PyPdfReader {
         page_index: u32,
         options: &PyExtractionOptions,
     ) -> PyResult<Vec<PyTextFragment>> {
-        self.ensure_document();
+        self.ensure_document()?;
         let options = options.clone();
         let extracted = py
             .detach(|| {
@@ -1142,7 +1146,7 @@ impl PyPdfReader {
         page_index: u32,
         options: &PyExtractionOptions,
     ) -> PyResult<PyExtractedText> {
-        self.ensure_document();
+        self.ensure_document()?;
         let options = options.clone();
         let extracted = py
             .detach(|| {
@@ -1164,7 +1168,7 @@ impl PyPdfReader {
         page_index: u32,
         config: Option<&PyPlainTextConfig>,
     ) -> PyResult<PyPlainTextResult> {
-        self.ensure_document();
+        self.ensure_document()?;
         let mut extractor = if let Some(cfg) = config {
             oxidize_pdf::text::PlainTextExtractor::with_config(cfg.inner.clone())
         } else {
@@ -1186,7 +1190,7 @@ impl PyPdfReader {
         page_index: u32,
         config: Option<&PyPlainTextConfig>,
     ) -> PyResult<Vec<String>> {
-        self.ensure_document();
+        self.ensure_document()?;
         let mut extractor = if let Some(cfg) = config {
             oxidize_pdf::text::PlainTextExtractor::with_config(cfg.inner.clone())
         } else {
@@ -1207,7 +1211,7 @@ impl PyPdfReader {
     /// Pages without a ``/Contents`` entry return an empty list. An out
     /// of range ``index`` raises ``PdfError``.
     fn get_page_content_streams(&mut self, py: Python<'_>, index: u32) -> PyResult<Vec<Vec<u8>>> {
-        self.ensure_document();
+        self.ensure_document()?;
         // Both calls return the same ParseError, so the closure returns the raw
         // Result and the original error type is preserved by mapping outside.
         py.detach(|| {
@@ -1229,7 +1233,7 @@ impl PyPdfReader {
         py: Python<'_>,
         index: u32,
     ) -> PyResult<Option<PyPageResources>> {
-        self.ensure_document();
+        self.ensure_document()?;
         with_document!(self, doc => {
             let page = doc.get_page(index).map_err(parse_err_to_py)?;
             let Some(resources) = page.get_resources() else {
@@ -1251,7 +1255,7 @@ impl PyPdfReader {
         page_index: u32,
         resource_name: &str,
     ) -> PyResult<PyResolvedFontResource> {
-        self.ensure_document();
+        self.ensure_document()?;
         let resource_name = resource_name.trim_start_matches('/').to_owned();
         let resolved = py
             .detach(|| {
@@ -1272,7 +1276,7 @@ impl PyPdfReader {
     }
 
     fn __repr__(&mut self) -> PyResult<String> {
-        self.ensure_document();
+        self.ensure_document()?;
         let count = with_document!(self, doc => doc.page_count().map_err(parse_err_to_py))?;
         Ok(format!("PdfReader(pages={count})"))
     }
@@ -1632,8 +1636,8 @@ impl PyTextChunk {
 ///
 /// Provides read-only access to page dimensions and rotation.
 #[pyclass(name = "ParsedPage")]
-struct PyParsedPage {
-    inner: oxidize_pdf::ParsedPage,
+pub(crate) struct PyParsedPage {
+    pub(crate) inner: oxidize_pdf::ParsedPage,
 }
 
 #[pymethods]

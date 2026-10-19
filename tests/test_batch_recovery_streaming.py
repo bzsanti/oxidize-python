@@ -477,7 +477,7 @@ class TestIncrementalParser:
 
     def test_feed_object_emits_events(self):
         parser = op.IncrementalParser()
-        parser.feed(b"1 0 obj\n<< >>\nendobj\n")
+        parser.feed(b"%PDF-1.7\n1 0 obj\n<< >>\nendobj\n")
         events = parser.take_events()
         types = [e["type"] for e in events]
         assert "object_start" in types
@@ -493,10 +493,8 @@ class TestIncrementalParser:
 
     def test_is_complete_after_eof(self):
         parser = op.IncrementalParser()
-        parser.feed(b"%PDF-1.7\n")
-        parser.feed(b"xref\n")
-        parser.feed(b"trailer\n")
-        parser.feed(b"%%EOF\n")
+        from test_incremental_parser_payloads import stream_pdf
+        parser.feed(stream_pdf())
         # Drain pending events
         parser.take_events()
         assert parser.is_complete()
@@ -515,14 +513,8 @@ class TestIncrementalParser:
 
     def test_complete_pdf_sequence(self):
         parser = op.IncrementalParser()
-        pdf = (
-            b"%PDF-1.7\n"
-            b"1 0 obj\n<< /Type /Catalog >>\nendobj\n"
-            b"xref\n0 1\n0000000000 65535 f\n"
-            b"trailer\n<< /Size 1 >>\n"
-            b"%%EOF\n"
-        )
-        parser.feed(pdf)
+        from test_incremental_parser_payloads import stream_pdf
+        parser.feed(stream_pdf())
         events = parser.take_events()
         assert parser.is_complete()
 
@@ -534,7 +526,7 @@ class TestIncrementalParser:
 
     def test_event_dict_structure(self):
         parser = op.IncrementalParser()
-        parser.feed(b"%PDF-1.7\n1 0 obj\nendobj\n")
+        parser.feed(b"%PDF-1.7\n1 0 obj\nnull\nendobj\n")
         events = parser.take_events()
         for event in events:
             assert "type" in event
@@ -543,11 +535,11 @@ class TestIncrementalParser:
     def test_stream_data_event(self):
         parser = op.IncrementalParser()
         # Put parser into InObject state by feeding object header
-        parser.feed(b"1 0 obj\n")
+        parser.feed(b"%PDF-1.7\n1 0 obj\n")
         parser.take_events()  # drain ObjectStart
 
         # Now feed stream content
-        parser.feed(b"stream\nhello world\nendstream\n")
+        parser.feed(b"<< /Length 11 >>\nstream\nhello world\nendstream\nendobj\n")
         events = parser.take_events()
         stream_events = [e for e in events if e["type"] == "stream_data"]
         assert len(stream_events) >= 1

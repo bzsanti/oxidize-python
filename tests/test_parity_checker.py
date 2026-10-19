@@ -11,7 +11,7 @@ def test_parity_checker_rejects_contract_regressions(tmp_path, kind):
     spec = importlib.util.spec_from_file_location('parity_checker', ROOT / 'scripts/check_parity.py')
     checker = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(checker)
-    for relative in ['Cargo.toml', 'docs/parity-contract.json', 'python/oxidize_pdf/_oxidize_pdf.pyi', 'tests/test_existing_document.py', 'tests/test_incremental_signing.py', 'tests/test_extraction_options_parity.py', 'tests/test_incremental_annotations.py', 'tests/test_incremental_ink.py', 'tests/test_incremental_geometric.py', 'tests/test_tagged_validation.py', 'tests/test_semantic_comparison.py', 'tests/test_raw_images.py', 'tests/test_marked_content.py', 'tests/test_coordinates.py', 'tests/test_render_context.py', 'tests/test_page_geometry.py', 'tests/test_clipping_paths.py', 'tests/test_dash_patterns.py', 'tests/test_blend_modes.py', 'tests/test_color_conversions.py', 'tests/test_rag_reader_parity.py', 'tests/test_page_streamer.py', 'tests/test_incremental_parser_payloads.py', 'tests/test_batch_options.py', 'tests/test_signature_errors.py', 'tests/test_outline_read.py', 'tests/test_parser_recovery_options.py', 'tests/test_parser_recovery_options.py', 'python/oxidize_pdf/signature_errors.py', 'python/oxidize_pdf/parse_events.py']:
+    for relative in ['Cargo.toml', 'docs/parity-contract.json', 'python/oxidize_pdf/_oxidize_pdf.pyi', 'tests/test_existing_document.py', 'tests/test_incremental_signing.py', 'tests/test_extraction_options_parity.py', 'tests/test_incremental_annotations.py', 'tests/test_incremental_ink.py', 'tests/test_incremental_geometric.py', 'tests/test_tagged_validation.py', 'tests/test_semantic_comparison.py', 'tests/test_raw_images.py', 'tests/test_marked_content.py', 'tests/test_coordinates.py', 'tests/test_render_context.py', 'tests/test_page_geometry.py', 'tests/test_clipping_paths.py', 'tests/test_dash_patterns.py', 'tests/test_blend_modes.py', 'tests/test_color_conversions.py', 'tests/test_rag_reader_parity.py', 'tests/test_page_streamer.py', 'tests/test_incremental_parser_payloads.py', 'tests/test_batch_options.py', 'tests/test_aes_entropy.py', 'tests/test_streaming_memory_options.py', 'tests/test_signature_errors.py', 'tests/test_outline_read.py', 'tests/test_parser_recovery_options.py', 'tests/test_parser_recovery_options.py', 'python/oxidize_pdf/signature_errors.py', 'python/oxidize_pdf/parse_events.py']:
         target = tmp_path / relative
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(ROOT / relative, target)
@@ -24,7 +24,7 @@ def test_parity_checker_rejects_contract_regressions(tmp_path, kind):
         path = tmp_path / ('python/oxidize_pdf/signature_errors.py' if kind in ('error-code', 'error-field') else 'python/oxidize_pdf/parse_events.py' if kind == 'event-field' else 'Cargo.toml' if kind == 'core' else 'tests/test_existing_document.py' if kind == 'test' else 'python/oxidize_pdf/_oxidize_pdf.pyi')
         source = path.read_text(encoding="utf-8")
         before, after = {
-            'core': ('=5.4.2', '=5.4.3'),
+            'core': ('=5.5.0', '=5.5.1'),
             'error-code': ("'unsupported_algorithm'", "'removed_algorithm'"),
             'error-field': ('offset: int', 'offset: str'),
             'event-field': ('    data: bytes', '    lost_data: bytes'),
