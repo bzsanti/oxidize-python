@@ -1607,3 +1607,26 @@ focalizados pasan). MCP 295 passed/1 skipped, Clippy, sin default features,
 paridad y tipos pasan. Revisión con ambos Kripteia: sin bloqueantes de #253.
 Evidencia: [evidence/issue-253/review.md](evidence/issue-253/review.md).
 Pendiente: CI multiplataforma sobre el head de entrega e integración.
+
+## #258 — configuración efectiva sobre core 5.5.0 (2026-10-19)
+
+Base develop 91261a4 (#253), entrega aislada. Core #725/#758 ya publicados.
+
+| Requisito | Estado / evidencia | Bloqueante y cierre |
+| --- | --- | --- |
+| Configurar/consultar opciones y presets | Demostrado localmente | Constructores completos, snapshots y stubs; typing/contrato pasan |
+| Consumidores correctos | Demostrado localmente | StreamingDocument nativo y LazyDocument(options); mutación de ambos consumidores detectada |
+| Efectos y límites observables | Demostrado localmente | PDFs independientes: cache/evicción/clear, lazy/eager, límite decodificado; prueba nativa de I/O |
+| Garantías y revisión | Revisión local completada; CI pendiente | Solicitado/efectivo/unsupported documentados; revisión y ambos Kripteia sin bloqueantes |
+
+PageStreamer conserva reapertura por página, seek y geometría rotada. El nuevo
+StreamingDocument expone el consumidor de StreamingOptions del core (caché
+persistente; geometría nativa sin aplicar rotación). LazyDocument expone
+páginas/objetos para demostrar carga y caché. Mapping/streaming no soportados y
+progressive_hints se informan explícitamente; continúan fuera del contrato global
+de paridad #244. No se modifica el core.
+
+Aceptación local: 2700 tests de biblioteca, 295 MCP (1 skip previo), 5 nativos;
+Clippy, sin default features, contrato y tipos pasan. Mutación que ignora ambas
+opciones: 6 fallos esperados/1 pasa. Evidencia: [review.md](evidence/issue-258/review.md).
+Pendiente únicamente CI multiplataforma e integración del head de entrega.

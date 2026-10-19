@@ -522,56 +522,6 @@ impl PyBatchOptions {
     }
 }
 
-// ── Feature 36: Streaming/Lazy ────────────────────────────────────────────
-
-#[pyclass(name = "StreamingOptions", from_py_object)]
-#[derive(Clone)]
-pub struct PyStreamingOptions {
-    pub inner: oxidize_pdf::streaming::StreamingOptions,
-}
-
-#[pymethods]
-impl PyStreamingOptions {
-    #[staticmethod]
-    fn minimal_memory() -> Self {
-        Self { inner: oxidize_pdf::streaming::StreamingOptions::minimal_memory() }
-    }
-
-    #[staticmethod]
-    fn fast_processing() -> Self {
-        Self { inner: oxidize_pdf::streaming::StreamingOptions::fast_processing() }
-    }
-
-    fn __repr__(&self) -> String { "StreamingOptions(...)".to_string() }
-}
-
-#[pyclass(name = "LazyDocument", unsendable)]
-pub struct PyLazyDocument {
-    pub inner: oxidize_pdf::memory::LazyDocument<std::fs::File>,
-}
-
-#[pymethods]
-impl PyLazyDocument {
-    #[staticmethod]
-    fn open(path: &str) -> PyResult<Self> {
-        let doc = oxidize_pdf::memory::LazyDocument::open(
-            path, oxidize_pdf::memory::MemoryOptions::default(),
-        ).map_err(to_py_err)?;
-        Ok(Self { inner: doc })
-    }
-
-    /// Number of pages in the document.
-    ///
-    /// Read-only property. Access as ``lazy_doc.page_count`` (an integer), not
-    /// ``lazy_doc.page_count()`` — calling a property raises ``TypeError``.
-    #[getter]
-    fn page_count(&self) -> u32 { self.inner.page_count() }
-
-    fn __repr__(&self) -> String {
-        format!("LazyDocument(pages={})", self.inner.page_count())
-    }
-}
-
 // ── Feature 37: PDF Recovery ──────────────────────────────────────────────
 
 #[pyfunction]
@@ -1067,8 +1017,6 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyMockOcrProvider>()?;
     m.add_class::<PyOcrEngine>()?;
     m.add_class::<PyBatchOptions>()?;
-    m.add_class::<PyStreamingOptions>()?;
-    m.add_class::<PyLazyDocument>()?;
     m.add_function(wrap_pyfunction!(validate_pdf, m)?)?;
     m.add_class::<PyPdfALevel>()?;
     m.add_class::<PyPdfAConformance>()?;
