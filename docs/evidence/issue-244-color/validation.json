@@ -1,0 +1,14 @@
+{
+  "base": "2efeec48a968d2c81ab7dc163445a0635a918fdb",
+  "core": "5.4.2",
+  "sha256": {
+    "src/types.rs": "94ad521a20d13d33eb1b2d83018295181b9730ff902ce4566a5163c72338c0cf",
+    "python/oxidize_pdf/_oxidize_pdf.pyi": "9f6694102e453b17fba7c67bbcd405ac312f8302de32e8a4d70bb2ca6abd14f7",
+    "tests/test_color_conversions.py": "197860cf7b9e9244608c9aca79b35e92b8a746aa2863e169a24b1e7b3f9b9702",
+    "tests/typing/color_conversions.py": "74beee5e96decc3053f21ad3fb5d6fc8da75b80b91118166b37ea293565d7d70",
+    "tests/test_parity_checker.py": "51cb329ab0d783d156e190e04ff99593389bf134ceba9a2baabeae372e6f4fc0",
+    "docs/parity-contract.json": "5d68bed6270ed8eb98dc6383e164a6c31f15d53f623befcfdfcc217304288645",
+    ".github/workflows/test.yml": "aea42e86a0f17b05c4ecb0a3fe2a2965d9f4a9dab7320b6416b52d76a2e5272a",
+    "README.md": "5d3e2a33be1d175ef3494203a4ec19d48934233e54f234e1dc32bd6cb5737395"
+  }
+}

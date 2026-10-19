@@ -591,6 +591,21 @@ drawing. `mode.pdf_name()` returns the PDF name (for example, `"Color"`), and
 `repr(mode)` uses the Python constant name. These immutable values configure
 the page's extended graphics state; use `BlendMode.NORMAL` to reset blending.
 
+### Color conversion and inspection
+
+`color.to_rgb()` and `color.to_cmyk()` return independent `Color` values.
+`cmyk_components()` returns four converted components, including for RGB/Gray
+inputs. Existing `c`, `m`, `y`, `k` properties still return zero for non-CMYK
+colors. `is_rgb()`, `is_cmyk()`, `is_gray()` inspect the stored variant, and
+`color_space_name()` returns `DeviceRGB`, `DeviceCMYK`, or `DeviceGray`.
+The existing `color_space` property keeps its shorter names.
+
+Conversions use the published core 5.5.0's approximate formulas, without ICC
+profiles or calibrated color management. Gray becomes equal RGB components or
+CMYK with only black ink. RGB black converts to `(0, 0, 0, 1)`. Constructors
+clamp finite out-of-range values and infinities; NaN may propagate through
+conversion. Callers should supply finite components for predictable colors.
+
 ### Streaming and lazy document options
 
 Core 5.5.0 exposes two separate consumers with immutable options and configuration

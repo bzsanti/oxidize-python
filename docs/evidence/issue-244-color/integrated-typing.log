@@ -1,0 +1,3 @@
+Inventoried 489 native exports, 2565 members, 490 public exports
+Success: no issues found in 2 source files
+Partial parity contract passed: audited APIs plus 7 legacy groups, 490 exports. Full Rust parity remains pending.
