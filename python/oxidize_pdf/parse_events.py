@@ -1,7 +1,6 @@
 """Typed payloads returned by IncrementalParser, reflecting core events.
 
-Core 5.4.2 emits placeholder null objects, does not emit xref/trailer events,
-and normalizes stream lines. These types do not promise binary PDF parsing.
+Core 5.5.0 emits parsed objects, xref/trailer events, and binary stream payloads.
 """
 from typing import Literal, TypedDict, Union
 

@@ -457,7 +457,7 @@ impl PyOcrEngine {
 // ── Feature 35: Batch Processing ──────────────────────────────────────────
 
 /// Batch execution options. Durations use seconds; memory uses bytes.
-/// Core 5.4.2 does not enforce memory_limit_per_worker or job_timeout.
+/// Core 5.5.0 rejects nonzero memory limits; timeouts report failure after completion without interruption.
 #[pyclass(name = "BatchOptions")]
 pub struct PyBatchOptions {
     pub inner: oxidize_pdf::batch::BatchOptions,
@@ -480,7 +480,7 @@ impl PyBatchOptions {
     }
     fn __clear__(&mut self) { self.callback = None; }
     #[new]
-    #[pyo3(signature = (parallelism=None, stop_on_error=None, *, memory_limit_per_worker=536870912, progress_interval=0.1, progress_callback=None, job_timeout=Some(300.0)))]
+    #[pyo3(signature = (parallelism=None, stop_on_error=None, *, memory_limit_per_worker=0, progress_interval=0.1, progress_callback=None, job_timeout=Some(300.0)))]
     fn new(
         parallelism: Option<usize>, stop_on_error: Option<bool>,
         memory_limit_per_worker: usize, progress_interval: f64,
@@ -489,8 +489,8 @@ impl PyBatchOptions {
         let mut opts = oxidize_pdf::batch::BatchOptions::default();
         if let Some(p) = parallelism { opts.parallelism = p; }
         if let Some(s) = stop_on_error { opts.stop_on_error = s; }
-        if opts.parallelism == 0 || memory_limit_per_worker == 0 {
-            return Err(pyo3::exceptions::PyValueError::new_err("parallelism and memory_limit_per_worker must be positive"));
+        if opts.parallelism == 0 {
+            return Err(pyo3::exceptions::PyValueError::new_err("parallelism must be positive"));
         }
         opts.memory_limit_per_worker = memory_limit_per_worker;
         opts.progress_interval = batch_duration(progress_interval, "progress_interval")?;

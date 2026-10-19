@@ -1,4 +1,4 @@
-//! Lossless mapping of core events, including variants not yet emitted by 5.4.2.
+//! Lossless mapping of core events, including binary streams and parsed objects.
 use crate::signing::{dictionary_values, PyPdfValue};
 use oxidize_pdf::streaming::ParseEvent;
 use pyo3::prelude::*;

@@ -1,5 +1,5 @@
 {
-  "core": "5.4.2",
+  "core": "5.5.0",
   "scope": "existing-document preservation, page mutations and external CMS signing; remaining Rust API pending audit; composed extraction policies; incremental free-text editing; incremental Ink editing; configurable partitioning, element graphs, custom token counting and document export; real page iteration with explicit parser lifetime; lossless incremental event bridge (upstream parser limitations remain); all BatchOptions fields with observable executor limitations; structured SignatureError exceptions; bounded existing-document outline reading; parser and recovery configuration with explicit upstream consumption limits; bounded semantic comparison with physical revision attribution (core object-stream layout limitation documented); validated packed image pixel constructors and owned image/alpha inspection; affine transform matrices and coordinate conversions (Page stores the system without automatic content transformation); mutable RenderContext with independent stored matrix and live coordinate conversions; Page unrotated content bounds and effective rotated dimensions; clipping path construction, owned command inspection and winding rules (intersection/text clipping/region stack excluded); line dash factories, owned parameters and core serialization; all 16 blend modes and their PDF names",
   "callables": {
     "ExistingDocumentPolicy.preserve_base": [
@@ -1168,8 +1168,8 @@
     ],
     "tests/test_incremental_parser_payloads.py": [
       "test_stream_payload_and_legacy_fields_survive_drain",
-      "test_chunked_feed_retains_complete_ascii_line",
-      "test_upstream_placeholders_and_loss_are_explicit",
+      "test_chunked_feed_retains_binary_stream",
+      "test_real_objects_xref_and_trailer_are_emitted",
       "test_pdf_value_scalar_inspection",
       "test_nested_pdf_values_are_owned_and_inspectable",
       "test_invalid_feed_type_does_not_discard_pending_events"
@@ -1308,6 +1308,11 @@
       "test_new_modes_reach_extgstate",
       "test_new_modes_render",
       "test_invalid_mode_rejected"
+    ],
+    "tests/test_aes_entropy.py": [
+      "test_aes_ciphertext_and_independent_decryption",
+      "test_aes_entropy_failure_is_python_error_without_valid_output",
+      "test_aes_round_trip_on_each_platform"
     ]
   },
   "typed_dicts": {

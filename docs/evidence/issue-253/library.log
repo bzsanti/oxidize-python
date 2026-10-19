@@ -1,0 +1,409 @@
+........................................................................ [  2%]
+........................................................................ [  5%]
+........................................................................ [  8%]
+........................................................................ [ 10%]
+........................................................................ [ 13%]
+........................................................................ [ 16%]
+........................................................................ [ 18%]
+........................................................................ [ 21%]
+........................................................................ [ 24%]
+........................................................................ [ 26%]
+........................................................................ [ 29%]
+........................................................................ [ 32%]
+........................................................................ [ 34%]
+........................................................................ [ 37%]
+........................................................................ [ 40%]
+........................................................................ [ 43%]
+........................................................................ [ 45%]
+........................................................................ [ 48%]
+........................................................................ [ 51%]
+........................................................................ [ 53%]
+........................................................................ [ 56%]
+........................................................................ [ 59%]
+........................................................................ [ 61%]
+........................................................................ [ 64%]
+........................................................................ [ 67%]
+...............................................................FFFFFFFF. [ 69%]
+........................................................................ [ 72%]
+........................................................................ [ 75%]
+........................................................................ [ 78%]
+........................................................................ [ 80%]
+........................................................................ [ 83%]
+........................................................................ [ 86%]
+........................................................................ [ 88%]
+........................................................................ [ 91%]
+........................................................................ [ 94%]
+........................................................................ [ 96%]
+........................................................................ [ 99%]
+............                                                             [100%]
+=================================== FAILURES ===================================
+___________ test_parity_checker_rejects_contract_regressions[option] ___________
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-30/test_parity_checker_rejects_co0')
+kind = 'option'
+
+    @pytest.mark.parametrize('kind', ['option', 'result', 'test', 'export', 'core', 'event-field', 'error-code', 'error-field'])
+    def test_parity_checker_rejects_contract_regressions(tmp_path, kind):
+        spec = importlib.util.spec_from_file_location('parity_checker', ROOT / 'scripts/check_parity.py')
+        checker = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(checker)
+        for relative in ['Cargo.toml', 'docs/parity-contract.json', 'python/oxidize_pdf/_oxidize_pdf.pyi', 'tests/test_existing_document.py', 'tests/test_incremental_signing.py', 'tests/test_extraction_options_parity.py', 'tests/test_incremental_annotations.py', 'tests/test_incremental_ink.py', 'tests/test_incremental_geometric.py', 'tests/test_tagged_validation.py', 'tests/test_semantic_comparison.py', 'tests/test_raw_images.py', 'tests/test_marked_content.py', 'tests/test_coordinates.py', 'tests/test_render_context.py', 'tests/test_page_geometry.py', 'tests/test_clipping_paths.py', 'tests/test_dash_patterns.py', 'tests/test_blend_modes.py', 'tests/test_rag_reader_parity.py', 'tests/test_page_streamer.py', 'tests/test_incremental_parser_payloads.py', 'tests/test_batch_options.py', 'tests/test_signature_errors.py', 'tests/test_outline_read.py', 'tests/test_parser_recovery_options.py', 'tests/test_parser_recovery_options.py', 'python/oxidize_pdf/signature_errors.py', 'python/oxidize_pdf/parse_events.py']:
+            target = tmp_path / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(ROOT / relative, target)
+        checker.REPO_ROOT = tmp_path
+        exports = checker.parse_init_exports((ROOT / 'python/oxidize_pdf/__init__.py').read_text(encoding="utf-8"))
+>       assert checker.check_contract(exports) == []
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_parity_checker.py:20: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/check_parity.py:113: in check_contract
+    tree = ast.parse((REPO_ROOT / relative).read_text(encoding="utf-8"))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/pathlib.py:1029: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/tmp/pytest-of-santi/pytest-30/test_parity_checker_rejects_co0/tests/test_aes_entropy.py')
+mode = 'r', buffering = -1, encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/tmp/pytest-of-santi/pytest-30/test_parity_checker_rejects_co0/tests/test_aes_entropy.py'
+
+/usr/lib/python3.12/pathlib.py:1015: FileNotFoundError
+___________ test_parity_checker_rejects_contract_regressions[result] ___________
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-30/test_parity_checker_rejects_co1')
+kind = 'result'
+
+    @pytest.mark.parametrize('kind', ['option', 'result', 'test', 'export', 'core', 'event-field', 'error-code', 'error-field'])
+    def test_parity_checker_rejects_contract_regressions(tmp_path, kind):
+        spec = importlib.util.spec_from_file_location('parity_checker', ROOT / 'scripts/check_parity.py')
+        checker = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(checker)
+        for relative in ['Cargo.toml', 'docs/parity-contract.json', 'python/oxidize_pdf/_oxidize_pdf.pyi', 'tests/test_existing_document.py', 'tests/test_incremental_signing.py', 'tests/test_extraction_options_parity.py', 'tests/test_incremental_annotations.py', 'tests/test_incremental_ink.py', 'tests/test_incremental_geometric.py', 'tests/test_tagged_validation.py', 'tests/test_semantic_comparison.py', 'tests/test_raw_images.py', 'tests/test_marked_content.py', 'tests/test_coordinates.py', 'tests/test_render_context.py', 'tests/test_page_geometry.py', 'tests/test_clipping_paths.py', 'tests/test_dash_patterns.py', 'tests/test_blend_modes.py', 'tests/test_rag_reader_parity.py', 'tests/test_page_streamer.py', 'tests/test_incremental_parser_payloads.py', 'tests/test_batch_options.py', 'tests/test_signature_errors.py', 'tests/test_outline_read.py', 'tests/test_parser_recovery_options.py', 'tests/test_parser_recovery_options.py', 'python/oxidize_pdf/signature_errors.py', 'python/oxidize_pdf/parse_events.py']:
+            target = tmp_path / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(ROOT / relative, target)
+        checker.REPO_ROOT = tmp_path
+        exports = checker.parse_init_exports((ROOT / 'python/oxidize_pdf/__init__.py').read_text(encoding="utf-8"))
+>       assert checker.check_contract(exports) == []
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_parity_checker.py:20: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/check_parity.py:113: in check_contract
+    tree = ast.parse((REPO_ROOT / relative).read_text(encoding="utf-8"))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/pathlib.py:1029: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/tmp/pytest-of-santi/pytest-30/test_parity_checker_rejects_co1/tests/test_aes_entropy.py')
+mode = 'r', buffering = -1, encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/tmp/pytest-of-santi/pytest-30/test_parity_checker_rejects_co1/tests/test_aes_entropy.py'
+
+/usr/lib/python3.12/pathlib.py:1015: FileNotFoundError
+____________ test_parity_checker_rejects_contract_regressions[test] ____________
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-30/test_parity_checker_rejects_co2')
+kind = 'test'
+
+    @pytest.mark.parametrize('kind', ['option', 'result', 'test', 'export', 'core', 'event-field', 'error-code', 'error-field'])
+    def test_parity_checker_rejects_contract_regressions(tmp_path, kind):
+        spec = importlib.util.spec_from_file_location('parity_checker', ROOT / 'scripts/check_parity.py')
+        checker = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(checker)
+        for relative in ['Cargo.toml', 'docs/parity-contract.json', 'python/oxidize_pdf/_oxidize_pdf.pyi', 'tests/test_existing_document.py', 'tests/test_incremental_signing.py', 'tests/test_extraction_options_parity.py', 'tests/test_incremental_annotations.py', 'tests/test_incremental_ink.py', 'tests/test_incremental_geometric.py', 'tests/test_tagged_validation.py', 'tests/test_semantic_comparison.py', 'tests/test_raw_images.py', 'tests/test_marked_content.py', 'tests/test_coordinates.py', 'tests/test_render_context.py', 'tests/test_page_geometry.py', 'tests/test_clipping_paths.py', 'tests/test_dash_patterns.py', 'tests/test_blend_modes.py', 'tests/test_rag_reader_parity.py', 'tests/test_page_streamer.py', 'tests/test_incremental_parser_payloads.py', 'tests/test_batch_options.py', 'tests/test_signature_errors.py', 'tests/test_outline_read.py', 'tests/test_parser_recovery_options.py', 'tests/test_parser_recovery_options.py', 'python/oxidize_pdf/signature_errors.py', 'python/oxidize_pdf/parse_events.py']:
+            target = tmp_path / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(ROOT / relative, target)
+        checker.REPO_ROOT = tmp_path
+        exports = checker.parse_init_exports((ROOT / 'python/oxidize_pdf/__init__.py').read_text(encoding="utf-8"))
+>       assert checker.check_contract(exports) == []
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_parity_checker.py:20: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/check_parity.py:113: in check_contract
+    tree = ast.parse((REPO_ROOT / relative).read_text(encoding="utf-8"))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/pathlib.py:1029: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/tmp/pytest-of-santi/pytest-30/test_parity_checker_rejects_co2/tests/test_aes_entropy.py')
+mode = 'r', buffering = -1, encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/tmp/pytest-of-santi/pytest-30/test_parity_checker_rejects_co2/tests/test_aes_entropy.py'
+
+/usr/lib/python3.12/pathlib.py:1015: FileNotFoundError
+___________ test_parity_checker_rejects_contract_regressions[export] ___________
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-30/test_parity_checker_rejects_co3')
+kind = 'export'
+
+    @pytest.mark.parametrize('kind', ['option', 'result', 'test', 'export', 'core', 'event-field', 'error-code', 'error-field'])
+    def test_parity_checker_rejects_contract_regressions(tmp_path, kind):
+        spec = importlib.util.spec_from_file_location('parity_checker', ROOT / 'scripts/check_parity.py')
+        checker = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(checker)
+        for relative in ['Cargo.toml', 'docs/parity-contract.json', 'python/oxidize_pdf/_oxidize_pdf.pyi', 'tests/test_existing_document.py', 'tests/test_incremental_signing.py', 'tests/test_extraction_options_parity.py', 'tests/test_incremental_annotations.py', 'tests/test_incremental_ink.py', 'tests/test_incremental_geometric.py', 'tests/test_tagged_validation.py', 'tests/test_semantic_comparison.py', 'tests/test_raw_images.py', 'tests/test_marked_content.py', 'tests/test_coordinates.py', 'tests/test_render_context.py', 'tests/test_page_geometry.py', 'tests/test_clipping_paths.py', 'tests/test_dash_patterns.py', 'tests/test_blend_modes.py', 'tests/test_rag_reader_parity.py', 'tests/test_page_streamer.py', 'tests/test_incremental_parser_payloads.py', 'tests/test_batch_options.py', 'tests/test_signature_errors.py', 'tests/test_outline_read.py', 'tests/test_parser_recovery_options.py', 'tests/test_parser_recovery_options.py', 'python/oxidize_pdf/signature_errors.py', 'python/oxidize_pdf/parse_events.py']:
+            target = tmp_path / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(ROOT / relative, target)
+        checker.REPO_ROOT = tmp_path
+        exports = checker.parse_init_exports((ROOT / 'python/oxidize_pdf/__init__.py').read_text(encoding="utf-8"))
+>       assert checker.check_contract(exports) == []
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_parity_checker.py:20: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/check_parity.py:113: in check_contract
+    tree = ast.parse((REPO_ROOT / relative).read_text(encoding="utf-8"))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/pathlib.py:1029: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/tmp/pytest-of-santi/pytest-30/test_parity_checker_rejects_co3/tests/test_aes_entropy.py')
+mode = 'r', buffering = -1, encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/tmp/pytest-of-santi/pytest-30/test_parity_checker_rejects_co3/tests/test_aes_entropy.py'
+
+/usr/lib/python3.12/pathlib.py:1015: FileNotFoundError
+____________ test_parity_checker_rejects_contract_regressions[core] ____________
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-30/test_parity_checker_rejects_co4')
+kind = 'core'
+
+    @pytest.mark.parametrize('kind', ['option', 'result', 'test', 'export', 'core', 'event-field', 'error-code', 'error-field'])
+    def test_parity_checker_rejects_contract_regressions(tmp_path, kind):
+        spec = importlib.util.spec_from_file_location('parity_checker', ROOT / 'scripts/check_parity.py')
+        checker = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(checker)
+        for relative in ['Cargo.toml', 'docs/parity-contract.json', 'python/oxidize_pdf/_oxidize_pdf.pyi', 'tests/test_existing_document.py', 'tests/test_incremental_signing.py', 'tests/test_extraction_options_parity.py', 'tests/test_incremental_annotations.py', 'tests/test_incremental_ink.py', 'tests/test_incremental_geometric.py', 'tests/test_tagged_validation.py', 'tests/test_semantic_comparison.py', 'tests/test_raw_images.py', 'tests/test_marked_content.py', 'tests/test_coordinates.py', 'tests/test_render_context.py', 'tests/test_page_geometry.py', 'tests/test_clipping_paths.py', 'tests/test_dash_patterns.py', 'tests/test_blend_modes.py', 'tests/test_rag_reader_parity.py', 'tests/test_page_streamer.py', 'tests/test_incremental_parser_payloads.py', 'tests/test_batch_options.py', 'tests/test_signature_errors.py', 'tests/test_outline_read.py', 'tests/test_parser_recovery_options.py', 'tests/test_parser_recovery_options.py', 'python/oxidize_pdf/signature_errors.py', 'python/oxidize_pdf/parse_events.py']:
+            target = tmp_path / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(ROOT / relative, target)
+        checker.REPO_ROOT = tmp_path
+        exports = checker.parse_init_exports((ROOT / 'python/oxidize_pdf/__init__.py').read_text(encoding="utf-8"))
+>       assert checker.check_contract(exports) == []
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_parity_checker.py:20: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/check_parity.py:113: in check_contract
+    tree = ast.parse((REPO_ROOT / relative).read_text(encoding="utf-8"))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/pathlib.py:1029: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/tmp/pytest-of-santi/pytest-30/test_parity_checker_rejects_co4/tests/test_aes_entropy.py')
+mode = 'r', buffering = -1, encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/tmp/pytest-of-santi/pytest-30/test_parity_checker_rejects_co4/tests/test_aes_entropy.py'
+
+/usr/lib/python3.12/pathlib.py:1015: FileNotFoundError
+________ test_parity_checker_rejects_contract_regressions[event-field] _________
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-30/test_parity_checker_rejects_co5')
+kind = 'event-field'
+
+    @pytest.mark.parametrize('kind', ['option', 'result', 'test', 'export', 'core', 'event-field', 'error-code', 'error-field'])
+    def test_parity_checker_rejects_contract_regressions(tmp_path, kind):
+        spec = importlib.util.spec_from_file_location('parity_checker', ROOT / 'scripts/check_parity.py')
+        checker = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(checker)
+        for relative in ['Cargo.toml', 'docs/parity-contract.json', 'python/oxidize_pdf/_oxidize_pdf.pyi', 'tests/test_existing_document.py', 'tests/test_incremental_signing.py', 'tests/test_extraction_options_parity.py', 'tests/test_incremental_annotations.py', 'tests/test_incremental_ink.py', 'tests/test_incremental_geometric.py', 'tests/test_tagged_validation.py', 'tests/test_semantic_comparison.py', 'tests/test_raw_images.py', 'tests/test_marked_content.py', 'tests/test_coordinates.py', 'tests/test_render_context.py', 'tests/test_page_geometry.py', 'tests/test_clipping_paths.py', 'tests/test_dash_patterns.py', 'tests/test_blend_modes.py', 'tests/test_rag_reader_parity.py', 'tests/test_page_streamer.py', 'tests/test_incremental_parser_payloads.py', 'tests/test_batch_options.py', 'tests/test_signature_errors.py', 'tests/test_outline_read.py', 'tests/test_parser_recovery_options.py', 'tests/test_parser_recovery_options.py', 'python/oxidize_pdf/signature_errors.py', 'python/oxidize_pdf/parse_events.py']:
+            target = tmp_path / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(ROOT / relative, target)
+        checker.REPO_ROOT = tmp_path
+        exports = checker.parse_init_exports((ROOT / 'python/oxidize_pdf/__init__.py').read_text(encoding="utf-8"))
+>       assert checker.check_contract(exports) == []
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_parity_checker.py:20: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/check_parity.py:113: in check_contract
+    tree = ast.parse((REPO_ROOT / relative).read_text(encoding="utf-8"))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/pathlib.py:1029: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/tmp/pytest-of-santi/pytest-30/test_parity_checker_rejects_co5/tests/test_aes_entropy.py')
+mode = 'r', buffering = -1, encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/tmp/pytest-of-santi/pytest-30/test_parity_checker_rejects_co5/tests/test_aes_entropy.py'
+
+/usr/lib/python3.12/pathlib.py:1015: FileNotFoundError
+_________ test_parity_checker_rejects_contract_regressions[error-code] _________
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-30/test_parity_checker_rejects_co6')
+kind = 'error-code'
+
+    @pytest.mark.parametrize('kind', ['option', 'result', 'test', 'export', 'core', 'event-field', 'error-code', 'error-field'])
+    def test_parity_checker_rejects_contract_regressions(tmp_path, kind):
+        spec = importlib.util.spec_from_file_location('parity_checker', ROOT / 'scripts/check_parity.py')
+        checker = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(checker)
+        for relative in ['Cargo.toml', 'docs/parity-contract.json', 'python/oxidize_pdf/_oxidize_pdf.pyi', 'tests/test_existing_document.py', 'tests/test_incremental_signing.py', 'tests/test_extraction_options_parity.py', 'tests/test_incremental_annotations.py', 'tests/test_incremental_ink.py', 'tests/test_incremental_geometric.py', 'tests/test_tagged_validation.py', 'tests/test_semantic_comparison.py', 'tests/test_raw_images.py', 'tests/test_marked_content.py', 'tests/test_coordinates.py', 'tests/test_render_context.py', 'tests/test_page_geometry.py', 'tests/test_clipping_paths.py', 'tests/test_dash_patterns.py', 'tests/test_blend_modes.py', 'tests/test_rag_reader_parity.py', 'tests/test_page_streamer.py', 'tests/test_incremental_parser_payloads.py', 'tests/test_batch_options.py', 'tests/test_signature_errors.py', 'tests/test_outline_read.py', 'tests/test_parser_recovery_options.py', 'tests/test_parser_recovery_options.py', 'python/oxidize_pdf/signature_errors.py', 'python/oxidize_pdf/parse_events.py']:
+            target = tmp_path / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(ROOT / relative, target)
+        checker.REPO_ROOT = tmp_path
+        exports = checker.parse_init_exports((ROOT / 'python/oxidize_pdf/__init__.py').read_text(encoding="utf-8"))
+>       assert checker.check_contract(exports) == []
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_parity_checker.py:20: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/check_parity.py:113: in check_contract
+    tree = ast.parse((REPO_ROOT / relative).read_text(encoding="utf-8"))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/pathlib.py:1029: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/tmp/pytest-of-santi/pytest-30/test_parity_checker_rejects_co6/tests/test_aes_entropy.py')
+mode = 'r', buffering = -1, encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/tmp/pytest-of-santi/pytest-30/test_parity_checker_rejects_co6/tests/test_aes_entropy.py'
+
+/usr/lib/python3.12/pathlib.py:1015: FileNotFoundError
+________ test_parity_checker_rejects_contract_regressions[error-field] _________
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-30/test_parity_checker_rejects_co7')
+kind = 'error-field'
+
+    @pytest.mark.parametrize('kind', ['option', 'result', 'test', 'export', 'core', 'event-field', 'error-code', 'error-field'])
+    def test_parity_checker_rejects_contract_regressions(tmp_path, kind):
+        spec = importlib.util.spec_from_file_location('parity_checker', ROOT / 'scripts/check_parity.py')
+        checker = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(checker)
+        for relative in ['Cargo.toml', 'docs/parity-contract.json', 'python/oxidize_pdf/_oxidize_pdf.pyi', 'tests/test_existing_document.py', 'tests/test_incremental_signing.py', 'tests/test_extraction_options_parity.py', 'tests/test_incremental_annotations.py', 'tests/test_incremental_ink.py', 'tests/test_incremental_geometric.py', 'tests/test_tagged_validation.py', 'tests/test_semantic_comparison.py', 'tests/test_raw_images.py', 'tests/test_marked_content.py', 'tests/test_coordinates.py', 'tests/test_render_context.py', 'tests/test_page_geometry.py', 'tests/test_clipping_paths.py', 'tests/test_dash_patterns.py', 'tests/test_blend_modes.py', 'tests/test_rag_reader_parity.py', 'tests/test_page_streamer.py', 'tests/test_incremental_parser_payloads.py', 'tests/test_batch_options.py', 'tests/test_signature_errors.py', 'tests/test_outline_read.py', 'tests/test_parser_recovery_options.py', 'tests/test_parser_recovery_options.py', 'python/oxidize_pdf/signature_errors.py', 'python/oxidize_pdf/parse_events.py']:
+            target = tmp_path / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(ROOT / relative, target)
+        checker.REPO_ROOT = tmp_path
+        exports = checker.parse_init_exports((ROOT / 'python/oxidize_pdf/__init__.py').read_text(encoding="utf-8"))
+>       assert checker.check_contract(exports) == []
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_parity_checker.py:20: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/check_parity.py:113: in check_contract
+    tree = ast.parse((REPO_ROOT / relative).read_text(encoding="utf-8"))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/pathlib.py:1029: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/tmp/pytest-of-santi/pytest-30/test_parity_checker_rejects_co7/tests/test_aes_entropy.py')
+mode = 'r', buffering = -1, encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/tmp/pytest-of-santi/pytest-30/test_parity_checker_rejects_co7/tests/test_aes_entropy.py'
+
+/usr/lib/python3.12/pathlib.py:1015: FileNotFoundError
+=========================== short test summary info ============================
+FAILED tests/test_parity_checker.py::test_parity_checker_rejects_contract_regressions[option]
+FAILED tests/test_parity_checker.py::test_parity_checker_rejects_contract_regressions[result]
+FAILED tests/test_parity_checker.py::test_parity_checker_rejects_contract_regressions[test]
+FAILED tests/test_parity_checker.py::test_parity_checker_rejects_contract_regressions[export]
+FAILED tests/test_parity_checker.py::test_parity_checker_rejects_contract_regressions[core]
+FAILED tests/test_parity_checker.py::test_parity_checker_rejects_contract_regressions[event-field]
+FAILED tests/test_parity_checker.py::test_parity_checker_rejects_contract_regressions[error-code]
+FAILED tests/test_parity_checker.py::test_parity_checker_rejects_contract_regressions[error-field]
+8 failed, 2668 passed in 41.02s
