@@ -1,0 +1,12 @@
+   Compiling oxidize-python v0.22.0 (/tmp/oxidize-258-delivery)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 10.95s
+
+running 5 tests
+test parse_events::tests::preserves_binary_stream_bytes_without_decoding ... ok
+test parse_events::tests::preserves_nonempty_xref_and_large_offsets ... ok
+test parse_events::tests::preserves_trailer_and_nonplaceholder_object ... ok
+test streaming_options::tests::configured_buffers_and_eager_loading_change_real_io ... ok
+test signature_errors::tests::preserves_all_signature_variants_and_fields ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+

@@ -1636,8 +1636,8 @@ impl PyTextChunk {
 ///
 /// Provides read-only access to page dimensions and rotation.
 #[pyclass(name = "ParsedPage")]
-struct PyParsedPage {
-    inner: oxidize_pdf::ParsedPage,
+pub(crate) struct PyParsedPage {
+    pub(crate) inner: oxidize_pdf::ParsedPage,
 }
 
 #[pymethods]

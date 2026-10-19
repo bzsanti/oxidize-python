@@ -1,0 +1,7 @@
+   Compiling pyo3-build-config v0.28.3
+   Compiling pyo3-macros-backend v0.28.3
+   Compiling pyo3-ffi v0.28.3
+   Compiling pyo3 v0.28.3
+   Compiling pyo3-macros v0.28.3
+    Checking oxidize-python v0.22.0 (/tmp/oxidize-258-delivery)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 49.36s

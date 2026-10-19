@@ -888,6 +888,18 @@ pub struct PyStreamingPage {
     text: String,
 }
 
+impl PyStreamingPage {
+    pub(crate) fn from_core(page: oxidize_pdf::streaming::StreamingPage) -> PyResult<Self> {
+        Ok(Self {
+            number: page.number(),
+            width: page.width(),
+            height: page.height(),
+            media_box: page.media_box(),
+            text: page.extract_text_streaming().map_err(to_py_err)?,
+        })
+    }
+}
+
 #[pymethods]
 impl PyStreamingPage {
     #[getter]

@@ -42,6 +42,7 @@ mod table;
 mod text;
 mod text_extraction;
 mod tier8;
+mod streaming_options;
 mod types;
 mod upstream;
 mod verification;
@@ -81,6 +82,7 @@ fn _oxidize_pdf(m: &Bound<'_, PyModule>) -> PyResult<()> {
     outline_read::register(m)?;
     page_labels::register(m)?;
     tier8::register(m)?;
+    streaming_options::register(m)?;
     viewer_preferences::register(m)?;
     charts::register(m)?;
     advanced_tables::register(m)?;
