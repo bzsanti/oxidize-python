@@ -1,0 +1,292 @@
+FFFFFFFFFF.....FF                                                        [100%]
+=================================== FAILURES ===================================
+______ test_docmdp_preserves_read_noop_and_enforces_mutations[1-note-add] ______
+
+kind = 'note', permission = 1, action = 'add'
+
+    @pytest.mark.parametrize('kind,action', [('note','add'), ('note','remove'), ('note','update'), ('highlight','add'), ('highlight','remove')])
+    @pytest.mark.parametrize('permission', [1, 2, 3])
+    def test_docmdp_preserves_read_noop_and_enforces_mutations(kind, permission, action):
+        source = annotation_pdf(permission=permission)
+        editor = N(source) if kind == 'note' else H(source)
+        assert len(editor.notes() if kind == 'note' else editor.highlights()) == 1
+        assert editor.apply([]).pdf_bytes == source
+        if kind == 'note':
+            mutations = {'add': NM.add(0, (40., 50.), 'policy'), 'remove': NM.remove(p.TextNoteId(7, 9)), 'update': NM.update(p.TextNoteId(7, 9), (50., 60.), 'updated')}
+        else:
+            mutations = {'add': highlight_add(), 'remove': HM.remove(p.HighlightId(8, 4))}
+        if permission == 3:
+            result = editor.apply([mutations[action]])
+            assert_revision(source, result.pdf_bytes)
+            count = len(N(result.pdf_bytes).notes() if kind == 'note' else H(result.pdf_bytes).highlights())
+            assert count == (2 if action == 'add' else 0 if action == 'remove' else 1)
+        else:
+>           with pytest.raises(p.PdfPermissionError, match='DocMDP'):
+E           Failed: DID NOT RAISE <class 'oxidize_pdf.PdfPermissionError'>
+
+tests/test_notes_highlights.py:279: Failed
+____ test_docmdp_preserves_read_noop_and_enforces_mutations[1-note-remove] _____
+
+kind = 'note', permission = 1, action = 'remove'
+
+    @pytest.mark.parametrize('kind,action', [('note','add'), ('note','remove'), ('note','update'), ('highlight','add'), ('highlight','remove')])
+    @pytest.mark.parametrize('permission', [1, 2, 3])
+    def test_docmdp_preserves_read_noop_and_enforces_mutations(kind, permission, action):
+        source = annotation_pdf(permission=permission)
+        editor = N(source) if kind == 'note' else H(source)
+        assert len(editor.notes() if kind == 'note' else editor.highlights()) == 1
+        assert editor.apply([]).pdf_bytes == source
+        if kind == 'note':
+            mutations = {'add': NM.add(0, (40., 50.), 'policy'), 'remove': NM.remove(p.TextNoteId(7, 9)), 'update': NM.update(p.TextNoteId(7, 9), (50., 60.), 'updated')}
+        else:
+            mutations = {'add': highlight_add(), 'remove': HM.remove(p.HighlightId(8, 4))}
+        if permission == 3:
+            result = editor.apply([mutations[action]])
+            assert_revision(source, result.pdf_bytes)
+            count = len(N(result.pdf_bytes).notes() if kind == 'note' else H(result.pdf_bytes).highlights())
+            assert count == (2 if action == 'add' else 0 if action == 'remove' else 1)
+        else:
+>           with pytest.raises(p.PdfPermissionError, match='DocMDP'):
+E           Failed: DID NOT RAISE <class 'oxidize_pdf.PdfPermissionError'>
+
+tests/test_notes_highlights.py:279: Failed
+____ test_docmdp_preserves_read_noop_and_enforces_mutations[1-note-update] _____
+
+kind = 'note', permission = 1, action = 'update'
+
+    @pytest.mark.parametrize('kind,action', [('note','add'), ('note','remove'), ('note','update'), ('highlight','add'), ('highlight','remove')])
+    @pytest.mark.parametrize('permission', [1, 2, 3])
+    def test_docmdp_preserves_read_noop_and_enforces_mutations(kind, permission, action):
+        source = annotation_pdf(permission=permission)
+        editor = N(source) if kind == 'note' else H(source)
+        assert len(editor.notes() if kind == 'note' else editor.highlights()) == 1
+        assert editor.apply([]).pdf_bytes == source
+        if kind == 'note':
+            mutations = {'add': NM.add(0, (40., 50.), 'policy'), 'remove': NM.remove(p.TextNoteId(7, 9)), 'update': NM.update(p.TextNoteId(7, 9), (50., 60.), 'updated')}
+        else:
+            mutations = {'add': highlight_add(), 'remove': HM.remove(p.HighlightId(8, 4))}
+        if permission == 3:
+            result = editor.apply([mutations[action]])
+            assert_revision(source, result.pdf_bytes)
+            count = len(N(result.pdf_bytes).notes() if kind == 'note' else H(result.pdf_bytes).highlights())
+            assert count == (2 if action == 'add' else 0 if action == 'remove' else 1)
+        else:
+>           with pytest.raises(p.PdfPermissionError, match='DocMDP'):
+E           Failed: DID NOT RAISE <class 'oxidize_pdf.PdfPermissionError'>
+
+tests/test_notes_highlights.py:279: Failed
+___ test_docmdp_preserves_read_noop_and_enforces_mutations[1-highlight-add] ____
+
+kind = 'highlight', permission = 1, action = 'add'
+
+    @pytest.mark.parametrize('kind,action', [('note','add'), ('note','remove'), ('note','update'), ('highlight','add'), ('highlight','remove')])
+    @pytest.mark.parametrize('permission', [1, 2, 3])
+    def test_docmdp_preserves_read_noop_and_enforces_mutations(kind, permission, action):
+        source = annotation_pdf(permission=permission)
+        editor = N(source) if kind == 'note' else H(source)
+        assert len(editor.notes() if kind == 'note' else editor.highlights()) == 1
+        assert editor.apply([]).pdf_bytes == source
+        if kind == 'note':
+            mutations = {'add': NM.add(0, (40., 50.), 'policy'), 'remove': NM.remove(p.TextNoteId(7, 9)), 'update': NM.update(p.TextNoteId(7, 9), (50., 60.), 'updated')}
+        else:
+            mutations = {'add': highlight_add(), 'remove': HM.remove(p.HighlightId(8, 4))}
+        if permission == 3:
+            result = editor.apply([mutations[action]])
+            assert_revision(source, result.pdf_bytes)
+            count = len(N(result.pdf_bytes).notes() if kind == 'note' else H(result.pdf_bytes).highlights())
+            assert count == (2 if action == 'add' else 0 if action == 'remove' else 1)
+        else:
+>           with pytest.raises(p.PdfPermissionError, match='DocMDP'):
+E           Failed: DID NOT RAISE <class 'oxidize_pdf.PdfPermissionError'>
+
+tests/test_notes_highlights.py:279: Failed
+__ test_docmdp_preserves_read_noop_and_enforces_mutations[1-highlight-remove] __
+
+kind = 'highlight', permission = 1, action = 'remove'
+
+    @pytest.mark.parametrize('kind,action', [('note','add'), ('note','remove'), ('note','update'), ('highlight','add'), ('highlight','remove')])
+    @pytest.mark.parametrize('permission', [1, 2, 3])
+    def test_docmdp_preserves_read_noop_and_enforces_mutations(kind, permission, action):
+        source = annotation_pdf(permission=permission)
+        editor = N(source) if kind == 'note' else H(source)
+        assert len(editor.notes() if kind == 'note' else editor.highlights()) == 1
+        assert editor.apply([]).pdf_bytes == source
+        if kind == 'note':
+            mutations = {'add': NM.add(0, (40., 50.), 'policy'), 'remove': NM.remove(p.TextNoteId(7, 9)), 'update': NM.update(p.TextNoteId(7, 9), (50., 60.), 'updated')}
+        else:
+            mutations = {'add': highlight_add(), 'remove': HM.remove(p.HighlightId(8, 4))}
+        if permission == 3:
+            result = editor.apply([mutations[action]])
+            assert_revision(source, result.pdf_bytes)
+            count = len(N(result.pdf_bytes).notes() if kind == 'note' else H(result.pdf_bytes).highlights())
+            assert count == (2 if action == 'add' else 0 if action == 'remove' else 1)
+        else:
+>           with pytest.raises(p.PdfPermissionError, match='DocMDP'):
+E           Failed: DID NOT RAISE <class 'oxidize_pdf.PdfPermissionError'>
+
+tests/test_notes_highlights.py:279: Failed
+______ test_docmdp_preserves_read_noop_and_enforces_mutations[2-note-add] ______
+
+kind = 'note', permission = 2, action = 'add'
+
+    @pytest.mark.parametrize('kind,action', [('note','add'), ('note','remove'), ('note','update'), ('highlight','add'), ('highlight','remove')])
+    @pytest.mark.parametrize('permission', [1, 2, 3])
+    def test_docmdp_preserves_read_noop_and_enforces_mutations(kind, permission, action):
+        source = annotation_pdf(permission=permission)
+        editor = N(source) if kind == 'note' else H(source)
+        assert len(editor.notes() if kind == 'note' else editor.highlights()) == 1
+        assert editor.apply([]).pdf_bytes == source
+        if kind == 'note':
+            mutations = {'add': NM.add(0, (40., 50.), 'policy'), 'remove': NM.remove(p.TextNoteId(7, 9)), 'update': NM.update(p.TextNoteId(7, 9), (50., 60.), 'updated')}
+        else:
+            mutations = {'add': highlight_add(), 'remove': HM.remove(p.HighlightId(8, 4))}
+        if permission == 3:
+            result = editor.apply([mutations[action]])
+            assert_revision(source, result.pdf_bytes)
+            count = len(N(result.pdf_bytes).notes() if kind == 'note' else H(result.pdf_bytes).highlights())
+            assert count == (2 if action == 'add' else 0 if action == 'remove' else 1)
+        else:
+>           with pytest.raises(p.PdfPermissionError, match='DocMDP'):
+E           Failed: DID NOT RAISE <class 'oxidize_pdf.PdfPermissionError'>
+
+tests/test_notes_highlights.py:279: Failed
+____ test_docmdp_preserves_read_noop_and_enforces_mutations[2-note-remove] _____
+
+kind = 'note', permission = 2, action = 'remove'
+
+    @pytest.mark.parametrize('kind,action', [('note','add'), ('note','remove'), ('note','update'), ('highlight','add'), ('highlight','remove')])
+    @pytest.mark.parametrize('permission', [1, 2, 3])
+    def test_docmdp_preserves_read_noop_and_enforces_mutations(kind, permission, action):
+        source = annotation_pdf(permission=permission)
+        editor = N(source) if kind == 'note' else H(source)
+        assert len(editor.notes() if kind == 'note' else editor.highlights()) == 1
+        assert editor.apply([]).pdf_bytes == source
+        if kind == 'note':
+            mutations = {'add': NM.add(0, (40., 50.), 'policy'), 'remove': NM.remove(p.TextNoteId(7, 9)), 'update': NM.update(p.TextNoteId(7, 9), (50., 60.), 'updated')}
+        else:
+            mutations = {'add': highlight_add(), 'remove': HM.remove(p.HighlightId(8, 4))}
+        if permission == 3:
+            result = editor.apply([mutations[action]])
+            assert_revision(source, result.pdf_bytes)
+            count = len(N(result.pdf_bytes).notes() if kind == 'note' else H(result.pdf_bytes).highlights())
+            assert count == (2 if action == 'add' else 0 if action == 'remove' else 1)
+        else:
+>           with pytest.raises(p.PdfPermissionError, match='DocMDP'):
+E           Failed: DID NOT RAISE <class 'oxidize_pdf.PdfPermissionError'>
+
+tests/test_notes_highlights.py:279: Failed
+____ test_docmdp_preserves_read_noop_and_enforces_mutations[2-note-update] _____
+
+kind = 'note', permission = 2, action = 'update'
+
+    @pytest.mark.parametrize('kind,action', [('note','add'), ('note','remove'), ('note','update'), ('highlight','add'), ('highlight','remove')])
+    @pytest.mark.parametrize('permission', [1, 2, 3])
+    def test_docmdp_preserves_read_noop_and_enforces_mutations(kind, permission, action):
+        source = annotation_pdf(permission=permission)
+        editor = N(source) if kind == 'note' else H(source)
+        assert len(editor.notes() if kind == 'note' else editor.highlights()) == 1
+        assert editor.apply([]).pdf_bytes == source
+        if kind == 'note':
+            mutations = {'add': NM.add(0, (40., 50.), 'policy'), 'remove': NM.remove(p.TextNoteId(7, 9)), 'update': NM.update(p.TextNoteId(7, 9), (50., 60.), 'updated')}
+        else:
+            mutations = {'add': highlight_add(), 'remove': HM.remove(p.HighlightId(8, 4))}
+        if permission == 3:
+            result = editor.apply([mutations[action]])
+            assert_revision(source, result.pdf_bytes)
+            count = len(N(result.pdf_bytes).notes() if kind == 'note' else H(result.pdf_bytes).highlights())
+            assert count == (2 if action == 'add' else 0 if action == 'remove' else 1)
+        else:
+>           with pytest.raises(p.PdfPermissionError, match='DocMDP'):
+E           Failed: DID NOT RAISE <class 'oxidize_pdf.PdfPermissionError'>
+
+tests/test_notes_highlights.py:279: Failed
+___ test_docmdp_preserves_read_noop_and_enforces_mutations[2-highlight-add] ____
+
+kind = 'highlight', permission = 2, action = 'add'
+
+    @pytest.mark.parametrize('kind,action', [('note','add'), ('note','remove'), ('note','update'), ('highlight','add'), ('highlight','remove')])
+    @pytest.mark.parametrize('permission', [1, 2, 3])
+    def test_docmdp_preserves_read_noop_and_enforces_mutations(kind, permission, action):
+        source = annotation_pdf(permission=permission)
+        editor = N(source) if kind == 'note' else H(source)
+        assert len(editor.notes() if kind == 'note' else editor.highlights()) == 1
+        assert editor.apply([]).pdf_bytes == source
+        if kind == 'note':
+            mutations = {'add': NM.add(0, (40., 50.), 'policy'), 'remove': NM.remove(p.TextNoteId(7, 9)), 'update': NM.update(p.TextNoteId(7, 9), (50., 60.), 'updated')}
+        else:
+            mutations = {'add': highlight_add(), 'remove': HM.remove(p.HighlightId(8, 4))}
+        if permission == 3:
+            result = editor.apply([mutations[action]])
+            assert_revision(source, result.pdf_bytes)
+            count = len(N(result.pdf_bytes).notes() if kind == 'note' else H(result.pdf_bytes).highlights())
+            assert count == (2 if action == 'add' else 0 if action == 'remove' else 1)
+        else:
+>           with pytest.raises(p.PdfPermissionError, match='DocMDP'):
+E           Failed: DID NOT RAISE <class 'oxidize_pdf.PdfPermissionError'>
+
+tests/test_notes_highlights.py:279: Failed
+__ test_docmdp_preserves_read_noop_and_enforces_mutations[2-highlight-remove] __
+
+kind = 'highlight', permission = 2, action = 'remove'
+
+    @pytest.mark.parametrize('kind,action', [('note','add'), ('note','remove'), ('note','update'), ('highlight','add'), ('highlight','remove')])
+    @pytest.mark.parametrize('permission', [1, 2, 3])
+    def test_docmdp_preserves_read_noop_and_enforces_mutations(kind, permission, action):
+        source = annotation_pdf(permission=permission)
+        editor = N(source) if kind == 'note' else H(source)
+        assert len(editor.notes() if kind == 'note' else editor.highlights()) == 1
+        assert editor.apply([]).pdf_bytes == source
+        if kind == 'note':
+            mutations = {'add': NM.add(0, (40., 50.), 'policy'), 'remove': NM.remove(p.TextNoteId(7, 9)), 'update': NM.update(p.TextNoteId(7, 9), (50., 60.), 'updated')}
+        else:
+            mutations = {'add': highlight_add(), 'remove': HM.remove(p.HighlightId(8, 4))}
+        if permission == 3:
+            result = editor.apply([mutations[action]])
+            assert_revision(source, result.pdf_bytes)
+            count = len(N(result.pdf_bytes).notes() if kind == 'note' else H(result.pdf_bytes).highlights())
+            assert count == (2 if action == 'add' else 0 if action == 'remove' else 1)
+        else:
+>           with pytest.raises(p.PdfPermissionError, match='DocMDP'):
+E           Failed: DID NOT RAISE <class 'oxidize_pdf.PdfPermissionError'>
+
+tests/test_notes_highlights.py:279: Failed
+_____________ test_original_certification_fixture_rejects_p2[note] _____________
+
+kind = 'note'
+
+    @pytest.mark.parametrize('kind', ['note', 'highlight'])
+    def test_original_certification_fixture_rejects_p2(kind):
+        source = (Path(__file__).parent / 'fixtures/signatures/docmdp_p2_rsa.pdf').read_bytes()
+        editor = N(source) if kind == 'note' else H(source)
+        mutation = NM.add(0, (40., 50.), 'policy') if kind == 'note' else highlight_add()
+>       with pytest.raises(p.PdfPermissionError, match='DocMDP'):
+E       Failed: DID NOT RAISE <class 'oxidize_pdf.PdfPermissionError'>
+
+tests/test_notes_highlights.py:289: Failed
+__________ test_original_certification_fixture_rejects_p2[highlight] ___________
+
+kind = 'highlight'
+
+    @pytest.mark.parametrize('kind', ['note', 'highlight'])
+    def test_original_certification_fixture_rejects_p2(kind):
+        source = (Path(__file__).parent / 'fixtures/signatures/docmdp_p2_rsa.pdf').read_bytes()
+        editor = N(source) if kind == 'note' else H(source)
+        mutation = NM.add(0, (40., 50.), 'policy') if kind == 'note' else highlight_add()
+>       with pytest.raises(p.PdfPermissionError, match='DocMDP'):
+E       Failed: DID NOT RAISE <class 'oxidize_pdf.PdfPermissionError'>
+
+tests/test_notes_highlights.py:289: Failed
+=========================== short test summary info ============================
+FAILED tests/test_notes_highlights.py::test_docmdp_preserves_read_noop_and_enforces_mutations[1-note-add]
+FAILED tests/test_notes_highlights.py::test_docmdp_preserves_read_noop_and_enforces_mutations[1-note-remove]
+FAILED tests/test_notes_highlights.py::test_docmdp_preserves_read_noop_and_enforces_mutations[1-note-update]
+FAILED tests/test_notes_highlights.py::test_docmdp_preserves_read_noop_and_enforces_mutations[1-highlight-add]
+FAILED tests/test_notes_highlights.py::test_docmdp_preserves_read_noop_and_enforces_mutations[1-highlight-remove]
+FAILED tests/test_notes_highlights.py::test_docmdp_preserves_read_noop_and_enforces_mutations[2-note-add]
+FAILED tests/test_notes_highlights.py::test_docmdp_preserves_read_noop_and_enforces_mutations[2-note-remove]
+FAILED tests/test_notes_highlights.py::test_docmdp_preserves_read_noop_and_enforces_mutations[2-note-update]
+FAILED tests/test_notes_highlights.py::test_docmdp_preserves_read_noop_and_enforces_mutations[2-highlight-add]
+FAILED tests/test_notes_highlights.py::test_docmdp_preserves_read_noop_and_enforces_mutations[2-highlight-remove]
+FAILED tests/test_notes_highlights.py::test_original_certification_fixture_rejects_p2[note]
+FAILED tests/test_notes_highlights.py::test_original_certification_fixture_rejects_p2[highlight]
+12 failed, 5 passed, 58 deselected in 0.45s

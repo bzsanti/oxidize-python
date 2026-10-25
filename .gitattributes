@@ -2,3 +2,6 @@
 
 # Signed PDF fixtures are binary; preserve exact bytes and xref whitespace.
 tests/fixtures/signatures/*.pdf binary
+
+# Forensic fixtures must retain exact bytes, including PDF xref padding.
+docs/evidence/issue-263-redaction/*.pdf binary

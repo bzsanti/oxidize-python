@@ -1,0 +1,50 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+____________________ test_exact_single_page_and_eof[False] _____________________
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-13/test_exact_single_page_and_eof0')
+compressed = False
+
+    @pytest.mark.parametrize('compressed', [False, True])
+    def test_exact_single_page_and_eof(tmp_path, compressed):
+        path = write_pdf(tmp_path, ['REAL-PARITY-SENTINEL'], compressed=compressed)
+        reader = pdf.PdfReader.open(path)
+        with pdf.PageStreamer.open(path) as stream:
+            assert stream.total_pages() == reader.page_count == 1
+            page = stream.next()
+            assert page is not None
+            assert (page.number, page.width, page.height) == (0, 321, 456)
+            assert page.media_box() == [0, 0, 321, 456]
+>           assert page.extract_text_streaming() == reader.extract_text_from_page(0) == 'REAL-PARITY-SENTINEL'
+E           AssertionError: assert 'Text from page 1' == 'REAL-PARITY-SENTINEL'
+E             
+E             - REAL-PARITY-SENTINEL
+E             + Text from page 1
+
+tests/test_page_streamer.py:53: AssertionError
+_____________________ test_exact_single_page_and_eof[True] _____________________
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-13/test_exact_single_page_and_eof1')
+compressed = True
+
+    @pytest.mark.parametrize('compressed', [False, True])
+    def test_exact_single_page_and_eof(tmp_path, compressed):
+        path = write_pdf(tmp_path, ['REAL-PARITY-SENTINEL'], compressed=compressed)
+        reader = pdf.PdfReader.open(path)
+        with pdf.PageStreamer.open(path) as stream:
+            assert stream.total_pages() == reader.page_count == 1
+            page = stream.next()
+            assert page is not None
+            assert (page.number, page.width, page.height) == (0, 321, 456)
+            assert page.media_box() == [0, 0, 321, 456]
+>           assert page.extract_text_streaming() == reader.extract_text_from_page(0) == 'REAL-PARITY-SENTINEL'
+E           AssertionError: assert 'Text from page 1' == 'REAL-PARITY-SENTINEL'
+E             
+E             - REAL-PARITY-SENTINEL
+E             + Text from page 1
+
+tests/test_page_streamer.py:53: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_page_streamer.py::test_exact_single_page_and_eof[False] - A...
+FAILED tests/test_page_streamer.py::test_exact_single_page_and_eof[True] - As...
+2 failed, 13 deselected in 0.08s

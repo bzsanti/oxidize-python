@@ -146,6 +146,38 @@ impl PyColor {
         }
     }
 
+    fn cmyk_components(&self) -> (f64, f64, f64, f64) {
+        self.inner.cmyk_components()
+    }
+
+    fn to_rgb(&self) -> Self {
+        Self {
+            inner: self.inner.to_rgb(),
+        }
+    }
+
+    fn to_cmyk(&self) -> Self {
+        Self {
+            inner: self.inner.to_cmyk(),
+        }
+    }
+
+    fn color_space_name(&self) -> &'static str {
+        self.inner.color_space_name()
+    }
+
+    fn is_rgb(&self) -> bool {
+        self.inner.is_rgb()
+    }
+
+    fn is_cmyk(&self) -> bool {
+        self.inner.is_cmyk()
+    }
+
+    fn is_gray(&self) -> bool {
+        self.inner.is_gray()
+    }
+
     fn __repr__(&self) -> String {
         match self.inner {
             oxidize_pdf::Color::Rgb(r, g, b) => format!("Color.rgb({r}, {g}, {b})"),

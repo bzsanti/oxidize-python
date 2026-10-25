@@ -1,0 +1,47 @@
+{
+  "issue": 256,
+  "date": "2026-10-14",
+  "base": "25bb005cd9f3790966fd9f497892d45eea2aac0f",
+  "core": "5.4.2",
+  "source_sha256": {
+    ".github/workflows/test.yml": "ba5640490083fc616e8a09f72dd5ea9d4e338193ee6b243ab7588fdea08ef0c6",
+    "docs/parity-contract.json": "2c3ba1ebdbae6a084a88055a26dfbd04c6a5d14575a856979cb4ccec41396698",
+    "python/oxidize_pdf/__init__.py": "d7c86397af5d7b816aab4bd2c27e1357b53f99a3aeda931ccc1ccd913cd7bb3a",
+    "python/oxidize_pdf/__init__.pyi": "fb74ad7ab3f8da2bca650b856f966c70d8778efdb669fe3c94a6fe582a37c7c5",
+    "python/oxidize_pdf/_oxidize_pdf.pyi": "a85209a75dc2832debca4397fd7f79ec32c5d56532475b2568a084fe6a18eec0",
+    "python/oxidize_pdf/parse_events.py": "8305f2343d812d40fd67dac17f0c522de312e11fe022ad7c13d273c6b2393249",
+    "scripts/check_parity.py": "8d423d46975c79bf66b59f925158db99edbd7d0b04ffb0a55931c19fce70531e",
+    "scripts/test_parse_events_native.py": "c57ab97aac331c84772afbbc7b3745689a3a98659ce71901bff85fee6a9b1945",
+    "src/batch_recovery_streaming.rs": "6171c9dd149629450a9e1f6f88b67672383a9a5feb088d9aab6517950ca8f744",
+    "src/lib.rs": "317064fc68bff7b41822781ace02d47593c7c326a45731b22b9f8c82180b5ec8",
+    "src/parse_events.rs": "4c3aec78f372556f45fb0714ee656821447ee8088f3fa250e051634de7bf7e8e",
+    "src/signing.rs": "2ee89a599971708c33879d8ba015ccce9bcb312e5f7f5f18eb770dd915474a6c",
+    "tests/test_incremental_parser_payloads.py": "b996eb9d275b7ae669fac2397e97e1bb80c71b4fa9d2bcd8558a385bc08a1f3f",
+    "tests/test_parity_checker.py": "6de1bf878232d988c725ee39061152790b7fb94956d3aab1f452a0ce644ba261",
+    "tests/test_parity_contract.py": "363de446eaf310b6459fff730f272a2d516917d54c76e5b47722bc4c6836559a",
+    "tests/typing/incremental_parser.py": "5610d801f3639d681c230168c14c8b1dc0306a278134f091827c73c818a3fc5c"
+  },
+  "checks": {
+    "red": "11 failed, 1 passed on initial extension",
+    "focused": 88,
+    "regression": 2382,
+    "mcp": {
+      "passed": 295,
+      "skipped": 1
+    },
+    "native": "3 synthetic core event conversion tests passed; registered in Linux/Python 3.12 CI",
+    "clippy": "passed with warnings denied",
+    "minimal": "passed",
+    "typing": "25 package files, strict consumer, Python 3.10 strict consumer",
+    "parity": "7 contract checks; member and TypedDict fields protected",
+    "kripteia": "100/100 for 6 Python functions and 3 Rust tests; all security scans report no findings"
+  },
+  "reuse": "Full regression precedes Rust formatting/docstrings and additional native assertions only; final native suite and rebuilt extension focused tests repeated. No runtime algorithm changed afterwards.",
+  "limits": [
+    "Core feed emits placeholder Null objects, not parsed object values",
+    "Core feed does not emit XRef/Trailer",
+    "Core feed normalizes whitespace and invalid or split UTF-8 before producing stream bytes",
+    "No changes to upstream core or dependency versions"
+  ],
+  "status": "locally reviewed and validated; remote delivery pending"
+}

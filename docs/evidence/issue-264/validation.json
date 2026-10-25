@@ -1,0 +1,30 @@
+{
+  "base": "940ab7a90b07a7b40709515763b7ade7afd259cb",
+  "core": "5.4.2",
+  "sha256": {
+    ".github/workflows/test.yml": "86c917e67401abcdbfd2e1db64ed49fc99a26fcc8e9f9fb1b76fca7fc74a490a",
+    "docs/FEATURE_PARITY.md": "083562f8836d701db0c1fc4179faf0d8f5c4f2004c3fde21afb717f7b9d998b3",
+    "docs/parity-contract.json": "3481c5633afdb6e218bbdf0af6e4ff87151881c025478f750281fb84e6591cca",
+    "python/oxidize_pdf/__init__.py": "f2e8d43bf25ac63bed212ee62e7ce4c6e2da6ce824d5c6ead2626c7e6528786d",
+    "python/oxidize_pdf/__init__.pyi": "127519817e5497c02bbd10cd52903de10a73386e531798630f45c561b4cacd10",
+    "python/oxidize_pdf/_oxidize_pdf.pyi": "3a9078ab73513cffde2adace60db714c6f352c99c763dc1ec32594f79325dbc9",
+    "scripts/check_parity.py": "5341db7979cb54d1b54322b4dafd3d71f8db060f77b75ffd06f33c57b6f2d058",
+    "scripts/test_parse_events_native.py": "67340d596701135156714e00df869f70c3704c3d04bcf20dfb2ec66b76bef472",
+    "src/lib.rs": "f9257956985967fe964721847e086cf3e3537a8aa0072f770fcf3d55389e5a20",
+    "src/parser.rs": "ada88ab4d4740eb85d4ea444a332b22d3acbbc31265382c85ae0b6079cd6eb69",
+    "src/security.rs": "c0ca1ad6f14362ca97b59dc649b2cf280468949b18876f85328809f803773e59",
+    "src/signing.rs": "444bf2e76be2dfba4673aaef6ca392bdb5faa10b1202e0078e77985025e29d0a",
+    "src/upstream.rs": "70e7a1669265a929dec50ea69dca49d7bc4e295d70daac2cae1b85e8622612aa",
+    "tests/test_parity_checker.py": "559ce6cbd39d354a710d71f46241fd82045ed345ab4463ed5caa257c41fee3f3",
+    "tests/test_parity_contract.py": "91216af01fde6f9942c38f02e89c7e40d790c1c99219637a946fd392a0b73598",
+    "python/oxidize_pdf/signature_errors.py": "8ec61d1cbf2b5fa7e4330f1c418c0346fc0ade4b476d1ef7907a7ad63b95d245",
+    "src/signature_errors.rs": "61693456fde965ac1bbbabe8eb20d055591083bd792b5521ede1691cc44881c9",
+    "tests/test_signature_errors.py": "803df18a387e298222c98e4c3b8373ef4d56c8f99ab895bf5e112b360dd64d4d",
+    "tests/typing/signature_errors.py": "83d7add057bbd6a4be03a1d5646bdc4d97acdd8f7cbd88a6ab323c13c60c3a3a"
+  },
+  "library_tests": 2416,
+  "mcp_passed": 295,
+  "mcp_skipped": 1,
+  "focused_tests": 102,
+  "native_tests": 4
+}

@@ -12,7 +12,9 @@
 //! Renaming these functions would break the existing public API.
 
 use std::fs::File;
+use std::io::{Seek, SeekFrom};
 use std::path::PathBuf;
+use std::sync::{Arc, Mutex};
 
 use pyo3::prelude::*;
 use pyo3::types::PyDict;
@@ -24,7 +26,9 @@ use oxidize_pdf::recovery::{
     analyze_corruption, detect_corruption, repair_document, CorruptionReport, CorruptionType,
     ObjectScanner, RepairResult, RepairStrategy, ScanResult,
 };
-use oxidize_pdf::streaming::{IncrementalParser, PageStreamer, StreamingPage};
+use oxidize_pdf::streaming::IncrementalParser;
+use oxidize_pdf::{PdfDocument, PdfReader};
+use crate::parser::parse_err_to_py;
 
 use crate::errors::to_py_err;
 
@@ -288,6 +292,26 @@ impl PyProgressInfo {
 
 // ── BatchProcessor ────────────────────────────────────────────────────────
 
+// One adapter per processor: reusing options must not share callback failures.
+struct PythonProgressCallback {
+    callback: Py<PyAny>,
+    error: Mutex<Option<PyErr>>,
+}
+
+impl oxidize_pdf::batch::ProgressCallback for PythonProgressCallback {
+    fn on_progress(&self, info: &ProgressInfo) {
+        if self.error.lock().unwrap_or_else(|e| e.into_inner()).is_some() {
+            return;
+        }
+        Python::attach(|py| {
+            // Never hold the error mutex while invoking user Python code.
+            if let Err(error) = self.callback.call1(py, (PyProgressInfo { inner: info.clone() },)) {
+                *self.error.lock().unwrap_or_else(|e| e.into_inner()) = Some(error);
+            }
+        });
+    }
+}
+
 /// Batch processor for executing multiple PDF jobs in parallel.
 ///
 /// Example::
@@ -300,15 +324,30 @@ impl PyProgressInfo {
 #[pyclass(name = "BatchProcessor", unsendable)]
 pub struct PyBatchProcessor {
     inner: Option<BatchProcessor>,
+    callback: Option<Arc<PythonProgressCallback>>,
 }
 
 #[pymethods]
 impl PyBatchProcessor {
+    fn __traverse__(&self, visit: pyo3::gc::PyVisit<'_>) -> Result<(), pyo3::gc::PyTraverseError> {
+        if let Some(callback) = &self.callback { visit.call(&callback.callback)?; }
+        Ok(())
+    }
+    fn __clear__(&mut self) {
+        self.inner = None;
+        self.callback = None;
+    }
     #[new]
-    fn new(options: &crate::tier8::PyBatchOptions) -> Self {
-        Self {
-            inner: Some(BatchProcessor::new(options.inner.clone())),
-        }
+    fn new(options: &crate::tier8::PyBatchOptions, py: Python<'_>) -> Self {
+        let mut native = options.inner.clone();
+        let callback = options.callback.as_ref().map(|callback| Arc::new(PythonProgressCallback {
+            callback: callback.clone_ref(py),
+            error: Mutex::new(None),
+        }));
+        native.progress_callback = callback.as_ref().map(|cb| {
+            Arc::clone(cb) as Arc<dyn oxidize_pdf::batch::ProgressCallback>
+        });
+        Self { inner: Some(BatchProcessor::new(native)), callback }
     }
 
     fn add_job(&mut self, job: &mut PyBatchJob) -> PyResult<()> {
@@ -347,14 +386,19 @@ impl PyBatchProcessor {
     }
 
     /// Execute all queued jobs. Consumes the processor — cannot call again.
-    fn execute(&mut self) -> PyResult<PyBatchSummary> {
+    fn execute(&mut self, py: Python<'_>) -> PyResult<PyBatchSummary> {
         let processor = self.inner.take().ok_or_else(|| {
             pyo3::exceptions::PyRuntimeError::new_err(
                 "BatchProcessor already consumed by a previous execute() call",
             )
         })?;
-        let summary = processor.execute().map_err(to_py_err)?;
-        Ok(PyBatchSummary { inner: summary })
+        let result = py.detach(move || processor.execute());
+        if let Some(callback) = self.callback.take() {
+            if let Some(error) = callback.error.lock().unwrap_or_else(|e| e.into_inner()).take() {
+                return Err(error);
+            }
+        }
+        Ok(PyBatchSummary { inner: result.map_err(to_py_err)? })
     }
 
     fn __repr__(&self) -> String {
@@ -438,6 +482,72 @@ fn batch_merge_pdfs(
 }
 
 // ── F63: Recovery Full ────────────────────────────────────────────────────
+
+/// Recovery configuration for repair_pdf.
+/// Core 5.4.2 only consumes partial_content in extraction (also used by aggressive
+/// repair): false stops after ten text blocks. Other fields are stored but inert;
+/// memory_limit and max_errors are NOT enforced resource limits.
+#[pyclass(name = "RecoveryOptions", frozen, from_py_object)]
+#[derive(Clone)]
+pub struct PyRecoveryOptions {
+    inner: oxidize_pdf::recovery::RecoveryOptions,
+}
+
+#[pymethods]
+impl PyRecoveryOptions {
+    #[new]
+    #[pyo3(signature = (aggressive_recovery = false, partial_content = true, max_errors = 100, rebuild_xref = true, recover_embedded = false, skip_validation = false, memory_limit = 524288000))]
+    #[allow(clippy::too_many_arguments)]
+    fn new(
+        aggressive_recovery: bool,
+        partial_content: bool,
+        max_errors: usize,
+        rebuild_xref: bool,
+        recover_embedded: bool,
+        skip_validation: bool,
+        memory_limit: usize,
+    ) -> Self {
+        Self {
+            inner: oxidize_pdf::recovery::RecoveryOptions {
+                aggressive_recovery,
+                partial_content,
+                max_errors,
+                rebuild_xref,
+                recover_embedded,
+                skip_validation,
+                memory_limit,
+            },
+        }
+    }
+    #[getter]
+    fn aggressive_recovery(&self) -> bool {
+        self.inner.aggressive_recovery
+    }
+    #[getter]
+    fn partial_content(&self) -> bool {
+        self.inner.partial_content
+    }
+    #[getter]
+    fn max_errors(&self) -> usize {
+        self.inner.max_errors
+    }
+    #[getter]
+    fn rebuild_xref(&self) -> bool {
+        self.inner.rebuild_xref
+    }
+    #[getter]
+    fn recover_embedded(&self) -> bool {
+        self.inner.recover_embedded
+    }
+    #[getter]
+    fn skip_validation(&self) -> bool {
+        self.inner.skip_validation
+    }
+    #[getter]
+    fn memory_limit(&self) -> usize {
+        self.inner.memory_limit
+    }
+}
 
 // ── RepairStrategy ────────────────────────────────────────────────────────
 
@@ -583,6 +693,8 @@ impl PyCorruptionReport {
 // ── RepairResult ──────────────────────────────────────────────────────────
 
 /// Result of a PDF repair operation — read-only.
+/// success only means core produced a document. Core 5.4.2 reconstruction can
+/// produce blank pages; neither success nor is_partial certifies content fidelity.
 ///
 /// Properties: ``success`` (bool), ``pages_recovered`` (int),
 /// ``objects_recovered`` (int), ``warnings`` (list[str]),
@@ -742,103 +854,199 @@ fn analyze_pdf_corruption(path: &str) -> PyResult<PyCorruptionReport> {
     Ok(PyCorruptionReport { inner: report })
 }
 
-/// Repair a corrupted PDF using the given strategy.
+/// Repair a corrupted PDF using the given strategy and optional configuration.
+/// Core 5.4.2 consumes only partial_content; false caps extraction at ten text
+/// blocks. Other RecoveryOptions fields, including memory_limit, are inert.
+/// Results may contain blank reconstructed pages rather than original content.
 #[pyfunction]
-fn repair_pdf(path: &str, strategy: &PyRepairStrategy) -> PyResult<PyRepairResult> {
-    let options = oxidize_pdf::recovery::RecoveryOptions::default();
-    let result = repair_document(path, strategy.inner.clone(), &options).map_err(to_py_err)?;
-    PyRepairResult::from_repair_result(result)
+#[pyo3(signature = (path, strategy, options = None))]
+fn repair_pdf(
+    py: Python<'_>,
+    path: String,
+    strategy: &PyRepairStrategy,
+    options: Option<&PyRecoveryOptions>,
+) -> PyResult<PyRepairResult> {
+    let options = options.map(|value| value.inner.clone()).unwrap_or_default();
+    let strategy = strategy.inner.clone();
+    py.detach(move || {
+        let result = repair_document(path, strategy, &options).map_err(to_py_err)?;
+        PyRepairResult::from_repair_result(result)
+    })
 }
 
 // ── F64: Streaming Full ───────────────────────────────────────────────────
 
 // ── StreamingPage ─────────────────────────────────────────────────────────
 
-/// A page obtained from streaming — read-only.
-///
-/// Provides access to page number, dimensions, and streaming text extraction.
+/// An owned snapshot of one parsed page, independent of the source file.
 #[pyclass(name = "StreamingPage", frozen)]
 pub struct PyStreamingPage {
-    inner: StreamingPage,
+    number: u32,
+    width: f64,
+    height: f64,
+    media_box: [f64; 4],
+    text: String,
+}
+
+impl PyStreamingPage {
+    pub(crate) fn from_core(page: oxidize_pdf::streaming::StreamingPage) -> PyResult<Self> {
+        Ok(Self {
+            number: page.number(),
+            width: page.width(),
+            height: page.height(),
+            media_box: page.media_box(),
+            text: page.extract_text_streaming().map_err(to_py_err)?,
+        })
+    }
 }
 
 #[pymethods]
 impl PyStreamingPage {
     #[getter]
     fn number(&self) -> u32 {
-        self.inner.number()
+        self.number
     }
-
     #[getter]
     fn width(&self) -> f64 {
-        self.inner.width()
+        self.width
     }
-
     #[getter]
     fn height(&self) -> f64 {
-        self.inner.height()
+        self.height
     }
-
-    fn extract_text_streaming(&self) -> PyResult<String> {
-        self.inner.extract_text_streaming().map_err(to_py_err)
+    fn extract_text_streaming(&self) -> &str {
+        &self.text
     }
-
     fn media_box(&self) -> [f64; 4] {
-        self.inner.media_box()
+        self.media_box
     }
-
     fn __repr__(&self) -> String {
         format!(
             "StreamingPage(number={}, {}x{})",
-            self.inner.number(),
-            self.inner.width(),
-            self.inner.height()
+            self.number, self.width, self.height
         )
     }
 }
 
-// ── PageStreamer ───────────────────────────────────────────────────────────
-
-/// Streams pages from a PDF file without loading the whole document.
+/// Iterate real PDF pages using a fresh core parser for each page.
 ///
-/// Example::
-///
-///     streamer = PageStreamer.open("large.pdf")
-///     while True:
-///         page = streamer.next()
-///         if page is None:
-///             break
-///         print(f"Page {page.number}: {page.width}x{page.height}")
+/// Keeps one source file open. Each next() reparses the PDF index and extracts
+/// only the selected page, then drops all parser caches. Memory depends on the
+/// index, page resources and decoded page content; it is not constant or capped.
+/// Returned pages own their text and geometry. Do not modify the source file
+/// while it is open. Use close() or a with statement to release the descriptor.
 #[pyclass(name = "PageStreamer", unsendable)]
 pub struct PyPageStreamer {
-    inner: PageStreamer<File>,
+    file: Option<File>,
+    current_page: u32,
+    total_pages: u32,
+}
+
+impl PyPageStreamer {
+    fn file(&self) -> PyResult<&File> {
+        self.file
+            .as_ref()
+            .ok_or_else(|| pyo3::exceptions::PyValueError::new_err("PageStreamer is closed"))
+    }
+
+    // Duplicated descriptors share a cursor; all access is serialized by the
+    // mutable PyO3 borrow. No parser/BufReader survives this operation.
+    fn document(file: &File) -> PyResult<PdfDocument<File>> {
+        let mut input = file
+            .try_clone()
+            .map_err(|e| crate::errors::PdfIoError::new_err(e.to_string()))?;
+        input
+            .seek(SeekFrom::Start(0))
+            .map_err(|e| crate::errors::PdfIoError::new_err(e.to_string()))?;
+        let reader = PdfReader::new(input).map_err(parse_err_to_py)?;
+        if reader.is_encrypted() {
+            return Err(crate::errors::PdfEncryptionError::new_err(
+                "PageStreamer does not support encrypted PDFs; use PdfReader.unlock",
+            ));
+        }
+        Ok(PdfDocument::new(reader))
+    }
 }
 
 #[pymethods]
 impl PyPageStreamer {
     #[staticmethod]
-    fn open(path: &str) -> PyResult<Self> {
-        let file = File::open(path).map_err(|e| crate::errors::PdfIoError::new_err(e.to_string()))?;
-        Ok(Self {
-            inner: PageStreamer::new(file),
+    fn open(py: Python<'_>, path: String) -> PyResult<Self> {
+        py.detach(move || {
+            let file =
+                File::open(path).map_err(|e| crate::errors::PdfIoError::new_err(e.to_string()))?;
+            let total_pages = Self::document(&file)?
+                .page_count()
+                .map_err(parse_err_to_py)?;
+            Ok(Self {
+                file: Some(file),
+                current_page: 0,
+                total_pages,
+            })
         })
     }
 
-    fn next(&mut self) -> PyResult<Option<PyStreamingPage>> {
-        let page = self.inner.next().map_err(to_py_err)?;
-        Ok(page.map(|p| PyStreamingPage { inner: p }))
+    fn next(&mut self, py: Python<'_>) -> PyResult<Option<PyStreamingPage>> {
+        let file = self.file()?;
+        if self.current_page >= self.total_pages {
+            return Ok(None);
+        }
+        let number = self.current_page;
+        let page = py.detach(|| {
+            let document = Self::document(file)?;
+            let page = document.get_page(number).map_err(parse_err_to_py)?;
+            let text = document
+                .extract_text_from_page(number)
+                .map_err(parse_err_to_py)?
+                .text;
+            Ok::<_, PyErr>(PyStreamingPage {
+                number,
+                width: page.width(),
+                height: page.height(),
+                media_box: page.media_box,
+                text,
+            })
+        })?;
+        // Failed reads leave the cursor unchanged, permitting explicit retry/seek.
+        self.current_page += 1;
+        Ok(Some(page))
     }
 
+    /// Position the next read. total_pages is the valid EOF position.
     fn seek_to_page(&mut self, page_num: u32) -> PyResult<()> {
-        self.inner.seek_to_page(page_num).map_err(to_py_err)
+        self.file()?;
+        if page_num > self.total_pages {
+            return Err(pyo3::exceptions::PyIndexError::new_err(
+                "page index out of range",
+            ));
+        }
+        self.current_page = page_num;
+        Ok(())
     }
-
-    fn total_pages(&self) -> Option<u32> {
-        self.inner.total_pages()
+    fn total_pages(&self) -> u32 {
+        self.total_pages
     }
-
+    fn close(&mut self) {
+        self.file = None;
+    }
+    fn __enter__(slf: PyRef<'_, Self>) -> PyResult<PyRef<'_, Self>> {
+        slf.file()?;
+        Ok(slf)
+    }
+    fn __exit__(
+        &mut self,
+        _exc_type: &Bound<'_, PyAny>,
+        _exc_value: &Bound<'_, PyAny>,
+        _traceback: &Bound<'_, PyAny>,
+    ) {
+        self.close();
+    }
     fn __repr__(&self) -> String {
-        "PageStreamer(file)".to_string()
+        format!(
+            "PageStreamer(pages={}, closed={})",
+            self.total_pages,
+            self.file.is_none()
+        )
     }
 }
 
@@ -867,55 +1075,20 @@ impl PyIncrementalParser {
         Self { inner: IncrementalParser::new() }
     }
 
-    /// Feed a chunk of PDF bytes to the parser.
+    /// Feed PDF bytes incrementally. Core 5.5.0 preserves binary stream payloads
+    /// and requires valid PDF syntax, including a header and stream dictionary.
     fn feed(&mut self, data: &[u8]) -> PyResult<()> {
         self.inner.feed(data).map_err(to_py_err)
     }
 
     /// Return and clear all pending parse events as dicts.
     ///
-    /// Each dict has a ``type`` key and event-specific fields.
+    /// Each dict has a ``type`` key and retains the complete core event payload.
+    /// Core 5.5.0 emits parsed objects, binary stream data, xref and trailer events.
     fn take_events<'py>(&mut self, py: Python<'py>) -> PyResult<Vec<Bound<'py, PyDict>>> {
-        let events = self.inner.take_events();
-        let mut result = Vec::with_capacity(events.len());
-
-        for event in events {
-            let dict = PyDict::new(py);
-            match event {
-                oxidize_pdf::streaming::ParseEvent::Header { version } => {
-                    dict.set_item("type", "header")?;
-                    dict.set_item("version", version)?;
-                }
-                oxidize_pdf::streaming::ParseEvent::ObjectStart { id, generation } => {
-                    dict.set_item("type", "object_start")?;
-                    dict.set_item("id", id)?;
-                    dict.set_item("generation", generation)?;
-                }
-                oxidize_pdf::streaming::ParseEvent::ObjectEnd { id, generation, .. } => {
-                    dict.set_item("type", "object_end")?;
-                    dict.set_item("id", id)?;
-                    dict.set_item("generation", generation)?;
-                }
-                oxidize_pdf::streaming::ParseEvent::StreamData { object_id, data } => {
-                    dict.set_item("type", "stream_data")?;
-                    dict.set_item("object_id", object_id)?;
-                    dict.set_item("data_len", data.len())?;
-                }
-                oxidize_pdf::streaming::ParseEvent::XRef { entries } => {
-                    dict.set_item("type", "xref")?;
-                    dict.set_item("entry_count", entries.len())?;
-                }
-                oxidize_pdf::streaming::ParseEvent::Trailer { .. } => {
-                    dict.set_item("type", "trailer")?;
-                }
-                oxidize_pdf::streaming::ParseEvent::EndOfFile => {
-                    dict.set_item("type", "end_of_file")?;
-                }
-            }
-            result.push(dict);
-        }
-
-        Ok(result)
+        self.inner.take_events().into_iter()
+            .map(|event| crate::parse_events::event_to_dict(py, event))
+            .collect()
     }
 
     fn is_complete(&self) -> bool {
@@ -940,6 +1113,7 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(batch_merge_pdfs, m)?)?;
 
     // F63: Recovery
+    m.add_class::<PyRecoveryOptions>()?;
     m.add_class::<PyRepairStrategy>()?;
     m.add_class::<PyCorruptionType>()?;
     m.add_class::<PyCorruptionReport>()?;

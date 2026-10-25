@@ -2,7 +2,7 @@
 
 # oxidize-pdf
 
-> Rust core pinned to **5.4.2**. See [compatibility and validation](docs/UPSTREAM-5.4.2.md).
+> Rust core pinned to **5.5.0**. See [compatibility and validation](docs/UPSTREAM-5.5.0.md).
 
 <!-- mcp-name: io.github.bzsanti/oxidize-pdf-mcp -->
 
@@ -29,12 +29,18 @@ pip install "oxidize-pdf[mcp]"     # + MCP server for AI agents
 **Platforms:** Linux (x86_64, aarch64) | macOS (x86_64, Apple Silicon) | Windows (x86_64)
 **Requires:** Python 3.10+
 
-Version 0.22.0 pins Rust core **5.4.2**, using the MIT-licensed `oxidize-webpki`
+Version 0.23.0 pins Rust core **5.5.0**, using the MIT-licensed `oxidize-webpki`
 RustCrypto provider for certificate verification. See the
 [dependency policy](docs/NO-NATIVE-CRYPTO.md) for supported builds and limits.
 New APIs include explicit text recovery, non-breaking-space normalization,
 build identification controls and incremental signature slots. See the
 [API guide and validation](docs/UPSTREAM-5.4.1.md).
+
+The current develop branch contains post-release parity work. See the
+[current capability inventory](docs/FEATURE_PARITY.md) and
+[Python/.NET comparison](docs/PARITY_SPEC.md) for the audited subset, missing
+bindings and inherited core limitations. Neither the core version nor the type
+stubs establish full functional parity; no global coverage percentage is claimed.
 
 ## Why oxidize-pdf?
 
@@ -43,14 +49,14 @@ build identification controls and incremental signature slots. See the
 | **Performance** | Native (compiled Rust) | Interpreted | Native but heavy |
 | **Dependencies** | Zero | Varies | Poppler, Java, Ghostscript |
 | **Memory safety** | Rust ownership model | GC-dependent | Manual / GC |
-| **Type stubs** | Full (mypy/pyright) | Partial | Rare |
+| **Type stubs** | Public API inventory + strict mypy checks on develop | Varies | Varies |
 | **AI-ready (MCP)** | Built-in | No | No |
 
 ---
 
 ## MCP Server
 
-Give your AI agent full PDF capabilities in one line:
+Expose the supported PDF tools to your AI agent:
 
 ```bash
 oxidize-mcp
@@ -225,6 +231,35 @@ for i, text in enumerate(reader.extract_text()):
     print(text)
 ```
 
+### Inspect tagged PDF structure
+
+```python
+from pathlib import Path
+from oxidize_pdf import TaggedPdfLimits, TaggedPdfValidationOptions, validate_tagged_pdf
+
+report = validate_tagged_pdf(
+    Path("input.pdf").read_bytes(),
+    TaggedPdfValidationOptions(TaggedPdfLimits(max_depth=64)),
+)
+for finding in report.findings:
+    print(finding.severity, finding.code, finding.path, finding.message)
+```
+
+The report includes structure elements, artifacts, role/class maps, the parent
+number tree and content MCIDs. Original dictionary values remain typed
+`PdfValue` objects, including unknown attributes and reference generations.
+Results are immutable snapshots; returned lists and dictionaries are owned copies.
+
+`valid` means the core validator found no error-level findings. It is **not a
+PDF/UA certificate**: an untagged PDF can have `tagged=False`, `valid=True` and a
+`MissingStructureTree` warning. Malformed input raises `PdfParseError`, locked
+input raises `PdfEncryptionError`, and exceeded validation budgets raise `PdfError`.
+
+`TaggedPdfLimits` bounds visited objects, traversal depth, entries and decoded
+content bytes (defaults: 100,000; 256; 1,000,000; 256 MiB). These are core validator
+budgets, not a process memory or time limit: input copying and initial PDF parsing
+occur before traversal. No PDF bytes are modified.
+
 ### Operations
 
 ```python
@@ -359,3 +394,382 @@ claude mcp add oxidize-pdf -- uvx --from "oxidize-pdf[mcp]" oxidize-mcp
 ## License
 
 MIT — see [LICENSE](LICENSE) for details.
+
+### Semantic comparison with revision history
+
+```python
+from oxidize_pdf import (
+    compare_pdfs_semantically, SemanticComparisonLimits, SemanticComparisonOptions,
+)
+
+options = SemanticComparisonOptions(SemanticComparisonLimits(
+    max_objects=100_000, max_depth=256,
+    max_decoded_stream_bytes=256 * 1024 * 1024,
+    max_canonical_bytes=256 * 1024 * 1024,
+    max_extracted_text_bytes=64 * 1024 * 1024,
+    max_unreachable_objects=10_000, max_revisions=1024,
+))
+result = compare_pdfs_semantically(original_bytes, revised_bytes, options)
+for difference in result.differences:
+    print(difference.path, difference.class_, difference.description)
+for revision in result.right_revisions:
+    print(revision.index, revision.xref_offset, revision.semantic_fingerprint.hex())
+    for change in revision.object_changes:
+        print(change.object_number, change.generation, change.kind)
+```
+
+The immutable result exposes both revision histories, unreachable object
+identities and pairs of semantically equivalent objects. Collection properties
+return independent snapshots. Revision fingerprints are 32-byte hashes, and
+revisions are ordered oldest first. `class_` is the Python spelling of Rust's
+`class` field. Difference classes are Visual, Textual, Structural, Metadata,
+Security and SerializationOnly. `semantically_equal` may be true when the only
+difference is SerializationOnly; it includes supported historical semantics,
+so restoring the latest state does not erase an intervening semantic change.
+
+Limits apply independently to each document. Decoded/canonical budgets count
+work across repeated traversals, not just unique input bytes. Initial input
+copies, parsing and some extraction allocations precede these checks; the
+options are not process-wide memory/time limits. Malformed input, exceeded
+budgets and unsupported decoding raise PDF errors; encrypted input raises
+`PdfPermissionError` and must be decrypted before comparison.
+
+This API compares the core's supported object/text domains, not rendered pixels,
+and does not certify signatures or irreversible redaction. Core 5.4.2 includes
+physical ObjStm/XRef containers among objects unreachable from Root/Info. A
+qpdf conversion to object streams can therefore report Structural differences
+at `/UnreachableObjects` and `/Revisions` despite equal text and page content.
+The binding preserves that conservative result; it does not promise equivalence
+across every PDF layout. The existing `compare_pdfs` API remains available.
+
+### Images from pixel buffers
+
+```python
+from oxidize_pdf import Image, ImageColorSpace
+
+rgb = Image.from_raw_data(b'\xff\x00\x00', 1, 1, ImageColorSpace.DeviceRGB)
+gray = Image.from_gray_data(b'\x80', 1, 1)
+rgba = Image.from_rgba_data(b'\xff\x00\x00\x80', 1, 1)
+assert rgba.alpha_data == b'\x80'
+assert rgba.soft_mask.data == b'\x80'
+```
+
+`from_raw_data(data, width, height, color_space, bits_per_component=8)` accepts
+DeviceGray, DeviceRGB and DeviceCMYK. Components are packed in pixel order, most
+significant bits first, with each scanline padded to a whole byte. Supported
+component depths are 1, 2, 4, 8 and 16; 16-bit components use big-endian byte
+order. RGBA and grayscale convenience constructors use 8-bit components.
+
+All three constructors require positive dimensions and an exact buffer length.
+Invalid sizes/depths raise `ValueError`; values outside unsigned argument ranges
+raise `OverflowError`. The RGBA/gray constructors reject products exceeding
+`u32::MAX` before calling the published core's dimension arithmetic. Validation
+happens before copying the pixel buffer.
+
+`data`, `format`, `bits_per_component`, `alpha_data` and `soft_mask` expose owned
+snapshots. `ImageFormat` distinguishes Jpeg, Png, Tiff and Raw. Data is the core's
+image payload: JPEG remains encoded, while PNG/TIFF constructors expose decoded
+pixel data. RGBA separates RGB data from alpha; its soft mask can be inspected
+independently. These APIs use the existing core without `external-images` or
+new dependencies. Explicit mask creation/application and writer-object export
+remain outside this increment.
+
+### Marked content on new pages
+
+`Page.begin_marked_content(tag)` and
+`Page.begin_marked_content_with_actual_text(tag, actual_text)` return a page-local
+MCID. Pair every begin with `Page.end_marked_content()`; `next_mcid()` and
+`marked_content_depth()` inspect the state. Tags are nonempty literal names
+(UTF-8 bytes are PDF-name escaped, so pass `"Span"`, not `"/Span"`). Empty tags
+raise `ValueError` without changing state; ending an empty stack raises `PdfError`.
+
+```python
+page = Page.a4()
+page.set_font(Font.HELVETICA, 12)
+mcid = page.begin_marked_content_with_actual_text("Span", "café 😀")
+page.text_at(40, 700, "visible glyphs")
+page.end_marked_content()
+```
+
+ActualText is a Unicode logical replacement; copying/extraction depends on the
+viewer honoring it. For tagged structure, attach the returned ID using
+`StructureElement.add_mcid(page_index, mcid)` and install the tree with
+`Document.set_struct_tree(tree)`. These operations alone do not certify PDF/UA.
+The core writes these markers in the text context; they are intended for text
+operations, not as a general scope around separately buffered graphics.
+
+### Coordinate transformations
+
+`TransformMatrix(a, b, c, d, e, f)` exposes immutable affine components,
+`IDENTITY`, `translate`, `scale`, `rotate` (radians), `flip_y`, `multiply`,
+`transform_point(Point)` and `to_pdf_ctm()`. Composition `a.multiply(b)` applies
+`b` first, then `a`. Values retain the core's floating-point semantics, including
+singular and nonfinite matrices; validate them before using the CTM in a PDF.
+
+```python
+from oxidize_pdf import CoordinateSystem, Point, TransformMatrix
+
+matrix = TransformMatrix.translate(10, 20).multiply(TransformMatrix.scale(2, 3))
+point = matrix.transform_point(Point(4, 5))  # Point(18, 35)
+custom = CoordinateSystem.custom(matrix)
+pdf_point = custom.to_pdf_standard(Point(4, 5), 800)  # Point(18, 35)
+```
+
+`CoordinateSystem` supports point, Y-only and matrix conversions to PDF
+coordinates, plus `grows_upward()`. For custom systems, Y-only conversion uses
+x=0, orientation tests `d > 0`, and page height is ignored. `Page.coordinate_system`
+returns a snapshot of the stored system. In core 5.4.2, setting this property
+through `set_coordinate_system` does not automatically transform page content;
+convert positions explicitly. `LayoutManager` remains outside this binding increment.
+
+
+`RenderContext(coordinate_system, page_width, page_height)` stores mutable
+`coordinate_system`, `page_width`, `page_height` and `current_transform` fields.
+Its `to_pdf_standard(Point)` and `y_to_pdf(y)` methods use the current system and
+height. The matrix is initialized from the constructor's system and height;
+later field assignments do not recalculate it, and conversions do not read it.
+This preserves core 5.4.2 behavior. Getters return independent value snapshots.
+Use `context.current_transform.transform_point(point)` when you explicitly want
+to apply the stored matrix. Numeric fields retain the core's f64 semantics.
+
+
+`Page.content_width` and `Page.content_height` subtract the page margins.
+`Page.content_area` returns `(left, bottom, right, top)` bounds in unrotated PDF
+coordinates, rather than a position and size. These read-only properties reflect
+current margins and can be negative or inverted when margins exceed page size.
+`Page.effective_width` and `Page.effective_height` reflect rotation: 90°/270° swap
+width and height. They use the full page dimensions, without subtracting margins.
+Setting a coordinate system does not change these geometry properties.
+
+### Custom clipping paths
+
+```python
+from oxidize_pdf import ClippingPath, WindingRule
+
+clip = (ClippingPath().add_rect(10, 10, 80, 80)
+        .add_polygon([(30, 30), (70, 30), (50, 70)])
+        .with_winding_rule(WindingRule.EvenOdd))
+page.set_clipping_path(clip)
+```
+
+`move_to`, `line_to`, `curve_to`, `close_path` and `add_rect`, `add_circle`,
+`add_ellipse`, `add_rounded_rect`, `add_polygon` mutate and return the same path.
+`with_winding_rule` returns an independent copy; the default is `NonZero`.
+`clear()` removes commands while preserving the rule. `is_empty` reports whether
+commands exist. `Page.set_clipping_path` retains a copy.
+
+`commands` returns owned `ClippingPathCommand` snapshots with read-only `kind`
+and copied `coordinates`: move/line use `[x, y]`, cubic curves use two control
+points and an endpoint `[x1, y1, x2, y2, x3, y3]`, rectangles use
+`[x, y, width, height]`, and close has no coordinates. Coordinates are PDF user
+space values; callers supply valid finite geometry. `to_pdf_operations()` emits
+the core's clipping operators, including `W`/`W*` and `n`.
+The existing `rect`, `circle`, and `ellipse` factories remain available.
+This API does not expose path intersection, text clipping, or a clipping stack.
+
+### Line dash patterns
+
+`LineDashPattern.dashed(dash_length, gap_length)` and
+`LineDashPattern.dotted(dot_size, gap_size)` create two-length patterns with zero
+phase. Both use the same PDF dash representation; dots depend on length and line
+cap, and the factory does not select a round cap. Pass a pattern to
+`page.set_dash_pattern(pattern)`; use `solid()` to reset to a continuous line.
+
+`array` returns a copied list and `phase` is read-only. `to_pdf_string()` returns
+the core representation (without the `d` operator), rounded to two decimals.
+The core serializes non-finite components as zero and an empty array as `[] 0`,
+regardless of stored phase. Negative values remain unchanged; this API does not
+validate whether an arbitrary pattern is legal PDF. Use nonnegative lengths,
+with at least one positive length for a nonempty pattern, and a nonnegative phase.
+
+### Blend modes
+
+All 16 modes from the published core 5.4.2 are available through `BlendMode`.
+Alongside the existing modes, use `DIFFERENCE`, `EXCLUSION`, `HUE`,
+`SATURATION`, `COLOR`, or `LUMINOSITY` with `page.set_blend_mode(mode)` before
+drawing. `mode.pdf_name()` returns the PDF name (for example, `"Color"`), and
+`repr(mode)` uses the Python constant name. These immutable values configure
+the page's extended graphics state; use `BlendMode.NORMAL` to reset blending.
+
+### Color conversion and inspection
+
+`color.to_rgb()` and `color.to_cmyk()` return independent `Color` values.
+`cmyk_components()` returns four converted components, including for RGB/Gray
+inputs. Existing `c`, `m`, `y`, `k` properties still return zero for non-CMYK
+colors. `is_rgb()`, `is_cmyk()`, `is_gray()` inspect the stored variant, and
+`color_space_name()` returns `DeviceRGB`, `DeviceCMYK`, or `DeviceGray`.
+The existing `color_space` property keeps its shorter names.
+
+Conversions use the published core 5.5.0's approximate formulas, without ICC
+profiles or calibrated color management. Gray becomes equal RGB components or
+CMYK with only black ink. RGB black converts to `(0, 0, 0, 1)`. Constructors
+clamp finite out-of-range values and infinities; NaN may propagate through
+conversion. Callers should supply finite components for predictable colors.
+
+### Streaming and lazy document options
+
+Core 5.5.0 exposes two separate consumers with immutable options and configuration
+snapshots. Existing calls such as `LazyDocument.open(path)` remain valid.
+
+```python
+from oxidize_pdf import LazyDocument, MemoryOptions, StreamingDocument, StreamingOptions
+
+options = StreamingOptions(page_cache_size=2, memory_limit=2 * 1024 * 1024,
+                           max_content_stream_size=1024 * 1024)
+with StreamingDocument.open("input.pdf", options) as document:
+    configuration = document.configuration()
+    while (page := document.next_page()) is not None:
+        print(page.number, page.extract_text_streaming())
+    print(document.cached_pages(), document.memory_usage())
+    document.clear_cache()
+
+with LazyDocument.open("input.pdf", MemoryOptions(cache_size=20)) as document:
+    page = document.get_page(0)
+    print(page.width, document.memory_stats().cached_objects)
+    print(document.configuration().unsupported)
+```
+
+`StreamingOptions` accepts `buffer_size`, `page_cache_size`,
+`max_content_stream_size`, `progressive_hints`, and `memory_limit` as keyword
+arguments. Its `minimal_memory()` and `fast_processing()` presets and
+`with_buffer_size()`, `with_page_cache_size()`, and `with_memory_limit()` builders
+return independent values. `MemoryOptions` accepts `lazy_loading`,
+`memory_mapping`, `cache_size`, `streaming`, `buffer_size`, and `mmap_threshold`;
+use `small_file()`/`large_file()` or its `with_lazy_loading()`,
+`with_memory_mapping()`, `with_cache_size()`, and `with_streaming()` builders.
+All fields are readable properties.
+
+| Consumer | Effective contract |
+| --- | --- |
+| `StreamingDocument` | `buffer_size` configures input buffering. `page_cache_size` bounds retained pages; `memory_limit` bounds retained decoded-content plus UTF-8 text bytes. Either cache bound set to zero disables retention. `memory_usage()` reports this payload only. `max_content_stream_size` limits the combined decoded page content, including separators between streams, and raises a PDF error without advancing the cursor. |
+| `LazyDocument` | `lazy_loading=False` eagerly reads indexed objects. `cache_size` bounds objects in the adapter LRU cache; zero disables it. `get_object(number, generation=0)`, `get_page(index)`, and `preload_page(index)` use the native consumer. `buffer_size` configures input buffering. |
+
+`configuration()` returns owned `requested` and `effective` snapshots. A zero
+buffer is normalized to one byte. Streaming progressive hints are reserved:
+`effective.progressive_hints` is false and `progressive_hints_unsupported` reports
+a requested hint. Lazy memory mapping and streaming are unsupported in this
+adapter: `unsupported` lists `UnsupportedMemoryOption.MemoryMapping` and/or
+`.Streaming`, effective flags are false, and the effective mapping threshold is
+the platform's maximum `usize`. These flags do not enable those modes.
+
+These limits do **not** cap total RAM, parser caches, extraction working memory,
+caller-retained values, or peak allocations. Lazy `memory_stats()` reports
+adapter cache hits, misses, and retained object count; `allocated_bytes`,
+`lazy_loads`, and `mapped_regions` are uninstrumented counters, not measurements
+of process memory. `clear_cache()` clears adapter retention, not caller values.
+
+Native `StreamingDocument` pages use unrotated MediaBox geometry. The existing
+`PageStreamer` retains its rotated geometry and seek behavior; its options belong
+to a different API. `LazyDocument.get_page()` returns `ParsedPage` with effective
+rotation. Pages and snapshots remain usable after closing either document;
+operations requiring the closed document raise `ValueError`. Both consumers
+reject encrypted documents; unlock through the reader API where needed.
+
+### Incremental tagged structure editing
+
+`IncrementalTaggedPdfEditor(pdf)` owns an immutable byte snapshot.
+`TaggedPdfMutation` supports `create_element`, `set_element_attribute` (omit the
+value to remove it), `reparent_element`, `associate_mcid`, and
+`set_parent_tree_entry`. Inputs use `TaggedPdfObjectRef` (number and generation)
+and lossless `PdfValue` objects. `plan(mutations)` returns effective mutations and
+changed object identities; `apply(mutations)` returns `pdf_bytes`, the plan, and
+validation reports before and after the revision. Both evaluate mutations in
+order. A change followed by a restoration retains both effective operations.
+
+```python
+from oxidize_pdf import IncrementalTaggedPdfEditor, TaggedPdfMutation, TaggedPdfObjectRef, PdfValue
+
+editor = IncrementalTaggedPdfEditor(source_bytes)
+mutation = TaggedPdfMutation.set_element_attribute(
+    TaggedPdfObjectRef(6, 7), "T", PdfValue.string(b"New title"))
+result = editor.apply([mutation])
+assert result.pdf_bytes.startswith(source_bytes)
+```
+
+Object references must identify structure elements in the actual source PDF.
+Editors and returned snapshots are independent; a failed batch leaves the editor
+unchanged. Empty/no-op ordinary edits preserve source bytes exactly. Applied
+revisions preserve the exact source prefix, including for xref-stream sources.
+
+`with_validation_options()` accepts `TaggedPdfValidationOptions` and its limits.
+`preflight()` performs unambiguous derived-index recovery for inspection;
+it does not prepare or mutate the editor. `with_recovered_indexes()` prepares an
+independent editor with recovered indexes/page keys. `with_document_language()`
+supplies a missing language; it rejects blank values and existing nonempty
+languages. Recovery does not invent accessibility descriptions or language.
+
+Preparation builders are replayed in order for each operation.
+`preparation_objects()` inventories their changes, including xref-stream objects,
+separately from `plan().changed_objects`. Prepared editors return bytes only when
+the full result validates, including empty mutation batches. Missing descriptions
+must be supplied explicitly; preparation refuses to overwrite existing ones.
+Ordinary editors return diagnostic reports and may return structurally invalid
+results. Reports do not certify PDF/UA conformance.
+
+Encrypted inputs and DocMDP P1/P2/P3 restrictions are enforced by the core in
+planning, application and preparation. Validation limits bound the validation
+work they describe, not all parsing, copying or preparation work. No signature
+verification, OCR recognition, or global memory cap is implied by this editor.
+
+### Incremental text notes and highlights
+
+`IncrementalTextNoteEditor(pdf)` reads `notes()` and applies batches of
+`TextNoteMutation.add(page_index, position, contents)`, `.update(id, position,
+contents)`, and `.remove(id)`. `position` is an `(x, y)` pair in PDF coordinates.
+New notes have a 20 × 20 point rectangle; updates preserve the existing rectangle's
+width, height and other dictionary keys. Contents must contain non-whitespace
+text and support Unicode. `TextNoteUpdate.added_notes` contains only newly added
+notes, in request order; reread the result to obtain the complete note set.
+
+`IncrementalHighlightEditor(pdf)` reads `highlights()` and accepts
+`HighlightMutation.add(page_index, quadrilaterals, color, opacity=None,
+contents=None)` and `.remove(id)`. `HighlightUpdate.highlights` contains the
+complete current set, ordered by page and identity. The native API has no
+highlight update operation.
+
+```python
+from oxidize_pdf import (
+    IncrementalTextNoteEditor, TextNoteMutation,
+    IncrementalHighlightEditor, HighlightMutation,
+    HighlightQuad, HighlightColor, HighlightOpacity,
+)
+
+notes = IncrementalTextNoteEditor(source_bytes).apply([
+    TextNoteMutation.add(0, (40., 50.), "Revisar: café 世界"),
+])
+quad = HighlightQuad([(40., 90.), (100., 90.), (40., 70.), (100., 70.)])
+result = IncrementalHighlightEditor(notes.pdf_bytes).apply([
+    HighlightMutation.add(0, [quad], HighlightColor([1., 1., 0.]),
+                          HighlightOpacity(.5), "Revisar"),
+])
+output_bytes = result.pdf_bytes
+```
+
+`HighlightQuad` takes exactly four `(x, y)` pairs in PDF QuadPoints order: start
+and end of one edge, followed by start and end of the opposite edge. The core
+rejects non-finite, repeated, crossed, concave and degenerate geometry.
+`HighlightColor` accepts exactly three finite DeviceRGB components in `[0, 1]`;
+`HighlightOpacity` accepts a finite value in `[0, 1]`. Their properties return
+owned values. A highlight requires at least one quad. Optional contents preserve
+`None` versus an empty string; opacity omission differs from explicit zero.
+
+Page indices are zero-based. Coordinates must fit the page's effective CropBox
+(or MediaBox if absent) in unrotated PDF space; inherited bounds are respected.
+Identities are `TextNoteId`/`HighlightId` with object and generation numbers.
+Targeting another subtype, a nonexistent identity or one target twice in a batch
+raises a PDF error. Direct target annotation dictionaries and annotations shared
+across pages are unsupported because they lack an unambiguous stable identity.
+
+Editors own immutable source snapshots. Results preserve the source as an exact
+byte prefix, with one appended revision for a successful nonempty batch; failed
+batches leave the source/editor unchanged. Empty batches preserve bytes exactly.
+Notes, highlights, mutations and result snapshots expose read-only properties.
+These APIs append revisions in memory; removal detaches references, so historical
+annotation bytes remain in the file. They do not provide irreversible redaction.
+
+Core 5.5.0 enforces DocMDP for nonempty batches: P1/P2 reject edits and P3 permits
+these annotation operations. Reads and empty batches remain available on those
+certified inputs; encrypted inputs are rejected. This permission check does not
+verify signature authenticity. These editors preserve or emit native annotation
+dictionaries; they do not promise a generated appearance stream or identical
+annotation rendering in every viewer, nor impose a global memory limit.

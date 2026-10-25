@@ -1,6 +1,6 @@
 {
-  "core": "5.4.2",
-  "scope": "existing-document preservation, page mutations and external CMS signing; remaining Rust API pending audit; composed extraction policies; incremental free-text editing; incremental Ink editing",
+  "core": "5.5.0",
+  "scope": "existing-document preservation, page mutations and external CMS signing; remaining Rust API pending audit; composed extraction policies; incremental free-text editing; incremental Ink editing; configurable partitioning, element graphs, custom token counting and document export; real page iteration with explicit parser lifetime; lossless incremental event bridge (upstream parser limitations remain); all BatchOptions fields with observable executor limitations; structured SignatureError exceptions; bounded existing-document outline reading; parser and recovery configuration with explicit upstream consumption limits; bounded semantic comparison with physical revision attribution (core object-stream layout limitation documented); validated packed image pixel constructors and owned image/alpha inspection; affine transform matrices and coordinate conversions (Page stores the system without automatic content transformation); mutable RenderContext with independent stored matrix and live coordinate conversions; Page unrotated content bounds and effective rotated dimensions; clipping path construction, owned command inspection and winding rules (intersection/text clipping/region stack excluded); line dash factories, owned parameters and core serialization; all 16 blend modes and their PDF names; effective streaming and lazy-document options with requested/effective/unsupported configurations and adapter-scoped cache budgets; Color conversions and space inspection; incremental tagged structure editor with preparation and sequential mutations; incremental TextNote and Highlight editors with typed identities, geometry, RGB/opacity and native DocMDP policy",
   "callables": {
     "ExistingDocumentPolicy.preserve_base": [
       "page_labels_first_input_wins"
@@ -250,6 +250,713 @@
     "IncrementalInkEditor.apply": [
       "self",
       "mutations"
+    ],
+    "PartitionConfig": [
+      "detect_tables",
+      "detect_headers_footers",
+      "title_min_font_ratio",
+      "header_zone",
+      "footer_zone",
+      "reading_order",
+      "min_table_confidence",
+      "prefer_ruling_tables",
+      "detect_spatial_tables"
+    ],
+    "HybridChunkConfig": [
+      "max_tokens",
+      "overlap_tokens",
+      "context_mode",
+      "merge_adjacent",
+      "propagate_headings",
+      "merge_policy"
+    ],
+    "PdfReader.partition_with": [
+      "self",
+      "config"
+    ],
+    "PdfReader.partition_with_profile": [
+      "self",
+      "profile"
+    ],
+    "PdfReader.partition_graph": [
+      "self",
+      "config"
+    ],
+    "PdfReader.rag_chunks_with": [
+      "self",
+      "config"
+    ],
+    "PdfReader.rag_chunks_with_counter": [
+      "self",
+      "config",
+      "counter"
+    ],
+    "PdfReader.to_json": [
+      "self"
+    ],
+    "PdfReader.to_element_markdown": [
+      "self"
+    ],
+    "ElementGraph.is_empty": [
+      "self"
+    ],
+    "ElementGraph.top_level_sections": [
+      "self"
+    ],
+    "ElementGraph.parent_of": [
+      "self",
+      "index"
+    ],
+    "ElementGraph.children_of": [
+      "self",
+      "index"
+    ],
+    "ElementGraph.next_of": [
+      "self",
+      "index"
+    ],
+    "ElementGraph.prev_of": [
+      "self",
+      "index"
+    ],
+    "ElementGraph.elements_in_section": [
+      "self",
+      "index"
+    ],
+    "PageStreamer.open": [
+      "path"
+    ],
+    "PageStreamer.next": [
+      "self"
+    ],
+    "PageStreamer.seek_to_page": [
+      "self",
+      "page_num"
+    ],
+    "PageStreamer.total_pages": [
+      "self"
+    ],
+    "PageStreamer.close": [
+      "self"
+    ],
+    "StreamingPage.media_box": [
+      "self"
+    ],
+    "StreamingPage.extract_text_streaming": [
+      "self"
+    ],
+    "IncrementalParser": [],
+    "IncrementalParser.feed": [
+      "self",
+      "data"
+    ],
+    "IncrementalParser.take_events": [
+      "self"
+    ],
+    "IncrementalParser.is_complete": [
+      "self"
+    ],
+    "BatchOptions": [
+      "parallelism",
+      "stop_on_error",
+      "memory_limit_per_worker",
+      "progress_interval",
+      "progress_callback",
+      "job_timeout"
+    ],
+    "OutlineReadOptions": [
+      "max_items",
+      "max_depth",
+      "max_named_destinations",
+      "max_name_tree_nodes"
+    ],
+    "PdfReader.outline": [
+      "self"
+    ],
+    "PdfReader.outline_with_options": [
+      "self",
+      "options"
+    ],
+    "ParseOptions": [
+      "strict_mode",
+      "recover_from_stream_errors",
+      "ignore_corrupt_streams",
+      "partial_content_allowed",
+      "lenient_streams",
+      "lenient_encoding",
+      "lenient_syntax",
+      "max_recovery_attempts",
+      "max_recovery_bytes",
+      "collect_warnings",
+      "preferred_encoding",
+      "log_recovery_details"
+    ],
+    "RecoveryOptions": [
+      "aggressive_recovery",
+      "partial_content",
+      "max_errors",
+      "rebuild_xref",
+      "recover_embedded",
+      "skip_validation",
+      "memory_limit"
+    ],
+    "repair_pdf": [
+      "path",
+      "strategy",
+      "options"
+    ],
+    "ParseOptions.strict": [],
+    "ParseOptions.tolerant": [],
+    "ParseOptions.lenient": [],
+    "ParseOptions.skip_errors": [],
+    "GeometricColor.rgb": [
+      "components"
+    ],
+    "GeometricColor.gray": [
+      "component"
+    ],
+    "GeometricColor.cmyk": [
+      "components"
+    ],
+    "GeometricId": [
+      "object_number",
+      "generation_number"
+    ],
+    "GeometricGeometry.line": [
+      "start",
+      "end",
+      "start_ending",
+      "end_ending"
+    ],
+    "GeometricGeometry.square": [
+      "rect"
+    ],
+    "GeometricGeometry.circle": [
+      "rect"
+    ],
+    "GeometricGeometry.polygon": [
+      "vertices"
+    ],
+    "GeometricGeometry.polyline": [
+      "vertices",
+      "start_ending",
+      "end_ending"
+    ],
+    "GeometricStyle": [
+      "stroke_color",
+      "width",
+      "fill_color",
+      "dash_pattern",
+      "opacity"
+    ],
+    "GeometricMutation.add": [
+      "page_index",
+      "geometry",
+      "style"
+    ],
+    "GeometricMutation.update": [
+      "id",
+      "geometry",
+      "style"
+    ],
+    "GeometricMutation.remove": [
+      "id"
+    ],
+    "IncrementalGeometricEditor": [
+      "pdf"
+    ],
+    "IncrementalGeometricEditor.annotations": [
+      "self"
+    ],
+    "IncrementalGeometricEditor.apply": [
+      "self",
+      "mutations"
+    ],
+    "validate_tagged_pdf": [
+      "pdf",
+      "options"
+    ],
+    "TaggedPdfLimits": [
+      "max_objects",
+      "max_depth",
+      "max_entries",
+      "max_decoded_content_bytes"
+    ],
+    "TaggedPdfValidationOptions": [
+      "limits"
+    ],
+    "TaggedPdfObjectRef": [
+      "object_number",
+      "generation"
+    ],
+    "SemanticComparisonLimits": [
+      "max_objects",
+      "max_depth",
+      "max_decoded_stream_bytes",
+      "max_canonical_bytes",
+      "max_extracted_text_bytes",
+      "max_unreachable_objects",
+      "max_revisions"
+    ],
+    "SemanticComparisonOptions": [
+      "limits"
+    ],
+    "compare_pdfs_semantically": [
+      "left",
+      "right",
+      "options"
+    ],
+    "Image.from_raw_data": [
+      "data",
+      "width",
+      "height",
+      "color_space",
+      "bits_per_component"
+    ],
+    "Image.from_rgba_data": [
+      "rgba_data",
+      "width",
+      "height"
+    ],
+    "Image.from_gray_data": [
+      "gray_data",
+      "width",
+      "height"
+    ],
+    "Page.begin_marked_content": [
+      "self",
+      "tag"
+    ],
+    "Page.begin_marked_content_with_actual_text": [
+      "self",
+      "tag",
+      "actual_text"
+    ],
+    "Page.end_marked_content": [
+      "self"
+    ],
+    "Page.next_mcid": [
+      "self"
+    ],
+    "Page.marked_content_depth": [
+      "self"
+    ],
+    "CoordinateSystem.custom": [
+      "matrix"
+    ],
+    "CoordinateSystem.to_pdf_standard_matrix": [
+      "self",
+      "page_height"
+    ],
+    "CoordinateSystem.to_pdf_standard": [
+      "self",
+      "point",
+      "page_height"
+    ],
+    "CoordinateSystem.y_to_pdf_standard": [
+      "self",
+      "y",
+      "page_height"
+    ],
+    "CoordinateSystem.grows_upward": [
+      "self"
+    ],
+    "TransformMatrix": [
+      "a",
+      "b",
+      "c",
+      "d",
+      "e",
+      "f"
+    ],
+    "TransformMatrix.translate": [
+      "tx",
+      "ty"
+    ],
+    "TransformMatrix.scale": [
+      "sx",
+      "sy"
+    ],
+    "TransformMatrix.rotate": [
+      "angle"
+    ],
+    "TransformMatrix.flip_y": [
+      "page_height"
+    ],
+    "TransformMatrix.multiply": [
+      "self",
+      "other"
+    ],
+    "TransformMatrix.transform_point": [
+      "self",
+      "point"
+    ],
+    "TransformMatrix.to_pdf_ctm": [
+      "self"
+    ],
+    "RenderContext": [
+      "coordinate_system",
+      "page_width",
+      "page_height"
+    ],
+    "RenderContext.to_pdf_standard": [
+      "self",
+      "point"
+    ],
+    "RenderContext.y_to_pdf": [
+      "self",
+      "y"
+    ],
+    "ClippingPath": [],
+    "ClippingPath.with_winding_rule": [
+      "self",
+      "rule"
+    ],
+    "ClippingPath.clear": [
+      "self"
+    ],
+    "ClippingPath.to_pdf_operations": [
+      "self"
+    ],
+    "ClippingPath.move_to": [
+      "self",
+      "x",
+      "y"
+    ],
+    "ClippingPath.line_to": [
+      "self",
+      "x",
+      "y"
+    ],
+    "ClippingPath.curve_to": [
+      "self",
+      "x1",
+      "y1",
+      "x2",
+      "y2",
+      "x3",
+      "y3"
+    ],
+    "ClippingPath.add_rect": [
+      "self",
+      "x",
+      "y",
+      "width",
+      "height"
+    ],
+    "ClippingPath.add_circle": [
+      "self",
+      "cx",
+      "cy",
+      "radius"
+    ],
+    "ClippingPath.add_ellipse": [
+      "self",
+      "cx",
+      "cy",
+      "rx",
+      "ry"
+    ],
+    "ClippingPath.add_rounded_rect": [
+      "self",
+      "x",
+      "y",
+      "width",
+      "height",
+      "radius"
+    ],
+    "ClippingPath.close_path": [
+      "self"
+    ],
+    "ClippingPath.add_polygon": [
+      "self",
+      "points"
+    ],
+    "ClippingPath.circle": [
+      "cx",
+      "cy",
+      "radius"
+    ],
+    "ClippingPath.ellipse": [
+      "cx",
+      "cy",
+      "rx",
+      "ry"
+    ],
+    "ClippingPath.rect": [
+      "x",
+      "y",
+      "width",
+      "height"
+    ],
+    "LineDashPattern": [
+      "array",
+      "phase"
+    ],
+    "LineDashPattern.solid": [],
+    "LineDashPattern.dashed": [
+      "dash_length",
+      "gap_length"
+    ],
+    "LineDashPattern.dotted": [
+      "dot_size",
+      "gap_size"
+    ],
+    "LineDashPattern.to_pdf_string": [
+      "self"
+    ],
+    "BlendMode.pdf_name": [
+      "self"
+    ],
+    "StreamingOptions": [
+      "buffer_size",
+      "page_cache_size",
+      "max_content_stream_size",
+      "progressive_hints",
+      "memory_limit"
+    ],
+    "StreamingOptions.minimal_memory": [],
+    "StreamingOptions.fast_processing": [],
+    "StreamingOptions.with_buffer_size": [
+      "self",
+      "value"
+    ],
+    "StreamingOptions.with_page_cache_size": [
+      "self",
+      "value"
+    ],
+    "StreamingOptions.with_memory_limit": [
+      "self",
+      "value"
+    ],
+    "MemoryOptions": [
+      "lazy_loading",
+      "memory_mapping",
+      "cache_size",
+      "streaming",
+      "buffer_size",
+      "mmap_threshold"
+    ],
+    "MemoryOptions.small_file": [],
+    "MemoryOptions.large_file": [],
+    "MemoryOptions.with_lazy_loading": [
+      "self",
+      "value"
+    ],
+    "MemoryOptions.with_memory_mapping": [
+      "self",
+      "value"
+    ],
+    "MemoryOptions.with_cache_size": [
+      "self",
+      "value"
+    ],
+    "MemoryOptions.with_streaming": [
+      "self",
+      "value"
+    ],
+    "StreamingDocument.open": [
+      "path",
+      "options"
+    ],
+    "StreamingDocument.configuration": [
+      "self"
+    ],
+    "StreamingDocument.next_page": [
+      "self"
+    ],
+    "StreamingDocument.cached_pages": [
+      "self"
+    ],
+    "StreamingDocument.memory_usage": [
+      "self"
+    ],
+    "StreamingDocument.clear_cache": [
+      "self"
+    ],
+    "StreamingDocument.close": [
+      "self"
+    ],
+    "StreamingDocument.__enter__": [
+      "self"
+    ],
+    "StreamingDocument.__exit__": [
+      "self",
+      "_exc_type",
+      "_exc_value",
+      "_traceback"
+    ],
+    "LazyDocument.open": [
+      "path",
+      "options"
+    ],
+    "LazyDocument.configuration": [
+      "self"
+    ],
+    "LazyDocument.get_page": [
+      "self",
+      "index"
+    ],
+    "LazyDocument.get_object": [
+      "self",
+      "number",
+      "generation"
+    ],
+    "LazyDocument.preload_page": [
+      "self",
+      "index"
+    ],
+    "LazyDocument.memory_stats": [
+      "self"
+    ],
+    "LazyDocument.clear_cache": [
+      "self"
+    ],
+    "LazyDocument.close": [
+      "self"
+    ],
+    "LazyDocument.__enter__": [
+      "self"
+    ],
+    "LazyDocument.__exit__": [
+      "self",
+      "_exc_type",
+      "_exc_value",
+      "_traceback"
+    ],
+    "Color.to_rgb": [
+      "self"
+    ],
+    "Color.to_cmyk": [
+      "self"
+    ],
+    "Color.cmyk_components": [
+      "self"
+    ],
+    "Color.color_space_name": [
+      "self"
+    ],
+    "Color.is_rgb": [
+      "self"
+    ],
+    "Color.is_cmyk": [
+      "self"
+    ],
+    "Color.is_gray": [
+      "self"
+    ],
+    "TaggedPdfMutation.create_element": [
+      "parent",
+      "structure_type",
+      "attributes",
+      "index"
+    ],
+    "TaggedPdfMutation.set_element_attribute": [
+      "element",
+      "key",
+      "value"
+    ],
+    "TaggedPdfMutation.reparent_element": [
+      "element",
+      "new_parent",
+      "index"
+    ],
+    "TaggedPdfMutation.associate_mcid": [
+      "element",
+      "page",
+      "mcid"
+    ],
+    "TaggedPdfMutation.set_parent_tree_entry": [
+      "key",
+      "value"
+    ],
+    "IncrementalTaggedPdfEditor": [
+      "pdf"
+    ],
+    "IncrementalTaggedPdfEditor.with_validation_options": [
+      "self",
+      "options"
+    ],
+    "IncrementalTaggedPdfEditor.with_recovered_indexes": [
+      "self"
+    ],
+    "IncrementalTaggedPdfEditor.with_document_language": [
+      "self",
+      "language"
+    ],
+    "IncrementalTaggedPdfEditor.preparation_objects": [
+      "self"
+    ],
+    "IncrementalTaggedPdfEditor.preflight": [
+      "self"
+    ],
+    "IncrementalTaggedPdfEditor.plan": [
+      "self",
+      "mutations"
+    ],
+    "IncrementalTaggedPdfEditor.apply": [
+      "self",
+      "mutations"
+    ],
+    "TextNoteId": [
+      "object_number",
+      "generation_number"
+    ],
+    "HighlightId": [
+      "object_number",
+      "generation_number"
+    ],
+    "HighlightQuad": [
+      "points"
+    ],
+    "HighlightColor": [
+      "components"
+    ],
+    "HighlightOpacity": [
+      "value"
+    ],
+    "TextNoteMutation.add": [
+      "page_index",
+      "position",
+      "contents"
+    ],
+    "TextNoteMutation.update": [
+      "id",
+      "position",
+      "contents"
+    ],
+    "TextNoteMutation.remove": [
+      "id"
+    ],
+    "HighlightMutation.add": [
+      "page_index",
+      "quadrilaterals",
+      "color",
+      "opacity",
+      "contents"
+    ],
+    "HighlightMutation.remove": [
+      "id"
+    ],
+    "IncrementalTextNoteEditor": [
+      "pdf"
+    ],
+    "IncrementalTextNoteEditor.notes": [
+      "self"
+    ],
+    "IncrementalTextNoteEditor.apply": [
+      "self",
+      "mutations"
+    ],
+    "IncrementalHighlightEditor": [
+      "pdf"
+    ],
+    "IncrementalHighlightEditor.highlights": [
+      "self"
+    ],
+    "IncrementalHighlightEditor.apply": [
+      "self",
+      "mutations"
     ]
   },
   "properties": {
@@ -349,6 +1056,424 @@
     "InkUpdate": [
       "pdf_bytes",
       "annotations"
+    ],
+    "PartitionConfig": [
+      "detect_tables",
+      "detect_headers_footers",
+      "title_min_font_ratio",
+      "header_zone",
+      "footer_zone",
+      "reading_order",
+      "min_table_confidence",
+      "prefer_ruling_tables",
+      "detect_spatial_tables"
+    ],
+    "HybridChunkConfig": [
+      "max_tokens",
+      "overlap_tokens",
+      "context_mode",
+      "merge_adjacent",
+      "propagate_headings",
+      "merge_policy"
+    ],
+    "RagChunk": [
+      "chunk_index",
+      "text",
+      "full_text",
+      "token_estimate",
+      "page_numbers",
+      "element_types",
+      "heading_context",
+      "is_oversized",
+      "heading_path",
+      "dominant_font",
+      "dominant_font_size",
+      "is_bold",
+      "is_italic",
+      "min_confidence",
+      "content_types",
+      "char_count",
+      "word_count",
+      "sentence_count",
+      "language",
+      "language_confidence",
+      "language_reliable",
+      "chunk_id",
+      "prev_chunk_id",
+      "next_chunk_id",
+      "page_span",
+      "page_regions",
+      "table_rows",
+      "table_cols",
+      "source",
+      "extra"
+    ],
+    "StreamingPage": [
+      "number",
+      "width",
+      "height"
+    ],
+    "PdfValue": [
+      "kind",
+      "value"
+    ],
+    "BatchOptions": [
+      "parallelism",
+      "stop_on_error",
+      "memory_limit_per_worker",
+      "progress_interval",
+      "progress_callback",
+      "job_timeout"
+    ],
+    "ProgressInfo": [
+      "total_jobs",
+      "completed_jobs",
+      "failed_jobs",
+      "running_jobs",
+      "percentage",
+      "is_complete",
+      "elapsed_secs"
+    ],
+    "OutlineReadOptions": [
+      "max_items",
+      "max_depth",
+      "max_named_destinations",
+      "max_name_tree_nodes"
+    ],
+    "ReadOutline": [
+      "items"
+    ],
+    "ReadOutlineItem": [
+      "title",
+      "destination",
+      "children",
+      "color",
+      "is_bold",
+      "is_italic",
+      "is_open"
+    ],
+    "ReadOutlineDestination": [
+      "page_index",
+      "kind",
+      "parameters"
+    ],
+    "ParseOptions": [
+      "strict_mode",
+      "recover_from_stream_errors",
+      "ignore_corrupt_streams",
+      "partial_content_allowed",
+      "lenient_streams",
+      "lenient_encoding",
+      "lenient_syntax",
+      "max_recovery_attempts",
+      "max_recovery_bytes",
+      "collect_warnings",
+      "preferred_encoding",
+      "log_recovery_details"
+    ],
+    "RecoveryOptions": [
+      "aggressive_recovery",
+      "partial_content",
+      "max_errors",
+      "rebuild_xref",
+      "recover_embedded",
+      "skip_validation",
+      "memory_limit"
+    ],
+    "RepairResult": [
+      "success",
+      "pages_recovered",
+      "objects_recovered",
+      "warnings",
+      "is_partial",
+      "repaired_bytes"
+    ],
+    "GeometricColor": [
+      "space",
+      "components"
+    ],
+    "GeometricId": [
+      "object_number",
+      "generation_number"
+    ],
+    "GeometricGeometry": [
+      "kind",
+      "rect",
+      "vertices",
+      "start",
+      "end",
+      "start_ending",
+      "end_ending"
+    ],
+    "GeometricStyle": [
+      "stroke_color",
+      "fill_color",
+      "width",
+      "dash_pattern",
+      "opacity"
+    ],
+    "GeometricAnnotation": [
+      "id",
+      "page_index",
+      "geometry",
+      "style"
+    ],
+    "GeometricUpdate": [
+      "pdf_bytes",
+      "annotations"
+    ],
+    "TaggedPdfObjectRef": [
+      "object_number",
+      "generation"
+    ],
+    "TaggedPdfLimits": [
+      "max_objects",
+      "max_depth",
+      "max_entries",
+      "max_decoded_content_bytes"
+    ],
+    "TaggedPdfValidationOptions": [
+      "limits"
+    ],
+    "TaggedPdfFinding": [
+      "severity",
+      "code",
+      "path",
+      "message",
+      "object"
+    ],
+    "TaggedPdfStructureElement": [
+      "object",
+      "parent",
+      "structure_type",
+      "language",
+      "alternate_text",
+      "actual_text",
+      "title",
+      "child_count",
+      "marked_content_count",
+      "dictionary_keys",
+      "dictionary"
+    ],
+    "TaggedPdfArtifact": [
+      "context",
+      "operation_index",
+      "subtype"
+    ],
+    "TaggedPdfValidationReport": [
+      "tagged",
+      "valid",
+      "structure_tree_root",
+      "role_map",
+      "class_names",
+      "class_map",
+      "parent_tree_entries",
+      "parent_tree",
+      "content_mcids",
+      "artifacts",
+      "elements",
+      "findings"
+    ],
+    "SemanticComparisonLimits": [
+      "max_objects",
+      "max_depth",
+      "max_decoded_stream_bytes",
+      "max_canonical_bytes",
+      "max_extracted_text_bytes",
+      "max_unreachable_objects",
+      "max_revisions"
+    ],
+    "SemanticComparisonOptions": [
+      "limits"
+    ],
+    "SemanticPdfDifference": [
+      "path",
+      "class_",
+      "description"
+    ],
+    "RevisionObjectChange": [
+      "object_number",
+      "generation",
+      "kind"
+    ],
+    "PdfRevisionSummary": [
+      "index",
+      "xref_offset",
+      "object_changes",
+      "semantic_fingerprint"
+    ],
+    "SemanticComparisonResult": [
+      "semantically_equal",
+      "differences",
+      "left_revisions",
+      "right_revisions",
+      "left_unreachable_objects",
+      "right_unreachable_objects",
+      "semantically_equivalent_objects"
+    ],
+    "Image": [
+      "width",
+      "height",
+      "has_transparency",
+      "data",
+      "format",
+      "bits_per_component",
+      "alpha_data",
+      "soft_mask"
+    ],
+    "TransformMatrix": [
+      "a",
+      "b",
+      "c",
+      "d",
+      "e",
+      "f"
+    ],
+    "Page": [
+      "coordinate_system",
+      "content_width",
+      "content_height",
+      "content_area",
+      "effective_width",
+      "effective_height"
+    ],
+    "RenderContext": [
+      "coordinate_system",
+      "page_width",
+      "page_height",
+      "current_transform"
+    ],
+    "ClippingPath": [
+      "is_empty",
+      "commands"
+    ],
+    "ClippingPathCommand": [
+      "kind",
+      "coordinates"
+    ],
+    "LineDashPattern": [
+      "array",
+      "phase"
+    ],
+    "StreamingOptions": [
+      "buffer_size",
+      "page_cache_size",
+      "max_content_stream_size",
+      "progressive_hints",
+      "memory_limit"
+    ],
+    "MemoryOptions": [
+      "lazy_loading",
+      "memory_mapping",
+      "cache_size",
+      "streaming",
+      "buffer_size",
+      "mmap_threshold"
+    ],
+    "MemoryConfiguration": [
+      "requested",
+      "effective",
+      "unsupported"
+    ],
+    "StreamingConfiguration": [
+      "requested",
+      "effective",
+      "progressive_hints_unsupported"
+    ],
+    "MemoryStats": [
+      "allocated_bytes",
+      "cached_objects",
+      "cache_hits",
+      "cache_misses",
+      "lazy_loads",
+      "mapped_regions"
+    ],
+    "LazyDocument": [
+      "page_count"
+    ],
+    "TaggedPdfMutation": [
+      "kind",
+      "parent",
+      "element",
+      "new_parent",
+      "page",
+      "structure_type",
+      "index",
+      "mcid",
+      "attribute_key",
+      "parent_tree_key",
+      "value",
+      "attributes"
+    ],
+    "TaggedPdfChangedObject": [
+      "object",
+      "kind"
+    ],
+    "TaggedPdfEditPlan": [
+      "changed_objects",
+      "mutations"
+    ],
+    "TaggedPdfMutationReport": [
+      "pdf_bytes",
+      "plan",
+      "validation_before",
+      "validation_after"
+    ],
+    "TextNoteId": [
+      "object_number",
+      "generation_number"
+    ],
+    "HighlightId": [
+      "object_number",
+      "generation_number"
+    ],
+    "HighlightQuad": [
+      "points"
+    ],
+    "HighlightColor": [
+      "components"
+    ],
+    "HighlightOpacity": [
+      "value"
+    ],
+    "TextNote": [
+      "id",
+      "page_index",
+      "position",
+      "contents"
+    ],
+    "Highlight": [
+      "id",
+      "page_index",
+      "rect",
+      "quadrilaterals",
+      "color",
+      "opacity",
+      "contents"
+    ],
+    "TextNoteMutation": [
+      "kind",
+      "id",
+      "page_index",
+      "position",
+      "contents"
+    ],
+    "HighlightMutation": [
+      "kind",
+      "id",
+      "page_index",
+      "quadrilaterals",
+      "color",
+      "opacity",
+      "contents"
+    ],
+    "TextNoteUpdate": [
+      "pdf_bytes",
+      "added_notes"
+    ],
+    "HighlightUpdate": [
+      "pdf_bytes",
+      "highlights"
     ]
   },
   "required_tests": [
@@ -388,6 +1513,348 @@
       "test_ink_validation_rejects_invalid_values",
       "test_ink_invalid_batch_is_atomic_and_retryable",
       "test_ink_preserves_core_certification_policy"
+    ],
+    "tests/test_rag_reader_parity.py": [
+      "test_partition_config_reaches_table_and_header_detection",
+      "test_partition_options_all_fields_and_immutable_builders",
+      "test_partition_profile_and_title_threshold_change_classification",
+      "test_element_graph_preserves_relationships_and_rejects_bad_indices",
+      "test_custom_counter_controls_splits_and_estimates",
+      "test_nonadditive_counter_measures_whole_joined_text",
+      "test_counter_failure_is_preserved_and_reader_can_be_reused",
+      "test_counter_rejects_invalid_counts",
+      "test_hybrid_configuration_retains_all_core_fields",
+      "test_document_exports_contain_document_content",
+      "test_new_reader_paths_reject_locked_documents",
+      "test_nondefault_profile_and_graph_configuration_are_applied",
+      "test_invalid_counter_on_empty_input_and_reentry"
+    ],
+    "tests/test_page_streamer.py": [
+      "test_exact_single_page_and_eof",
+      "test_exact_iteration_and_retained_pages",
+      "test_invalid_input_is_rejected",
+      "test_only_selected_page_is_decoded_and_failure_does_not_advance",
+      "test_close_releases_file_and_preserves_page"
+    ],
+    "tests/test_incremental_parser_payloads.py": [
+      "test_stream_payload_and_legacy_fields_survive_drain",
+      "test_chunked_feed_retains_binary_stream",
+      "test_real_objects_xref_and_trailer_are_emitted",
+      "test_pdf_value_scalar_inspection",
+      "test_nested_pdf_values_are_owned_and_inspectable",
+      "test_invalid_feed_type_does_not_discard_pending_events"
+    ],
+    "tests/test_batch_options.py": [
+      "test_defaults_and_explicit_options",
+      "test_invalid_counts",
+      "test_invalid_durations",
+      "test_invalid_callback",
+      "test_executor_callbacks_errors_and_limits",
+      "test_callback_reference_cycles_are_collected"
+    ],
+    "tests/test_signature_errors.py": [
+      "test_preparation_and_slots_preserve_signature_errors",
+      "test_cms_error_preserves_base_message_and_pickle",
+      "test_byterange_preserves_integer_details_and_legacy_valueerror",
+      "test_legacy_runtimeerror_is_preserved",
+      "test_aggregate_verification_rejects_invalid_crypto",
+      "test_aggregate_cms_parse_error_retains_details",
+      "test_standalone_detection_preserves_missing_field"
+    ],
+    "tests/test_outline_read.py": [
+      "test_outline_options_defaults_and_validation",
+      "test_absent_and_empty_outlines_are_distinct",
+      "test_hierarchy_styles_resolved_destinations_and_owned_results",
+      "test_all_destination_views",
+      "test_each_budget_is_enforced_and_reader_can_retry",
+      "test_empty_name_tree_nodes_consume_budget",
+      "test_malformed_outline_is_an_error_not_partial_success",
+      "test_non_goto_action_has_no_page_destination",
+      "test_legacy_named_destination_and_indirect_dictionary",
+      "test_named_destination_and_name_tree_cycles_are_rejected"
+    ],
+    "tests/test_parser_recovery_options.py": [
+      "test_parse_defaults_and_presets",
+      "test_encoding_configuration_is_round_tripped",
+      "test_option_errors_and_unsigned_boundaries",
+      "test_recovery_options_defaults_and_readonly_fields",
+      "test_partial_content_reaches_repair_and_results_are_owned",
+      "test_inert_recovery_fields_do_not_enforce_limits",
+      "test_unsuccessful_repair_and_io_errors",
+      "test_parser_options_reach_each_reader_entrypoint",
+      "test_preferred_encoding_does_not_override_core_decoding"
+    ],
+    "tests/test_incremental_geometric.py": [
+      "test_geometric_shapes_styles_and_readback",
+      "test_geometric_line_endings_and_gray",
+      "test_geometric_update_remove_identity_and_ownership",
+      "test_geometric_style_validation",
+      "test_geometric_invalid_batch_atomic_retry",
+      "test_geometric_missing_target_atomic",
+      "test_geometric_docmdp_policy",
+      "test_geometric_invalid_pdf",
+      "test_geometric_existing_generation_and_unrelated_keys",
+      "test_geometric_unsigned_boundaries"
+    ],
+    "tests/test_tagged_validation.py": [
+      "test_complete_report_and_lossless_values",
+      "test_defaults_and_owned_snapshots",
+      "test_each_budget_is_effective",
+      "test_findings_are_typed_and_warnings_do_not_certify",
+      "test_cycles_terminate_with_findings",
+      "test_malformed_input_is_an_error",
+      "test_unsigned_limit_boundaries",
+      "test_reference_hash_and_generation_boundaries",
+      "test_locked_document_is_rejected",
+      "test_decoded_byte_limit_boundary"
+    ],
+    "tests/test_semantic_comparison.py": [
+      "test_identical_complete_owned_result",
+      "test_normalized_serialization",
+      "test_changed_domains",
+      "test_history_detects_restored_metadata",
+      "test_unreachable_generations_and_freed_objects",
+      "test_each_limit_is_enforced",
+      "test_operand_errors",
+      "test_defaults_and_unsigned_boundaries",
+      "test_independent_readers_and_xref_stream",
+      "test_right_operand_uses_its_own_limits",
+      "test_security_difference_for_docmdp_policy",
+      "test_decoded_budget_counts_traversal"
+    ],
+    "tests/test_raw_images.py": [
+      "test_raw_scanlines_preserve_color_depth_and_bytes",
+      "test_rgba_split_soft_mask_and_owned_snapshots",
+      "test_gray_constructor_and_existing_format_getters",
+      "test_checked_core_dimensions",
+      "test_invalid_bit_depth",
+      "test_invalid_buffers_rejected_before_core",
+      "test_unsigned_dimensions",
+      "test_poppler_pixels_and_alpha"
+    ],
+    "tests/test_marked_content.py": [
+      "test_nested_marks_and_page_local_ids",
+      "test_tag_is_one_pdf_name",
+      "test_errors_leave_marking_state_unchanged",
+      "test_actual_text_utf16",
+      "test_poppler_uses_logical_text",
+      "test_mcid_connects_to_structure_tree"
+    ],
+    "tests/test_coordinates.py": [
+      "test_components_and_immutable_snapshot",
+      "test_composition_order_and_factories",
+      "test_coordinate_conversions_and_custom_semantics",
+      "test_page_coordinate_system_snapshot",
+      "test_float_semantics_and_type_errors"
+    ],
+    "tests/test_render_context.py": [
+      "test_initial_context_and_conversions",
+      "test_mutations_use_live_system_and_height_without_refreshing_matrix",
+      "test_custom_context_y_uses_zero_x_and_ignores_cached_transform",
+      "test_invalid_assignments_preserve_context"
+    ],
+    "tests/test_page_geometry.py": [
+      "test_asymmetric_content_bounds_and_live_margins",
+      "test_rotation_dimensions_match_serialized_page",
+      "test_oversized_margins_remain_unclamped_and_coordinates_are_unrotated",
+      "test_geometry_is_read_only_and_rejected_rotation_keeps_dimensions"
+    ],
+    "tests/test_clipping_paths.py": [
+      "test_free_path_chaining_commands_and_pdf_operators",
+      "test_snapshot_and_winding_builder_independence",
+      "test_polygon_order_empty_and_invalid_input_atomicity",
+      "test_add_rect_and_rounded_rect_radius_cap",
+      "test_curved_shapes_and_existing_factories",
+      "test_real_clipping_winding_and_page_snapshot"
+    ],
+    "tests/test_dash_patterns.py": [
+      "test_factories_and_owned_parameters",
+      "test_numeric_serialization_preserves_core_contract",
+      "test_invalid_arguments_do_not_mutate_existing_pattern",
+      "test_pattern_reaches_rendered_page"
+    ],
+    "tests/test_blend_modes.py": [
+      "test_all_mode_names_and_immutable_values",
+      "test_new_modes_reach_extgstate",
+      "test_new_modes_render",
+      "test_invalid_mode_rejected"
+    ],
+    "tests/test_aes_entropy.py": [
+      "test_aes_ciphertext_and_independent_decryption",
+      "test_aes_entropy_failure_is_python_error_without_valid_output",
+      "test_aes_round_trip_on_each_platform"
+    ],
+    "tests/test_streaming_memory_options.py": [
+      "test_defaults_presets_builders_and_owned_configuration",
+      "test_decoded_content_limit_boundary_and_retry",
+      "test_stream_cache_budgets_eviction_clear_and_retained_pages",
+      "test_stream_budget_one_byte_short_does_not_retain",
+      "test_lazy_cache_loading_eviction_and_clear",
+      "test_lazy_defers_unrelated_invalid_object_while_eager_rejects",
+      "test_normalized_buffers_preserve_reads_and_invalid_sizes_fail",
+      "test_input_errors_and_context_exception",
+      "test_encrypted_source_is_not_silently_accepted",
+      "test_zero_content_budget_accepts_empty_content",
+      "test_streaming_presets_consume_real_pages"
+    ],
+    "tests/test_color_conversions.py": [
+      "test_space_predicates_and_copy_identity",
+      "test_component_conversions",
+      "test_existing_properties_and_numeric_limits",
+      "test_converted_rgb_reaches_page"
+    ],
+    "tests/test_incremental_tagged.py": [
+      "test_identity_plan_and_snapshots",
+      "test_attribute_preservation_and_external_reader",
+      "test_create_reparent_and_mutation_fields",
+      "test_parent_tree_add_remove_and_mcid",
+      "test_language_preparation_and_recovery",
+      "test_invalid_batch_is_atomic",
+      "test_docmdp_rejects_structure_edits",
+      "test_limits_and_input_errors",
+      "test_external_qpdf",
+      "test_repeated_attribute_mutations_observe_batch_order",
+      "test_recovery_preparation_matrix_and_xref_inventory",
+      "test_preparation_requires_explicit_metadata_and_preserves_existing_descriptions",
+      "test_all_preparation_entry_points_enforce_docmdp",
+      "test_encrypted_source_rejected_by_all_editor_operations",
+      "test_editor_validation_budgets_reach_plan_apply_and_preflight"
+    ],
+    "tests/test_notes_highlights.py": [
+      "test_note_full_lifecycle_identity_and_order",
+      "test_highlight_full_results_geometry_and_optional_fields",
+      "test_owned_values_mutations_and_input_validation",
+      "test_highlight_validated_values_reject_invalid_inputs",
+      "test_note_invalid_batch_is_atomic_and_retryable",
+      "test_highlight_invalid_batch_is_atomic_and_retryable",
+      "test_conflicting_targets_and_wrong_mutation_types",
+      "test_docmdp_preserves_read_noop_and_enforces_mutations",
+      "test_original_certification_fixture_rejects_p2",
+      "test_unsupported_annotation_identity_rejected",
+      "test_encrypted_and_malformed_input_rejected",
+      "test_external_objects_unicode_metadata_and_content_preserved"
     ]
+  },
+  "typed_dicts": {
+    "python/oxidize_pdf/parse_events.py": {
+      "HeaderEvent": [
+        "type",
+        "version"
+      ],
+      "ObjectStartEvent": [
+        "type",
+        "id",
+        "generation"
+      ],
+      "ObjectEndEvent": [
+        "type",
+        "id",
+        "generation",
+        "object"
+      ],
+      "StreamDataEvent": [
+        "type",
+        "object_id",
+        "data_len",
+        "data"
+      ],
+      "XRefEntry": [
+        "object_number",
+        "generation",
+        "offset",
+        "in_use"
+      ],
+      "XRefEvent": [
+        "type",
+        "entry_count",
+        "entries"
+      ],
+      "TrailerEvent": [
+        "type",
+        "dict"
+      ],
+      "EndOfFileEvent": [
+        "type"
+      ]
+    },
+    "python/oxidize_pdf/signature_errors.py": {
+      "SignatureVerificationSummary": [
+        "name",
+        "filter",
+        "sub_filter",
+        "valid",
+        "error",
+        "error_code",
+        "error_details"
+      ]
+    }
+  },
+  "signature_errors": {
+    "module": "python/oxidize_pdf/signature_errors.py",
+    "base": "PdfError",
+    "classes": {
+      "PdfSignatureError": [
+        "PdfError"
+      ],
+      "PdfSignatureValueError": [
+        "PdfSignatureError",
+        "ValueError"
+      ],
+      "PdfSignatureRuntimeError": [
+        "PdfSignatureError",
+        "RuntimeError"
+      ]
+    },
+    "codes": {
+      "missing_field": [
+        "field"
+      ],
+      "invalid_byte_range": [
+        "details"
+      ],
+      "invalid_signature_dict": [
+        "details"
+      ],
+      "contents_extraction_failed": [
+        "details"
+      ],
+      "acro_form_not_found": [],
+      "no_signature_fields": [],
+      "parse_error": [
+        "message"
+      ],
+      "cms_parsing_failed": [
+        "details"
+      ],
+      "unsupported_algorithm": [
+        "algorithm"
+      ],
+      "byte_range_exceeds_document": [
+        "offset",
+        "length",
+        "document_size"
+      ],
+      "hash_verification_failed": [
+        "details"
+      ],
+      "signature_verification_failed": [
+        "details"
+      ],
+      "certificate_extraction_failed": [
+        "details"
+      ],
+      "certificate_validation_failed": [
+        "details"
+      ]
+    },
+    "fields": {
+      "field": "str",
+      "details": "str",
+      "message": "str",
+      "algorithm": "str",
+      "offset": "int",
+      "length": "int",
+      "document_size": "int"
+    }
   }
 }

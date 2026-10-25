@@ -1,0 +1,45 @@
+{
+  "issues": [
+    254,
+    255
+  ],
+  "date": "2026-10-14",
+  "base": "0a3c4c1cfeb279317a6add979355cb4c9ee9c4c9",
+  "core": "5.4.2",
+  "source_sha256": {
+    ".github/workflows/test.yml": "5e724ebd865dd2eaf7740e6b2a3d1b8b2d112f87c0fabf41187558c3c3e60323",
+    "docs/parity-contract.json": "85c1d0acc8b098661d900dfa70ed3bb4d2f71d67f10f35032b1bae3a5eb20730",
+    "python/oxidize_pdf/__init__.pyi": "fe030451a2f62441b1957f65c7306adc355aefd7f1742fae23c99dc8f5256a11",
+    "python/oxidize_pdf/_oxidize_pdf.pyi": "dd8195753c7236eab216db5709f8a40f32bdbcfb3e87b12fcc6728cc5f1bd1c1",
+    "src/batch_recovery_streaming.rs": "e6f4c3ff646db74bee0a49c54a8531356a989433ee57bb2902be1f796eb063be",
+    "src/parser.rs": "e06ec2c62e3826057cc609d508c678c37584e1bfc7a1bde72a094c8120f9e497",
+    "tests/test_batch_recovery_streaming.py": "8b41e61fa95807c9f7daa224f66922740f7346cd8f4369538dcaecc2e23d174e",
+    "tests/test_parity_checker.py": "97ca4df1120d408eac039d1ce70d56addd208b67970e5c4fcc9408f96249432e",
+    "tests/test_page_streamer.py": "bf1cb6ccae5fbf808e83baff0384027ba66df3feaa4b6d032f20381553a22f41",
+    "tests/typing/page_streamer.py": "059fe34f024d1f49145d6e9a28ce4eb9f7aa7524e16a95cbf32aafec93c8994b"
+  },
+  "checks": {
+    "focused": 76,
+    "library_regression": 2369,
+    "mcp": {
+      "passed": 295,
+      "skipped": 1,
+      "sandbox": "IPC run interrupted; rerun outside sandbox passed"
+    },
+    "typing": "24 package files and strict streaming consumer passed",
+    "clippy": "passed",
+    "minimal_features": "passed",
+    "mutation": "2 empty-page assertion failures, 2 fixed-text assertion failures; isolated compiled extension",
+    "kripteia": "Python 100/100, 9 functions; Rust 0 tests; no security findings"
+  },
+  "limits": [
+    "Core native PageStreamer remains a stub; Python now uses the real core parser instead",
+    "Per-page index reconstruction; no numerical memory bound",
+    "Source file must not be modified while iterator is open",
+    "Encrypted input explicitly rejected",
+    "No release or upstream change"
+  ],
+  "state": "locally validated; PR integration pending",
+  "build_recovery": "A shared Cargo target reused the mutation artifact during restoration. Final build forced CARGO_INCREMENTAL=0 and source mtime refresh; focused/full regression repeated on restored extension. Sources unchanged. See stale-artifact logs and final-build.log.",
+  "extension_sha256": "c4d99609a58cb5c935a2678d40cb5a9fdbf2008a79035b84cc824725f4129b15"
+}

@@ -12,6 +12,7 @@ mod errors;
 mod existing_document;
 mod incremental_annotations;
 mod incremental_ink;
+mod incremental_geometric;
 #[cfg(feature = "unstable-spi")]
 mod experimental_spi;
 mod forms;
@@ -24,20 +25,30 @@ mod layout;
 mod list;
 mod operations;
 mod outlines;
+mod outline_read;
 mod page;
 mod page_labels;
 mod page_transitions;
 mod parser;
+mod parse_events;
+mod rag_analysis;
 mod security;
 mod semantic;
+mod semantic_comparison;
+mod coordinates;
 mod signing;
+mod signature_errors;
 mod table;
 mod text;
 mod text_extraction;
 mod tier8;
+mod streaming_options;
 mod types;
 mod upstream;
 mod verification;
+mod tagged_validation;
+mod incremental_tagged;
+mod incremental_notes_highlights;
 mod viewer_preferences;
 mod xmp_metadata;
 
@@ -48,9 +59,13 @@ fn _oxidize_pdf(m: &Bound<'_, PyModule>) -> PyResult<()> {
 
     // Register submodules
     errors::register(m)?;
+    tagged_validation::register(m)?;
+    incremental_tagged::register(m)?;
+    incremental_notes_highlights::register(m)?;
     existing_document::register(m)?;
     incremental_annotations::register(m)?;
     incremental_ink::register(m)?;
+    incremental_geometric::register(m)?;
     upstream::register(m)?;
     types::register(m)?;
     document::register(m)?;
@@ -58,6 +73,7 @@ fn _oxidize_pdf(m: &Bound<'_, PyModule>) -> PyResult<()> {
     text::register(m)?;
     graphics::register(m)?;
     parser::register(m)?;
+    rag_analysis::register(m)?;
     operations::register(m)?;
     security::register(m)?;
     image::register(m)?;
@@ -67,8 +83,10 @@ fn _oxidize_pdf(m: &Bound<'_, PyModule>) -> PyResult<()> {
     actions::register(m)?;
     forms::register(m)?;
     outlines::register(m)?;
+    outline_read::register(m)?;
     page_labels::register(m)?;
     tier8::register(m)?;
+    streaming_options::register(m)?;
     viewer_preferences::register(m)?;
     charts::register(m)?;
     advanced_tables::register(m)?;
@@ -81,6 +99,8 @@ fn _oxidize_pdf(m: &Bound<'_, PyModule>) -> PyResult<()> {
     xmp_metadata::register(m)?;
     verification::register(m)?;
     semantic::register(m)?;
+    semantic_comparison::register(m)?;
+    coordinates::register(m)?;
     signing::register(m)?;
     graphics_extraction::register(m)?;
     layout::register(m)?;

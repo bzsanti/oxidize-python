@@ -1,0 +1,19 @@
+--- a/src/batch_recovery_streaming.rs
++++ b/src/batch_recovery_streaming.rs
+@@ -782,7 +782,7 @@
+         self.height
+     }
+     fn extract_text_streaming(&self) -> &str {
+-        &self.text
++        "Text from page 1"
+     }
+     fn media_box(&self) -> [f64; 4] {
+         self.media_box
+@@ -854,6 +854,7 @@
+     }
+ 
+     fn next(&mut self, py: Python<'_>) -> PyResult<Option<PyStreamingPage>> {
++        if std::env::var_os("OXIDIZE_STREAM_MUTANT_EMPTY").is_some() { return Ok(None); }
+         let file = self.file()?;
+         if self.current_page >= self.total_pages {
+             return Ok(None);

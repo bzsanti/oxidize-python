@@ -1,0 +1,32 @@
+## Calidad de Tests (Kripteia)
+
+=== Kripteia Test Quality Report ===
+Overall Score: 98 | Tests: 9 | Files: 1
+
+--- Files ---
+Path                                                          Tests  Score
+--------------------------------------------------------------------------
+tests/test_parser_recovery_options.py                             9     98
+
+--- Worst Offenders ---
+  test_inert_recovery_fields_do_not_enforce_limits (tests/test_parser_recovery_options.py:92) - Score: 90
+    - Test 'test_inert_recovery_fields_do_not_enforce_limits' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+  test_parser_options_reach_each_reader_entrypoint (tests/test_parser_recovery_options.py:117) - Score: 90
+    - Test 'test_parser_options_reach_each_reader_entrypoint' has low assert-to-setup ratio (11%): 2 asserts vs 17 setup lines
+  test_parse_defaults_and_presets (tests/test_parser_recovery_options.py:16) - Score: 100
+  test_encoding_configuration_is_round_tripped (tests/test_parser_recovery_options.py:34) - Score: 100
+  test_option_errors_and_unsigned_boundaries (tests/test_parser_recovery_options.py:42) - Score: 100
+
+--- Details ---
+tests/test_parser_recovery_options.py:
+  test_inert_recovery_fields_do_not_enforce_limits (line 92) - Score: 90
+    - Test 'test_inert_recovery_fields_do_not_enforce_limits' has low assert-to-setup ratio (14%): 1 asserts vs 6 setup lines
+  test_parser_options_reach_each_reader_entrypoint (line 117) - Score: 90
+    - Test 'test_parser_options_reach_each_reader_entrypoint' has low assert-to-setup ratio (11%): 2 asserts vs 17 setup lines
+
+
+## Analisis de Seguridad (Kripteia Security)
+
+=== Kripteia Security Analysis ===
+
+No security issues found.

@@ -1,0 +1,25 @@
+## Calidad de Tests (Kripteia)
+
+=== Kripteia Test Quality Report ===
+Overall Score: 100 | Tests: 13 | Files: 1
+
+--- Files ---
+Path                                                          Tests  Score
+--------------------------------------------------------------------------
+tests/test_rag_reader_parity.py                                  13    100
+
+--- Worst Offenders ---
+  test_partition_config_reaches_table_and_header_detection (tests/test_rag_reader_parity.py:44) - Score: 100
+  test_partition_options_all_fields_and_immutable_builders (tests/test_rag_reader_parity.py:57) - Score: 100
+  test_partition_profile_and_title_threshold_change_classification (tests/test_rag_reader_parity.py:72) - Score: 100
+  test_element_graph_preserves_relationships_and_rejects_bad_indices (tests/test_rag_reader_parity.py:80) - Score: 100
+  test_custom_counter_controls_splits_and_estimates (tests/test_rag_reader_parity.py:100) - Score: 100
+
+2026-10-13T18:29:08.238019Z  WARN kripteia: telemetry DB unavailable: telemetry DB error: attempt to write a readonly database
+
+## Analisis de Seguridad (Kripteia Security)
+2026-10-13T18:29:08.282083Z  WARN kripteia: telemetry DB unavailable: telemetry DB error: attempt to write a readonly database
+
+=== Kripteia Security Analysis ===
+
+No security issues found.

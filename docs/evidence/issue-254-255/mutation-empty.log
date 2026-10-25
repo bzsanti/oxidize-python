@@ -1,0 +1,38 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+____________________ test_exact_single_page_and_eof[False] _____________________
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-12/test_exact_single_page_and_eof0')
+compressed = False
+
+    @pytest.mark.parametrize('compressed', [False, True])
+    def test_exact_single_page_and_eof(tmp_path, compressed):
+        path = write_pdf(tmp_path, ['REAL-PARITY-SENTINEL'], compressed=compressed)
+        reader = pdf.PdfReader.open(path)
+        with pdf.PageStreamer.open(path) as stream:
+            assert stream.total_pages() == reader.page_count == 1
+            page = stream.next()
+>           assert page is not None
+E           assert None is not None
+
+tests/test_page_streamer.py:50: AssertionError
+_____________________ test_exact_single_page_and_eof[True] _____________________
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-12/test_exact_single_page_and_eof1')
+compressed = True
+
+    @pytest.mark.parametrize('compressed', [False, True])
+    def test_exact_single_page_and_eof(tmp_path, compressed):
+        path = write_pdf(tmp_path, ['REAL-PARITY-SENTINEL'], compressed=compressed)
+        reader = pdf.PdfReader.open(path)
+        with pdf.PageStreamer.open(path) as stream:
+            assert stream.total_pages() == reader.page_count == 1
+            page = stream.next()
+>           assert page is not None
+E           assert None is not None
+
+tests/test_page_streamer.py:50: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_page_streamer.py::test_exact_single_page_and_eof[False] - a...
+FAILED tests/test_page_streamer.py::test_exact_single_page_and_eof[True] - as...
+2 failed, 13 deselected in 0.13s

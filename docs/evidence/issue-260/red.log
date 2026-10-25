@@ -1,0 +1,338 @@
+FFFFFFFFFFFFFFFFFFFFF                                                    [100%]
+=================================== FAILURES ===================================
+___________ test_partition_config_reaches_table_and_header_detection ___________
+
+    def test_partition_config_reaches_table_and_header_detection():
+        r = reader(TABLE)
+        assert any(e.type_name == 'table' for e in r.partition())
+>       ungrouped = r.partition_with(pdf.PartitionConfig().without_tables())
+                    ^^^^^^^^^^^^^^^^
+E       AttributeError: 'builtins.PdfReader' object has no attribute 'partition_with'
+
+tests/test_rag_reader_parity.py:47: AttributeError
+___________ test_partition_options_all_fields_and_immutable_builders ___________
+
+    def test_partition_options_all_fields_and_immutable_builders():
+>       config = pdf.PartitionConfig(detect_tables=False, detect_headers_footers=False,
+            title_min_font_ratio=2.0, header_zone=0.1, footer_zone=0.2,
+            reading_order=pdf.ReadingOrderStrategy.NONE, min_table_confidence=0.8,
+            prefer_ruling_tables=False, detect_spatial_tables=False)
+E       TypeError: PartitionConfig.__new__() got an unexpected keyword argument 'detect_tables'
+
+tests/test_rag_reader_parity.py:58: TypeError
+_______ test_partition_profile_and_title_threshold_change_classification _______
+
+    def test_partition_profile_and_title_threshold_change_classification():
+        r = reader()
+>       assert [e.text for e in r.partition_with_profile(pdf.ExtractionProfile.STANDARD)] == [
+                                ^^^^^^^^^^^^^^^^^^^^^^^^
+            'Section Alpha', 'First body sentence.', 'Second body sentence.']
+E       AttributeError: 'builtins.PdfReader' object has no attribute 'partition_with_profile'
+
+tests/test_rag_reader_parity.py:74: AttributeError
+______ test_element_graph_preserves_relationships_and_rejects_bad_indices ______
+
+    def test_element_graph_preserves_relationships_and_rejects_bad_indices():
+>       elements, graph = reader().partition_graph(pdf.PartitionConfig())
+                          ^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'builtins.PdfReader' object has no attribute 'partition_graph'
+
+tests/test_rag_reader_parity.py:81: AttributeError
+______________ test_custom_counter_controls_splits_and_estimates _______________
+
+    def test_custom_counter_controls_splits_and_estimates():
+        r = reader(b'BT /F1 10 Tf 50 600 Td (Alpha. Bravo. Charlie.) Tj ET')
+        config = pdf.HybridChunkConfig(max_tokens=10, overlap_tokens=0)
+>       assert len(r.rag_chunks_with(config)) == 1
+                   ^^^^^^^^^^^^^^^^^
+E       AttributeError: 'builtins.PdfReader' object has no attribute 'rag_chunks_with'
+
+tests/test_rag_reader_parity.py:103: AttributeError
+_____________ test_nonadditive_counter_measures_whole_joined_text ______________
+
+    def test_nonadditive_counter_measures_whole_joined_text():
+        r = reader(b'BT /F1 10 Tf 50 620 Td (Alpha) Tj ET\nBT /F1 10 Tf 50 520 Td (Bravo) Tj ET')
+        # Deliberately non-additive: the join costs more than either fragment.
+        def counter(text):
+            return 100 if '\n' in text else 1
+>       chunks = r.rag_chunks_with_counter(pdf.HybridChunkConfig(max_tokens=2), counter)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'builtins.PdfReader' object has no attribute 'rag_chunks_with_counter'. Did you mean: 'rag_chunks_with_source'?
+
+tests/test_rag_reader_parity.py:121: AttributeError
+__________ test_counter_failure_is_preserved_and_reader_can_be_reused __________
+
+    def test_counter_failure_is_preserved_and_reader_can_be_reused():
+        r = reader()
+        marker = LookupError('counter failed')
+        calls = []
+        def counter(text):
+            calls.append(text)
+            raise marker
+        with pytest.raises(LookupError) as caught:
+>           r.rag_chunks_with_counter(pdf.HybridChunkConfig(), counter)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'builtins.PdfReader' object has no attribute 'rag_chunks_with_counter'. Did you mean: 'rag_chunks_with_source'?
+
+tests/test_rag_reader_parity.py:134: AttributeError
+___________________ test_counter_rejects_invalid_counts[-1] ____________________
+
+value = -1
+
+    @pytest.mark.parametrize('value', [-1, 1.5, 'one', 2**100, True])
+    def test_counter_rejects_invalid_counts(value):
+        with pytest.raises((TypeError, OverflowError, ValueError)):
+>           reader().rag_chunks_with_counter(pdf.HybridChunkConfig(), lambda _: value)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'builtins.PdfReader' object has no attribute 'rag_chunks_with_counter'. Did you mean: 'rag_chunks_with_source'?
+
+tests/test_rag_reader_parity.py:142: AttributeError
+___________________ test_counter_rejects_invalid_counts[1.5] ___________________
+
+value = 1.5
+
+    @pytest.mark.parametrize('value', [-1, 1.5, 'one', 2**100, True])
+    def test_counter_rejects_invalid_counts(value):
+        with pytest.raises((TypeError, OverflowError, ValueError)):
+>           reader().rag_chunks_with_counter(pdf.HybridChunkConfig(), lambda _: value)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'builtins.PdfReader' object has no attribute 'rag_chunks_with_counter'. Did you mean: 'rag_chunks_with_source'?
+
+tests/test_rag_reader_parity.py:142: AttributeError
+___________________ test_counter_rejects_invalid_counts[one] ___________________
+
+value = 'one'
+
+    @pytest.mark.parametrize('value', [-1, 1.5, 'one', 2**100, True])
+    def test_counter_rejects_invalid_counts(value):
+        with pytest.raises((TypeError, OverflowError, ValueError)):
+>           reader().rag_chunks_with_counter(pdf.HybridChunkConfig(), lambda _: value)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'builtins.PdfReader' object has no attribute 'rag_chunks_with_counter'. Did you mean: 'rag_chunks_with_source'?
+
+tests/test_rag_reader_parity.py:142: AttributeError
+_____ test_counter_rejects_invalid_counts[1267650600228229401496703205376] _____
+
+value = 1267650600228229401496703205376
+
+    @pytest.mark.parametrize('value', [-1, 1.5, 'one', 2**100, True])
+    def test_counter_rejects_invalid_counts(value):
+        with pytest.raises((TypeError, OverflowError, ValueError)):
+>           reader().rag_chunks_with_counter(pdf.HybridChunkConfig(), lambda _: value)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'builtins.PdfReader' object has no attribute 'rag_chunks_with_counter'. Did you mean: 'rag_chunks_with_source'?
+
+tests/test_rag_reader_parity.py:142: AttributeError
+__________________ test_counter_rejects_invalid_counts[True] ___________________
+
+value = True
+
+    @pytest.mark.parametrize('value', [-1, 1.5, 'one', 2**100, True])
+    def test_counter_rejects_invalid_counts(value):
+        with pytest.raises((TypeError, OverflowError, ValueError)):
+>           reader().rag_chunks_with_counter(pdf.HybridChunkConfig(), lambda _: value)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'builtins.PdfReader' object has no attribute 'rag_chunks_with_counter'. Did you mean: 'rag_chunks_with_source'?
+
+tests/test_rag_reader_parity.py:142: AttributeError
+______________ test_hybrid_configuration_retains_all_core_fields _______________
+
+    def test_hybrid_configuration_retains_all_core_fields():
+>       cfg = pdf.HybridChunkConfig(128, 7, pdf.ContextMode.none(), merge_adjacent=False,
+                                   propagate_headings=False, merge_policy=pdf.MergePolicy.SAME_TYPE_ONLY)
+E       TypeError: HybridChunkConfig.__new__() got an unexpected keyword argument 'merge_adjacent'
+
+tests/test_rag_reader_parity.py:146: TypeError
+________________ test_document_exports_contain_document_content ________________
+
+    def test_document_exports_contain_document_content():
+        r = reader()
+>       markdown = r.to_element_markdown()
+                   ^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'builtins.PdfReader' object has no attribute 'to_element_markdown'
+
+tests/test_rag_reader_parity.py:158: AttributeError
+____ test_new_reader_paths_reject_locked_documents[partition_with-<lambda>] ____
+
+method = 'partition_with', args = <function <lambda> at 0x7bf3e3161bc0>
+
+    @pytest.mark.parametrize('method,args', [
+        ('partition_with', lambda: (pdf.PartitionConfig(),)),
+        ('partition_with_profile', lambda: (pdf.ExtractionProfile.STANDARD,)),
+        ('partition_graph', lambda: (pdf.PartitionConfig(),)),
+        ('rag_chunks_with', lambda: (pdf.HybridChunkConfig(),)),
+        ('rag_chunks_with_counter', lambda: (pdf.HybridChunkConfig(), len)),
+        ('to_json', lambda: ()), ('to_element_markdown', lambda: ()),
+    ])
+    def test_new_reader_paths_reject_locked_documents(method, args):
+        doc = pdf.Document()
+        doc.add_page(pdf.Page.a4())
+        doc.encrypt('test-user', 'test-owner')
+        r = pdf.PdfReader.from_bytes(doc.save_to_bytes())
+        with pytest.raises(pdf.PdfError):
+>           getattr(r, method)(*args())
+            ^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'builtins.PdfReader' object has no attribute 'partition_with'
+
+tests/test_rag_reader_parity.py:180: AttributeError
+_ test_new_reader_paths_reject_locked_documents[partition_with_profile-<lambda>] _
+
+method = 'partition_with_profile', args = <function <lambda> at 0x7bf3e3161c60>
+
+    @pytest.mark.parametrize('method,args', [
+        ('partition_with', lambda: (pdf.PartitionConfig(),)),
+        ('partition_with_profile', lambda: (pdf.ExtractionProfile.STANDARD,)),
+        ('partition_graph', lambda: (pdf.PartitionConfig(),)),
+        ('rag_chunks_with', lambda: (pdf.HybridChunkConfig(),)),
+        ('rag_chunks_with_counter', lambda: (pdf.HybridChunkConfig(), len)),
+        ('to_json', lambda: ()), ('to_element_markdown', lambda: ()),
+    ])
+    def test_new_reader_paths_reject_locked_documents(method, args):
+        doc = pdf.Document()
+        doc.add_page(pdf.Page.a4())
+        doc.encrypt('test-user', 'test-owner')
+        r = pdf.PdfReader.from_bytes(doc.save_to_bytes())
+        with pytest.raises(pdf.PdfError):
+>           getattr(r, method)(*args())
+            ^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'builtins.PdfReader' object has no attribute 'partition_with_profile'
+
+tests/test_rag_reader_parity.py:180: AttributeError
+___ test_new_reader_paths_reject_locked_documents[partition_graph-<lambda>] ____
+
+method = 'partition_graph', args = <function <lambda> at 0x7bf3e3161d00>
+
+    @pytest.mark.parametrize('method,args', [
+        ('partition_with', lambda: (pdf.PartitionConfig(),)),
+        ('partition_with_profile', lambda: (pdf.ExtractionProfile.STANDARD,)),
+        ('partition_graph', lambda: (pdf.PartitionConfig(),)),
+        ('rag_chunks_with', lambda: (pdf.HybridChunkConfig(),)),
+        ('rag_chunks_with_counter', lambda: (pdf.HybridChunkConfig(), len)),
+        ('to_json', lambda: ()), ('to_element_markdown', lambda: ()),
+    ])
+    def test_new_reader_paths_reject_locked_documents(method, args):
+        doc = pdf.Document()
+        doc.add_page(pdf.Page.a4())
+        doc.encrypt('test-user', 'test-owner')
+        r = pdf.PdfReader.from_bytes(doc.save_to_bytes())
+        with pytest.raises(pdf.PdfError):
+>           getattr(r, method)(*args())
+            ^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'builtins.PdfReader' object has no attribute 'partition_graph'
+
+tests/test_rag_reader_parity.py:180: AttributeError
+___ test_new_reader_paths_reject_locked_documents[rag_chunks_with-<lambda>] ____
+
+method = 'rag_chunks_with', args = <function <lambda> at 0x7bf3e3161da0>
+
+    @pytest.mark.parametrize('method,args', [
+        ('partition_with', lambda: (pdf.PartitionConfig(),)),
+        ('partition_with_profile', lambda: (pdf.ExtractionProfile.STANDARD,)),
+        ('partition_graph', lambda: (pdf.PartitionConfig(),)),
+        ('rag_chunks_with', lambda: (pdf.HybridChunkConfig(),)),
+        ('rag_chunks_with_counter', lambda: (pdf.HybridChunkConfig(), len)),
+        ('to_json', lambda: ()), ('to_element_markdown', lambda: ()),
+    ])
+    def test_new_reader_paths_reject_locked_documents(method, args):
+        doc = pdf.Document()
+        doc.add_page(pdf.Page.a4())
+        doc.encrypt('test-user', 'test-owner')
+        r = pdf.PdfReader.from_bytes(doc.save_to_bytes())
+        with pytest.raises(pdf.PdfError):
+>           getattr(r, method)(*args())
+            ^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'builtins.PdfReader' object has no attribute 'rag_chunks_with'
+
+tests/test_rag_reader_parity.py:180: AttributeError
+_ test_new_reader_paths_reject_locked_documents[rag_chunks_with_counter-<lambda>] _
+
+method = 'rag_chunks_with_counter', args = <function <lambda> at 0x7bf3e3161e40>
+
+    @pytest.mark.parametrize('method,args', [
+        ('partition_with', lambda: (pdf.PartitionConfig(),)),
+        ('partition_with_profile', lambda: (pdf.ExtractionProfile.STANDARD,)),
+        ('partition_graph', lambda: (pdf.PartitionConfig(),)),
+        ('rag_chunks_with', lambda: (pdf.HybridChunkConfig(),)),
+        ('rag_chunks_with_counter', lambda: (pdf.HybridChunkConfig(), len)),
+        ('to_json', lambda: ()), ('to_element_markdown', lambda: ()),
+    ])
+    def test_new_reader_paths_reject_locked_documents(method, args):
+        doc = pdf.Document()
+        doc.add_page(pdf.Page.a4())
+        doc.encrypt('test-user', 'test-owner')
+        r = pdf.PdfReader.from_bytes(doc.save_to_bytes())
+        with pytest.raises(pdf.PdfError):
+>           getattr(r, method)(*args())
+            ^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'builtins.PdfReader' object has no attribute 'rag_chunks_with_counter'. Did you mean: 'rag_chunks_with_source'?
+
+tests/test_rag_reader_parity.py:180: AttributeError
+_______ test_new_reader_paths_reject_locked_documents[to_json-<lambda>] ________
+
+method = 'to_json', args = <function <lambda> at 0x7bf3e3161ee0>
+
+    @pytest.mark.parametrize('method,args', [
+        ('partition_with', lambda: (pdf.PartitionConfig(),)),
+        ('partition_with_profile', lambda: (pdf.ExtractionProfile.STANDARD,)),
+        ('partition_graph', lambda: (pdf.PartitionConfig(),)),
+        ('rag_chunks_with', lambda: (pdf.HybridChunkConfig(),)),
+        ('rag_chunks_with_counter', lambda: (pdf.HybridChunkConfig(), len)),
+        ('to_json', lambda: ()), ('to_element_markdown', lambda: ()),
+    ])
+    def test_new_reader_paths_reject_locked_documents(method, args):
+        doc = pdf.Document()
+        doc.add_page(pdf.Page.a4())
+        doc.encrypt('test-user', 'test-owner')
+        r = pdf.PdfReader.from_bytes(doc.save_to_bytes())
+        with pytest.raises(pdf.PdfError):
+>           getattr(r, method)(*args())
+            ^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'builtins.PdfReader' object has no attribute 'to_json'
+
+tests/test_rag_reader_parity.py:180: AttributeError
+_ test_new_reader_paths_reject_locked_documents[to_element_markdown-<lambda>] __
+
+method = 'to_element_markdown', args = <function <lambda> at 0x7bf3e3161f80>
+
+    @pytest.mark.parametrize('method,args', [
+        ('partition_with', lambda: (pdf.PartitionConfig(),)),
+        ('partition_with_profile', lambda: (pdf.ExtractionProfile.STANDARD,)),
+        ('partition_graph', lambda: (pdf.PartitionConfig(),)),
+        ('rag_chunks_with', lambda: (pdf.HybridChunkConfig(),)),
+        ('rag_chunks_with_counter', lambda: (pdf.HybridChunkConfig(), len)),
+        ('to_json', lambda: ()), ('to_element_markdown', lambda: ()),
+    ])
+    def test_new_reader_paths_reject_locked_documents(method, args):
+        doc = pdf.Document()
+        doc.add_page(pdf.Page.a4())
+        doc.encrypt('test-user', 'test-owner')
+        r = pdf.PdfReader.from_bytes(doc.save_to_bytes())
+        with pytest.raises(pdf.PdfError):
+>           getattr(r, method)(*args())
+            ^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'builtins.PdfReader' object has no attribute 'to_element_markdown'
+
+tests/test_rag_reader_parity.py:180: AttributeError
+=========================== short test summary info ============================
+FAILED tests/test_rag_reader_parity.py::test_partition_config_reaches_table_and_header_detection
+FAILED tests/test_rag_reader_parity.py::test_partition_options_all_fields_and_immutable_builders
+FAILED tests/test_rag_reader_parity.py::test_partition_profile_and_title_threshold_change_classification
+FAILED tests/test_rag_reader_parity.py::test_element_graph_preserves_relationships_and_rejects_bad_indices
+FAILED tests/test_rag_reader_parity.py::test_custom_counter_controls_splits_and_estimates
+FAILED tests/test_rag_reader_parity.py::test_nonadditive_counter_measures_whole_joined_text
+FAILED tests/test_rag_reader_parity.py::test_counter_failure_is_preserved_and_reader_can_be_reused
+FAILED tests/test_rag_reader_parity.py::test_counter_rejects_invalid_counts[-1]
+FAILED tests/test_rag_reader_parity.py::test_counter_rejects_invalid_counts[1.5]
+FAILED tests/test_rag_reader_parity.py::test_counter_rejects_invalid_counts[one]
+FAILED tests/test_rag_reader_parity.py::test_counter_rejects_invalid_counts[1267650600228229401496703205376]
+FAILED tests/test_rag_reader_parity.py::test_counter_rejects_invalid_counts[True]
+FAILED tests/test_rag_reader_parity.py::test_hybrid_configuration_retains_all_core_fields
+FAILED tests/test_rag_reader_parity.py::test_document_exports_contain_document_content
+FAILED tests/test_rag_reader_parity.py::test_new_reader_paths_reject_locked_documents[partition_with-<lambda>]
+FAILED tests/test_rag_reader_parity.py::test_new_reader_paths_reject_locked_documents[partition_with_profile-<lambda>]
+FAILED tests/test_rag_reader_parity.py::test_new_reader_paths_reject_locked_documents[partition_graph-<lambda>]
+FAILED tests/test_rag_reader_parity.py::test_new_reader_paths_reject_locked_documents[rag_chunks_with-<lambda>]
+FAILED tests/test_rag_reader_parity.py::test_new_reader_paths_reject_locked_documents[rag_chunks_with_counter-<lambda>]
+FAILED tests/test_rag_reader_parity.py::test_new_reader_paths_reject_locked_documents[to_json-<lambda>]
+FAILED tests/test_rag_reader_parity.py::test_new_reader_paths_reject_locked_documents[to_element_markdown-<lambda>]
+21 failed in 0.32s

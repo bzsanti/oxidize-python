@@ -1,0 +1,4 @@
+   Compiling pyo3-ffi v0.28.3
+   Compiling pyo3 v0.28.3
+   Compiling oxidize-python v0.22.0 (/tmp/oxidize-marked-mutant)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 42.97s

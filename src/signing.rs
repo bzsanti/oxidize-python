@@ -1,15 +1,13 @@
 //! External CMS signing: typed options, immutable preparation, no private-key handling.
-use crate::errors::PdfError;
+use crate::signature_errors::to_py_error as error;
 use oxidize_pdf::parser::objects::{
     PdfArray, PdfDictionary, PdfName, PdfObject, PdfStream, PdfString,
 };
 use oxidize_pdf::signatures as sig;
 use pyo3::prelude::*;
+use pyo3::IntoPyObjectExt;
 use pyo3::types::PyBytes;
 use std::collections::HashMap;
-fn error(e: sig::SignatureError) -> PyErr {
-    PdfError::new_err(e.to_string())
-}
 fn rect(v: (f64, f64, f64, f64)) -> sig::SignatureRect {
     sig::SignatureRect {
         left: v.0,
@@ -25,14 +23,69 @@ fn dictionary(values: HashMap<String, PyPdfValue>) -> PdfDictionary {
     }
     result
 }
+pub(crate) fn dictionary_values(dict: &PdfDictionary) -> HashMap<String, PyPdfValue> {
+    dict.0
+        .iter()
+        .map(|(name, value)| {
+            (
+                name.0.clone(),
+                PyPdfValue {
+                    inner: value.clone(),
+                },
+            )
+        })
+        .collect()
+}
 /// A typed PDF object value for profile-specific dictionary entries.
 #[pyclass(name = "PdfValue", frozen, from_py_object)]
 #[derive(Clone)]
 pub struct PyPdfValue {
-    inner: PdfObject,
+    pub(crate) inner: PdfObject,
 }
 #[pymethods]
 impl PyPdfValue {
+    /// PDF variant name; string bytes and names remain distinct.
+    #[getter]
+    fn kind(&self) -> &'static str {
+        match &self.inner {
+            PdfObject::Null => "null",
+            PdfObject::Boolean(_) => "boolean",
+            PdfObject::Integer(_) => "integer",
+            PdfObject::Real(_) => "real",
+            PdfObject::String(_) => "string",
+            PdfObject::Name(_) => "name",
+            PdfObject::Array(_) => "array",
+            PdfObject::Dictionary(_) => "dictionary",
+            PdfObject::Stream(_) => "stream",
+            PdfObject::Reference(_, _) => "reference",
+        }
+    }
+
+    /// Owned Python snapshot. Containers contain PdfValue children, preserving
+    /// PDF types without recursive conversion or implicit byte decoding.
+    #[getter]
+    fn value(&self, py: Python<'_>) -> PyResult<Py<PyAny>> {
+        match &self.inner {
+            PdfObject::Null => Ok(py.None()),
+            PdfObject::Boolean(v) => v.into_py_any(py),
+            PdfObject::Integer(v) => v.into_py_any(py),
+            PdfObject::Real(v) => v.into_py_any(py),
+            PdfObject::String(v) => PyBytes::new(py, v.as_bytes()).into_py_any(py),
+            PdfObject::Name(v) => v.0.clone().into_py_any(py),
+            PdfObject::Array(v) => {
+                v.0.iter()
+                    .cloned()
+                    .map(|inner| Self { inner })
+                    .collect::<Vec<_>>()
+                    .into_py_any(py)
+            }
+            PdfObject::Dictionary(v) => dictionary_values(v).into_py_any(py),
+            PdfObject::Stream(v) => {
+                (dictionary_values(&v.dict), PyBytes::new(py, &v.data)).into_py_any(py)
+            }
+            PdfObject::Reference(number, generation) => (*number, *generation).into_py_any(py),
+        }
+    }
     #[staticmethod]
     fn null() -> Self {
         Self {

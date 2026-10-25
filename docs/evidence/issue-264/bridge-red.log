@@ -1,0 +1,55 @@
+FFFF                                                                     [100%]
+=================================== FAILURES ===================================
+_____________ test_preparation_and_slots_preserve_signature_errors _____________
+
+    def test_preparation_and_slots_preserve_signature_errors():
+        base = document()
+        options = pdf.SignaturePreparationOptions(pdf.SignatureTarget.new_field('invalid', page_index=99))
+        with pytest.raises(pdf.PdfError) as caught:
+            pdf.prepare_incremental_signature(base, options)
+        error = caught.value
+>       assert isinstance(error, pdf.PdfSignatureError)
+E       AssertionError: assert False
+E        +  where False = isinstance(PdfError('Invalid signature dictionary: select signature page: Syntax error at position 0: Page index 99 out of range (document has 1 pages)'), <class 'oxidize_pdf.signature_errors.PdfSignatureError'>)
+E        +    where <class 'oxidize_pdf.signature_errors.PdfSignatureError'> = pdf.PdfSignatureError
+
+tests/test_signature_errors.py:20: AssertionError
+_______________ test_cms_error_preserves_base_message_and_pickle _______________
+
+    def test_cms_error_preserves_base_message_and_pickle():
+        prepared = pdf.prepare_incremental_signature(document(), pdf.SignaturePreparationOptions(pdf.SignatureTarget.new_field('approval')))
+        with pytest.raises(pdf.PdfSignatureError) as caught:
+>           prepared.finalize(b'not CMS')
+E           oxidize_pdf.PdfError: CMS/PKCS#7 parsing failed: CMS must be a non-empty DER SEQUENCE
+
+tests/test_signature_errors.py:34: PdfError
+________ test_byterange_preserves_integer_details_and_legacy_valueerror ________
+
+    def test_byterange_preserves_integer_details_and_legacy_valueerror():
+        with pytest.raises(ValueError) as caught:
+            pdf.compute_pdf_hash(b'1234', pdf.ByteRange([(2, 9)]), pdf.DigestAlgorithm.SHA256)
+        error = caught.value
+>       assert isinstance(error, pdf.PdfSignatureError)
+E       AssertionError: assert False
+E        +  where False = isinstance(ValueError('ByteRange exceeds document: offset 2 + length 9 > document size 4'), <class 'oxidize_pdf.signature_errors.PdfSignatureError'>)
+E        +    where <class 'oxidize_pdf.signature_errors.PdfSignatureError'> = pdf.PdfSignatureError
+
+tests/test_signature_errors.py:49: AssertionError
+____________________ test_legacy_runtimeerror_is_preserved _____________________
+
+    def test_legacy_runtimeerror_is_preserved():
+        with pytest.raises(RuntimeError) as caught:
+            pdf.parse_pkcs7_signature(b'not DER CMS')
+>       assert isinstance(caught.value, pdf.PdfSignatureError)
+E       AssertionError: assert False
+E        +  where False = isinstance(RuntimeError('CMS/PKCS#7 parsing failed: BER element truncated (short form): need 113 bytes, got 11'), <class 'oxidize_pdf.signature_errors.PdfSignatureError'>)
+E        +    where RuntimeError('CMS/PKCS#7 parsing failed: BER element truncated (short form): need 113 bytes, got 11') = <ExceptionInfo RuntimeError('CMS/PKCS#7 parsing failed: BER element truncated (short form): need 113 bytes, got 11') tblen=1>.value
+E        +    and   <class 'oxidize_pdf.signature_errors.PdfSignatureError'> = pdf.PdfSignatureError
+
+tests/test_signature_errors.py:62: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_signature_errors.py::test_preparation_and_slots_preserve_signature_errors
+FAILED tests/test_signature_errors.py::test_cms_error_preserves_base_message_and_pickle
+FAILED tests/test_signature_errors.py::test_byterange_preserves_integer_details_and_legacy_valueerror
+FAILED tests/test_signature_errors.py::test_legacy_runtimeerror_is_preserved
+4 failed in 0.41s

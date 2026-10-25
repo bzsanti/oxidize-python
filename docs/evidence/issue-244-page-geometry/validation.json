@@ -1,0 +1,18 @@
+{
+  "base": "333516184c70fe79bab4e9c735ec38fb6e4ebdb6",
+  "core": "5.4.2",
+  "reviewed_files_sha256": {
+    "src/page.rs": "d90e2b3a91a3d707978fc8b00b5f319e0c75c130c262d8f30234ae66c5a805dd",
+    "python/oxidize_pdf/_oxidize_pdf.pyi": "1b8aa8185a3cb625a6aebb6a26dfb1252ca52eb44fe241f1d982a63aafa35539",
+    "tests/test_page_geometry.py": "ab0fa4f08db8ee8018fa63125ae26d72147a891275bc288df6684aa83afee00b",
+    "tests/typing/page_geometry.py": "6db69c23bc75cd312943b369597a60e0b4e06a3b771e46bd05e93621691b69ef",
+    "tests/test_parity_checker.py": "b9c56e57572c2529da1514a463f1487155dd4afb4e5aa27300f5284de29274cc",
+    "docs/parity-contract.json": "719925a6597269fb57e1c8556d92c9dc266ca54bad9cdaae1ff34e4129af52b3",
+    ".github/workflows/test.yml": "49dddf80bb682b5be89e1625d907d713c2be45221cc4b6d18b5c426f2983dc90",
+    "README.md": "448514428266d7df7fccb2309e1421c1a2c479b09d065b8df6eb280d73b3895d"
+  },
+  "library_tests": 2635,
+  "focused_tests": 41,
+  "build": "editable native extension; existing dirty worktree retained",
+  "remote_ci": "not run"
+}

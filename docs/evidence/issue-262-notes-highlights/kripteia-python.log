@@ -1,0 +1,29 @@
+## Calidad de Tests (Kripteia)
+
+=== Kripteia Test Quality Report ===
+Overall Score: 98 | Tests: 12 | Files: 1
+
+--- Files ---
+Path                                                          Tests  Score
+--------------------------------------------------------------------------
+tests/test_notes_highlights.py                                   12     98
+
+--- Worst Offenders ---
+  test_external_objects_unicode_metadata_and_content_preserved (tests/test_notes_highlights.py:318) - Score: 80
+    - Test 'test_external_objects_unicode_metadata_and_content_preserved' is marked as #[ignore]
+  test_note_full_lifecycle_identity_and_order (tests/test_notes_highlights.py:91) - Score: 100
+  test_highlight_full_results_geometry_and_optional_fields (tests/test_notes_highlights.py:118) - Score: 100
+  test_owned_values_mutations_and_input_validation (tests/test_notes_highlights.py:144) - Score: 100
+  test_highlight_validated_values_reject_invalid_inputs (tests/test_notes_highlights.py:206) - Score: 100
+
+--- Details ---
+tests/test_notes_highlights.py:
+  test_external_objects_unicode_metadata_and_content_preserved (line 318) - Score: 80
+    - Test 'test_external_objects_unicode_metadata_and_content_preserved' is marked as #[ignore]
+
+
+## Analisis de Seguridad (Kripteia Security)
+
+=== Kripteia Security Analysis ===
+
+No security issues found.

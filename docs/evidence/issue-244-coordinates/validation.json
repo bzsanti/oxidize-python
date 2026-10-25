@@ -1,0 +1,24 @@
+{
+  "base": "333516184c70fe79bab4e9c735ec38fb6e4ebdb6",
+  "core": "5.4.2",
+  "reviewed_files_sha256": {
+    "src/coordinates.rs": "7cf7c17544021a92c52220d3fd5f1c77127f615fe4c4aa6773429a4f77ea5a08",
+    "src/tier8.rs": "2a012637562a9236f9176fbcba102aea6b2ba0ccd75de824f111df3026dd191e",
+    "src/page.rs": "1952fdb450bde81b64404e3f0c91968187749903a7e05cd8a21cfbdb91dcb4b2",
+    "src/lib.rs": "48de8d3fb4841f3726b9fca5cd28d8eaeb15f86dcd40e62dd072ade2d5b61f7e",
+    "python/oxidize_pdf/__init__.py": "f05c2dac9e9336a4fba9b9c2227827e638cdbf7993677395a9d01615365abe03",
+    "python/oxidize_pdf/__init__.pyi": "c80583526acee3f2316cf39ae1800a9705f0931fc53b9522793cda485a723921",
+    "python/oxidize_pdf/_oxidize_pdf.pyi": "086b71b1a400702c00ef820fe994bec8101075883ab505e57ddcf9bc8b8e1194",
+    "tests/test_coordinates.py": "f8c1a62bdc5d1bd9927e3c1066b8933bf94f7203d7bf293f032e477ad3327b59",
+    "tests/test_parity_checker.py": "10d6fafba8be32bf46f19459dccc3055cfb70363b98bef874613e20d0673ea13",
+    "tests/typing/coordinates.py": "53b2ae1fe66b03c5105aaa7865fdfbc384202ed0106b60c89054204f021c2e20",
+    "docs/parity-contract.json": "93d47ed425cb7263be05d2ae5dc2c7eca869fb03470e8f0015afc3af7d6e217d",
+    "scripts/check_parity.py": "222b100122166c5d2bb83eb259096665765a0c2ca0e385219e44aa800eb5564e",
+    "scripts/check_typing_surface.py": "547c995450710477cf7840de95a228612f65ef7fe095238bdd0234243a1fc81a",
+    ".github/workflows/test.yml": "7f245386dbdf3e3e86b50e5f13876d49907a247efe000bcc07db7376dd28f6bc",
+    "README.md": "2ee7bbc00d75401e73bee862e092c398d572a9bad186ded077be98607be94102"
+  },
+  "library_tests": 2622,
+  "validation": "local editable native build; full working tree including pre-existing changes",
+  "remote_ci": "not run"
+}

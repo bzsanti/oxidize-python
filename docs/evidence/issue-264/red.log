@@ -1,0 +1,51 @@
+FFFF                                                                     [100%]
+=================================== FAILURES ===================================
+_____________ test_preparation_and_slots_preserve_signature_errors _____________
+
+    def test_preparation_and_slots_preserve_signature_errors():
+        base = document()
+        options = pdf.SignaturePreparationOptions(pdf.SignatureTarget.new_field('invalid', page_index=99))
+        with pytest.raises(pdf.PdfError) as caught:
+            pdf.prepare_incremental_signature(base, options)
+        error = caught.value
+>       assert isinstance(error, pdf.PdfSignatureError)
+                                 ^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'oxidize_pdf' has no attribute 'PdfSignatureError'
+
+tests/test_signature_errors.py:20: AttributeError
+_______________ test_cms_error_preserves_base_message_and_pickle _______________
+
+    def test_cms_error_preserves_base_message_and_pickle():
+        prepared = pdf.prepare_incremental_signature(document(), pdf.SignaturePreparationOptions(pdf.SignatureTarget.new_field('approval')))
+>       with pytest.raises(pdf.PdfSignatureError) as caught:
+                           ^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'oxidize_pdf' has no attribute 'PdfSignatureError'
+
+tests/test_signature_errors.py:33: AttributeError
+________ test_byterange_preserves_integer_details_and_legacy_valueerror ________
+
+    def test_byterange_preserves_integer_details_and_legacy_valueerror():
+        with pytest.raises(ValueError) as caught:
+            pdf.compute_pdf_hash(b'1234', pdf.ByteRange([(2, 9)]), pdf.DigestAlgorithm.SHA256)
+        error = caught.value
+>       assert isinstance(error, pdf.PdfSignatureError)
+                                 ^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'oxidize_pdf' has no attribute 'PdfSignatureError'
+
+tests/test_signature_errors.py:49: AttributeError
+____________________ test_legacy_runtimeerror_is_preserved _____________________
+
+    def test_legacy_runtimeerror_is_preserved():
+        with pytest.raises(RuntimeError) as caught:
+            pdf.parse_pkcs7_signature(b'not DER CMS')
+>       assert isinstance(caught.value, pdf.PdfSignatureError)
+                                        ^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'oxidize_pdf' has no attribute 'PdfSignatureError'
+
+tests/test_signature_errors.py:62: AttributeError
+=========================== short test summary info ============================
+FAILED tests/test_signature_errors.py::test_preparation_and_slots_preserve_signature_errors
+FAILED tests/test_signature_errors.py::test_cms_error_preserves_base_message_and_pickle
+FAILED tests/test_signature_errors.py::test_byterange_preserves_integer_details_and_legacy_valueerror
+FAILED tests/test_signature_errors.py::test_legacy_runtimeerror_is_preserved
+4 failed in 3.28s

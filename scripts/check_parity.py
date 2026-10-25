@@ -79,11 +79,11 @@ def parse_init_exports(init_content: str) -> set[str]:
 
 def check_contract(exports: set[str]) -> list[str]:
     """Check the explicitly audited subset; never interpret this as full Rust parity."""
-    contract = json.loads((REPO_ROOT / "docs/parity-contract.json").read_text())
-    tree = ast.parse((REPO_ROOT / "python/oxidize_pdf/_oxidize_pdf.pyi").read_text())
+    contract = json.loads((REPO_ROOT / "docs/parity-contract.json").read_text(encoding="utf-8"))
+    tree = ast.parse((REPO_ROOT / "python/oxidize_pdf/_oxidize_pdf.pyi").read_text(encoding="utf-8"))
     declarations = {n.name: n for n in tree.body if isinstance(n, (ast.ClassDef, ast.FunctionDef))}
     errors = []
-    pin = re.search(r'^oxidize-pdf\s*=\s*\{\s*version\s*=\s*"=([^"]+)"', (REPO_ROOT / "Cargo.toml").read_text(), re.MULTILINE)
+    pin = re.search(r'^oxidize-pdf\s*=\s*\{\s*version\s*=\s*"=([^"]+)"', (REPO_ROOT / "Cargo.toml").read_text(encoding="utf-8"), re.MULTILINE)
     if pin is None or pin.group(1) != contract["core"]:
         errors.append("Core pin changed: reconcile the audited parity contract before upgrading")
     for path, expected in contract["callables"].items():
@@ -105,15 +105,48 @@ def check_contract(exports: set[str]) -> list[str]:
         actual = {n.name for n in node.body if isinstance(n, ast.FunctionDef)} if isinstance(node, ast.ClassDef) else set()
         if name not in exports or not set(properties) <= actual:
             errors.append(f"Missing result contract: {name}")
-    tests = ast.parse((REPO_ROOT / "tests/test_existing_document.py").read_text())
+    tests = ast.parse((REPO_ROOT / "tests/test_existing_document.py").read_text(encoding="utf-8"))
     names = {n.name for n in tests.body if isinstance(n, ast.FunctionDef)}
     if not set(contract["required_tests"]) <= names:
         errors.append("Missing audited behavioral tests")
     for relative, required in contract.get("additional_tests", {}).items():
-        tree = ast.parse((REPO_ROOT / relative).read_text())
+        tree = ast.parse((REPO_ROOT / relative).read_text(encoding="utf-8"))
         names = {n.name for n in tree.body if isinstance(n, ast.FunctionDef)}
         if not set(required) <= names:
             errors.append(f"Missing audited behavioral tests: {relative}")
+    for relative, records in contract.get("typed_dicts", {}).items():
+        records_tree = ast.parse((REPO_ROOT / relative).read_text(encoding="utf-8"))
+        classes = {n.name: n for n in records_tree.body if isinstance(n, ast.ClassDef)}
+        for name, required in records.items():
+            record = classes.get(name)
+            fields = {n.target.id for n in record.body
+                      if isinstance(n, ast.AnnAssign) and isinstance(n.target, ast.Name)} if record else set()
+            if fields != set(required):
+                errors.append(f"Typed event fields changed: {name}")
+    signature = contract.get("signature_errors")
+    if signature:
+        tree = ast.parse((REPO_ROOT / signature["module"]).read_text(encoding="utf-8"))
+        classes = {n.name: n for n in tree.body if isinstance(n, ast.ClassDef)}
+        for name, bases in signature["classes"].items():
+            node = classes.get(name)
+            if name not in exports or node is None or [ast.unparse(b) for b in node.bases] != bases:
+                errors.append(f"Signature error inheritance/export changed: {name}")
+        definitions = {n.targets[0].id: n.value for n in tree.body
+                       if isinstance(n, ast.Assign) and isinstance(n.targets[0], ast.Name)}
+        codes = definitions.get("SignatureErrorCode")
+        actual_codes = set()
+        if isinstance(codes, ast.Subscript) and ast.unparse(codes.value) == "Literal":
+            values = codes.slice.elts if isinstance(codes.slice, ast.Tuple) else [codes.slice]
+            actual_codes = {n.value for n in values if isinstance(n, ast.Constant)}
+        if actual_codes != set(signature["codes"]):
+            errors.append("Signature error codes changed")
+        for name, expected in (("SignatureErrorDetails", signature["fields"]),
+                               ("PdfSignatureError", {"code": "SignatureErrorCode", "details": "SignatureErrorDetails"})):
+            node = classes.get(name)
+            actual = {n.target.id: ast.unparse(n.annotation) for n in node.body
+                      if isinstance(n, ast.AnnAssign) and isinstance(n.target, ast.Name)} if node else {}
+            if actual != expected:
+                errors.append(f"Signature error fields/types changed: {name}")
     return errors
 
 

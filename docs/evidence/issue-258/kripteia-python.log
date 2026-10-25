@@ -1,0 +1,29 @@
+## Calidad de Tests (Kripteia)
+
+=== Kripteia Test Quality Report ===
+Overall Score: 99 | Tests: 11 | Files: 1
+
+--- Files ---
+Path                                                          Tests  Score
+--------------------------------------------------------------------------
+tests/test_streaming_memory_options.py                           11     99
+
+--- Worst Offenders ---
+  test_encrypted_source_is_not_silently_accepted (tests/test_streaming_memory_options.py:213) - Score: 90
+    - Test 'test_encrypted_source_is_not_silently_accepted' has low assert-to-setup ratio (18%): 2 asserts vs 9 setup lines
+  test_defaults_presets_builders_and_owned_configuration (tests/test_streaming_memory_options.py:45) - Score: 100
+  test_decoded_content_limit_boundary_and_retry (tests/test_streaming_memory_options.py:80) - Score: 100
+  test_stream_cache_budgets_eviction_clear_and_retained_pages (tests/test_streaming_memory_options.py:98) - Score: 100
+  test_stream_budget_one_byte_short_does_not_retain (tests/test_streaming_memory_options.py:121) - Score: 100
+
+--- Details ---
+tests/test_streaming_memory_options.py:
+  test_encrypted_source_is_not_silently_accepted (line 213) - Score: 90
+    - Test 'test_encrypted_source_is_not_silently_accepted' has low assert-to-setup ratio (18%): 2 asserts vs 9 setup lines
+
+
+## Analisis de Seguridad (Kripteia Security)
+
+=== Kripteia Security Analysis ===
+
+No security issues found.

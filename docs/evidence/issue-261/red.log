@@ -1,0 +1,392 @@
+FFFFFFFFFFFFFFFFFFFFFFF                                                  [100%]
+=================================== FAILURES ===================================
+_________________ test_outline_options_defaults_and_validation _________________
+
+    def test_outline_options_defaults_and_validation():
+>       options = pdf.OutlineReadOptions()
+                  ^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'oxidize_pdf' has no attribute 'OutlineReadOptions'
+
+tests/test_outline_read.py:32: AttributeError
+_________________ test_absent_and_empty_outlines_are_distinct __________________
+
+    def test_absent_and_empty_outlines_are_distinct():
+        absent = pdf.PdfReader.from_bytes(outlined_pdf(catalog=b'<< /Type /Catalog /Pages 2 0 R >>'))
+>       assert absent.outline() is None
+               ^^^^^^^^^^^^^^
+E       AttributeError: 'builtins.PdfReader' object has no attribute 'outline'
+
+tests/test_outline_read.py:46: AttributeError
+________ test_hierarchy_styles_resolved_destinations_and_owned_results _________
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-40/test_hierarchy_styles_resolved0')
+
+    def test_hierarchy_styles_resolved_destinations_and_owned_results(tmp_path):
+        data = outlined_pdf()
+        path = tmp_path / 'outline.pdf'
+        path.write_bytes(data)
+        for reader in (pdf.PdfReader.from_bytes(data), pdf.PdfReader.open(str(path))):
+>           outline = reader.outline()
+                      ^^^^^^^^^^^^^^
+E           AttributeError: 'builtins.PdfReader' object has no attribute 'outline'
+
+tests/test_outline_read.py:59: AttributeError
+__________ test_all_destination_views[/XYZ 12 null 0-XYZ-parameters0] __________
+
+view = b'/XYZ 12 null 0', kind = 'XYZ', parameters = [12.0, None, 0.0]
+
+    @pytest.mark.parametrize('view,kind,parameters', [
+        (b'/XYZ 12 null 0', 'XYZ', [12.0, None, 0.0]),
+        (b'/Fit', 'Fit', []), (b'/FitH 8', 'FitH', [8.0]),
+        (b'/FitV null', 'FitV', [None]), (b'/FitR 1 2 30 40', 'FitR', [1., 2., 30., 40.]),
+        (b'/FitB', 'FitB', []), (b'/FitBH null', 'FitBH', [None]),
+        (b'/FitBV 9', 'FitBV', [9.0]),
+    ])
+    def test_all_destination_views(view, kind, parameters):
+        item = b'<< /Title (View) /Parent 5 0 R /A << /S /GoTo /D [3 0 R ' + view + b'] >> >>'
+>       result = pdf.PdfReader.from_bytes(outlined_pdf(item=item)).outline().items[0].destination
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'builtins.PdfReader' object has no attribute 'outline'
+
+tests/test_outline_read.py:94: AttributeError
+_______________ test_all_destination_views[/Fit-Fit-parameters1] _______________
+
+view = b'/Fit', kind = 'Fit', parameters = []
+
+    @pytest.mark.parametrize('view,kind,parameters', [
+        (b'/XYZ 12 null 0', 'XYZ', [12.0, None, 0.0]),
+        (b'/Fit', 'Fit', []), (b'/FitH 8', 'FitH', [8.0]),
+        (b'/FitV null', 'FitV', [None]), (b'/FitR 1 2 30 40', 'FitR', [1., 2., 30., 40.]),
+        (b'/FitB', 'FitB', []), (b'/FitBH null', 'FitBH', [None]),
+        (b'/FitBV 9', 'FitBV', [9.0]),
+    ])
+    def test_all_destination_views(view, kind, parameters):
+        item = b'<< /Title (View) /Parent 5 0 R /A << /S /GoTo /D [3 0 R ' + view + b'] >> >>'
+>       result = pdf.PdfReader.from_bytes(outlined_pdf(item=item)).outline().items[0].destination
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'builtins.PdfReader' object has no attribute 'outline'
+
+tests/test_outline_read.py:94: AttributeError
+_____________ test_all_destination_views[/FitH 8-FitH-parameters2] _____________
+
+view = b'/FitH 8', kind = 'FitH', parameters = [8.0]
+
+    @pytest.mark.parametrize('view,kind,parameters', [
+        (b'/XYZ 12 null 0', 'XYZ', [12.0, None, 0.0]),
+        (b'/Fit', 'Fit', []), (b'/FitH 8', 'FitH', [8.0]),
+        (b'/FitV null', 'FitV', [None]), (b'/FitR 1 2 30 40', 'FitR', [1., 2., 30., 40.]),
+        (b'/FitB', 'FitB', []), (b'/FitBH null', 'FitBH', [None]),
+        (b'/FitBV 9', 'FitBV', [9.0]),
+    ])
+    def test_all_destination_views(view, kind, parameters):
+        item = b'<< /Title (View) /Parent 5 0 R /A << /S /GoTo /D [3 0 R ' + view + b'] >> >>'
+>       result = pdf.PdfReader.from_bytes(outlined_pdf(item=item)).outline().items[0].destination
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'builtins.PdfReader' object has no attribute 'outline'
+
+tests/test_outline_read.py:94: AttributeError
+___________ test_all_destination_views[/FitV null-FitV-parameters3] ____________
+
+view = b'/FitV null', kind = 'FitV', parameters = [None]
+
+    @pytest.mark.parametrize('view,kind,parameters', [
+        (b'/XYZ 12 null 0', 'XYZ', [12.0, None, 0.0]),
+        (b'/Fit', 'Fit', []), (b'/FitH 8', 'FitH', [8.0]),
+        (b'/FitV null', 'FitV', [None]), (b'/FitR 1 2 30 40', 'FitR', [1., 2., 30., 40.]),
+        (b'/FitB', 'FitB', []), (b'/FitBH null', 'FitBH', [None]),
+        (b'/FitBV 9', 'FitBV', [9.0]),
+    ])
+    def test_all_destination_views(view, kind, parameters):
+        item = b'<< /Title (View) /Parent 5 0 R /A << /S /GoTo /D [3 0 R ' + view + b'] >> >>'
+>       result = pdf.PdfReader.from_bytes(outlined_pdf(item=item)).outline().items[0].destination
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'builtins.PdfReader' object has no attribute 'outline'
+
+tests/test_outline_read.py:94: AttributeError
+_________ test_all_destination_views[/FitR 1 2 30 40-FitR-parameters4] _________
+
+view = b'/FitR 1 2 30 40', kind = 'FitR', parameters = [1.0, 2.0, 30.0, 40.0]
+
+    @pytest.mark.parametrize('view,kind,parameters', [
+        (b'/XYZ 12 null 0', 'XYZ', [12.0, None, 0.0]),
+        (b'/Fit', 'Fit', []), (b'/FitH 8', 'FitH', [8.0]),
+        (b'/FitV null', 'FitV', [None]), (b'/FitR 1 2 30 40', 'FitR', [1., 2., 30., 40.]),
+        (b'/FitB', 'FitB', []), (b'/FitBH null', 'FitBH', [None]),
+        (b'/FitBV 9', 'FitBV', [9.0]),
+    ])
+    def test_all_destination_views(view, kind, parameters):
+        item = b'<< /Title (View) /Parent 5 0 R /A << /S /GoTo /D [3 0 R ' + view + b'] >> >>'
+>       result = pdf.PdfReader.from_bytes(outlined_pdf(item=item)).outline().items[0].destination
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'builtins.PdfReader' object has no attribute 'outline'
+
+tests/test_outline_read.py:94: AttributeError
+______________ test_all_destination_views[/FitB-FitB-parameters5] ______________
+
+view = b'/FitB', kind = 'FitB', parameters = []
+
+    @pytest.mark.parametrize('view,kind,parameters', [
+        (b'/XYZ 12 null 0', 'XYZ', [12.0, None, 0.0]),
+        (b'/Fit', 'Fit', []), (b'/FitH 8', 'FitH', [8.0]),
+        (b'/FitV null', 'FitV', [None]), (b'/FitR 1 2 30 40', 'FitR', [1., 2., 30., 40.]),
+        (b'/FitB', 'FitB', []), (b'/FitBH null', 'FitBH', [None]),
+        (b'/FitBV 9', 'FitBV', [9.0]),
+    ])
+    def test_all_destination_views(view, kind, parameters):
+        item = b'<< /Title (View) /Parent 5 0 R /A << /S /GoTo /D [3 0 R ' + view + b'] >> >>'
+>       result = pdf.PdfReader.from_bytes(outlined_pdf(item=item)).outline().items[0].destination
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'builtins.PdfReader' object has no attribute 'outline'
+
+tests/test_outline_read.py:94: AttributeError
+__________ test_all_destination_views[/FitBH null-FitBH-parameters6] ___________
+
+view = b'/FitBH null', kind = 'FitBH', parameters = [None]
+
+    @pytest.mark.parametrize('view,kind,parameters', [
+        (b'/XYZ 12 null 0', 'XYZ', [12.0, None, 0.0]),
+        (b'/Fit', 'Fit', []), (b'/FitH 8', 'FitH', [8.0]),
+        (b'/FitV null', 'FitV', [None]), (b'/FitR 1 2 30 40', 'FitR', [1., 2., 30., 40.]),
+        (b'/FitB', 'FitB', []), (b'/FitBH null', 'FitBH', [None]),
+        (b'/FitBV 9', 'FitBV', [9.0]),
+    ])
+    def test_all_destination_views(view, kind, parameters):
+        item = b'<< /Title (View) /Parent 5 0 R /A << /S /GoTo /D [3 0 R ' + view + b'] >> >>'
+>       result = pdf.PdfReader.from_bytes(outlined_pdf(item=item)).outline().items[0].destination
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'builtins.PdfReader' object has no attribute 'outline'
+
+tests/test_outline_read.py:94: AttributeError
+____________ test_all_destination_views[/FitBV 9-FitBV-parameters7] ____________
+
+view = b'/FitBV 9', kind = 'FitBV', parameters = [9.0]
+
+    @pytest.mark.parametrize('view,kind,parameters', [
+        (b'/XYZ 12 null 0', 'XYZ', [12.0, None, 0.0]),
+        (b'/Fit', 'Fit', []), (b'/FitH 8', 'FitH', [8.0]),
+        (b'/FitV null', 'FitV', [None]), (b'/FitR 1 2 30 40', 'FitR', [1., 2., 30., 40.]),
+        (b'/FitB', 'FitB', []), (b'/FitBH null', 'FitBH', [None]),
+        (b'/FitBV 9', 'FitBV', [9.0]),
+    ])
+    def test_all_destination_views(view, kind, parameters):
+        item = b'<< /Title (View) /Parent 5 0 R /A << /S /GoTo /D [3 0 R ' + view + b'] >> >>'
+>       result = pdf.PdfReader.from_bytes(outlined_pdf(item=item)).outline().items[0].destination
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'builtins.PdfReader' object has no attribute 'outline'
+
+tests/test_outline_read.py:94: AttributeError
+________ test_each_budget_is_enforced_and_reader_can_retry[max_items-1] ________
+
+field = 'max_items', limit = 1
+
+    @pytest.mark.parametrize('field,limit', [('max_items', 1), ('max_depth', 0),
+        ('max_named_destinations', 0), ('max_name_tree_nodes', 0)])
+    def test_each_budget_is_enforced_and_reader_can_retry(field, limit):
+        reader = pdf.PdfReader.from_bytes(outlined_pdf())
+        with pytest.raises(pdf.PdfParseError, match='limit'):
+>           reader.outline_with_options(pdf.OutlineReadOptions(**{field: limit}))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'builtins.PdfReader' object has no attribute 'outline_with_options'
+
+tests/test_outline_read.py:105: AttributeError
+________ test_each_budget_is_enforced_and_reader_can_retry[max_depth-0] ________
+
+field = 'max_depth', limit = 0
+
+    @pytest.mark.parametrize('field,limit', [('max_items', 1), ('max_depth', 0),
+        ('max_named_destinations', 0), ('max_name_tree_nodes', 0)])
+    def test_each_budget_is_enforced_and_reader_can_retry(field, limit):
+        reader = pdf.PdfReader.from_bytes(outlined_pdf())
+        with pytest.raises(pdf.PdfParseError, match='limit'):
+>           reader.outline_with_options(pdf.OutlineReadOptions(**{field: limit}))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'builtins.PdfReader' object has no attribute 'outline_with_options'
+
+tests/test_outline_read.py:105: AttributeError
+_ test_each_budget_is_enforced_and_reader_can_retry[max_named_destinations-0] __
+
+field = 'max_named_destinations', limit = 0
+
+    @pytest.mark.parametrize('field,limit', [('max_items', 1), ('max_depth', 0),
+        ('max_named_destinations', 0), ('max_name_tree_nodes', 0)])
+    def test_each_budget_is_enforced_and_reader_can_retry(field, limit):
+        reader = pdf.PdfReader.from_bytes(outlined_pdf())
+        with pytest.raises(pdf.PdfParseError, match='limit'):
+>           reader.outline_with_options(pdf.OutlineReadOptions(**{field: limit}))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'builtins.PdfReader' object has no attribute 'outline_with_options'
+
+tests/test_outline_read.py:105: AttributeError
+___ test_each_budget_is_enforced_and_reader_can_retry[max_name_tree_nodes-0] ___
+
+field = 'max_name_tree_nodes', limit = 0
+
+    @pytest.mark.parametrize('field,limit', [('max_items', 1), ('max_depth', 0),
+        ('max_named_destinations', 0), ('max_name_tree_nodes', 0)])
+    def test_each_budget_is_enforced_and_reader_can_retry(field, limit):
+        reader = pdf.PdfReader.from_bytes(outlined_pdf())
+        with pytest.raises(pdf.PdfParseError, match='limit'):
+>           reader.outline_with_options(pdf.OutlineReadOptions(**{field: limit}))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'builtins.PdfReader' object has no attribute 'outline_with_options'
+
+tests/test_outline_read.py:105: AttributeError
+__________________ test_empty_name_tree_nodes_consume_budget ___________________
+
+    def test_empty_name_tree_nodes_consume_budget():
+        data = outlined_pdf(names=b'<< /Kids [9 0 R] >>', extra={9: b'<< /Names [(chapter) [3 0 R /Fit]] >>'})
+        reader = pdf.PdfReader.from_bytes(data)
+        with pytest.raises(pdf.PdfParseError, match='limit'):
+>           reader.outline_with_options(pdf.OutlineReadOptions(max_name_tree_nodes=1))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'builtins.PdfReader' object has no attribute 'outline_with_options'
+
+tests/test_outline_read.py:115: AttributeError
+_ test_malformed_outline_is_an_error_not_partial_success[<< /Title (Cycle) /Parent 5 0 R /Next 6 0 R >>] _
+
+item = b'<< /Title (Cycle) /Parent 5 0 R /Next 6 0 R >>'
+
+    @pytest.mark.parametrize('item', [
+        b'<< /Title (Cycle) /Parent 5 0 R /Next 6 0 R >>',
+        b'<< /Title (Bad parent) /Parent 4 0 R >>',
+        b'<< /Title (Missing name) /Parent 5 0 R /Dest (unknown) >>',
+        b'<< /Title (Invalid page) /Parent 5 0 R /Dest [9 /Fit] >>',
+        b'<< /Title (Invalid flags) /Parent 5 0 R /F 8 >>',
+        b'<< /Title (Incomplete child) /Parent 5 0 R /First 7 0 R >>',
+    ])
+    def test_malformed_outline_is_an_error_not_partial_success(item):
+        with pytest.raises(pdf.PdfParseError):
+>           pdf.PdfReader.from_bytes(outlined_pdf(item=item)).outline()
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'builtins.PdfReader' object has no attribute 'outline'
+
+tests/test_outline_read.py:129: AttributeError
+_ test_malformed_outline_is_an_error_not_partial_success[<< /Title (Bad parent) /Parent 4 0 R >>] _
+
+item = b'<< /Title (Bad parent) /Parent 4 0 R >>'
+
+    @pytest.mark.parametrize('item', [
+        b'<< /Title (Cycle) /Parent 5 0 R /Next 6 0 R >>',
+        b'<< /Title (Bad parent) /Parent 4 0 R >>',
+        b'<< /Title (Missing name) /Parent 5 0 R /Dest (unknown) >>',
+        b'<< /Title (Invalid page) /Parent 5 0 R /Dest [9 /Fit] >>',
+        b'<< /Title (Invalid flags) /Parent 5 0 R /F 8 >>',
+        b'<< /Title (Incomplete child) /Parent 5 0 R /First 7 0 R >>',
+    ])
+    def test_malformed_outline_is_an_error_not_partial_success(item):
+        with pytest.raises(pdf.PdfParseError):
+>           pdf.PdfReader.from_bytes(outlined_pdf(item=item)).outline()
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'builtins.PdfReader' object has no attribute 'outline'
+
+tests/test_outline_read.py:129: AttributeError
+_ test_malformed_outline_is_an_error_not_partial_success[<< /Title (Missing name) /Parent 5 0 R /Dest (unknown) >>] _
+
+item = b'<< /Title (Missing name) /Parent 5 0 R /Dest (unknown) >>'
+
+    @pytest.mark.parametrize('item', [
+        b'<< /Title (Cycle) /Parent 5 0 R /Next 6 0 R >>',
+        b'<< /Title (Bad parent) /Parent 4 0 R >>',
+        b'<< /Title (Missing name) /Parent 5 0 R /Dest (unknown) >>',
+        b'<< /Title (Invalid page) /Parent 5 0 R /Dest [9 /Fit] >>',
+        b'<< /Title (Invalid flags) /Parent 5 0 R /F 8 >>',
+        b'<< /Title (Incomplete child) /Parent 5 0 R /First 7 0 R >>',
+    ])
+    def test_malformed_outline_is_an_error_not_partial_success(item):
+        with pytest.raises(pdf.PdfParseError):
+>           pdf.PdfReader.from_bytes(outlined_pdf(item=item)).outline()
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'builtins.PdfReader' object has no attribute 'outline'
+
+tests/test_outline_read.py:129: AttributeError
+_ test_malformed_outline_is_an_error_not_partial_success[<< /Title (Invalid page) /Parent 5 0 R /Dest [9 /Fit] >>] _
+
+item = b'<< /Title (Invalid page) /Parent 5 0 R /Dest [9 /Fit] >>'
+
+    @pytest.mark.parametrize('item', [
+        b'<< /Title (Cycle) /Parent 5 0 R /Next 6 0 R >>',
+        b'<< /Title (Bad parent) /Parent 4 0 R >>',
+        b'<< /Title (Missing name) /Parent 5 0 R /Dest (unknown) >>',
+        b'<< /Title (Invalid page) /Parent 5 0 R /Dest [9 /Fit] >>',
+        b'<< /Title (Invalid flags) /Parent 5 0 R /F 8 >>',
+        b'<< /Title (Incomplete child) /Parent 5 0 R /First 7 0 R >>',
+    ])
+    def test_malformed_outline_is_an_error_not_partial_success(item):
+        with pytest.raises(pdf.PdfParseError):
+>           pdf.PdfReader.from_bytes(outlined_pdf(item=item)).outline()
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'builtins.PdfReader' object has no attribute 'outline'
+
+tests/test_outline_read.py:129: AttributeError
+_ test_malformed_outline_is_an_error_not_partial_success[<< /Title (Invalid flags) /Parent 5 0 R /F 8 >>] _
+
+item = b'<< /Title (Invalid flags) /Parent 5 0 R /F 8 >>'
+
+    @pytest.mark.parametrize('item', [
+        b'<< /Title (Cycle) /Parent 5 0 R /Next 6 0 R >>',
+        b'<< /Title (Bad parent) /Parent 4 0 R >>',
+        b'<< /Title (Missing name) /Parent 5 0 R /Dest (unknown) >>',
+        b'<< /Title (Invalid page) /Parent 5 0 R /Dest [9 /Fit] >>',
+        b'<< /Title (Invalid flags) /Parent 5 0 R /F 8 >>',
+        b'<< /Title (Incomplete child) /Parent 5 0 R /First 7 0 R >>',
+    ])
+    def test_malformed_outline_is_an_error_not_partial_success(item):
+        with pytest.raises(pdf.PdfParseError):
+>           pdf.PdfReader.from_bytes(outlined_pdf(item=item)).outline()
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'builtins.PdfReader' object has no attribute 'outline'
+
+tests/test_outline_read.py:129: AttributeError
+_ test_malformed_outline_is_an_error_not_partial_success[<< /Title (Incomplete child) /Parent 5 0 R /First 7 0 R >>] _
+
+item = b'<< /Title (Incomplete child) /Parent 5 0 R /First 7 0 R >>'
+
+    @pytest.mark.parametrize('item', [
+        b'<< /Title (Cycle) /Parent 5 0 R /Next 6 0 R >>',
+        b'<< /Title (Bad parent) /Parent 4 0 R >>',
+        b'<< /Title (Missing name) /Parent 5 0 R /Dest (unknown) >>',
+        b'<< /Title (Invalid page) /Parent 5 0 R /Dest [9 /Fit] >>',
+        b'<< /Title (Invalid flags) /Parent 5 0 R /F 8 >>',
+        b'<< /Title (Incomplete child) /Parent 5 0 R /First 7 0 R >>',
+    ])
+    def test_malformed_outline_is_an_error_not_partial_success(item):
+        with pytest.raises(pdf.PdfParseError):
+>           pdf.PdfReader.from_bytes(outlined_pdf(item=item)).outline()
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'builtins.PdfReader' object has no attribute 'outline'
+
+tests/test_outline_read.py:129: AttributeError
+_________________ test_non_goto_action_has_no_page_destination _________________
+
+    def test_non_goto_action_has_no_page_destination():
+        item = b'<< /Title (Link) /Parent 5 0 R /A << /S /URI /URI (https://example.invalid) >> >>'
+>       result = pdf.PdfReader.from_bytes(outlined_pdf(item=item)).outline().items[0]
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'builtins.PdfReader' object has no attribute 'outline'
+
+tests/test_outline_read.py:134: AttributeError
+=========================== short test summary info ============================
+FAILED tests/test_outline_read.py::test_outline_options_defaults_and_validation
+FAILED tests/test_outline_read.py::test_absent_and_empty_outlines_are_distinct
+FAILED tests/test_outline_read.py::test_hierarchy_styles_resolved_destinations_and_owned_results
+FAILED tests/test_outline_read.py::test_all_destination_views[/XYZ 12 null 0-XYZ-parameters0]
+FAILED tests/test_outline_read.py::test_all_destination_views[/Fit-Fit-parameters1]
+FAILED tests/test_outline_read.py::test_all_destination_views[/FitH 8-FitH-parameters2]
+FAILED tests/test_outline_read.py::test_all_destination_views[/FitV null-FitV-parameters3]
+FAILED tests/test_outline_read.py::test_all_destination_views[/FitR 1 2 30 40-FitR-parameters4]
+FAILED tests/test_outline_read.py::test_all_destination_views[/FitB-FitB-parameters5]
+FAILED tests/test_outline_read.py::test_all_destination_views[/FitBH null-FitBH-parameters6]
+FAILED tests/test_outline_read.py::test_all_destination_views[/FitBV 9-FitBV-parameters7]
+FAILED tests/test_outline_read.py::test_each_budget_is_enforced_and_reader_can_retry[max_items-1]
+FAILED tests/test_outline_read.py::test_each_budget_is_enforced_and_reader_can_retry[max_depth-0]
+FAILED tests/test_outline_read.py::test_each_budget_is_enforced_and_reader_can_retry[max_named_destinations-0]
+FAILED tests/test_outline_read.py::test_each_budget_is_enforced_and_reader_can_retry[max_name_tree_nodes-0]
+FAILED tests/test_outline_read.py::test_empty_name_tree_nodes_consume_budget
+FAILED tests/test_outline_read.py::test_malformed_outline_is_an_error_not_partial_success[<< /Title (Cycle) /Parent 5 0 R /Next 6 0 R >>]
+FAILED tests/test_outline_read.py::test_malformed_outline_is_an_error_not_partial_success[<< /Title (Bad parent) /Parent 4 0 R >>]
+FAILED tests/test_outline_read.py::test_malformed_outline_is_an_error_not_partial_success[<< /Title (Missing name) /Parent 5 0 R /Dest (unknown) >>]
+FAILED tests/test_outline_read.py::test_malformed_outline_is_an_error_not_partial_success[<< /Title (Invalid page) /Parent 5 0 R /Dest [9 /Fit] >>]
+FAILED tests/test_outline_read.py::test_malformed_outline_is_an_error_not_partial_success[<< /Title (Invalid flags) /Parent 5 0 R /F 8 >>]
+FAILED tests/test_outline_read.py::test_malformed_outline_is_an_error_not_partial_success[<< /Title (Incomplete child) /Parent 5 0 R /First 7 0 R >>]
+FAILED tests/test_outline_read.py::test_non_goto_action_has_no_page_destination
+23 failed in 0.32s

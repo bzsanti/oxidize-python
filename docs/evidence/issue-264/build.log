@@ -1,0 +1,20 @@
+🍹 Building a mixed python/rust project
+🔗 Found pyo3 bindings with abi3 support
+🐍 Found CPython 3.12 at /home/santi/repos/BelowZero/oxidizePdf/oxidize-python/.venv/bin/python
+📡 Using build options features from pyproject.toml
+WARNING: The directory '/home/santi/.cache/pip' or its parent directory is not owned or is not writable by the current user. The cache has been disabled. Check the permissions and owner of that directory. If executing pip with sudo, you should use sudo's -H flag.
+Ignoring pytest: markers 'extra == "dev"' don't match your environment
+Ignoring pytest-asyncio: markers 'extra == "dev"' don't match your environment
+Ignoring mypy: markers 'extra == "dev"' don't match your environment
+Ignoring cryptography: markers 'extra == "dev"' don't match your environment
+Ignoring fastmcp: markers 'extra == "mcp"' don't match your environment
+Ignoring mcp: markers 'extra == "mcp"' don't match your environment
+Ignoring mcp-types: markers 'extra == "mcp"' don't match your environment
+Ignoring pydantic: markers 'extra == "mcp"' don't match your environment
+   Compiling oxidize-python v0.22.0 (/home/santi/repos/BelowZero/oxidizePdf/oxidize-python)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 31.67s
+📦 Built wheel for abi3 Python ≥ 3.10 to /tmp/.tmp1NOKAb/oxidize_pdf-0.22.0-cp310-abi3-linux_x86_64.whl
+⚠️ Warning: pip raised a warning running ["-m", "pip", "--disable-pip-version-check", "install", "--no-deps", "--force-reinstall", "/tmp/.tmp1NOKAb/oxidize_pdf-0.22.0-cp310-abi3-linux_x86_64.whl"]:
+WARNING: The directory '/home/santi/.cache/pip' or its parent directory is not owned or is not writable by the current user. The cache has been disabled. Check the permissions and owner of that directory. If executing pip with sudo, you should use sudo's -H flag.
+✏️ Setting installed package as editable
+🛠 Installed oxidize-pdf-0.22.0

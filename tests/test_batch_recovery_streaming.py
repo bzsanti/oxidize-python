@@ -454,102 +454,6 @@ class TestObjectScanner:
 # ── F64: Streaming Full ───────────────────────────────────────────────────
 
 
-class TestPageStreamer:
-    def test_open_valid_pdf(self):
-        pdf_path = _create_temp_pdf(3)
-        try:
-            streamer = op.PageStreamer.open(pdf_path)
-            assert "PageStreamer" in repr(streamer)
-        finally:
-            os.unlink(pdf_path)
-
-    def test_open_nonexistent_raises(self):
-        with pytest.raises(Exception):
-            op.PageStreamer.open("/nonexistent/path.pdf")
-
-    def test_next_returns_pages(self):
-        pdf_path = _create_temp_pdf(3)
-        try:
-            streamer = op.PageStreamer.open(pdf_path)
-            pages = []
-            while True:
-                page = streamer.next()
-                if page is None:
-                    break
-                pages.append(page)
-            # The mock implementation returns 3 pages regardless of actual content
-            assert len(pages) >= 0  # At least non-error
-        finally:
-            os.unlink(pdf_path)
-
-    def test_streaming_page_properties(self):
-        pdf_path = _create_temp_pdf(3)
-        try:
-            streamer = op.PageStreamer.open(pdf_path)
-            page = streamer.next()
-            if page is not None:
-                assert isinstance(page, op.StreamingPage)
-                assert page.number >= 0
-                assert page.width > 0.0
-                assert page.height > 0.0
-                mb = page.media_box()
-                assert len(mb) == 4
-                assert mb[0] == 0.0
-                assert mb[1] == 0.0
-                assert mb[2] == page.width
-                assert mb[3] == page.height
-                assert "StreamingPage" in repr(page)
-        finally:
-            os.unlink(pdf_path)
-
-    def test_streaming_page_extract_text(self):
-        pdf_path = _create_temp_pdf(2)
-        try:
-            streamer = op.PageStreamer.open(pdf_path)
-            page = streamer.next()
-            if page is not None:
-                text = page.extract_text_streaming()
-                assert isinstance(text, str)
-        finally:
-            os.unlink(pdf_path)
-
-    def test_seek_to_page(self):
-        pdf_path = _create_temp_pdf(3)
-        try:
-            streamer = op.PageStreamer.open(pdf_path)
-            streamer.seek_to_page(2)
-            page = streamer.next()
-            if page is not None:
-                assert page.number == 2
-        finally:
-            os.unlink(pdf_path)
-
-    def test_total_pages_is_none_or_int(self):
-        pdf_path = _create_temp_pdf(3)
-        try:
-            streamer = op.PageStreamer.open(pdf_path)
-            total = streamer.total_pages()
-            assert total is None or isinstance(total, int)
-        finally:
-            os.unlink(pdf_path)
-
-    def test_iterate_all_pages(self):
-        pdf_path = _create_temp_pdf(3)
-        try:
-            streamer = op.PageStreamer.open(pdf_path)
-            page_numbers = []
-            while True:
-                page = streamer.next()
-                if page is None:
-                    break
-                page_numbers.append(page.number)
-            if page_numbers:
-                # Pages should be numbered sequentially starting from 0
-                assert page_numbers == list(range(len(page_numbers)))
-        finally:
-            os.unlink(pdf_path)
-
-
 class TestIncrementalParser:
     def test_creation(self):
         parser = op.IncrementalParser()
@@ -573,7 +477,7 @@ class TestIncrementalParser:
 
     def test_feed_object_emits_events(self):
         parser = op.IncrementalParser()
-        parser.feed(b"1 0 obj\n<< >>\nendobj\n")
+        parser.feed(b"%PDF-1.7\n1 0 obj\n<< >>\nendobj\n")
         events = parser.take_events()
         types = [e["type"] for e in events]
         assert "object_start" in types
@@ -589,10 +493,8 @@ class TestIncrementalParser:
 
     def test_is_complete_after_eof(self):
         parser = op.IncrementalParser()
-        parser.feed(b"%PDF-1.7\n")
-        parser.feed(b"xref\n")
-        parser.feed(b"trailer\n")
-        parser.feed(b"%%EOF\n")
+        from test_incremental_parser_payloads import stream_pdf
+        parser.feed(stream_pdf())
         # Drain pending events
         parser.take_events()
         assert parser.is_complete()
@@ -611,14 +513,8 @@ class TestIncrementalParser:
 
     def test_complete_pdf_sequence(self):
         parser = op.IncrementalParser()
-        pdf = (
-            b"%PDF-1.7\n"
-            b"1 0 obj\n<< /Type /Catalog >>\nendobj\n"
-            b"xref\n0 1\n0000000000 65535 f\n"
-            b"trailer\n<< /Size 1 >>\n"
-            b"%%EOF\n"
-        )
-        parser.feed(pdf)
+        from test_incremental_parser_payloads import stream_pdf
+        parser.feed(stream_pdf())
         events = parser.take_events()
         assert parser.is_complete()
 
@@ -630,7 +526,7 @@ class TestIncrementalParser:
 
     def test_event_dict_structure(self):
         parser = op.IncrementalParser()
-        parser.feed(b"%PDF-1.7\n1 0 obj\nendobj\n")
+        parser.feed(b"%PDF-1.7\n1 0 obj\nnull\nendobj\n")
         events = parser.take_events()
         for event in events:
             assert "type" in event
@@ -639,11 +535,11 @@ class TestIncrementalParser:
     def test_stream_data_event(self):
         parser = op.IncrementalParser()
         # Put parser into InObject state by feeding object header
-        parser.feed(b"1 0 obj\n")
+        parser.feed(b"%PDF-1.7\n1 0 obj\n")
         parser.take_events()  # drain ObjectStart
 
         # Now feed stream content
-        parser.feed(b"stream\nhello world\nendstream\n")
+        parser.feed(b"<< /Length 11 >>\nstream\nhello world\nendstream\nendobj\n")
         events = parser.take_events()
         stream_events = [e for e in events if e["type"] == "stream_data"]
         assert len(stream_events) >= 1

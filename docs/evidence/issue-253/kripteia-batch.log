@@ -1,0 +1,38 @@
+## Calidad de Tests (Kripteia)
+
+=== Kripteia Test Quality Report ===
+Overall Score: 95 | Tests: 8 | Files: 1
+
+--- Files ---
+Path                                                          Tests  Score
+--------------------------------------------------------------------------
+tests/test_batch_options.py                                       8     95
+
+--- Worst Offenders ---
+  test_invalid_counts (tests/test_batch_options.py:33) - Score: 90
+    - Test 'test_invalid_counts' has identical neighborhood to 'test_invalid_durations'
+  test_invalid_durations (tests/test_batch_options.py:40) - Score: 90
+    - Test 'test_invalid_durations' has identical neighborhood to 'test_invalid_counts'
+  test_executor_callbacks_errors_and_limits (tests/test_batch_options.py:50) - Score: 90
+    - Test 'test_executor_callbacks_errors_and_limits' has low assert-to-setup ratio (1%): 1 asserts vs 70 setup lines
+  test_callback_reference_cycles_are_collected (tests/test_batch_options.py:127) - Score: 90
+    - Test 'test_callback_reference_cycles_are_collected' has low assert-to-setup ratio (7%): 1 asserts vs 13 setup lines
+  test_defaults_and_explicit_options (tests/test_batch_options.py:9) - Score: 100
+
+--- Details ---
+tests/test_batch_options.py:
+  test_invalid_counts (line 33) - Score: 90
+    - Test 'test_invalid_counts' has identical neighborhood to 'test_invalid_durations'
+  test_invalid_durations (line 40) - Score: 90
+    - Test 'test_invalid_durations' has identical neighborhood to 'test_invalid_counts'
+  test_executor_callbacks_errors_and_limits (line 50) - Score: 90
+    - Test 'test_executor_callbacks_errors_and_limits' has low assert-to-setup ratio (1%): 1 asserts vs 70 setup lines
+  test_callback_reference_cycles_are_collected (line 127) - Score: 90
+    - Test 'test_callback_reference_cycles_are_collected' has low assert-to-setup ratio (7%): 1 asserts vs 13 setup lines
+
+
+## Analisis de Seguridad (Kripteia Security)
+
+=== Kripteia Security Analysis ===
+
+No security issues found.

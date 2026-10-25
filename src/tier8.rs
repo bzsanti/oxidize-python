@@ -138,6 +138,27 @@ pub struct PyCoordinateSystem {
 
 #[pymethods]
 impl PyCoordinateSystem {
+    #[staticmethod]
+    fn custom(matrix: &crate::coordinates::PyTransformMatrix) -> Self {
+        Self { inner: oxidize_pdf::CoordinateSystem::Custom(matrix.inner) }
+    }
+
+    fn to_pdf_standard_matrix(&self, page_height: f64) -> crate::coordinates::PyTransformMatrix {
+        crate::coordinates::PyTransformMatrix { inner: self.inner.to_pdf_standard_matrix(page_height) }
+    }
+
+    fn to_pdf_standard(&self, point: &crate::types::PyPoint, page_height: f64) -> crate::types::PyPoint {
+        crate::types::PyPoint { inner: self.inner.to_pdf_standard(point.inner, page_height) }
+    }
+
+    /// For custom transforms evaluates at x=0, as in the core.
+    fn y_to_pdf_standard(&self, y: f64, page_height: f64) -> f64 {
+        self.inner.y_to_pdf_standard(y, page_height)
+    }
+
+    /// For custom transforms reports whether matrix.d > 0.
+    fn grows_upward(&self) -> bool { self.inner.grows_upward() }
+
     #[classattr]
     const PDF_STANDARD: Self = Self { inner: oxidize_pdf::CoordinateSystem::PdfStandard };
     #[classattr]
@@ -435,74 +456,69 @@ impl PyOcrEngine {
 
 // ── Feature 35: Batch Processing ──────────────────────────────────────────
 
-#[pyclass(name = "BatchOptions", from_py_object)]
-#[derive(Clone)]
+/// Batch execution options. Durations use seconds; memory uses bytes.
+/// Core 5.5.0 rejects nonzero memory limits; timeouts report failure after completion without interruption.
+#[pyclass(name = "BatchOptions")]
 pub struct PyBatchOptions {
     pub inner: oxidize_pdf::batch::BatchOptions,
+    pub(crate) callback: Option<Py<PyAny>>,
+}
+
+fn batch_duration(seconds: f64, field: &str) -> PyResult<std::time::Duration> {
+    let duration = std::time::Duration::try_from_secs_f64(seconds)
+        .map_err(|_| pyo3::exceptions::PyValueError::new_err(format!("{field} must be finite, positive seconds representable as a duration")))?;
+    if duration.is_zero() {
+        return Err(pyo3::exceptions::PyValueError::new_err(format!("{field} must round to at least one nanosecond")));
+    }
+    Ok(duration)
 }
 
 #[pymethods]
 impl PyBatchOptions {
+    fn __traverse__(&self, visit: pyo3::gc::PyVisit<'_>) -> Result<(), pyo3::gc::PyTraverseError> {
+        visit.call(&self.callback)
+    }
+    fn __clear__(&mut self) { self.callback = None; }
     #[new]
-    #[pyo3(signature = (parallelism=None, stop_on_error=None))]
-    fn new(parallelism: Option<usize>, stop_on_error: Option<bool>) -> Self {
+    #[pyo3(signature = (parallelism=None, stop_on_error=None, *, memory_limit_per_worker=0, progress_interval=0.1, progress_callback=None, job_timeout=Some(300.0)))]
+    fn new(
+        parallelism: Option<usize>, stop_on_error: Option<bool>,
+        memory_limit_per_worker: usize, progress_interval: f64,
+        progress_callback: Option<Bound<'_, PyAny>>, job_timeout: Option<f64>,
+    ) -> PyResult<Self> {
         let mut opts = oxidize_pdf::batch::BatchOptions::default();
         if let Some(p) = parallelism { opts.parallelism = p; }
         if let Some(s) = stop_on_error { opts.stop_on_error = s; }
-        Self { inner: opts }
+        if opts.parallelism == 0 {
+            return Err(pyo3::exceptions::PyValueError::new_err("parallelism must be positive"));
+        }
+        opts.memory_limit_per_worker = memory_limit_per_worker;
+        opts.progress_interval = batch_duration(progress_interval, "progress_interval")?;
+        opts.job_timeout = job_timeout.map(|s| batch_duration(s, "job_timeout")).transpose()?;
+        let callback = progress_callback.map(|cb| {
+            if !cb.is_callable() {
+                return Err(pyo3::exceptions::PyTypeError::new_err("progress_callback must be callable or None"));
+            }
+            Ok(cb.unbind())
+        }).transpose()?;
+        Ok(Self { inner: opts, callback })
+    }
+    #[getter]
+    fn parallelism(&self) -> usize { self.inner.parallelism }
+    #[getter]
+    fn stop_on_error(&self) -> bool { self.inner.stop_on_error }
+    #[getter]
+    fn memory_limit_per_worker(&self) -> usize { self.inner.memory_limit_per_worker }
+    #[getter]
+    fn progress_interval(&self) -> f64 { self.inner.progress_interval.as_secs_f64() }
+    #[getter]
+    fn job_timeout(&self) -> Option<f64> { self.inner.job_timeout.map(|d| d.as_secs_f64()) }
+    #[getter]
+    fn progress_callback(&self, py: Python<'_>) -> Option<Py<PyAny>> {
+        self.callback.as_ref().map(|cb| cb.clone_ref(py))
     }
     fn __repr__(&self) -> String {
         format!("BatchOptions(parallelism={})", self.inner.parallelism)
-    }
-}
-
-// ── Feature 36: Streaming/Lazy ────────────────────────────────────────────
-
-#[pyclass(name = "StreamingOptions", from_py_object)]
-#[derive(Clone)]
-pub struct PyStreamingOptions {
-    pub inner: oxidize_pdf::streaming::StreamingOptions,
-}
-
-#[pymethods]
-impl PyStreamingOptions {
-    #[staticmethod]
-    fn minimal_memory() -> Self {
-        Self { inner: oxidize_pdf::streaming::StreamingOptions::minimal_memory() }
-    }
-
-    #[staticmethod]
-    fn fast_processing() -> Self {
-        Self { inner: oxidize_pdf::streaming::StreamingOptions::fast_processing() }
-    }
-
-    fn __repr__(&self) -> String { "StreamingOptions(...)".to_string() }
-}
-
-#[pyclass(name = "LazyDocument", unsendable)]
-pub struct PyLazyDocument {
-    pub inner: oxidize_pdf::memory::LazyDocument<std::fs::File>,
-}
-
-#[pymethods]
-impl PyLazyDocument {
-    #[staticmethod]
-    fn open(path: &str) -> PyResult<Self> {
-        let doc = oxidize_pdf::memory::LazyDocument::open(
-            path, oxidize_pdf::memory::MemoryOptions::default(),
-        ).map_err(to_py_err)?;
-        Ok(Self { inner: doc })
-    }
-
-    /// Number of pages in the document.
-    ///
-    /// Read-only property. Access as ``lazy_doc.page_count`` (an integer), not
-    /// ``lazy_doc.page_count()`` — calling a property raises ``TypeError``.
-    #[getter]
-    fn page_count(&self) -> u32 { self.inner.page_count() }
-
-    fn __repr__(&self) -> String {
-        format!("LazyDocument(pages={})", self.inner.page_count())
     }
 }
 
@@ -1001,8 +1017,6 @@ pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyMockOcrProvider>()?;
     m.add_class::<PyOcrEngine>()?;
     m.add_class::<PyBatchOptions>()?;
-    m.add_class::<PyStreamingOptions>()?;
-    m.add_class::<PyLazyDocument>()?;
     m.add_function(wrap_pyfunction!(validate_pdf, m)?)?;
     m.add_class::<PyPdfALevel>()?;
     m.add_class::<PyPdfAConformance>()?;

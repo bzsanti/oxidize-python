@@ -1,0 +1,14 @@
+{
+  "workspace": "/tmp/oxidize-254-mutation-5ud8w9p3",
+  "extension": "/tmp/oxidize-254-mutation-5ud8w9p3/installed/oxidize_pdf/_oxidize_pdf.abi3.so",
+  "results": [
+    {
+      "mode": "empty",
+      "exit_code": 1
+    },
+    {
+      "mode": "fixed-text",
+      "exit_code": 1
+    }
+  ]
+}

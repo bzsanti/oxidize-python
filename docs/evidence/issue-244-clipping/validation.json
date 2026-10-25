@@ -1,0 +1,17 @@
+{
+  "base": "da70c4c960df930e85d7673a3c6699cc993ca9c8",
+  "tests": 2628,
+  "core": "5.4.2",
+  "sha256": {
+    "src/graphics.rs": "256716a89af1152bbba37b3c0eabd1eb4c6db9a606b77d5321436860f18aca6e",
+    "python/oxidize_pdf/__init__.py": "23d4267268de1786426e4cc6253805511269cf6f10ece82fb957a3bd00f0854c",
+    "python/oxidize_pdf/__init__.pyi": "8868c776a6b2c92521150e4b7d5d727bfb3e997c75e80066f8114dd49bb641e9",
+    "python/oxidize_pdf/_oxidize_pdf.pyi": "b2b4ff9bf89c6470c6a1ff81a59b499faa4a1daf40bc407093943b6201ed8bcd",
+    "tests/test_clipping_paths.py": "70398bf0739cab03323e0a24645119557b744cf01ccd9a1bc177ced29eab9a84",
+    "tests/typing/clipping_paths.py": "53be97ff8b9f95f0e7a0d840ba3f836cffa5c1ef76ef809de38cdb7f4962b77c",
+    "tests/test_parity_checker.py": "16db9eb7d4b00dd7c6e38ce4c0cbc0bf7768ecb0f0296ff0e0172c477fae2e63",
+    "docs/parity-contract.json": "e7accfd563fc4282fe70e37fc174a906957acb3ca720164efc2116f83b5e5317",
+    ".github/workflows/test.yml": "f37dddebbc2631ad8d0a06007b269b05c1d666ed5ab385d3cac53d463519e949",
+    "README.md": "9c77a9310fa0f42cd88067dc9d09bdd7c983b8f0a55a39fa68c25669b5f646fb"
+  }
+}

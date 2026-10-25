@@ -268,6 +268,13 @@ from oxidize_pdf._oxidize_pdf import (
     # Feature 36: Streaming/Lazy
     LazyDocument,
     StreamingOptions,
+    MemoryOptions,
+    UnsupportedMemoryOption,
+    MemoryConfiguration,
+    StreamingConfiguration,
+    MemoryStats,
+    StreamingDocument,
+
     # Feature 37: PDF Recovery
     validate_pdf,
     # Feature 38: PDF/A Validation
@@ -815,6 +822,13 @@ __all__ = [
     "BatchOptions",
     "LazyDocument",
     "StreamingOptions",
+    "MemoryOptions",
+    "UnsupportedMemoryOption",
+    "MemoryConfiguration",
+    "StreamingConfiguration",
+    "MemoryStats",
+    "StreamingDocument",
+
     "validate_pdf",
     "compare_pdfs",
     # F84: Templates Deep
@@ -1141,3 +1155,139 @@ from oxidize_pdf._oxidize_pdf import (
     prepare_incremental_signature,
 )
 __all__ += ['PdfValue', 'SignatureTarget', 'CertificationPermission', 'FieldLock', 'SignaturePreparationOptions', 'SignatureWatermark', 'SignatureAppearanceLayout', 'SignatureAppearance', 'PreparedSignature', 'prepare_incremental_signature']
+
+from oxidize_pdf._oxidize_pdf import ElementGraph
+__all__ += ["ElementGraph"]
+
+from oxidize_pdf.parse_events import ParseEvent
+__all__ += ["ParseEvent"]
+
+from oxidize_pdf.signature_errors import (
+    PdfSignatureError, PdfSignatureValueError, PdfSignatureRuntimeError,
+    SignatureErrorCode, SignatureErrorDetails,
+)
+__all__ += ["PdfSignatureError", "PdfSignatureValueError", "PdfSignatureRuntimeError",
+            "SignatureErrorCode", "SignatureErrorDetails"]
+
+from oxidize_pdf.signature_errors import SignatureVerificationSummary
+__all__ += ["SignatureVerificationSummary"]
+
+from oxidize_pdf._oxidize_pdf import OutlineReadOptions, ReadOutline, ReadOutlineItem, ReadOutlineDestination
+__all__ += ["OutlineReadOptions", "ReadOutline", "ReadOutlineItem", "ReadOutlineDestination"]
+
+from oxidize_pdf._oxidize_pdf import RecoveryOptions
+__all__ += ["RecoveryOptions"]
+
+# Incremental geometric annotations (core 5.4.2).
+from oxidize_pdf._oxidize_pdf import (
+    GeometricColorSpace,
+    GeometricColor,
+    GeometricId,
+    GeometricLineEnding,
+    GeometricKind,
+    GeometricGeometry,
+    GeometricStyle,
+    GeometricAnnotation,
+    GeometricMutation,
+    GeometricUpdate,
+    IncrementalGeometricEditor,
+)
+__all__ += [
+    "GeometricColorSpace",
+    "GeometricColor",
+    "GeometricId",
+    "GeometricLineEnding",
+    "GeometricKind",
+    "GeometricGeometry",
+    "GeometricStyle",
+    "GeometricAnnotation",
+    "GeometricMutation",
+    "GeometricUpdate",
+    "IncrementalGeometricEditor",
+]
+
+# Bounded tagged-PDF inspection.
+from oxidize_pdf._oxidize_pdf import (
+    TaggedPdfFindingSeverity,
+    TaggedPdfFindingCode,
+    TaggedPdfObjectRef,
+    TaggedPdfLimits,
+    TaggedPdfValidationOptions,
+    TaggedPdfFinding,
+    TaggedPdfStructureElement,
+    TaggedPdfArtifact,
+    TaggedPdfValidationReport,
+    validate_tagged_pdf,
+)
+__all__ += [
+    "TaggedPdfFindingSeverity",
+    "TaggedPdfFindingCode",
+    "TaggedPdfObjectRef",
+    "TaggedPdfLimits",
+    "TaggedPdfValidationOptions",
+    "TaggedPdfFinding",
+    "TaggedPdfStructureElement",
+    "TaggedPdfArtifact",
+    "TaggedPdfValidationReport",
+    "validate_tagged_pdf",
+]
+
+from oxidize_pdf._oxidize_pdf import (
+    SemanticDifferenceClass,
+    RevisionObjectChangeKind,
+    SemanticComparisonLimits,
+    SemanticComparisonOptions,
+    SemanticPdfDifference,
+    RevisionObjectChange,
+    PdfRevisionSummary,
+    SemanticComparisonResult,
+    compare_pdfs_semantically,
+)
+__all__ += ['SemanticDifferenceClass', 'RevisionObjectChangeKind', 'SemanticComparisonLimits', 'SemanticComparisonOptions', 'SemanticPdfDifference', 'RevisionObjectChange', 'PdfRevisionSummary', 'SemanticComparisonResult', 'compare_pdfs_semantically']
+
+from oxidize_pdf._oxidize_pdf import (
+    ImageColorSpace,
+    ImageFormat,
+)
+__all__ += ["ImageColorSpace", "ImageFormat"]
+
+from oxidize_pdf._oxidize_pdf import TransformMatrix
+
+__all__ += ["TransformMatrix"]
+
+from oxidize_pdf._oxidize_pdf import RenderContext
+
+__all__ += ["RenderContext"]
+
+from oxidize_pdf._oxidize_pdf import (
+    WindingRule,
+    ClippingPathCommand,
+)
+__all__ += ["WindingRule", "ClippingPathCommand"]
+
+from oxidize_pdf._oxidize_pdf import (
+    TaggedPdfMutation,
+    TaggedPdfChangedObjectKind,
+    TaggedPdfChangedObject,
+    TaggedPdfEditPlan,
+    TaggedPdfMutationReport,
+    IncrementalTaggedPdfEditor,
+)
+__all__ += ['TaggedPdfMutation', 'TaggedPdfChangedObjectKind', 'TaggedPdfChangedObject', 'TaggedPdfEditPlan', 'TaggedPdfMutationReport', 'IncrementalTaggedPdfEditor']
+
+from oxidize_pdf._oxidize_pdf import (
+    TextNoteId,
+    HighlightId,
+    HighlightQuad,
+    HighlightColor,
+    HighlightOpacity,
+    TextNote,
+    Highlight,
+    TextNoteMutation,
+    HighlightMutation,
+    TextNoteUpdate,
+    IncrementalTextNoteEditor,
+    HighlightUpdate,
+    IncrementalHighlightEditor,
+)
+__all__ += ['TextNoteId', 'HighlightId', 'HighlightQuad', 'HighlightColor', 'HighlightOpacity', 'TextNote', 'Highlight', 'TextNoteMutation', 'HighlightMutation', 'TextNoteUpdate', 'IncrementalTextNoteEditor', 'HighlightUpdate', 'IncrementalHighlightEditor']

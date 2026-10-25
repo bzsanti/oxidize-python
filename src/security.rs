@@ -617,32 +617,7 @@ impl PyFullSignatureValidationResult {
 
 // ── Standalone Functions ─────────────────────────────────────────────────
 
-fn sig_err_to_py(e: oxidize_pdf::signatures::SignatureError) -> PyErr {
-    use oxidize_pdf::signatures::SignatureError;
-    let msg = e.to_string();
-    match e {
-        // Input validation errors → ValueError
-        SignatureError::MissingField { .. }
-        | SignatureError::InvalidByteRange { .. }
-        | SignatureError::InvalidSignatureDict { .. }
-        | SignatureError::AcroFormNotFound
-        | SignatureError::NoSignatureFields
-        | SignatureError::ByteRangeExceedsDocument { .. }
-        | SignatureError::UnsupportedAlgorithm { .. } => {
-            pyo3::exceptions::PyValueError::new_err(msg)
-        }
-        // Processing/crypto failures → RuntimeError
-        SignatureError::ContentsExtractionFailed { .. }
-        | SignatureError::ParseError { .. }
-        | SignatureError::CmsParsingFailed { .. }
-        | SignatureError::HashVerificationFailed { .. }
-        | SignatureError::SignatureVerificationFailed { .. }
-        | SignatureError::CertificateExtractionFailed { .. }
-        | SignatureError::CertificateValidationFailed { .. } => {
-            pyo3::exceptions::PyRuntimeError::new_err(msg)
-        }
-    }
-}
+use crate::signature_errors::to_py_error as sig_err_to_py;
 
 #[pyfunction]
 fn compute_pdf_hash_py(

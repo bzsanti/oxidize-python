@@ -1,0 +1,166 @@
+FFFFFFFFFFFFF                                                            [100%]
+=================================== FAILURES ===================================
+_______________________ test_parse_defaults_and_presets ________________________
+
+    def test_parse_defaults_and_presets():
+>       assert {k: getattr(pdf.ParseOptions(), k) for k in PARSE_DEFAULTS} == PARSE_DEFAULTS
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'builtins.ParseOptions' object has no attribute 'preferred_encoding'
+
+tests/test_parser_recovery_options.py:17: AttributeError
+______________ test_encoding_configuration_is_round_tripped[None] ______________
+
+encoding = None
+
+    @pytest.mark.parametrize('encoding', [None, 'utf-8', 'latin-1', 'windows-1252',
+                                         'mac-roman', 'pdf-doc', 'mixed'])
+    def test_encoding_configuration_is_round_tripped(encoding):
+>       options = pdf.ParseOptions(preferred_encoding=encoding, log_recovery_details=True)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: ParseOptions.__new__() got an unexpected keyword argument 'preferred_encoding'
+
+tests/test_parser_recovery_options.py:35: TypeError
+_____________ test_encoding_configuration_is_round_tripped[utf-8] ______________
+
+encoding = 'utf-8'
+
+    @pytest.mark.parametrize('encoding', [None, 'utf-8', 'latin-1', 'windows-1252',
+                                         'mac-roman', 'pdf-doc', 'mixed'])
+    def test_encoding_configuration_is_round_tripped(encoding):
+>       options = pdf.ParseOptions(preferred_encoding=encoding, log_recovery_details=True)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: ParseOptions.__new__() got an unexpected keyword argument 'preferred_encoding'
+
+tests/test_parser_recovery_options.py:35: TypeError
+____________ test_encoding_configuration_is_round_tripped[latin-1] _____________
+
+encoding = 'latin-1'
+
+    @pytest.mark.parametrize('encoding', [None, 'utf-8', 'latin-1', 'windows-1252',
+                                         'mac-roman', 'pdf-doc', 'mixed'])
+    def test_encoding_configuration_is_round_tripped(encoding):
+>       options = pdf.ParseOptions(preferred_encoding=encoding, log_recovery_details=True)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: ParseOptions.__new__() got an unexpected keyword argument 'preferred_encoding'
+
+tests/test_parser_recovery_options.py:35: TypeError
+__________ test_encoding_configuration_is_round_tripped[windows-1252] __________
+
+encoding = 'windows-1252'
+
+    @pytest.mark.parametrize('encoding', [None, 'utf-8', 'latin-1', 'windows-1252',
+                                         'mac-roman', 'pdf-doc', 'mixed'])
+    def test_encoding_configuration_is_round_tripped(encoding):
+>       options = pdf.ParseOptions(preferred_encoding=encoding, log_recovery_details=True)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: ParseOptions.__new__() got an unexpected keyword argument 'preferred_encoding'
+
+tests/test_parser_recovery_options.py:35: TypeError
+___________ test_encoding_configuration_is_round_tripped[mac-roman] ____________
+
+encoding = 'mac-roman'
+
+    @pytest.mark.parametrize('encoding', [None, 'utf-8', 'latin-1', 'windows-1252',
+                                         'mac-roman', 'pdf-doc', 'mixed'])
+    def test_encoding_configuration_is_round_tripped(encoding):
+>       options = pdf.ParseOptions(preferred_encoding=encoding, log_recovery_details=True)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: ParseOptions.__new__() got an unexpected keyword argument 'preferred_encoding'
+
+tests/test_parser_recovery_options.py:35: TypeError
+____________ test_encoding_configuration_is_round_tripped[pdf-doc] _____________
+
+encoding = 'pdf-doc'
+
+    @pytest.mark.parametrize('encoding', [None, 'utf-8', 'latin-1', 'windows-1252',
+                                         'mac-roman', 'pdf-doc', 'mixed'])
+    def test_encoding_configuration_is_round_tripped(encoding):
+>       options = pdf.ParseOptions(preferred_encoding=encoding, log_recovery_details=True)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: ParseOptions.__new__() got an unexpected keyword argument 'preferred_encoding'
+
+tests/test_parser_recovery_options.py:35: TypeError
+_____________ test_encoding_configuration_is_round_tripped[mixed] ______________
+
+encoding = 'mixed'
+
+    @pytest.mark.parametrize('encoding', [None, 'utf-8', 'latin-1', 'windows-1252',
+                                         'mac-roman', 'pdf-doc', 'mixed'])
+    def test_encoding_configuration_is_round_tripped(encoding):
+>       options = pdf.ParseOptions(preferred_encoding=encoding, log_recovery_details=True)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: ParseOptions.__new__() got an unexpected keyword argument 'preferred_encoding'
+
+tests/test_parser_recovery_options.py:35: TypeError
+__________________ test_option_errors_and_unsigned_boundaries __________________
+
+    def test_option_errors_and_unsigned_boundaries():
+        with pytest.raises(ValueError, match='preferred_encoding'):
+>           pdf.ParseOptions(preferred_encoding='guess')
+E           TypeError: ParseOptions.__new__() got an unexpected keyword argument 'preferred_encoding'
+
+tests/test_parser_recovery_options.py:44: TypeError
+______________ test_recovery_options_defaults_and_readonly_fields ______________
+
+    def test_recovery_options_defaults_and_readonly_fields():
+>       options = pdf.RecoveryOptions()
+                  ^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'oxidize_pdf' has no attribute 'RecoveryOptions'
+
+tests/test_parser_recovery_options.py:57: AttributeError
+__________ test_partial_content_reaches_repair_and_results_are_owned ___________
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-46/test_partial_content_reaches_r0')
+
+    def test_partial_content_reaches_repair_and_results_are_owned(tmp_path):
+        path = tmp_path / 'fragments.pdf'
+        path.write_bytes(b'BT (Recovered text) Tj ET\n' * 15)
+        full = pdf.repair_pdf(str(path), pdf.RepairStrategy.EXTRACT_CONTENT)
+        limited = pdf.repair_pdf(str(path), pdf.RepairStrategy.EXTRACT_CONTENT,
+>                               options=pdf.RecoveryOptions(partial_content=False))
+                                        ^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'oxidize_pdf' has no attribute 'RecoveryOptions'
+
+tests/test_parser_recovery_options.py:74: AttributeError
+_______________ test_inert_recovery_fields_do_not_enforce_limits _______________
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-46/test_inert_recovery_fields_do_0')
+
+    def test_inert_recovery_fields_do_not_enforce_limits(tmp_path):
+        path = tmp_path / 'fragments.pdf'
+        path.write_bytes(b'BT (Text) Tj ET\n' * 15)
+        result = pdf.repair_pdf(str(path), pdf.RepairStrategy.EXTRACT_CONTENT,
+>           options=pdf.RecoveryOptions(memory_limit=0, max_errors=0,
+                    ^^^^^^^^^^^^^^^^^^^
+                aggressive_recovery=True, rebuild_xref=False, recover_embedded=True,
+                skip_validation=True))
+E       AttributeError: module 'oxidize_pdf' has no attribute 'RecoveryOptions'
+
+tests/test_parser_recovery_options.py:96: AttributeError
+____________________ test_unsuccessful_repair_and_io_errors ____________________
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-46/test_unsuccessful_repair_and_i0')
+
+    def test_unsuccessful_repair_and_io_errors(tmp_path):
+        path = tmp_path / 'fragments.pdf'
+        path.write_bytes(b'No text blocks')
+>       result = pdf.repair_pdf(str(path), pdf.RepairStrategy.EXTRACT_CONTENT, options=None)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: repair_pdf() got an unexpected keyword argument 'options'
+
+tests/test_parser_recovery_options.py:105: TypeError
+=========================== short test summary info ============================
+FAILED tests/test_parser_recovery_options.py::test_parse_defaults_and_presets
+FAILED tests/test_parser_recovery_options.py::test_encoding_configuration_is_round_tripped[None]
+FAILED tests/test_parser_recovery_options.py::test_encoding_configuration_is_round_tripped[utf-8]
+FAILED tests/test_parser_recovery_options.py::test_encoding_configuration_is_round_tripped[latin-1]
+FAILED tests/test_parser_recovery_options.py::test_encoding_configuration_is_round_tripped[windows-1252]
+FAILED tests/test_parser_recovery_options.py::test_encoding_configuration_is_round_tripped[mac-roman]
+FAILED tests/test_parser_recovery_options.py::test_encoding_configuration_is_round_tripped[pdf-doc]
+FAILED tests/test_parser_recovery_options.py::test_encoding_configuration_is_round_tripped[mixed]
+FAILED tests/test_parser_recovery_options.py::test_option_errors_and_unsigned_boundaries
+FAILED tests/test_parser_recovery_options.py::test_recovery_options_defaults_and_readonly_fields
+FAILED tests/test_parser_recovery_options.py::test_partial_content_reaches_repair_and_results_are_owned
+FAILED tests/test_parser_recovery_options.py::test_inert_recovery_fields_do_not_enforce_limits
+FAILED tests/test_parser_recovery_options.py::test_unsuccessful_repair_and_io_errors
+13 failed in 0.26s

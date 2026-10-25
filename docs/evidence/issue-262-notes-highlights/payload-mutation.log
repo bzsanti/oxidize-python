@@ -1,0 +1,136 @@
+FFFF                                                                     [100%]
+=================================== FAILURES ===================================
+__ test_external_objects_unicode_metadata_and_content_preserved[False-False] ___
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-51/test_external_objects_unicode_0')
+indirect = False, xref_stream = False
+
+    @pytest.mark.skipif(shutil.which('qpdf') is None, reason='qpdf independent reader unavailable')
+    @pytest.mark.parametrize('indirect', [False, True])
+    @pytest.mark.parametrize('xref_stream', [False, True])
+    def test_external_objects_unicode_metadata_and_content_preserved(tmp_path, indirect, xref_stream):
+        source = annotation_pdf(indirect=indirect, xref_stream=xref_stream)
+        first = N(source).apply([NM.update(p.TextNoteId(7, 9), (90., 110.), TEXT), NM.add(1, (60., 80.), 'added')])
+        second = H(first.pdf_bytes).apply([highlight_add(1, opacity=p.HighlightOpacity(.25), contents=TEXT)])
+        assert second.pdf_bytes.startswith(first.pdf_bytes) and first.pdf_bytes.startswith(source)
+        before = tmp_path / 'before.pdf'
+        after = tmp_path / 'after.pdf'
+        before.write_bytes(source)
+        after.write_bytes(second.pdf_bytes)
+        def objects(path):
+            subprocess.run(['qpdf', '--check', str(path)], capture_output=True, check=True, timeout=30)
+            result = subprocess.run(['qpdf', '--json', '--json-stream-data=inline', str(path)], capture_output=True, check=True, timeout=30)
+            return json.loads(result.stdout)['qpdf'][1]
+        original, edited = objects(before), objects(after)
+        for number in [1, 2, 5, 6, 9, 11, 12]:
+            assert edited[f'obj:{number} 0 R'] == original[f'obj:{number} 0 R']
+        note = edited['obj:7 9 R']['value']
+>       assert note['/Contents'] == 'u:' + TEXT and note['/Rect'] == [90, 110, 120, 150]
+E       AssertionError: assert ('u:old note' == 'u:café 世界 😀'
+E         
+E         - u:café 世界 😀
+E         + u:old note)
+
+tests/test_notes_highlights.py:335: AssertionError
+___ test_external_objects_unicode_metadata_and_content_preserved[False-True] ___
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-51/test_external_objects_unicode_1')
+indirect = True, xref_stream = False
+
+    @pytest.mark.skipif(shutil.which('qpdf') is None, reason='qpdf independent reader unavailable')
+    @pytest.mark.parametrize('indirect', [False, True])
+    @pytest.mark.parametrize('xref_stream', [False, True])
+    def test_external_objects_unicode_metadata_and_content_preserved(tmp_path, indirect, xref_stream):
+        source = annotation_pdf(indirect=indirect, xref_stream=xref_stream)
+        first = N(source).apply([NM.update(p.TextNoteId(7, 9), (90., 110.), TEXT), NM.add(1, (60., 80.), 'added')])
+        second = H(first.pdf_bytes).apply([highlight_add(1, opacity=p.HighlightOpacity(.25), contents=TEXT)])
+        assert second.pdf_bytes.startswith(first.pdf_bytes) and first.pdf_bytes.startswith(source)
+        before = tmp_path / 'before.pdf'
+        after = tmp_path / 'after.pdf'
+        before.write_bytes(source)
+        after.write_bytes(second.pdf_bytes)
+        def objects(path):
+            subprocess.run(['qpdf', '--check', str(path)], capture_output=True, check=True, timeout=30)
+            result = subprocess.run(['qpdf', '--json', '--json-stream-data=inline', str(path)], capture_output=True, check=True, timeout=30)
+            return json.loads(result.stdout)['qpdf'][1]
+        original, edited = objects(before), objects(after)
+        for number in [1, 2, 5, 6, 9, 11, 12]:
+            assert edited[f'obj:{number} 0 R'] == original[f'obj:{number} 0 R']
+        note = edited['obj:7 9 R']['value']
+>       assert note['/Contents'] == 'u:' + TEXT and note['/Rect'] == [90, 110, 120, 150]
+E       AssertionError: assert ('u:old note' == 'u:café 世界 😀'
+E         
+E         - u:café 世界 😀
+E         + u:old note)
+
+tests/test_notes_highlights.py:335: AssertionError
+___ test_external_objects_unicode_metadata_and_content_preserved[True-False] ___
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-51/test_external_objects_unicode_2')
+indirect = False, xref_stream = True
+
+    @pytest.mark.skipif(shutil.which('qpdf') is None, reason='qpdf independent reader unavailable')
+    @pytest.mark.parametrize('indirect', [False, True])
+    @pytest.mark.parametrize('xref_stream', [False, True])
+    def test_external_objects_unicode_metadata_and_content_preserved(tmp_path, indirect, xref_stream):
+        source = annotation_pdf(indirect=indirect, xref_stream=xref_stream)
+        first = N(source).apply([NM.update(p.TextNoteId(7, 9), (90., 110.), TEXT), NM.add(1, (60., 80.), 'added')])
+        second = H(first.pdf_bytes).apply([highlight_add(1, opacity=p.HighlightOpacity(.25), contents=TEXT)])
+        assert second.pdf_bytes.startswith(first.pdf_bytes) and first.pdf_bytes.startswith(source)
+        before = tmp_path / 'before.pdf'
+        after = tmp_path / 'after.pdf'
+        before.write_bytes(source)
+        after.write_bytes(second.pdf_bytes)
+        def objects(path):
+            subprocess.run(['qpdf', '--check', str(path)], capture_output=True, check=True, timeout=30)
+            result = subprocess.run(['qpdf', '--json', '--json-stream-data=inline', str(path)], capture_output=True, check=True, timeout=30)
+            return json.loads(result.stdout)['qpdf'][1]
+        original, edited = objects(before), objects(after)
+        for number in [1, 2, 5, 6, 9, 11, 12]:
+            assert edited[f'obj:{number} 0 R'] == original[f'obj:{number} 0 R']
+        note = edited['obj:7 9 R']['value']
+>       assert note['/Contents'] == 'u:' + TEXT and note['/Rect'] == [90, 110, 120, 150]
+E       AssertionError: assert ('u:old note' == 'u:café 世界 😀'
+E         
+E         - u:café 世界 😀
+E         + u:old note)
+
+tests/test_notes_highlights.py:335: AssertionError
+___ test_external_objects_unicode_metadata_and_content_preserved[True-True] ____
+
+tmp_path = PosixPath('/tmp/pytest-of-santi/pytest-51/test_external_objects_unicode_3')
+indirect = True, xref_stream = True
+
+    @pytest.mark.skipif(shutil.which('qpdf') is None, reason='qpdf independent reader unavailable')
+    @pytest.mark.parametrize('indirect', [False, True])
+    @pytest.mark.parametrize('xref_stream', [False, True])
+    def test_external_objects_unicode_metadata_and_content_preserved(tmp_path, indirect, xref_stream):
+        source = annotation_pdf(indirect=indirect, xref_stream=xref_stream)
+        first = N(source).apply([NM.update(p.TextNoteId(7, 9), (90., 110.), TEXT), NM.add(1, (60., 80.), 'added')])
+        second = H(first.pdf_bytes).apply([highlight_add(1, opacity=p.HighlightOpacity(.25), contents=TEXT)])
+        assert second.pdf_bytes.startswith(first.pdf_bytes) and first.pdf_bytes.startswith(source)
+        before = tmp_path / 'before.pdf'
+        after = tmp_path / 'after.pdf'
+        before.write_bytes(source)
+        after.write_bytes(second.pdf_bytes)
+        def objects(path):
+            subprocess.run(['qpdf', '--check', str(path)], capture_output=True, check=True, timeout=30)
+            result = subprocess.run(['qpdf', '--json', '--json-stream-data=inline', str(path)], capture_output=True, check=True, timeout=30)
+            return json.loads(result.stdout)['qpdf'][1]
+        original, edited = objects(before), objects(after)
+        for number in [1, 2, 5, 6, 9, 11, 12]:
+            assert edited[f'obj:{number} 0 R'] == original[f'obj:{number} 0 R']
+        note = edited['obj:7 9 R']['value']
+>       assert note['/Contents'] == 'u:' + TEXT and note['/Rect'] == [90, 110, 120, 150]
+E       AssertionError: assert ('u:old note' == 'u:café 世界 😀'
+E         
+E         - u:café 世界 😀
+E         + u:old note)
+
+tests/test_notes_highlights.py:335: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_notes_highlights.py::test_external_objects_unicode_metadata_and_content_preserved[False-False]
+FAILED tests/test_notes_highlights.py::test_external_objects_unicode_metadata_and_content_preserved[False-True]
+FAILED tests/test_notes_highlights.py::test_external_objects_unicode_metadata_and_content_preserved[True-False]
+FAILED tests/test_notes_highlights.py::test_external_objects_unicode_metadata_and_content_preserved[True-True]
+4 failed, 71 deselected in 0.32s

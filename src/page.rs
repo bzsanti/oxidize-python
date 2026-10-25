@@ -32,6 +32,26 @@ fn validate_opacity(opacity: f64) -> PyResult<()> {
     Ok(())
 }
 
+// Core interpolates names directly into the content stream. Encode the UTF-8
+// bytes as one PDF name so caller input cannot introduce PDF operators.
+fn marked_content_name(tag: &str) -> PyResult<String> {
+    if tag.is_empty() {
+        return Err(PyValueError::new_err(
+            "Marked-content tag must not be empty",
+        ));
+    }
+    let mut name = String::new();
+    for byte in tag.bytes() {
+        if (33..=126).contains(&byte) && !b"()<>[]{}/%#".contains(&byte) {
+            name.push(char::from(byte));
+        } else {
+            use std::fmt::Write;
+            write!(name, "#{byte:02X}").expect("writing to String cannot fail");
+        }
+    }
+    Ok(name)
+}
+
 #[pyclass(name = "Page", from_py_object)]
 #[derive(Clone)]
 pub struct PyPage {
@@ -99,6 +119,36 @@ impl PyPage {
         self.inner.height()
     }
 
+    /// Unrotated width after subtracting left and right margins.
+    #[getter]
+    fn content_width(&self) -> f64 {
+        self.inner.content_width()
+    }
+
+    /// Unrotated height after subtracting top and bottom margins.
+    #[getter]
+    fn content_height(&self) -> f64 {
+        self.inner.content_height()
+    }
+
+    /// Unrotated content bounds (left, bottom, right, top).
+    #[getter]
+    fn content_area(&self) -> (f64, f64, f64, f64) {
+        self.inner.content_area()
+    }
+
+    /// Page width after accounting for a quarter-turn rotation.
+    #[getter]
+    fn effective_width(&self) -> f64 {
+        self.inner.effective_width()
+    }
+
+    /// Page height after accounting for a quarter-turn rotation.
+    #[getter]
+    fn effective_height(&self) -> f64 {
+        self.inner.effective_height()
+    }
+
     #[getter]
     fn margins(&self) -> PyMargins {
         PyMargins {
@@ -132,6 +182,36 @@ impl PyPage {
 
     fn __repr__(&self) -> String {
         format!("Page({}x{})", self.inner.width(), self.inner.height())
+    }
+
+    /// Open a marked-content sequence and return its page-local MCID.
+    fn begin_marked_content(&mut self, tag: &str) -> PyResult<u32> {
+        self.inner
+            .begin_marked_content(&marked_content_name(tag)?)
+            .map_err(to_py_err)
+    }
+
+    /// Open a sequence with a Unicode logical-text replacement.
+    fn begin_marked_content_with_actual_text(
+        &mut self,
+        tag: &str,
+        actual_text: &str,
+    ) -> PyResult<u32> {
+        self.inner
+            .begin_marked_content_with_actual_text(&marked_content_name(tag)?, actual_text)
+            .map_err(to_py_err)
+    }
+
+    fn end_marked_content(&mut self) -> PyResult<()> {
+        self.inner.end_marked_content().map_err(to_py_err)
+    }
+
+    fn next_mcid(&self) -> u32 {
+        self.inner.next_mcid()
+    }
+
+    fn marked_content_depth(&self) -> usize {
+        self.inner.marked_content_depth()
     }
 
     // ── Text operations ────────────────────────────────────────────────
@@ -523,6 +603,12 @@ impl PyPage {
     /// Set the coordinate system for this page.
     fn set_coordinate_system(&mut self, cs: &crate::tier8::PyCoordinateSystem) {
         self.inner.set_coordinate_system(cs.inner);
+    }
+
+    /// Coordinate system stored on this page; returns an independent snapshot.
+    #[getter]
+    fn coordinate_system(&self) -> crate::tier8::PyCoordinateSystem {
+        crate::tier8::PyCoordinateSystem { inner: self.inner.coordinate_system() }
     }
 
     // ── Annotation operations ─────────────────────────────────────────
