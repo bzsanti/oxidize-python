@@ -5,9 +5,9 @@ results and errors. Pinning the same core version is not proof of API parity.
 Tracking: [#244](https://github.com/bzsanti/oxidize-python/issues/244), coordinated
 by [core #710](https://github.com/bzsanti/oxidizePdf/issues/710).
 
-Current source checkpoint: Python manifest 0.22.0, core =5.5.0, adoption
-for #253 (2026-10-19). Post-release changes in develop are not a promise about
-what an already-published 0.22.0 wheel contains. Cross-bridge status and evidence:
+Current source checkpoint: Python 0.23.0 release candidate, core =5.5.0.
+The published 0.22.0 wheel uses core 5.4.2 and does not include the subsequent
+TextNote/Highlight bindings. Candidate validation is not publication evidence. Cross-bridge status and evidence:
 [PARITY_SPEC.md](PARITY_SPEC.md). This is a partial inventory.
 
 | Capability | Current status |
@@ -24,8 +24,8 @@ what an already-published 0.22.0 wheel contains. Cross-bridge status and evidenc
 | Existing-outline reading | Integrated via #272 (#261); bounded reading distinct from OutlineTree writing |
 | Parser/recovery options | Integrated via #273 (#259); inert options, unbounded memory and repair fidelity limits documented |
 | Public typing inventory | Integrated via #274 (#265); exports/members covered, not proof of behavioral completeness |
-| Streaming/lazy configuration | Incomplete consumer wiring/audit under #258 |
-| Other incremental annotation/tagged/OCR editors | Geometric editor delivered under #276; remaining editors/OCR tracked by #262 |
+| Streaming/lazy configuration | Integrated via #291; requested/effective options and unsupported limits remain explicit |
+| Incremental annotations and tagged editing | Geometric editor via #277, TaggedPdf via #292, TextNote/Highlight via #293; OCR remains under #262/#278 |
 | Revision-aware comparison and irreversible redaction | Revision-aware comparison delivered by #282; irreversible redaction remains under #263 |
 | Real Tesseract recognition | No recognition binding; enum/mock provider presence is not OCR |
 | AES IV generation | Core 5.5.0 adopted under #253; real entropy failure tested, delivery tracked below |
