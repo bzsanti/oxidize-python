@@ -1,5 +1,7 @@
 # Rust core 5.5.3 compatibility
 
+Historical checkpoint: current adoption is documented in [5.5.4 notes](UPSTREAM-5.5.4.md).
+
 Tracking: #296. Development pins the registry dependency `oxidize-pdf = "=5.5.3"`.
 This is a source dependency update, not a new Python/NuGet package publication.
 Existing package versions and public binding surface remain unchanged.

@@ -2,7 +2,7 @@
 
 # oxidize-pdf
 
-> Development pins Rust core **5.5.3**. See [compatibility and validation](docs/UPSTREAM-5.5.3.md).
+> Development pins Rust core **5.5.4**. See [compatibility and validation](docs/UPSTREAM-5.5.4.md).
 
 <!-- mcp-name: io.github.bzsanti/oxidize-pdf-mcp -->
 

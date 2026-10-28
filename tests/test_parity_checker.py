@@ -24,7 +24,7 @@ def test_parity_checker_rejects_contract_regressions(tmp_path, kind):
         path = tmp_path / ('python/oxidize_pdf/signature_errors.py' if kind in ('error-code', 'error-field') else 'python/oxidize_pdf/parse_events.py' if kind == 'event-field' else 'Cargo.toml' if kind == 'core' else 'tests/test_existing_document.py' if kind == 'test' else 'python/oxidize_pdf/_oxidize_pdf.pyi')
         source = path.read_text(encoding="utf-8")
         before, after = {
-            'core': ('=5.5.3', '=5.5.4'),
+            'core': ('=5.5.4', '=5.5.5'),
             'error-code': ("'unsupported_algorithm'", "'removed_algorithm'"),
             'error-field': ('offset: int', 'offset: str'),
             'event-field': ('    data: bytes', '    lost_data: bytes'),
