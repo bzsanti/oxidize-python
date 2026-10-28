@@ -1,0 +1,10 @@
+{
+  "Cargo.lock": "f5c69923ac60056974c3ee97350f7b3b87187928f13f60338be8981393ec3e26",
+  "Cargo.toml": "76d523290f13ada7bd18d4bd4606e4c59907af5f474dc40b848a093625f95855",
+  "README.md": "9dcb7f39806e5d015513a0da6e1ac24cd403a4e7b301443358d213318d12d8ab",
+  "docs/FEATURE_PARITY.md": "9233612547b2db9120375c7cdbfb85fbe898597846b6f89fdd77cd0a0d1902e4",
+  "docs/parity-contract.json": "331f6c2e06ecd4356fa5a214866138a367dfd4d9a3d7fa69c591e30519a55c72",
+  "tests/test_parity_checker.py": "89102d8768d418a94e81b341b7c08084f50c9c959fb877265f99b1127933f6f3",
+  "docs/UPSTREAM-5.5.3.md": "aed315e60a1f4c7a716b0a61e746c73dc54f49e1b1f35f6ac9fcda03ce5cacbf",
+  "tests/test_core_553_batch.py": "7a260170e63913fc06b2aadeab43beb1240f3330323f194f107576ac6da9a2bf"
+}

@@ -2,7 +2,7 @@
 
 # oxidize-pdf
 
-> Rust core pinned to **5.5.0**. See [compatibility and validation](docs/UPSTREAM-5.5.0.md).
+> Development pins Rust core **5.5.3**. See [compatibility and validation](docs/UPSTREAM-5.5.3.md).
 
 <!-- mcp-name: io.github.bzsanti/oxidize-pdf-mcp -->
 
