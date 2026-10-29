@@ -30,7 +30,10 @@ def inspect_package(package, python_binding=False):
     # Windows import libraries describe the platform ABI; they contain no
     # third-party C implementation. System FFI is distinct from bundled C.
     platform_import = name in WINDOWS_IMPORTS
-    interpreter_abi = python_binding and (name, package["version"], package.get("links")) == ("pyo3-ffi", "0.28.3", "python")
+    interpreter_abi = python_binding and (name, package["version"], package.get("links")) in {
+        ("pyo3-ffi", "0.29.2", "python"),
+        ("pyo3", "0.29.2", "pyo3-python"),
+    }
     if package.get("links") and not interpreter_abi and (name, package["version"], package["links"]) not in RUST_LINKS:
         errors.append(f"{name}: native links={package['links']}")
     root = Path(package["manifest_path"]).parent
