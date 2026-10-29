@@ -1,0 +1,119 @@
+[
+  {
+    "name": "crypto-bigint",
+    "version": "0.7.10",
+    "source": "registry+https://github.com/rust-lang/crates.io-index",
+    "checksum": "9c035cb64cba03dad2fb921f3e218785e8cf9a41790da5eb3a1400f62fa2be11",
+    "dependencies": [
+      "cpubits",
+      "ctutils",
+      "getrandom 0.4.2",
+      "hybrid-array",
+      "num-traits",
+      "rand_core 0.10.0",
+      "subtle",
+      "zeroize"
+    ]
+  },
+  {
+    "name": "oxidize-pdf",
+    "version": "5.5.4",
+    "source": "registry+https://github.com/rust-lang/crates.io-index",
+    "checksum": "360fa623da3712364af5cdf81645987edab40cb3f1fb2cce50eac1168534fc8d",
+    "dependencies": [
+      "aes",
+      "bitflags",
+      "cbc",
+      "chrono",
+      "cipher",
+      "cms",
+      "const-oid 0.9.6",
+      "crypto-bigint",
+      "der 0.7.10",
+      "ecdsa",
+      "flate2",
+      "lazy_static",
+      "libc",
+      "md5",
+      "memchr",
+      "num_cpus",
+      "oxidize-webpki",
+      "p256",
+      "p384",
+      "quick-xml",
+      "rand 0.10.0",
+      "regex",
+      "roxmltree",
+      "rsa",
+      "rustls-pki-types",
+      "rustls-webpki",
+      "serde",
+      "serde_json",
+      "sha2 0.10.9",
+      "spki 0.7.3",
+      "subtle",
+      "tempfile",
+      "thiserror",
+      "time",
+      "toml",
+      "tracing",
+      "unicode-normalization",
+      "webpki-roots",
+      "whatlang",
+      "winapi",
+      "x509-cert",
+      "zeroize"
+    ]
+  },
+  {
+    "name": "oxidize-webpki",
+    "version": "0.1.1",
+    "source": "registry+https://github.com/rust-lang/crates.io-index",
+    "checksum": "44189b801d3fb13e7415a050a98beb21d1da94311c04ed62699bfd2ce90566b1",
+    "dependencies": [
+      "crypto-bigint",
+      "der 0.7.10",
+      "ecdsa",
+      "ed25519-dalek",
+      "p256",
+      "p384",
+      "rsa",
+      "rustls-pki-types",
+      "sha2 0.10.9"
+    ]
+  },
+  {
+    "name": "pyo3",
+    "version": "0.28.3",
+    "source": "registry+https://github.com/rust-lang/crates.io-index",
+    "checksum": "91fd8e38a3b50ed1167fb981cd6fd60147e091784c427b8f7183a7ee32c31c12",
+    "dependencies": [
+      "libc",
+      "once_cell",
+      "portable-atomic",
+      "pyo3-build-config",
+      "pyo3-ffi",
+      "pyo3-macros"
+    ]
+  },
+  {
+    "name": "rustls-webpki",
+    "version": "0.103.16",
+    "source": "registry+https://github.com/rust-lang/crates.io-index",
+    "checksum": "4443b1b6d39d7c663139942cc4558262562d2c84123bb6282ef177009ca8b281",
+    "dependencies": [
+      "ring",
+      "rustls-pki-types",
+      "untrusted"
+    ]
+  },
+  {
+    "name": "webpki-roots",
+    "version": "1.0.11",
+    "source": "registry+https://github.com/rust-lang/crates.io-index",
+    "checksum": "f5f280bbb2b287bc8e7de7e3852945a0ff50d1bbcb5ed42b6c7a568c546df171",
+    "dependencies": [
+      "rustls-pki-types"
+    ]
+  }
+]

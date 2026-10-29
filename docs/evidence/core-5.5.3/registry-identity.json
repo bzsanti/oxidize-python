@@ -1,0 +1,9 @@
+{
+  "sha256": "ac23cc2913977d436332f433faa48686cbd9b096c7f45f36de8d8278d8715b5a",
+  "vcs": {
+    "git": {
+      "sha1": "7a4b7b854ed95b774b7f41ed2ee7be6a72683526"
+    },
+    "path_in_vcs": "oxidize-pdf-core"
+  }
+}

@@ -66,6 +66,23 @@ class NativeDependencyPolicyTests(unittest.TestCase):
             source.write_bytes(b"changed input")
             self.assertIn("native source input.c", inspect_package(self.package)[0])
 
+    def test_python_abi_exception_is_scoped_and_keeps_source_checks(self):
+        for name, links in (("pyo3-ffi", "python"), ("pyo3", "pyo3-python")):
+            with self.subTest(package=name):
+                self.package.update(name=name, version="0.29.2", links=links)
+                self.assertEqual(inspect_package(self.package, python_binding=True), [])
+                self.assertTrue(inspect_package(self.package))
+                self.package["version"] = "0.28.3"
+                self.assertTrue(inspect_package(self.package, python_binding=True))
+                self.package["version"] = "0.29.2"
+                self.package["links"] = "unexpected_native_library"
+                self.assertTrue(inspect_package(self.package, python_binding=True))
+                self.package["links"] = links
+                source = self.root / "crypto.c"
+                source.write_text("int x;")
+                self.assertIn("native source crypto.c", inspect_package(self.package, python_binding=True)[0])
+                source.unlink()
+
     def test_rayon_marker_requires_reviewed_version(self):
         self.package.update(name="rayon-core", version="1.13.0", links="rayon-core")
         self.assertEqual(inspect_package(self.package), [])
