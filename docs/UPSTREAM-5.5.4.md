@@ -29,7 +29,16 @@ No local path override is used as a substitute for the published dependency.
 
 [Review and validation evidence](evidence/core-5.5.4/review.md).
 
-The fresh audit also reports the preexisting PyO3 0.28.3 advisories
+## PyO3 correction for Python 0.23.1
+
+The original adoption audit reported PyO3 0.28.3 advisories
 RUSTSEC-2026-0176/0177, tracked in [#298](https://github.com/bzsanti/oxidize-python/issues/298).
-The adoption PR remains draft pending that separate security review. The existing
-RSA advisory is also still present; no new audit exclusion is introduced.
+The 0.23.1 candidate upgrades the full PyO3 family to 0.29.2. A fresh audit no
+longer reports either advisory. The existing RSA advisory and informational
+unsound/yanked warnings remain; no new audit exclusion is introduced.
+
+The corrected candidate passed 3,117 local tests with two pre-existing skips,
+Clippy, typing/parity and the native dependency policy. The wheel retains
+cp310-abi3 support. Platform CI and publication are tracked in
+[#299](https://github.com/bzsanti/oxidize-python/issues/299); local validation
+alone does not assert publication.
