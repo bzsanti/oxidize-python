@@ -1,0 +1,11 @@
+{
+  "version": "5.5.4",
+  "checksum": "360fa623da3712364af5cdf81645987edab40cb3f1fb2cce50eac1168534fc8d",
+  "vcs": {
+    "git": {
+      "sha1": "24bc1f844b3121f84edb17f00d9b90fdb7d27c10"
+    },
+    "path_in_vcs": "oxidize-pdf-core"
+  },
+  "yanked": false
+}
