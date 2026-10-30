@@ -1,0 +1,61 @@
+## Calidad de Tests (Kripteia)
+
+=== Kripteia Test Quality Report ===
+Overall Score: 100 | Tests: 5 | Files: 3
+
+--- Files ---
+Path                                                          Tests  Score
+--------------------------------------------------------------------------
+/tmp/oxidize-python-core555/src/parse_events.rs                   3    100
+/tmp/oxidize-python-core555/src/signature_errors.rs               1    100
+/tmp/oxidize-python-core555/src/streaming_options.rs              1    100
+
+--- Worst Offenders ---
+  preserves_nonempty_xref_and_large_offsets (/tmp/oxidize-python-core555/src/parse_events.rs:70) - Score: 100
+    i Test 'preserves_nonempty_xref_and_large_offsets' asserts against a hardcoded constant instead of a computed expected value
+    i Test 'preserves_nonempty_xref_and_large_offsets' has multiple assertions without diagnostic messages
+    i Test 'preserves_nonempty_xref_and_large_offsets' uses .unwrap() which silently discards error information
+  preserves_trailer_and_nonplaceholder_object (/tmp/oxidize-python-core555/src/parse_events.rs:144) - Score: 100
+    i Test 'preserves_trailer_and_nonplaceholder_object' asserts against a hardcoded constant instead of a computed expected value
+    i Test 'preserves_trailer_and_nonplaceholder_object' has multiple assertions without diagnostic messages
+    i Test 'preserves_trailer_and_nonplaceholder_object' uses .unwrap() which silently discards error information
+  preserves_binary_stream_bytes_without_decoding (/tmp/oxidize-python-core555/src/parse_events.rs:230) - Score: 100
+    i Test 'preserves_binary_stream_bytes_without_decoding' asserts against a hardcoded constant instead of a computed expected value
+    i Test 'preserves_binary_stream_bytes_without_decoding' has multiple assertions without diagnostic messages
+    i Test 'preserves_binary_stream_bytes_without_decoding' uses .unwrap() which silently discards error information
+  preserves_all_signature_variants_and_fields (/tmp/oxidize-python-core555/src/signature_errors.rs:78) - Score: 100
+    i Test 'preserves_all_signature_variants_and_fields' uses .unwrap() which silently discards error information
+  configured_buffers_and_eager_loading_change_real_io (/tmp/oxidize-python-core555/src/streaming_options.rs:488) - Score: 100
+    i Test 'configured_buffers_and_eager_loading_change_real_io' asserts against a hardcoded constant instead of a computed expected value
+    i Test 'configured_buffers_and_eager_loading_change_real_io' uses .unwrap() which silently discards error information
+
+--- Details ---
+/tmp/oxidize-python-core555/src/parse_events.rs:
+  preserves_nonempty_xref_and_large_offsets (line 70) - Score: 100
+    i Test 'preserves_nonempty_xref_and_large_offsets' asserts against a hardcoded constant instead of a computed expected value
+    i Test 'preserves_nonempty_xref_and_large_offsets' has multiple assertions without diagnostic messages
+    i Test 'preserves_nonempty_xref_and_large_offsets' uses .unwrap() which silently discards error information
+  preserves_trailer_and_nonplaceholder_object (line 144) - Score: 100
+    i Test 'preserves_trailer_and_nonplaceholder_object' asserts against a hardcoded constant instead of a computed expected value
+    i Test 'preserves_trailer_and_nonplaceholder_object' has multiple assertions without diagnostic messages
+    i Test 'preserves_trailer_and_nonplaceholder_object' uses .unwrap() which silently discards error information
+  preserves_binary_stream_bytes_without_decoding (line 230) - Score: 100
+    i Test 'preserves_binary_stream_bytes_without_decoding' asserts against a hardcoded constant instead of a computed expected value
+    i Test 'preserves_binary_stream_bytes_without_decoding' has multiple assertions without diagnostic messages
+    i Test 'preserves_binary_stream_bytes_without_decoding' uses .unwrap() which silently discards error information
+
+/tmp/oxidize-python-core555/src/signature_errors.rs:
+  preserves_all_signature_variants_and_fields (line 78) - Score: 100
+    i Test 'preserves_all_signature_variants_and_fields' uses .unwrap() which silently discards error information
+
+/tmp/oxidize-python-core555/src/streaming_options.rs:
+  configured_buffers_and_eager_loading_change_real_io (line 488) - Score: 100
+    i Test 'configured_buffers_and_eager_loading_change_real_io' asserts against a hardcoded constant instead of a computed expected value
+    i Test 'configured_buffers_and_eager_loading_change_real_io' uses .unwrap() which silently discards error information
+
+
+## Analisis de Seguridad (Kripteia Security)
+
+=== Kripteia Security Analysis ===
+
+No security issues found.

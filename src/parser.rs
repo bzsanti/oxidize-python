@@ -627,30 +627,33 @@ impl PyPdfReader {
     /// Extract text chunks with positional information from a page.
     ///
     /// Returns a list of ``TextChunk`` objects, each with ``text``, ``x``,
-    /// ``y``, ``font_size``, and ``font_name`` attributes.
+    /// ``y``, ``font_size``, and ``font_name`` attributes. Text uses page font
+    /// mappings (including ToUnicode); positions and sizes include page content
+    /// transforms. Chunk boundaries follow extraction fragments in content order.
+    /// Artifact and figure text are included.
     fn extract_text_chunks(&mut self, py: Python<'_>, index: u32) -> PyResult<Vec<PyTextChunk>> {
         self.ensure_document()?;
 
-        // #115 Capa C: get the page, its content streams, and run the text
-        // streamer without holding the GIL. Errors are unified to String inside
-        // the closure (PyErr is not Ungil and cannot cross the detach boundary).
+        // Resolve fonts, ToUnicode and transforms through the page-aware core path.
+        // Chunk boundaries follow extraction fragments, not raw PDF byte strings.
         let chunks = py
             .detach(|| {
-                let page = with_document_mut!(self, doc => doc.get_page(index))
-                    .map_err(|e| e.to_string())?;
-                let streams = with_document_mut!(self, doc => doc.get_page_content_streams(&page))
-                    .map_err(|e| e.to_string())?;
-                let mut streamer =
-                    oxidize_pdf::TextStreamer::new(oxidize_pdf::TextStreamOptions::default());
-                let mut chunks = Vec::new();
-                for stream_data in &streams {
-                    let mut page_chunks =
-                        streamer.process_chunk(stream_data).map_err(|e| e.to_string())?;
-                    chunks.append(&mut page_chunks);
-                }
-                Ok::<_, String>(chunks)
+                with_document_mut!(self, doc => {
+                    let mut extractor = oxidize_pdf::text::TextExtractor::with_options(
+                        oxidize_pdf::text::ExtractionOptions {
+                            preserve_layout: true,
+                            include_artifacts: true,
+                            sort_by_position: false,
+                            ..Default::default()
+                        },
+                    )
+                    .with_unreliable_figure_text(true);
+                    extractor
+                        .extract_from_page(doc, index)
+                        .map(|result| result.fragments)
+                })
             })
-            .map_err(pyo3::exceptions::PyValueError::new_err)?;
+            .map_err(|error| pyo3::exceptions::PyValueError::new_err(error.to_string()))?;
 
         Ok(chunks
             .into_iter()
