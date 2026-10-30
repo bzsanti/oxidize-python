@@ -1,0 +1,48 @@
+{
+  "module": "/tmp/oxidize-python-core555/python/oxidize_pdf/__init__.py",
+  "core": "published registry 5.5.5",
+  "results": [
+    {
+      "file": "JPMORGAN_2022_10K.pdf",
+      "sha256": "c269899950f36edfa496e3c8447a51d86d0a206442a96dc24dcd9317d55b957c",
+      "page": 2,
+      "checks": {
+        "default": {
+          "dates": 2,
+          "no_nul": true
+        },
+        "reading_order": {
+          "dates": 2,
+          "no_nul": true
+        },
+        "chunks": {
+          "dates": 2,
+          "no_nul": true
+        }
+      },
+      "chunks": 197
+    },
+    {
+      "file": "AMERICANEXPRESS_2022_10K.pdf",
+      "sha256": "d3bbc7ab23d6160e07eab50a359e4d68c40efff9fde3baa168e7c40e06f568e6",
+      "page": 154,
+      "checks": {
+        "default": {
+          "years_separated": [
+            "2022",
+            "2021",
+            "2020"
+          ]
+        },
+        "reading_order": {
+          "years_separated": [
+            "2022",
+            "2021",
+            "2020"
+          ]
+        }
+      },
+      "chunks": 1340
+    }
+  ]
+}
