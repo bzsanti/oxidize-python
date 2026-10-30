@@ -1,0 +1,23 @@
+## Calidad de Tests (Kripteia)
+
+=== Kripteia Test Quality Report ===
+Overall Score: 100 | Tests: 6 | Files: 1
+
+--- Files ---
+Path                                                          Tests  Score
+--------------------------------------------------------------------------
+...ython-core555/tests/test_issue_301_font_aware_chunks.py        6    100
+
+--- Worst Offenders ---
+  test_chunks_decode_tounicode_sequences_with_page_geometry (/tmp/oxidize-python-core555/tests/test_issue_301_font_aware_chunks.py:36) - Score: 100
+  test_chunks_preserve_simple_font_text_and_empty_pages (/tmp/oxidize-python-core555/tests/test_issue_301_font_aware_chunks.py:46) - Score: 100
+  test_chunks_reject_page_out_of_range (/tmp/oxidize-python-core555/tests/test_issue_301_font_aware_chunks.py:52) - Score: 100
+  test_chunks_keep_content_order_and_coordinate_association (/tmp/oxidize-python-core555/tests/test_issue_301_font_aware_chunks.py:58) - Score: 100
+  test_chunks_preserve_artifact_text (/tmp/oxidize-python-core555/tests/test_issue_301_font_aware_chunks.py:65) - Score: 100
+
+
+## Analisis de Seguridad (Kripteia Security)
+
+=== Kripteia Security Analysis ===
+
+No security issues found.

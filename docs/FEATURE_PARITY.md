@@ -1,10 +1,7 @@
-# Current core adoption — 5.5.4, 2026-10-28
+# Current core adoption — 5.5.5, 2026-10-30
 
-Development now pins core =5.5.4 under #296. This dependency update does not
-publish a new binding package or establish full API parity. The existing binding
-surface and feature flags remain unchanged. Current validation is recorded in
-[core compatibility notes](UPSTREAM-5.5.4.md); older checkpoints below describe
-their original core versions and do not establish current upstream blockers.
+The exact registry pin is =5.5.5, tracked in #303. This update preserves the existing API surface and feature selection; it does not establish full upstream parity.
+[Compatibility and validation](UPSTREAM-5.5.5.md). Historical checkpoints follow.
 
 # Current parity target — Rust 5.5.0
 
