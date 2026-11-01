@@ -2,6 +2,8 @@
 
 # oxidize-pdf
 
+[Docs7 guides](docs/site/index.mdx) · [Context7 usage](docs/site/context7.mdx) · [Documentation publishing and indexing](docs/CONTEXT7.md)
+
 > Version 0.23.3 pins Rust core **5.5.5**. See [compatibility and validation](docs/UPSTREAM-5.5.5.md).
 
 <!-- mcp-name: io.github.bzsanti/oxidize-pdf-mcp -->
