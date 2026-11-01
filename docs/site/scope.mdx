@@ -1,0 +1,13 @@
+---
+title: "Versions and capability limits"
+description: "Package versions, the native extension and the optional PDF MCP server."
+---
+
+These pages target **Python package 0.23.3**, using Rust core **5.5.5**. Python imports use `oxidize_pdf`; the PyPI distribution is named `oxidize-pdf`.
+
+- Use the Python API and its shipped type stubs. Rust methods and Cargo feature switches are not automatically Python APIs.
+- Native wheels are platform-specific. Check the [0.23.3 files](https://pypi.org/project/oxidize-pdf/0.23.3/#files) for your Python and operating system.
+- Text extraction does not recover text from scans without an OCR step.
+- Complete bridge parity remains tracked in [Python #244](https://github.com/bzsanti/oxidize-python/issues/244). These introductory guides do not claim to document every capability.
+
+The optional `oxidize-pdf[mcp]` extra provides a local MCP server that performs PDF operations. Context7 supplies documentation to assistants. Installing one does not configure the other. See the [versioned MCP migration guide](https://github.com/bzsanti/oxidize-python/blob/v0.23.3/docs/MCP-V2-MIGRATION.md) for the PDF server.

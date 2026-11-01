@@ -1,0 +1,55 @@
+{
+  "$schema": "https://context7.com/schema/context7.json",
+  "projectTitle": "oxidize-pdf for Python",
+  "description": "Python bindings for PDF generation, reading and document operations using the oxidize-pdf Rust core.",
+  "branch": "main",
+  "folders": [
+    "docs/site"
+  ],
+  "excludeFolders": [
+    "docs/reports",
+    "docs/evidence",
+    "docs/plans",
+    "node_modules"
+  ],
+  "excludeFiles": [
+    "CODE_OF_CONDUCT.md",
+    "CONTRIBUTING.md",
+    "PUBLISHING.md",
+    "README.md",
+    "SECURITY.md",
+    "RELEASE-NOTES-v0.10.0.md",
+    "RELEASE-NOTES-v0.11.0.md",
+    "RELEASE-NOTES-v0.12.0.md",
+    "RELEASE-NOTES-v0.13.0.md",
+    "RELEASE-NOTES-v0.14.0.md",
+    "RELEASE-NOTES-v0.15.1.md",
+    "RELEASE-NOTES-v0.16.0.md",
+    "RELEASE-NOTES-v0.17.0.md",
+    "RELEASE-NOTES-v0.18.0.md",
+    "RELEASE-NOTES-v0.19.0.md",
+    "RELEASE-NOTES-v0.2.1.md",
+    "RELEASE-NOTES-v0.20.0.md",
+    "RELEASE-NOTES-v0.20.1.md",
+    "RELEASE-NOTES-v0.21.0.md",
+    "RELEASE-NOTES-v0.21.1.md",
+    "RELEASE-NOTES-v0.22.0.md",
+    "RELEASE-NOTES-v0.23.0.md",
+    "RELEASE-NOTES-v0.23.1.md",
+    "RELEASE-NOTES-v0.23.2.md",
+    "RELEASE-NOTES-v0.23.3.md",
+    "RELEASE-NOTES-v0.5.0.md",
+    "RELEASE-NOTES-v0.5.2.md",
+    "RELEASE-NOTES-v0.6.0.md",
+    "RELEASE-NOTES-v0.7.0.md",
+    "RELEASE-NOTES-v0.8.0.md",
+    "RELEASE-NOTES-v0.9.0.md",
+    "AGENTS.md",
+    "TASKS.md",
+    "CLAUDE.md"
+  ],
+  "rules": [
+    "Use the Python API documented for the installed package version.",
+    "These guides target 0.23.3; do not assume develop-only changes are released."
+  ]
+}
