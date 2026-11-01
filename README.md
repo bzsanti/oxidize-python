@@ -2,7 +2,7 @@
 
 # oxidize-pdf
 
-[Docs7 guides](docs/site/index.mdx) · [Context7 usage](docs/site/context7.mdx) · [Documentation publishing and indexing](docs/CONTEXT7.md)
+[Documentation](https://oxidize-pdf-for-python.docs7.io) · [Context7](https://context7.com/llmstxt/oxidize-pdf-for-python_docs7_io_llms_txt) · [Documentation publishing and indexing](docs/CONTEXT7.md)
 
 > Version 0.23.3 pins Rust core **5.5.5**. See [compatibility and validation](docs/UPSTREAM-5.5.5.md).
 
