@@ -1,0 +1,48 @@
+---
+title: "Install, create and read a PDF"
+description: "A complete Python example using oxidize-pdf 0.23.3."
+---
+
+Use CPython 3.10 or newer in a virtual environment:
+
+```bash
+python -m venv .venv
+# Activate .venv with the command appropriate to your shell.
+python -m pip install "oxidize-pdf==0.23.3"
+```
+
+Save the following as `hello.py`. It creates a PDF in the working directory, reopens it and prints the page text.
+
+```python
+from oxidize_pdf import Document, Font, Page, PdfReader
+
+document = Document()
+page = Page.a4()
+page.set_font(Font.HELVETICA, 18.0)
+page.text_at(72.0, 750.0, "Hello from oxidize-pdf!")
+document.add_page(page)
+document.save("hello.pdf")
+
+reader = PdfReader.open("hello.pdf")
+for text in reader.extract_text():
+    print(text)
+```
+
+Run `python hello.py`. The output should contain `Hello from oxidize-pdf!`.
+
+Coordinates use PDF points (72 points per inch), with the origin at the bottom left for this page. Extraction reads a text layer; this example does not perform OCR on scanned images.
+
+For inputs supplied by a caller, handle the package's errors explicitly:
+
+```python
+from oxidize_pdf import PdfError, PdfIoError, PdfParseError, PdfReader
+
+try:
+    reader = PdfReader.open("missing.pdf")
+except PdfIoError as error:
+    print(f"Cannot read file: {error}")
+except PdfParseError as error:
+    print(f"Cannot parse PDF: {error}")
+except PdfError as error:
+    print(f"PDF operation failed: {error}")
+```

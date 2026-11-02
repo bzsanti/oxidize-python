@@ -2,7 +2,9 @@
 
 # oxidize-pdf
 
-> Version 0.23.3 pins Rust core **5.5.5**. See [compatibility and validation](docs/UPSTREAM-5.5.5.md).
+[Documentation](https://oxidize-pdf-for-python.docs7.io) · [Context7](https://context7.com/llmstxt/oxidize-pdf-for-python_docs7_io_llms_txt) · [Documentation publishing and indexing](docs/CONTEXT7.md)
+
+> Version 0.23.4 pins Rust core **5.5.6**. See [compatibility and validation](docs/UPSTREAM-5.5.6.md).
 
 <!-- mcp-name: io.github.bzsanti/oxidize-pdf-mcp -->
 
@@ -29,10 +31,10 @@ pip install "oxidize-pdf[mcp]"     # + MCP server for AI agents
 **Platforms:** Linux (x86_64, aarch64) | macOS (x86_64, Apple Silicon) | Windows (x86_64)
 **Requires:** Python 3.10+
 
-Version 0.23.3 pins Rust core **5.5.5**, using the MIT-licensed `oxidize-webpki`
+Version 0.23.4 pins Rust core **5.5.6**, using the MIT-licensed `oxidize-webpki`
 RustCrypto provider for certificate verification. See the
 [dependency policy](docs/NO-NATIVE-CRYPTO.md) for supported builds and limits.
-[0.23.3 release notes](RELEASE-NOTES-v0.23.3.md) describe the core fixes and font-aware text chunks.
+[0.23.4 release notes](RELEASE-NOTES-v0.23.4.md) describe the signed-field permission fixes.
 New APIs include explicit text recovery, non-breaking-space normalization,
 build identification controls and incremental signature slots. See the
 [API guide and validation](docs/UPSTREAM-5.4.1.md).
