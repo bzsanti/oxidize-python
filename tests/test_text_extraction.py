@@ -48,7 +48,7 @@ class TestExtractionOptions:
         assert opts.merge_hyphenated is True
         assert opts.track_space_decisions is False
         # New in oxidize-pdf 2.10.0
-        assert opts.tj_space_threshold == pytest.approx(0.2)
+        assert opts.tj_space_threshold == pytest.approx(0.17)
         assert opts.reconstruct_paragraphs is False
         assert opts.include_artifacts is False
 
@@ -120,7 +120,7 @@ class TestPlainTextConfig:
         assert cfg.newline_threshold == pytest.approx(10.0)
         assert cfg.preserve_layout_flag is False
         # New in oxidize-pdf 2.10.0
-        assert cfg.tj_space_threshold == pytest.approx(0.2)
+        assert cfg.tj_space_threshold == pytest.approx(0.17)
 
     def test_dense_preset(self):
         cfg = op.PlainTextConfig.dense()

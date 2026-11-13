@@ -50,6 +50,12 @@ pub struct PyExtractionOptions {
     #[pyo3(get)]
     pub reading_order: bool,
     #[pyo3(get)]
+    pub visual_line_order: bool,
+    #[pyo3(get)]
+    pub incomplete_tounicode_encoding_fallback: bool,
+    #[pyo3(get)]
+    pub include_annotation_appearances: bool,
+    #[pyo3(get)]
     pub carriage_return_handling: PyCarriageReturnHandling,
 }
 
@@ -60,6 +66,9 @@ impl PyExtractionOptions {
             .with_unreliable_figure_text(self.include_unreliable_figure_text)
             .with_non_breaking_space_normalization(self.normalize_non_breaking_spaces)
             .with_reading_order(self.reading_order)
+            .with_visual_line_order(self.visual_line_order)
+            .with_incomplete_tounicode_encoding_fallback(self.incomplete_tounicode_encoding_fallback)
+            .with_annotation_appearance_extraction(self.include_annotation_appearances)
             .with_carriage_return_handling(self.carriage_return_handling.core())
     }
 }
@@ -76,7 +85,7 @@ impl PyExtractionOptions {
         column_threshold = 50.0,
         merge_hyphenated = true,
         track_space_decisions = false,
-        tj_space_threshold = 0.2,
+        tj_space_threshold = 0.17,
         reconstruct_paragraphs = false,
         include_artifacts = false,
         max_extracted_bytes = None,
@@ -87,6 +96,9 @@ impl PyExtractionOptions {
         reorder_columns = false,
         reading_order = false,
         carriage_return_handling = PyCarriageReturnHandling::REMOVE,
+        visual_line_order = false,
+        incomplete_tounicode_encoding_fallback = false,
+        include_annotation_appearances = false,
     ))]
     #[allow(clippy::too_many_arguments)]
     fn new(
@@ -108,6 +120,9 @@ impl PyExtractionOptions {
         reorder_columns: bool,
         reading_order: bool,
         carriage_return_handling: PyCarriageReturnHandling,
+        visual_line_order: bool,
+        incomplete_tounicode_encoding_fallback: bool,
+        include_annotation_appearances: bool,
     ) -> Self {
         Self {
             inner: ExtractionOptions {
@@ -130,6 +145,9 @@ impl PyExtractionOptions {
             normalize_non_breaking_spaces,
             reading_order,
             carriage_return_handling,
+            visual_line_order,
+            incomplete_tounicode_encoding_fallback,
+            include_annotation_appearances,
         }
     }
 
@@ -193,7 +211,7 @@ impl PyExtractionOptions {
     /// Threshold for synthesising an implicit U+0020 from a TJ numeric
     /// kerning offset, expressed as a fraction of the font size.
     ///
-    /// Default ``0.2`` (200 milli-em). Set to ``0.0`` to disable TJ-kern
+    /// Default ``0.17`` (170 milli-em). Set to ``0.0`` to disable TJ-kern
     /// space synthesis entirely (the extractor will never insert a space
     /// purely from a numeric kern; only literal whitespace bytes count).
     /// Useful tuning range is typically ``0.05`` (very aggressive, more
@@ -307,7 +325,7 @@ impl PyPlainTextConfig {
         newline_threshold = 10.0,
         preserve_layout = false,
         line_break_mode = None,
-        tj_space_threshold = 0.2,
+        tj_space_threshold = 0.17,
     ))]
     fn new(
         space_threshold: f64,
@@ -370,7 +388,7 @@ impl PyPlainTextConfig {
     /// kerning offset, expressed as a fraction of the font size.
     ///
     /// Mirrors :attr:`ExtractionOptions.tj_space_threshold`. Default
-    /// ``0.2`` (``0.1`` for the ``dense()`` preset, ``0.25`` for
+    /// ``0.17`` (``0.1`` for the ``dense()`` preset, ``0.25`` for
     /// ``loose()``). Set to ``0.0`` to disable TJ-kern space synthesis.
     ///
     /// New in oxidize-pdf 2.10.0 (issue #272).

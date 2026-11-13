@@ -800,7 +800,7 @@ class ExtractionOptions:
         column_threshold: float = 50.0,
         merge_hyphenated: bool = True,
         track_space_decisions: bool = False,
-        tj_space_threshold: float = 0.2,
+        tj_space_threshold: float = 0.17,
         reconstruct_paragraphs: bool = False,
         include_artifacts: bool = False,
         max_extracted_bytes: int | None = None,
@@ -811,6 +811,9 @@ class ExtractionOptions:
         reorder_columns: bool = False,
         reading_order: bool = False,
         carriage_return_handling: CarriageReturnHandling = CarriageReturnHandling.REMOVE,
+        visual_line_order: bool = False,
+        incomplete_tounicode_encoding_fallback: bool = False,
+        include_annotation_appearances: bool = False,
     ) -> None: ...
     @property
     def preserve_layout(self) -> bool: ...
@@ -842,6 +845,12 @@ class ExtractionOptions:
     def include_unreliable_figure_text(self) -> bool: ...
     @property
     def normalize_non_breaking_spaces(self) -> bool: ...
+    @property
+    def visual_line_order(self) -> bool: ...
+    @property
+    def incomplete_tounicode_encoding_fallback(self) -> bool: ...
+    @property
+    def include_annotation_appearances(self) -> bool: ...
     def __repr__(self) -> str: ...
 
 class SpaceDecision:
