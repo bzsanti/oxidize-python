@@ -72,6 +72,9 @@ impl PyRecoveredText {
                     RecoveryLocation::FormXObject { name, object } => {
                         ("form_xobject", None, Some(name), Some(object))
                     }
+                    RecoveryLocation::AnnotationAppearance { object } => {
+                        ("annotation_appearance", None, None, Some(object))
+                    }
                     _ => return Err(PdfError::new_err("Unsupported recovery location")),
                 };
                 let (action, filter_index, kind, error) = match d.action {
