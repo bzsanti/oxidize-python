@@ -1,5 +1,6 @@
 """Published-core AES contract, checked through Python and independent qpdf."""
 import ctypes.util
+import os
 from pathlib import Path
 import shutil
 import subprocess
@@ -7,6 +8,17 @@ import sys
 
 import pytest
 import oxidize_pdf as p
+
+
+@pytest.fixture(scope='session')
+def entropy_interposer(tmp_path_factory):
+    compiler = shutil.which('cc')
+    assert compiler, 'Linux entropy fault injection requires a C compiler'
+    library = tmp_path_factory.mktemp('entropy-injector') / 'entropy.so'
+    subprocess.run([compiler, '-shared', '-fPIC', '-std=c11', '-Wall', '-Wextra',
+                    '-Werror', str(Path(__file__).parent / 'helpers/entropy_interposer.c'),
+                    '-o', str(library), '-ldl'], check=True, capture_output=True)
+    return library
 
 
 @pytest.mark.parametrize('strength', ['AES_128', 'AES_256'])
@@ -33,13 +45,15 @@ def test_aes_ciphertext_and_independent_decryption(strength, tmp_path):
 @pytest.mark.skipif(sys.platform != 'linux' or not ctypes.util.find_library('seccomp'), reason='fault injection requires Linux libseccomp')
 @pytest.mark.parametrize('strength', ['AES_128', 'AES_256'])
 @pytest.mark.parametrize('output', ['bytes', 'file'])
-def test_aes_entropy_failure_is_python_error_without_valid_output(strength, output, tmp_path):
+def test_aes_entropy_failure_is_python_error_without_valid_output(strength, output, tmp_path, entropy_interposer):
     """Deny OS entropy only in a child; exercise the actual native extension."""
     path = tmp_path / 'failed.pdf'
     command = [sys.executable, str(Path(__file__).parent / 'helpers/aes_entropy_failure.py'), strength]
     if output == 'file':
         command.append(str(path))
-    result = subprocess.run(command, capture_output=True, text=True, timeout=30)
+    env = os.environ.copy()
+    env['LD_PRELOAD'] = str(entropy_interposer)
+    result = subprocess.run(command, capture_output=True, text=True, timeout=30, env=env)
     assert result.returncode == 0, result.stdout + result.stderr
     assert 'PdfEncryptionError' in result.stdout
     assert 'secure entropy unavailable for AES IV' in result.stdout
