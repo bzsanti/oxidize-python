@@ -18,7 +18,7 @@ def tagged_pdf(*, owner=6, language=True, tagged=True, cycle=False, compressed=F
     objects = [
         b'<< /Type /Catalog /Pages 2 0 R ' + (b'/StructTreeRoot 5 0 R ' if tagged else b'') + (b'/Lang (en-US)' if language else b'') + b' >>',
         b'<< /Type /Pages /Count 1 /Kids [3 0 R] >>',
-        b'<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /StructParents 0 /Contents 4 0 R >>',
+        b'<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << >> /StructParents 0 /Contents 4 0 R >>',
         b'<< /Length ' + str(len(content)).encode() + (b' /Filter /FlateDecode' if compressed else b'') + b' >>\nstream\n' + content + b'\nendstream',
         b'<< /Type /StructTreeRoot /K [6 7 R] /ParentTree 7 0 R /RoleMap << /CustomP /P >> /ClassMap << /C1 << /O /Layout /Vendor <00ff> >> >> >>',
         b'<< /Type /StructElem /S /CustomP /P 5 0 R /Pg 3 0 R /Lang (es) /Alt (alternative) /ActualText (actual) /T (title) /Vendor << /Raw <00ff> /Flag true >> /K [' + (b'6 7 R' if cycle else b'<< /Type /MCR /Pg 3 0 R /MCID 0 >>') + b'] >>',

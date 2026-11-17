@@ -12,12 +12,12 @@ import oxidize_pdf as p
 
 @pytest.fixture(scope='session')
 def entropy_interposer(tmp_path_factory):
-    compiler = shutil.which('cc')
-    assert compiler, 'Linux entropy fault injection requires a C compiler'
+    compiler = shutil.which('rustc')
+    assert compiler, 'Linux entropy fault injection requires rustc'
     library = tmp_path_factory.mktemp('entropy-injector') / 'entropy.so'
-    subprocess.run([compiler, '-shared', '-fPIC', '-std=c11', '-Wall', '-Wextra',
-                    '-Werror', str(Path(__file__).parent / 'helpers/entropy_interposer.c'),
-                    '-o', str(library), '-ldl'], check=True, capture_output=True)
+    subprocess.run([compiler, '--crate-type', 'cdylib', '--edition', '2021', '-Dwarnings',
+                    str(Path(__file__).parent / 'helpers/entropy_interposer.rs'),
+                    '-o', str(library)], check=True, capture_output=True)
     return library
 
 
